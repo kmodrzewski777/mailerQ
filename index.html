@@ -449,7 +449,7 @@
      artefaktu). Sekcja zostaje widoczna jako zapowiedź, ale w pełni
      nieaktywna, dopóki nie będzie realnej ścieżki wywołania AI. */
   textarea.code:disabled{opacity:.55; cursor:not-allowed; resize:none}
-  .bf-field input[type="text"], .bf-field input[type="number"], .bf-field input[type="datetime-local"], .bf-field select{
+  .bf-field input[type="text"], .bf-field input[type="number"], .bf-field input[type="datetime-local"], .bf-field input[type="email"], .bf-field input[type="password"], .bf-field select{
     border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:12.5px;
     background:var(--surface); color:var(--ink); font-family:inherit; width:100%; box-sizing:border-box;
   }
@@ -460,7 +460,7 @@
      jest renderowany przez system/przeglądarkę i poza tym nie da się go
      ostylować z poziomu CSS. */
   .bf-field input[type="datetime-local"]{ accent-color:var(--accent); color-scheme:light }
-  .bf-field input[type="text"]:focus, .bf-field input[type="number"]:focus, .bf-field input[type="datetime-local"]:focus, .bf-field select:focus, .bf-color-swatch:focus-visible{ outline:2px solid var(--accent); outline-offset:1px }
+  .bf-field input[type="text"]:focus, .bf-field input[type="number"]:focus, .bf-field input[type="datetime-local"]:focus, .bf-field input[type="email"]:focus, .bf-field input[type="password"]:focus, .bf-field select:focus, .bf-color-swatch:focus-visible{ outline:2px solid var(--accent); outline-offset:1px }
   .bf-color-field{display:flex; align-items:center; gap:6px}
   .bf-color-field input[type="color"]{width:30px; height:26px; border:1px solid var(--line); border-radius:4px; padding:0; background:none; flex:none}
   .bf-color-field input[type="text"]{flex:1; min-width:0}
@@ -628,6 +628,39 @@
       <button class="btn ghost small" id="brandEditBtn" type="button">Edit</button>
       <button class="btn small" id="brandAddBtn" type="button">Add</button>
       <button class="icon-btn icon-btn-crm-settings" id="crmSettingsTopbarBtn" type="button" title="Site settings" aria-label="Site settings">&#9881;</button>
+      <button class="btn ghost small" id="authUserBtn" type="button" title="Log out" style="display:none"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Blokada dostępu — user: "Stwórz mi panel logowania i rejestracji
+     kont", "ma być automatyczny", wiele osób z osobnymi kontami. Nie jest
+     to `.overlay`/`.modal` z reszty apki (te są zamykalne przez tło/Escape)
+     — to twarda brama, widoczna od razu w HTML (żeby nie było mrugnięcia
+     niezalogowaną appką pod spodem), chowana WYŁĄCZNIE przez
+     window.MQBoot po realnym potwierdzeniu zalogowania (patrz koniec
+     głównego skryptu app + moduł Firebase poniżej). Przycisk startuje
+     zablokowany "Loading…", odblokowuje go dopiero showAuthGate, wołane
+     przez moduł Firebase gdy auth SDK faktycznie się zainicjował. -->
+<div id="authGate" style="position:fixed;inset:0;z-index:9999;background:var(--paper);display:flex;align-items:center;justify-content:center;padding:24px">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-head">
+      <h3 id="authGateTitle">Log in</h3>
+    </div>
+    <div class="modal-body">
+      <div class="bf-field" style="margin-bottom:12px">
+        <label for="authEmail">Email</label>
+        <input type="email" id="authEmail" autocomplete="username">
+      </div>
+      <div class="bf-field">
+        <label for="authPassword">Password</label>
+        <input type="password" id="authPassword" autocomplete="current-password">
+      </div>
+      <p id="authError" style="color:#b42318; font-size:12.5px; margin:10px 0 0; display:none"></p>
+      <div class="bf-actions" style="justify-content:space-between; align-items:center">
+        <button type="button" class="btn-preview" id="authModeToggle">Need an account? Register</button>
+        <button type="button" class="btn" id="authSubmitBtn" disabled>Loading…</button>
+      </div>
     </div>
   </div>
 </div>
@@ -5076,10 +5109,22 @@ function applyBackupPayload(payload){
   if(payload.favoriteComponents) state.favoriteComponents = payload.favoriteComponents;
   if(payload.favoriteEmails) state.favoriteEmails = payload.favoriteEmails;
 }
+var mqSaveTimer = null;
 function saveToStorage(){
   try{
     localStorage.setItem(STORAGE_KEY, JSON.stringify(buildBackupPayload()));
   }catch(e){ /* localStorage niedostępne (np. tryb prywatny/incognito) — po prostu nie zapisujemy */ }
+  // Auto-zapis do Firestore (user: "ma być automatyczny") — debounce 800ms,
+  // żeby seria szybkich zmian (np. pisanie w polu tekstowym) nie odpalała
+  // osobnego zapisu do bazy przy KAŻDYM keydownie. localStorage powyżej
+  // zapisuje się zawsze, natychmiast — Firestore jest "dodatkiem", nie
+  // zastępuje lokalnej kopii.
+  if(window.MQStore){
+    clearTimeout(mqSaveTimer);
+    mqSaveTimer = setTimeout(function(){
+      window.MQStore.save(buildBackupPayload()).catch(function(){ showToast("Couldn't sync to the database — check your connection"); });
+    }, 800);
+  }
 }
 function loadFromStorage(){
   try{
@@ -9169,7 +9214,175 @@ function syncModalScrollLock(){
   syncModalScrollLock();
 })();
 
-loadFromStorage();
-renderAll();
+/* ================================================================
+   LOGOWANIE / REJESTRACJA — most do modułu Firebase (patrz <script
+   type="module"> tuż pod tym <script>, ładowany z window.MQAuth/
+   window.MQStore). Moduły ES są zawsze deferred (wykonują się PO
+   sparsowaniu całego dokumentu), więc w momencie gdy TEN klasyczny
+   <script> się wykonuje, window.MQAuth jeszcze nie istnieje — stąd
+   most w drugą stronę: klasyczny skrypt wystawia window.MQBoot/
+   window.MQShowGate, a moduł Firebase (gdy już będzie gotowy) SAM je
+   woła, zamiast odwrotnie. user: "Stwórz mi panel logowania i
+   rejestracji kont", "ma być automatyczny" (auto-zapis), wiele osób
+   z osobnymi kontami — stąd wspólny, jeden dokument w Firestore
+   (workspaces/shared), do którego ma dostęp KAŻDE zalogowane konto
+   (patrz reguły Firestore, muszą być ustawione ręcznie w konsoli). */
+function showAuthGate(){
+  byId("authGate").style.display = "flex";
+  byId("authUserBtn").style.display = "none";
+  setAuthMode("login");
+  byId("authSubmitBtn").disabled = false;
+  byId("authEmail").focus();
+}
+function hideAuthGate(){ byId("authGate").style.display = "none"; }
+var authMode = "login";
+function setAuthMode(mode){
+  authMode = mode;
+  byId("authGateTitle").textContent = mode==="login" ? "Log in" : "Create account";
+  byId("authSubmitBtn").textContent = mode==="login" ? "Log in" : "Register";
+  byId("authModeToggle").textContent = mode==="login" ? "Need an account? Register" : "Already have an account? Log in";
+  byId("authError").style.display = "none";
+}
+byId("authModeToggle").addEventListener("click", function(){ setAuthMode(authMode==="login"?"register":"login"); });
+function authShowError(msg){
+  var el = byId("authError");
+  el.textContent = msg;
+  el.style.display = "";
+}
+// Kody błędów Firebase Auth -> zrozumiały komunikat (angielski, spójnie
+// z resztą chrome apki — polski zostaje tylko w komentarzach/treści maili).
+var AUTH_ERROR_MESSAGES = {
+  "auth/invalid-email": "That doesn't look like a valid email address.",
+  "auth/user-not-found": "No account with that email — try registering instead.",
+  "auth/wrong-password": "Wrong password.",
+  "auth/invalid-credential": "Wrong email or password.",
+  "auth/email-already-in-use": "An account with that email already exists — try logging in instead.",
+  "auth/weak-password": "Password must be at least 6 characters.",
+  "auth/too-many-requests": "Too many attempts — wait a moment and try again."
+};
+function authSubmit(){
+  if(!window.MQAuth) return;
+  var email = byId("authEmail").value.trim();
+  var password = byId("authPassword").value;
+  if(!email || !password){ authShowError("Enter both an email and a password."); return; }
+  byId("authSubmitBtn").disabled = true;
+  var action = authMode==="login" ? window.MQAuth.login(email, password) : window.MQAuth.register(email, password);
+  action.catch(function(err){
+    byId("authSubmitBtn").disabled = false;
+    authShowError(AUTH_ERROR_MESSAGES[err.code] || "Something went wrong — try again.");
+  });
+  // sukces -> onAuthStateChanged w module-scripcie sam woła window.MQBoot
+}
+byId("authSubmitBtn").addEventListener("click", authSubmit);
+byId("authPassword").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); authSubmit(); } });
+// Ten sam wzorzec "klik = uzbrój, drugi klik w 4s = potwierdź" co
+// requestDeleteBrandFromForm — logout to nieodwracalna (dla usera, w danym
+// momencie) akcja, nie ma co robić jej jednym przypadkowym klikiem.
+var authLogoutArmed = false;
+byId("authUserBtn").addEventListener("click", function(){
+  var btn = byId("authUserBtn");
+  if(!authLogoutArmed){
+    authLogoutArmed = true;
+    var originalLabel = btn.textContent;
+    btn.textContent = "Click again to log out";
+    setTimeout(function(){ authLogoutArmed = false; if(btn) btn.textContent = originalLabel; }, 4000);
+    return;
+  }
+  authLogoutArmed = false;
+  if(window.MQAuth) window.MQAuth.logout().then(function(){ location.reload(); });
+});
+// Wołane przez moduł Firebase (onAuthStateChanged) po realnym
+// zalogowaniu/rejestracji — jedyne miejsce, które teraz ładuje dane i
+// odpala pierwszy renderAll() (dawniej: gołe loadFromStorage()+renderAll()
+// na końcu skryptu, bez żadnej bramki).
+window.MQBoot = async function(user){
+  hideAuthGate();
+  byId("authUserBtn").textContent = user.email;
+  byId("authUserBtn").style.display = "";
+  var remote = null, remoteErrored = false;
+  try{ remote = await window.MQStore.load(); }
+  catch(e){ remoteErrored = true; }
+  if(remote){
+    applyBackupPayload(remote);
+  } else {
+    loadFromStorage();
+    if(!remoteErrored) saveToStorage(); // pierwszy user zasiewa wspólny dokument
+  }
+  renderAll();
+  if(remoteErrored) showToast("Couldn't reach the database — showing your last local copy");
+};
+window.MQShowGate = showAuthGate;
+// Awaryjnie: gdyby moduł Firebase w ogóle się nie załadował (np.
+// ad-block/firewall blokujący gstatic.com, brak sieci) — inaczej user
+// zostaje NA ZAWSZE na "Loading…" bez żadnego wyjaśnienia.
+setTimeout(function(){
+  if(!window.MQAuth){
+    byId("authSubmitBtn").disabled = true;
+    byId("authSubmitBtn").textContent = "Unavailable";
+    authShowError("Couldn't reach the login service. Check your connection (or ad-blocker) and reload the page.");
+  }
+}, 6000);
 })();
+</script>
+
+<!-- Firebase — auth + Firestore. Moduł ES (deferred z definicji), więc
+     wykonuje się PO powyższym klasycznym <script> (który już zdążył
+     wystawić window.MQBoot/window.MQShowGate) — stąd wywołania w drugą
+     stronę na dole tego bloku. Konfiguracja poniżej to PUBLICZNY config
+     apki webowej (apiKey itd.) — z założenia bezpieczny do trzymania w
+     kodzie strony, bo dostępu pilnują reguły Firestore + wymóg
+     zalogowania, nie tajność tych wartości. Realny sekret (klucz Admin
+     SDK) NIGDY nie trafia tutaj — patrz rozmowa o tym w historii projektu. -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCzXWLpAK-GDGMcp1Hkwoztz7IN8VuaN_o",
+  authDomain: "mailerq.firebaseapp.com",
+  projectId: "mailerq",
+  storageBucket: "mailerq.firebasestorage.app",
+  messagingSenderId: "149160081533",
+  appId: "1:149160081533:web:e1843467e285848604d914"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+// Jeden wspólny dokument dla całego zespołu (user: wiele osób, każda z
+// własnym kontem, ale wszyscy pracują na TYCH SAMYCH markach/komponentach
+// — to firmowe zasoby, nie prywatne dane per-user).
+const WORKSPACE_DOC = doc(db, "workspaces", "shared");
+
+window.MQAuth = {
+  register(email, password){ return createUserWithEmailAndPassword(auth, email, password); },
+  login(email, password){ return signInWithEmailAndPassword(auth, email, password); },
+  logout(){ return signOut(auth); }
+};
+
+window.MQStore = {
+  async load(){
+    const snap = await getDoc(WORKSPACE_DOC);
+    return snap.exists() ? snap.data().payload : null;
+  },
+  async save(payload){
+    // Firestore odrzuca pola o wartości `undefined` (buildBackupPayload
+    // czasem je emituje, np. defaultValues:c.defaultValues gdy komponent
+    // nigdy nie miał zmienionych fraz) — round-trip przez JSON usuwa je
+    // dokładnie tak samo, jak już robi to niezauważalnie localStorage.
+    const clean = JSON.parse(JSON.stringify(payload));
+    await setDoc(WORKSPACE_DOC, { payload: clean, updatedAt: Date.now() });
+  }
+};
+
+onAuthStateChanged(auth, function(user){
+  if(user) window.MQBoot(user);
+  else window.MQShowGate();
+});
 </script>
