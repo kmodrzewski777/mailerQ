@@ -234,6 +234,15 @@
   .btn{
     border:1px solid var(--ink); background:var(--ink); color:var(--surface);
     padding:10px 16px; border-radius:8px; font-size:12.5px; font-weight:600;
+    /* line-height:1 — user: "wyrównaj przyciski, czasami część z nich ma
+       różne wysokości, ogarnij to wszędzie". Bez jawnego line-height każdy
+       .btn liczy wysokość z ODZIEDZICZONEGO line-height body (metryka
+       fontu), która potrafi się różnić o ułamek piksela między przeglądarką
+       a kontekstem (np. przycisk wewnątrz flexa vs. samodzielny) — jeden
+       WSPÓLNY, jawny line-height usuwa całą tę klasę niezgodności naraz,
+       dla KAŻDEGO .btn w apce (ten sam trik już wcześniej zadziałał przy
+       dopasowywaniu przycisku gwiazdki do .btn.small). */
+    line-height:1;
     transition:transform .12s ease, opacity .12s ease;
   }
   .btn:hover{opacity:.85}
