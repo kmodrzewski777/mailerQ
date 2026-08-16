@@ -387,6 +387,11 @@
     z-index:200;
   }
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+  /* user: "wszelkie komunikaty z błędem... mają być na czerwonym dymku,
+     nie czarnym — bo to błąd krytyczny" — tylko dla toastów, które
+     faktycznie oznaczają, że jakaś operacja się NIE udała (sieć/baza/plik),
+     nie dla zwykłych potwierdzeń czy przypomnień o wypełnieniu pola. */
+  .toast.error{background:#b42318}
 
   /* ---------- formularz marki ---------- */
   .modal-body{max-height:86vh}
@@ -651,7 +656,17 @@
      zablokowany "Loading…", odblokowuje go dopiero showAuthGate, wołane
      przez moduł Firebase gdy auth SDK faktycznie się zainicjował. -->
 <div id="authGate" style="position:fixed;inset:0;z-index:9999;background:var(--paper);display:flex;align-items:center;justify-content:center;padding:24px">
-  <div class="modal" style="max-width:420px">
+  <!-- user: "czemu za każdym refreshem strony przez sekundę widzę ekran
+       logowania? nie chce tego, ma być od razu docelowa strona jak jestem
+       zalogowany" — Firebase Auth potrzebuje chwili (async) żeby w ogóle
+       sprawdzić, czy sesja jest zapamiętana. Dawniej w TEJ chwili od razu
+       renderował się gotowy FORMULARZ logowania (mrugnięcie "musisz się
+       zalogować" nawet gdy zaraz i tak wejdziesz). Teraz: domyślnie tylko
+       spinner (bez żadnej sugestii "wyloguj/zaloguj"), a sam formularz
+       pokazuje się DOPIERO gdy showAuthGate (patrz JS) faktycznie
+       potwierdzi, że nikt nie jest zalogowany. -->
+  <div class="mf-spinner" id="authGateSpinner"></div>
+  <div class="modal" id="authGateModal" style="max-width:420px; display:none">
     <div class="modal-head">
       <h3 id="authGateTitle">Log in</h3>
     </div>
@@ -5284,7 +5299,7 @@ function saveToStorage(){
       Promise.all([
         window.MQStore.savePrivate(split.priv),
         window.MQStore.saveShared(split.shared)
-      ]).catch(function(){ showToast("Couldn't sync to the database — check your connection"); });
+      ]).catch(function(){ showToast("Couldn't sync to the database — check your connection", "error"); });
     }, 800);
   }
 }
@@ -8761,8 +8776,10 @@ function duplicateItem(uid){
   showToast("Duplicated “"+(c ? c.label : orig.componentId)+"”");
 }
 var toastTimer;
-function showToast(msg){
-  var t = byId("toast"); t.textContent = msg; t.classList.add("show");
+function showToast(msg, type){
+  var t = byId("toast"); t.textContent = msg;
+  t.classList.toggle("error", type==="error");
+  t.classList.add("show");
   clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 1800);
 }
 
@@ -8833,7 +8850,8 @@ function fallbackCopy(txt, successMessage){
   var ok = false;
   try{ ok = document.execCommand("copy"); }catch(e){ ok = false; }
   document.body.removeChild(ta);
-  showToast(ok ? (successMessage || "Copied to clipboard") : "Couldn't copy — try again");
+  if(ok) showToast(successMessage || "Copied to clipboard");
+  else showToast("Couldn't copy — try again", "error");
 }
 byId("copyBtn").addEventListener("click", function(){
   var txt = previewExportCode;
@@ -8888,15 +8906,15 @@ byId("backupImportInput").addEventListener("change", function(){
   reader.onload = function(){
     var payload;
     try{ payload = JSON.parse(reader.result); }
-    catch(e){ showToast("Invalid backup file"); return; }
+    catch(e){ showToast("Invalid backup file", "error"); return; }
     try{
       applyBackupPayload(payload);
       saveToStorage();
       renderAll();
       showToast("Backup restored");
-    }catch(e){ showToast("Couldn't load the backup — the file may be corrupted"); }
+    }catch(e){ showToast("Couldn't load the backup — the file may be corrupted", "error"); }
   };
-  reader.onerror = function(){ showToast("Couldn't read the file"); };
+  reader.onerror = function(){ showToast("Couldn't read the file", "error"); };
   reader.readAsText(file);
 });
 
@@ -9403,6 +9421,8 @@ function syncModalScrollLock(){
    (patrz reguły Firestore, muszą być ustawione ręcznie w konsoli). */
 function showAuthGate(){
   byId("authGate").style.display = "flex";
+  byId("authGateSpinner").style.display = "none";
+  byId("authGateModal").style.display = "";
   byId("authUserBtn").style.display = "none";
   setAuthMode("login");
   byId("authSubmitBtn").disabled = false;
@@ -9596,7 +9616,7 @@ window.MQBoot = async function(user){
   if(remote && remote.priv) applyBackupPayload(remote.priv);
   renderAll();
   if(!remoteErrored && !sharedExisted) saveToStorage(); // zasiewa wspólną bibliotekę TYLKO gdy jeszcze nie istniała
-  if(remoteErrored) showToast("Couldn't reach the database — showing your last local copy");
+  if(remoteErrored) showToast("Couldn't reach the database — showing your last local copy", "error");
 };
 function renderAuthUserBadge(){
   var btn = byId("authUserBtn");
@@ -9612,6 +9632,10 @@ window.MQShowGate = showAuthGate;
 // zostaje NA ZAWSZE na "Loading…" bez żadnego wyjaśnienia.
 setTimeout(function(){
   if(!window.MQAuth){
+    // Ciągle na spinnerze (patrz showAuthGate) — bez tego user zobaczyłby
+    // tylko kręcące się kółko w nieskończoność, bez żadnego komunikatu.
+    byId("authGateSpinner").style.display = "none";
+    byId("authGateModal").style.display = "";
     byId("authSubmitBtn").disabled = true;
     byId("authSubmitBtn").textContent = "Unavailable";
     authShowError("Couldn't reach the login service. Check your connection (or ad-blocker) and reload the page.");
