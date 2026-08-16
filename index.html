@@ -181,7 +181,9 @@
     border-radius:5px; font-size:13px; text-align:left; margin-bottom:1px;
   }
   .cat-btn:hover{background:var(--surface-2); color:var(--ink)}
-  .cat-btn[aria-pressed="true"]{background:var(--accent-soft); color:var(--ink); font-weight:600}
+  /* user: "zamiast podświetlać cały wiersz, niech tylko napisy mają
+     pomarańczowy kolor" — bez tła, sam label przechodzi na akcent. */
+  .cat-btn[aria-pressed="true"]{background:transparent; color:var(--accent); font-weight:600}
   .cat-btn .n{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint)}
   .cat-btn[aria-pressed="true"] .n{color:var(--ink-muted)}
 
@@ -2496,7 +2498,19 @@ function simulateGmailDarkRules(b){
   var bgDark = gmailInvertColor(b.bg);
   push("body,.mj-canvas-bg", "background", outerBgDark);
   push(".mj-body-box", "background", bgDark);
-  push(".mj-h1,.mj-h2,.mj-h3,.mj-h4,.mj-body", "color", gmailInvertTextForBg(b.text, bgDark));
+  // user: "on nie ma określonego innego koloru dla dark mode... a mimo
+  // wszystko w darkmodzie tekst pozostaje czarny" — komponenty z tabelami
+  // wklejonymi jako surowe HTML (<mj-raw>, np. Size Guide Table) nie mają
+  // ŻADNEGO css-class="mj-h1..4"/"mj-body" na swoich <td>, więc wąski
+  // selektor (tylko te konkretne klasy) je pomijał. ".mj-body-box *" łapie
+  // KAŻDY tekst w środku body-boxa niezależnie od tego, czy komponent
+  // niesie te klasy, czy nie — dokładnie zgodnie z opisanym "Trybem pełnej
+  // inwersji" (przekształca CAŁĄ paletę, nie tylko oznaczone elementy).
+  // .mj-body-secondary/przyciski nadal wygrywają nad tym (ten sam selektor
+  // co .mj-h1..4 miał tę samą specyficzność — .mj-body-secondary stoi
+  // NIŻEJ w kodzie, więc przy remisie wygrywa; przyciski mają WYŻSZĄ
+  // specyficzność przez "a.", więc wygrywają zawsze, niezależnie od kolejności).
+  push(".mj-body-box,.mj-body-box *", "color", gmailInvertTextForBg(b.text, bgDark));
   push(".mj-body-secondary", "color", gmailInvertTextForBg(b.muted, bgDark));
   if(hexToRgb(b.btnPrimaryBg)){
     var btnPrimaryBgDark = gmailInvertColor(b.btnPrimaryBg);
