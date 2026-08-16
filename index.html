@@ -226,6 +226,7 @@
   .card-body{padding:12px 12px 10px; flex:1; display:flex; flex-direction:column; min-height:0}
   .card-label{font-weight:600; font-size:13.5px; line-height:1.3; margin:0 0 3px; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
   .card-desc{font-size:12px; color:var(--ink-muted); margin:0; line-height:1.45; min-height:4.35em; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden}
+  .card-created-by{display:flex; align-items:center; gap:5px; margin:6px 0 0; font-size:10px; color:var(--ink-faint)}
   .card-actions{display:flex; gap:6px; padding:0 12px 12px}
   .card-actions .btn{flex:1; padding:10px 4px; font-size:11.5px; text-align:center; white-space:nowrap}
   .btn{
@@ -685,6 +686,47 @@
         <button type="button" class="btn-preview" id="authModeToggle">Need an account? Register</button>
         <button type="button" class="btn" id="authSubmitBtn" disabled>Loading…</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Profil — user: "klikając w to [badge w topbarze] otwiera się nowy
+     popup z edycją profilu — mogę wymienić avatar, zmienić imię/nazwisko,
+     zapisać zmiany". Logout przeniesiony TU (był wcześniej bezpośrednio na
+     klik w badge) — jedno miejsce na wszystko związane z kontem. -->
+<div class="overlay" id="profileFormOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head">
+      <h3>Edit profile</h3>
+      <button class="modal-close" id="profileFormClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="bf-field" style="margin-bottom:12px">
+        <label for="profileAvatarInput">Avatar</label>
+        <div class="bf-logo-field">
+          <div id="profileAvatarPreview"></div>
+          <div class="bf-logo-field-controls">
+            <label class="btn ghost small bf-logo-upload-btn" for="profileAvatarInput">Choose file</label>
+            <input type="file" accept="image/png,image/jpeg" id="profileAvatarInput" style="display:none">
+          </div>
+        </div>
+      </div>
+      <div class="bf-row" style="margin-bottom:12px">
+        <div class="bf-field">
+          <label for="profileFirstName">First name</label>
+          <input type="text" id="profileFirstName" autocomplete="given-name">
+        </div>
+        <div class="bf-field">
+          <label for="profileLastName">Last name</label>
+          <input type="text" id="profileLastName" autocomplete="family-name">
+        </div>
+      </div>
+      <p id="profileError" style="color:#b42318; font-size:12.5px; margin:0; display:none"></p>
+    </div>
+    <div class="modal-footer-bar" style="display:flex; justify-content:flex-end; gap:8px">
+      <button class="btn ghost" type="button" id="profileLogoutBtn" style="margin-right:auto; color:#b42318; border-color:#b42318">Log out</button>
+      <button class="btn ghost" type="button" id="profileFormCancel">Cancel</button>
+      <button class="btn" type="button" id="profileFormSave">Save changes</button>
     </div>
   </div>
 </div>
@@ -4939,6 +4981,56 @@ var state = { brand:"neutral", category:"all", section:"components", emailFlow:"
 var uidSeq = 1;
 
 function byId(id){ return document.getElementById(id); }
+/* Avatary — user: "jeśli ktoś nie chce wrzucić avataru to domyślnym mają
+   być inicjały w środku na randomowym kolorze kółka". "Losowy" musi być
+   STABILNY dla danej osoby (inaczej co odświeżenie strony ktoś dostawałby
+   inny kolor) — stąd hash z uid/e-maila zamiast Math.random(). Jedna
+   funkcja, użyta wszędzie: badge w topbarze, popup edycji profilu,
+   adnotacja "Created by" na kartach komponentów/gotowych maili. */
+var AVATAR_COLORS = ["#FF6B6B","#F59E0B","#10B981","#3B82F6","#8B5CF6","#EC4899","#14B8A6","#F97316","#6366F1","#84CC16"];
+function hashStringToIndex(str, mod){
+  var h = 0;
+  for(var i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) | 0; }
+  return Math.abs(h) % mod;
+}
+function initialsFor(profile){
+  var name = (profile && profile.displayName) || "";
+  var parts = name.trim().split(/\s+/).filter(Boolean);
+  if(parts.length>=2) return (parts[0][0]+parts[1][0]).toUpperCase();
+  if(parts.length===1) return parts[0].slice(0,2).toUpperCase();
+  var email = (profile && profile.email) || "";
+  return email ? email[0].toUpperCase() : "?";
+}
+function avatarHtml(profile, size){
+  size = size || 20;
+  if(profile && profile.photoURL){
+    return '<img src="'+esc(profile.photoURL)+'" alt="" style="width:'+size+'px;height:'+size+'px;border-radius:50%;object-fit:cover;flex:none">';
+  }
+  var seed = (profile && (profile.uid||profile.email||profile.displayName)) || "?";
+  var color = AVATAR_COLORS[hashStringToIndex(String(seed), AVATAR_COLORS.length)];
+  var initials = initialsFor(profile);
+  return '<span style="display:inline-flex;align-items:center;justify-content:center;width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+color+';color:#fff;font-size:'+Math.round(size*0.42)+'px;font-weight:700;flex:none;line-height:1">'+esc(initials)+'</span>';
+}
+// user: "w każdym komponencie czy gotowym mailu ma być gdzieś adnotacja
+// stworzone przed (avatar) imię nazwisko — jakaś naprawdę drobna, ale żeby
+// to było widać". Tylko dla własnych (custom) wpisów zespołu — 175
+// fabrycznych komponentów nie mają twórcy, więc się nie renderuje.
+function createdByBadgeHtml(record){
+  if(!record.createdBy) return "";
+  var who = record.createdBy.displayName || record.createdBy.email || "";
+  return '<p class="card-created-by">'+avatarHtml(record.createdBy, 14)+'Created by '+esc(who)+'</p>';
+}
+// Migawka aktualnie zalogowanego usera — ustawiana w window.MQBoot (patrz
+// koniec skryptu). Komponenty/gotowe maile zapisują ją TERAZ, przy
+// tworzeniu — celowo snapshot, nie samo uid: gdyby ktoś potem zmienił
+// imię/avatar w profilu, stare "Created by" mają zostać takie, jak w
+// chwili stworzenia (brak osobnej, wspólnej dla wszystkich bazy profili do
+// odpytania na żywo — poza zakresem tej rundy).
+var MQ_CURRENT_USER = null;
+function currentUserStamp(){
+  if(!MQ_CURRENT_USER) return null;
+  return { uid: MQ_CURRENT_USER.uid, displayName: MQ_CURRENT_USER.displayName||null, photoURL: MQ_CURRENT_USER.photoURL||null, email: MQ_CURRENT_USER.email };
+}
 /* Zamykanie popupu klikiem w tło (poza kartą modala) — NIE ma się
    uruchamiać, gdy user zaznacza tekst w polu wewnątrz popupu myszką i
    puszcza przycisk poza tłem (typowe przy zaznaczaniu blisko krawędzi).
@@ -5051,7 +5143,11 @@ function buildBackupPayload(){
         // user: "daj mi też mozliwosc zapisywania komponentu jesli zmienie
         // frazy w nim wystepujące".
         defaultValues:c.defaultValues,
-        variants:(c.variants||[]).map(function(v){ return { id:v.id, label:v.label, code:v.code() }; })
+        variants:(c.variants||[]).map(function(v){ return { id:v.id, label:v.label, code:v.code() }; }),
+        // "Created by" — user: adnotacja twórcy na kartach (patrz
+        // createdByBadgeHtml); ustawiane raz, przy tworzeniu (patrz
+        // currentUserStamp w saveComponentForm), niezmienne dalej.
+        createdBy:c.createdBy
       };
     }),
     // Gotowe maile zapisane przez usera (patrz saveEmailFormSubmit) — to
@@ -5094,12 +5190,14 @@ function applyBackupPayload(payload){
         existing.code = (function(fixedCode){ return function(){ return fixedCode; }; })(cc.code);
         if(cc.defaultValues) existing.defaultValues = cc.defaultValues;
         if(restoredVariants.length) existing.variants = restoredVariants;
+        if(cc.createdBy) existing.createdBy = cc.createdBy;
       } else {
         COMPONENTS.push({
           id:cc.id, category:cc.category, source:cc.source, label:cc.label, desc:cc.desc, custom:true,
           crmPlatform:cc.crmPlatform||"all",
           defaultValues: cc.defaultValues||undefined,
           variants: restoredVariants.length ? restoredVariants : undefined,
+          createdBy: cc.createdBy||undefined,
           preview: makeCustomPreview(cc.code),
           code: (function(fixedCode){ return function(){ return fixedCode; }; })(cc.code)
         });
@@ -5113,7 +5211,7 @@ function applyBackupPayload(payload){
       if(!findEmail(ce.id)){
         READY_EMAILS.push({
           id:ce.id, flow:ce.flow, label:ce.label, desc:ce.desc, note:ce.note,
-          componentIds:ce.componentIds, custom:true
+          componentIds:ce.componentIds, custom:true, createdBy:ce.createdBy
         });
       }
     });
@@ -5134,6 +5232,23 @@ function applyBackupPayload(payload){
   if(payload.favoriteEmails) state.favoriteEmails = payload.favoriteEmails;
 }
 var mqSaveTimer = null;
+// user: "każdy widzi swoje. Nie ma tak, że ja się zaloguję i widzę cudzą
+// pracę/komponenty w Mail Stack" + "Mail Stack prywatny, biblioteka
+// komponentów wspólna" (potwierdzone). Payload z buildBackupPayload dzieli
+// się więc na dwie części przy KAŻDYM zapisie do Firestore: prywatną
+// (tylko Twoje — Mail Stack, ulubione, wybrana marka/wariant podglądu) i
+// wspólną (Brand Kity + własne komponenty/gotowe maile — zespołowa
+// biblioteka, z adnotacją "Created by"). localStorage nadal trzyma
+// WSZYSTKO razem (bez podziału) — to czysto lokalna kopia zapasowa
+// przeglądarki, nie ma tu ryzyka konfliktu między osobami.
+var MQ_PRIVATE_KEYS = ["buildList","currentBrand","headerVariant","footerVariant","favoriteComponents","favoriteEmails"];
+var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries"];
+function splitBackupPayload(full){
+  var priv = {}, shared = {};
+  MQ_PRIVATE_KEYS.forEach(function(k){ priv[k] = full[k]; });
+  MQ_SHARED_KEYS.forEach(function(k){ shared[k] = full[k]; });
+  return { priv: priv, shared: shared };
+}
 function saveToStorage(){
   try{
     localStorage.setItem(STORAGE_KEY, JSON.stringify(buildBackupPayload()));
@@ -5146,7 +5261,11 @@ function saveToStorage(){
   if(window.MQStore){
     clearTimeout(mqSaveTimer);
     mqSaveTimer = setTimeout(function(){
-      window.MQStore.save(buildBackupPayload()).catch(function(){ showToast("Couldn't sync to the database — check your connection"); });
+      var split = splitBackupPayload(buildBackupPayload());
+      Promise.all([
+        window.MQStore.savePrivate(split.priv),
+        window.MQStore.saveShared(split.shared)
+      ]).catch(function(){ showToast("Couldn't sync to the database — check your connection"); });
     }, 800);
   }
 }
@@ -5367,7 +5486,8 @@ function saveComponentForm(){
     label: label, desc: (d.desc||"").trim(), crmPlatform: d.crmPlatform||"all", custom: true,
     preview: makeCustomPreview(code),
     code: function(){ return code; },
-    variants: variantsForComp.length ? variantsForComp : undefined
+    variants: variantsForComp.length ? variantsForComp : undefined,
+    createdBy: currentUserStamp()
   });
   state.section = "components"; state.category = d.category;
   closeComponentForm(); renderAll();
@@ -7524,6 +7644,7 @@ function renderGrid(){
         '<span class="card-cat"><span>'+esc((CATEGORIES.filter(function(x){return x.id===c.category;})[0]||{label:c.category}).label)+'</span>'+
         '<span class="card-cat-platforms">'+platformBadgesHtml(componentCompatiblePlatforms(c))+'</span></span>'+
         '<p class="card-label">'+esc(c.label)+'</p><p class="card-desc">'+esc(c.desc)+'</p>'+
+        createdByBadgeHtml(c)+
       '</div>'+
       '<div class="card-actions">'+
         '<button class="btn ghost small" data-open="'+c.id+'">Open</button>'+
@@ -7573,6 +7694,7 @@ function renderEmailGrid(){
         '<span class="card-cat"><span>'+esc(e.componentIds.length)+' components</span>'+
         '<span class="card-cat-platforms">'+platformBadgesHtml(emailCompatiblePlatforms(e))+'</span></span>'+
         '<p class="card-label">'+esc(e.label)+'</p><p class="card-desc">'+esc(e.desc)+'</p>'+
+        createdByBadgeHtml(e)+
       '</div>'+
       '<div class="card-actions">'+
         '<button class="btn ghost small" data-email-preview="'+e.id+'">Preview</button>'+
@@ -8392,7 +8514,8 @@ function saveEmailFormSubmit(){
     desc: "Custom set of components saved from your build list.",
     note: "zapisany z Twojej listy budowy",
     componentIds: componentIds,
-    custom: true
+    custom: true,
+    createdBy: currentUserStamp()
   });
   state.section = "emails"; state.emailFlow = d.flow;
   closeSaveEmailForm();
@@ -9347,23 +9470,77 @@ function authSubmit(){
 }
 byId("authSubmitBtn").addEventListener("click", authSubmit);
 byId("authPassword").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); authSubmit(); } });
+/* Popup edycji profilu — user: "klikając w to otwiera się nowy popup
+   z edycją profilu — mogę wymienić avatar, zmienić imię/nazwisko, zapisać
+   zmiany". Logout żyje TERAZ tu (przycisk w stopce), nie na samym kliku
+   w badge. */
+var profileAvatarFile = null;
+function closeProfileForm(){ byId("profileFormOverlay").classList.remove("open"); }
+function renderProfileAvatarPreview(){
+  byId("profileAvatarPreview").innerHTML = avatarHtml(MQ_CURRENT_USER, 40);
+}
+function openProfileForm(){
+  if(!MQ_CURRENT_USER) return;
+  var nameParts = (MQ_CURRENT_USER.displayName||"").trim().split(/\s+/).filter(Boolean);
+  byId("profileFirstName").value = nameParts[0] || "";
+  byId("profileLastName").value = nameParts.slice(1).join(" ") || "";
+  profileAvatarFile = null;
+  byId("profileAvatarInput").value = "";
+  renderProfileAvatarPreview();
+  byId("profileError").style.display = "none";
+  byId("profileFormOverlay").classList.add("open");
+}
+byId("authUserBtn").addEventListener("click", openProfileForm);
+byId("profileFormClose").addEventListener("click", closeProfileForm);
+byId("profileFormCancel").addEventListener("click", closeProfileForm);
+bindOverlayBackdropClose("profileFormOverlay", closeProfileForm);
+byId("profileAvatarInput").addEventListener("change", function(){
+  var file = byId("profileAvatarInput").files[0];
+  if(!file) return;
+  profileAvatarFile = file;
+  var reader = new FileReader();
+  reader.onload = function(){
+    byId("profileAvatarPreview").innerHTML = '<img src="'+reader.result+'" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover">';
+  };
+  reader.readAsDataURL(file);
+});
+function profileShowError(msg){
+  var el = byId("profileError");
+  el.textContent = msg;
+  el.style.display = "";
+}
+byId("profileFormSave").addEventListener("click", function(){
+  if(!window.MQAuth || !window.MQAuth.updateProfile) return;
+  var firstName = byId("profileFirstName").value.trim();
+  var lastName = byId("profileLastName").value.trim();
+  if(!firstName || !lastName){ profileShowError("Enter both your first and last name."); return; }
+  byId("profileFormSave").disabled = true;
+  window.MQAuth.updateProfile({ firstName:firstName, lastName:lastName, avatarFile:profileAvatarFile })
+    .then(function(updated){
+      MQ_CURRENT_USER = { uid:updated.uid, displayName:updated.displayName||null, photoURL:updated.photoURL||null, email:updated.email };
+      renderAuthUserBadge();
+      byId("profileFormSave").disabled = false;
+      closeProfileForm();
+      showToast("Profile updated");
+    })
+    .catch(function(){
+      byId("profileFormSave").disabled = false;
+      profileShowError("Something went wrong — try again.");
+    });
+});
 // Ten sam wzorzec "klik = uzbrój, drugi klik w 4s = potwierdź" co
 // requestDeleteBrandFromForm — logout to nieodwracalna (dla usera, w danym
 // momencie) akcja, nie ma co robić jej jednym przypadkowym klikiem.
-var authLogoutArmed = false;
-byId("authUserBtn").addEventListener("click", function(){
-  var btn = byId("authUserBtn");
-  if(!authLogoutArmed){
-    authLogoutArmed = true;
-    // .innerHTML (nie .textContent!) — badge nosi avatar <img> obok
-    // nazwy/e-maila (patrz window.MQBoot); .textContent zjadłby go przy
-    // odbrojeniu po 4s.
-    var originalLabel = btn.innerHTML;
-    btn.textContent = "Click again to log out";
-    setTimeout(function(){ authLogoutArmed = false; if(btn) btn.innerHTML = originalLabel; }, 4000);
+var profileLogoutArmed = false;
+byId("profileLogoutBtn").addEventListener("click", function(){
+  var btn = byId("profileLogoutBtn");
+  if(!profileLogoutArmed){
+    profileLogoutArmed = true;
+    btn.textContent = "Click again to confirm";
+    setTimeout(function(){ profileLogoutArmed = false; if(btn) btn.textContent = "Log out"; }, 4000);
     return;
   }
-  authLogoutArmed = false;
+  profileLogoutArmed = false;
   if(window.MQAuth) window.MQAuth.logout().then(function(){ location.reload(); });
 });
 // Wołane przez moduł Firebase (onAuthStateChanged) po realnym
@@ -9372,23 +9549,36 @@ byId("authUserBtn").addEventListener("click", function(){
 // na końcu skryptu, bez żadnej bramki).
 window.MQBoot = async function(user){
   hideAuthGate();
-  var btn = byId("authUserBtn");
-  var label = esc(user.displayName || user.email);
-  var avatarHtml = user.photoURL ? '<img src="'+esc(user.photoURL)+'" alt="" style="width:18px;height:18px;border-radius:50%;object-fit:cover;vertical-align:-4px;margin-right:5px">' : "";
-  btn.innerHTML = avatarHtml + label;
-  btn.style.display = "";
+  MQ_CURRENT_USER = { uid:user.uid, displayName:user.displayName||null, photoURL:user.photoURL||null, email:user.email };
+  renderAuthUserBadge();
+  // window.MQStore.load() zwraca { priv, shared } (patrz moduł Firebase) —
+  // "shared" (Brand Kity + biblioteka komponentów) istnieje = ładujemy TĘ
+  // bibliotekę; jeszcze nie istnieje (naprawdę pierwsze uruchomienie w
+  // historii apki) = zasiewamy ją z lokalnej kopii (np. importu backupu
+  // sprzed migracji na Firebase). "priv" (Mail Stack, ulubione) osobno —
+  // brak = świeży, PUSTY Mail Stack dla nowego usera, nigdy cudzy.
   var remote = null, remoteErrored = false;
   try{ remote = await window.MQStore.load(); }
   catch(e){ remoteErrored = true; }
-  if(remote){
-    applyBackupPayload(remote);
-  } else {
+  var sharedExisted = !!(remote && remote.shared);
+  if(sharedExisted){
+    applyBackupPayload(remote.shared);
+  } else if(!remoteErrored){
     loadFromStorage();
-    if(!remoteErrored) saveToStorage(); // pierwszy user zasiewa wspólny dokument
   }
+  if(remote && remote.priv) applyBackupPayload(remote.priv);
   renderAll();
+  if(!remoteErrored && !sharedExisted) saveToStorage(); // zasiewa wspólną bibliotekę TYLKO gdy jeszcze nie istniała
   if(remoteErrored) showToast("Couldn't reach the database — showing your last local copy");
 };
+function renderAuthUserBadge(){
+  var btn = byId("authUserBtn");
+  if(!MQ_CURRENT_USER) return;
+  var label = esc(MQ_CURRENT_USER.displayName || MQ_CURRENT_USER.email);
+  btn.innerHTML = avatarHtml(MQ_CURRENT_USER, 18) + '<span style="margin-left:5px">'+label+'</span>';
+  btn.style.display = "inline-flex";
+  btn.style.alignItems = "center";
+}
 window.MQShowGate = showAuthGate;
 // Awaryjnie: gdyby moduł Firebase w ogóle się nie załadował (np.
 // ad-block/firewall blokujący gstatic.com, brak sieci) — inaczej user
@@ -9437,10 +9627,20 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
-// Jeden wspólny dokument dla całego zespołu (user: wiele osób, każda z
-// własnym kontem, ale wszyscy pracują na TYCH SAMYCH markach/komponentach
-// — to firmowe zasoby, nie prywatne dane per-user).
-const WORKSPACE_DOC = doc(db, "workspaces", "shared");
+// Wspólny dokument DLA CAŁEGO ZESPOŁU — Brand Kity + biblioteka własnych
+// komponentów/gotowych maili (user, potwierdzone: "Mail Stack prywatny,
+// biblioteka komponentów wspólna"). Referencja stała, nie zależy od usera.
+const SHARED_DOC = doc(db, "sharedLibrary", "config");
+// Prywatny dokument PER UŻYTKOWNIK (uid jako klucz dokumentu) — Mail Stack,
+// ulubione, wybrana marka/wariant podglądu. user: "każdy widzi swoje...
+// nie ma opcji, że ktoś komuś coś nadpisze" — Firestore rules (patrz
+// dokumentacja projektu) wymuszają request.auth.uid === uid, więc to NIE
+// jest tylko konwencja w UI, tylko realna granica po stronie serwera:
+// fizycznie nie da się odczytać/zapisać cudzego workspaces/{uid}.
+// Ustawiana dopiero po zalogowaniu (patrz onAuthStateChanged), stąd `let`,
+// nie `const`.
+let privateDocRef = null;
+
 // Prawdziwa granica bezpieczeństwa dla domeny — user: "Zamknij możliwość
 // rejestracji tylko dla domen @retentionq.com". Ta sama regex co w
 // klasycznym skrypcie (patrz AUTH_ALLOWED_EMAIL_RE), ale TA kopia jest tym,
@@ -9451,45 +9651,73 @@ const WORKSPACE_DOC = doc(db, "workspaces", "shared");
 // na poziomie samych danych, gdyby jednak jakieś stare/obce konto istniało.
 const ALLOWED_EMAIL_RE = /@retentionq\.com$/i;
 
+// Wspólna dla register() i updateProfile() — wgrywa avatar (jeśli podany)
+// pod TĄ SAMĄ ścieżką co uid (nadpisuje poprzedni przy zmianie) i woła
+// Firebase Auth updateProfile. Zwraca zwykły, JSON-owalny snapshot (nie
+// żywy obiekt User z SDK) — to jest to, co ląduje w window.MQ_CURRENT_USER
+// po stronie klasycznego skryptu.
+async function applyProfileUpdate(user, profile){
+  var photoURL = user.photoURL || null;
+  if(profile && profile.avatarFile){
+    const ext = (profile.avatarFile.name.split(".").pop() || "jpg").toLowerCase();
+    const avatarRef = ref(storage, "avatars/" + user.uid + "." + ext);
+    await uploadBytes(avatarRef, profile.avatarFile);
+    photoURL = await getDownloadURL(avatarRef);
+  }
+  const displayName = [profile && profile.firstName, profile && profile.lastName].filter(Boolean).join(" ") || user.displayName || null;
+  await updateProfile(user, { displayName: displayName, photoURL: photoURL });
+  return { uid: user.uid, displayName: displayName, photoURL: photoURL, email: user.email };
+}
+
 window.MQAuth = {
   async register(email, password, profile){
     if(!ALLOWED_EMAIL_RE.test(email)){
       const err = new Error("domain not allowed"); err.code = "app/domain-not-allowed"; throw err;
     }
     const cred = await createUserWithEmailAndPassword(auth, email, password);
-    const user = cred.user;
-    var photoURL = null;
-    if(profile && profile.avatarFile){
-      const ext = (profile.avatarFile.name.split(".").pop() || "jpg").toLowerCase();
-      const avatarRef = ref(storage, "avatars/" + user.uid + "." + ext);
-      await uploadBytes(avatarRef, profile.avatarFile);
-      photoURL = await getDownloadURL(avatarRef);
-    }
-    const displayName = [profile && profile.firstName, profile && profile.lastName].filter(Boolean).join(" ") || null;
-    await updateProfile(user, { displayName: displayName, photoURL: photoURL });
+    await applyProfileUpdate(cred.user, profile);
     return cred;
   },
   login(email, password){ return signInWithEmailAndPassword(auth, email, password); },
-  logout(){ return signOut(auth); }
-};
-
-window.MQStore = {
-  async load(){
-    const snap = await getDoc(WORKSPACE_DOC);
-    return snap.exists() ? snap.data().payload : null;
-  },
-  async save(payload){
-    // Firestore odrzuca pola o wartości `undefined` (buildBackupPayload
-    // czasem je emituje, np. defaultValues:c.defaultValues gdy komponent
-    // nigdy nie miał zmienionych fraz) — round-trip przez JSON usuwa je
-    // dokładnie tak samo, jak już robi to niezauważalnie localStorage.
-    const clean = JSON.parse(JSON.stringify(payload));
-    await setDoc(WORKSPACE_DOC, { payload: clean, updatedAt: Date.now() });
+  logout(){ return signOut(auth); },
+  updateProfile(profile){
+    if(!auth.currentUser) return Promise.reject(new Error("not signed in"));
+    return applyProfileUpdate(auth.currentUser, profile);
   }
 };
 
+async function saveDoc(ref_, payload){
+  if(!ref_) return;
+  // Firestore odrzuca pola o wartości `undefined` (buildBackupPayload
+  // czasem je emituje, np. defaultValues:c.defaultValues gdy komponent
+  // nigdy nie miał zmienionych fraz) — round-trip przez JSON usuwa je
+  // dokładnie tak samo, jak już robi to niezauważalnie localStorage.
+  const clean = JSON.parse(JSON.stringify(payload));
+  await setDoc(ref_, { payload: clean, updatedAt: Date.now() });
+}
+
+window.MQStore = {
+  async load(){
+    const [sharedSnap, privSnap] = await Promise.all([
+      getDoc(SHARED_DOC),
+      privateDocRef ? getDoc(privateDocRef) : Promise.resolve(null)
+    ]);
+    return {
+      shared: sharedSnap.exists() ? sharedSnap.data().payload : null,
+      priv: (privSnap && privSnap.exists()) ? privSnap.data().payload : null
+    };
+  },
+  saveShared(payload){ return saveDoc(SHARED_DOC, payload); },
+  savePrivate(payload){ return saveDoc(privateDocRef, payload); }
+};
+
 onAuthStateChanged(auth, function(user){
-  if(user) window.MQBoot(user);
-  else window.MQShowGate();
+  if(user){
+    privateDocRef = doc(db, "workspaces", user.uid);
+    window.MQBoot(user);
+  } else {
+    privateDocRef = null;
+    window.MQShowGate();
+  }
 });
 </script>
