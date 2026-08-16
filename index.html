@@ -157,6 +157,10 @@
     background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow-card);
     padding:4px; margin:0; list-style:none; max-height:280px; overflow-y:auto;
   }
+  /* Badge usera siedzi na samej prawej krawędzi paska — menu rozwinięte w
+     lewo (left:0) uciekłoby poza ekran, stąd wariant przyklejony do
+     prawej krawędzi przycisku zamiast lewej. */
+  .brand-select-menu-right{left:auto; right:0; min-width:160px; white-space:nowrap}
   .brand-select-option{
     padding:5px 5px 5px 10px; border-radius:5px; font-size:12.5px; font-weight:500; color:var(--ink);
     cursor:pointer; white-space:nowrap; display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -664,7 +668,18 @@
       <button class="icon-btn icon-btn-crm-settings" id="crmSettingsTopbarBtn" type="button" title="Site settings" aria-label="Site settings">&#9881;</button>
     </div>
     <div class="topbar-right">
-      <button class="btn ghost small auth-user-badge" id="authUserBtn" type="button" title="Edit profile" style="display:none"></button>
+      <!-- user: "kliknięcie w to ma wywołać dropdown chmurkę z opcjami
+           Edit profile / Logout" — ten sam widget co brand-select
+           (position:relative + .brand-select-menu), tylko rozwija się w
+           lewo od prawej krawędzi (brand-select-menu-right), bo badge
+           siedzi na samej krawędzi ekranu. -->
+      <div class="brand-select" id="authUserMenuWrap">
+        <button class="btn ghost small auth-user-badge" id="authUserBtn" type="button" title="Account" aria-haspopup="menu" aria-expanded="false" style="display:none"></button>
+        <ul class="brand-select-menu brand-select-menu-right" id="authUserMenu" role="menu" aria-label="Account menu" style="display:none">
+          <li class="brand-select-option" role="menuitem" id="authUserMenuEdit">Edit profile</li>
+          <li class="brand-select-option" role="menuitem" id="authUserMenuLogout" style="color:#b42318">Logout</li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>
@@ -769,7 +784,6 @@
       <p id="profileError" style="color:#b42318; font-size:12.5px; margin:0; display:none"></p>
     </div>
     <div class="modal-footer-bar" style="display:flex; justify-content:flex-end; gap:8px">
-      <button class="btn ghost" type="button" id="profileLogoutBtn" style="margin-right:auto; color:#b42318; border-color:#b42318">Log out</button>
       <button class="btn ghost" type="button" id="profileFormCancel">Cancel</button>
       <button class="btn" type="button" id="profileFormSave">Save changes</button>
     </div>
@@ -9590,7 +9604,34 @@ function openProfileForm(){
   byId("profileError").style.display = "none";
   byId("profileFormOverlay").classList.add("open");
 }
-byId("authUserBtn").addEventListener("click", openProfileForm);
+// user: "kliknięcie w [badge] ma wywołać dropdown chmurkę z opcjami Edit
+// profile / Logout" — ten sam wzorzec co menu wyboru marki (patrz
+// closeBrandSelectMenu): osobna funkcja zamykająca + jeden document-level
+// listener łapiący klik POZA wrapperem.
+function closeAuthUserMenu(){
+  byId("authUserMenu").style.display = "none";
+  byId("authUserBtn").setAttribute("aria-expanded", "false");
+}
+byId("authUserBtn").addEventListener("click", function(e){
+  e.stopPropagation();
+  var menu = byId("authUserMenu");
+  var open = menu.style.display !== "none";
+  if(open){ closeAuthUserMenu(); return; }
+  menu.style.display = "";
+  byId("authUserBtn").setAttribute("aria-expanded", "true");
+});
+document.addEventListener("click", function(e){
+  var wrap = byId("authUserMenuWrap");
+  if(wrap && !wrap.contains(e.target)) closeAuthUserMenu();
+});
+byId("authUserMenuEdit").addEventListener("click", function(){
+  closeAuthUserMenu();
+  openProfileForm();
+});
+byId("authUserMenuLogout").addEventListener("click", function(){
+  closeAuthUserMenu();
+  if(window.MQAuth) window.MQAuth.logout().then(function(){ location.reload(); });
+});
 byId("profileFormClose").addEventListener("click", closeProfileForm);
 byId("profileFormCancel").addEventListener("click", closeProfileForm);
 bindOverlayBackdropClose("profileFormOverlay", closeProfileForm);
@@ -9627,21 +9668,6 @@ byId("profileFormSave").addEventListener("click", function(){
       byId("profileFormSave").disabled = false;
       profileShowError("Something went wrong — try again.");
     });
-});
-// Ten sam wzorzec "klik = uzbrój, drugi klik w 4s = potwierdź" co
-// requestDeleteBrandFromForm — logout to nieodwracalna (dla usera, w danym
-// momencie) akcja, nie ma co robić jej jednym przypadkowym klikiem.
-var profileLogoutArmed = false;
-byId("profileLogoutBtn").addEventListener("click", function(){
-  var btn = byId("profileLogoutBtn");
-  if(!profileLogoutArmed){
-    profileLogoutArmed = true;
-    btn.textContent = "Click again to confirm";
-    setTimeout(function(){ profileLogoutArmed = false; if(btn) btn.textContent = "Log out"; }, 4000);
-    return;
-  }
-  profileLogoutArmed = false;
-  if(window.MQAuth) window.MQAuth.logout().then(function(){ location.reload(); });
 });
 // Wołane przez moduł Firebase (onAuthStateChanged) po realnym
 // zalogowaniu/rejestracji — jedyne miejsce, które teraz ładuje dane i
