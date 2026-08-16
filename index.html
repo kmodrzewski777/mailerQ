@@ -643,11 +643,35 @@
      zablokowany "Loading…", odblokowuje go dopiero showAuthGate, wołane
      przez moduł Firebase gdy auth SDK faktycznie się zainicjował. -->
 <div id="authGate" style="position:fixed;inset:0;z-index:9999;background:var(--paper);display:flex;align-items:center;justify-content:center;padding:24px">
-  <div class="modal" style="max-width:380px">
+  <div class="modal" style="max-width:420px">
     <div class="modal-head">
       <h3 id="authGateTitle">Log in</h3>
     </div>
     <div class="modal-body">
+      <!-- Imię/nazwisko/avatar — TYLKO w trybie rejestracji (patrz
+           setAuthMode), user: "daj możliwość przy rejestracji podawania
+           imię, nazwisko, wgranie avatara". -->
+      <div class="bf-row" id="authNameRow" style="display:none; margin-bottom:12px">
+        <div class="bf-field">
+          <label for="authFirstName">First name</label>
+          <input type="text" id="authFirstName" autocomplete="given-name">
+        </div>
+        <div class="bf-field">
+          <label for="authLastName">Last name</label>
+          <input type="text" id="authLastName" autocomplete="family-name">
+        </div>
+      </div>
+      <div class="bf-field" id="authAvatarField" style="display:none; margin-bottom:12px">
+        <label for="authAvatarInput">Avatar (optional)</label>
+        <div class="bf-logo-field">
+          <img id="authAvatarThumb" class="bf-logo-thumb" alt="avatar" style="display:none">
+          <span id="authAvatarThumbEmpty" class="bf-logo-thumb bf-logo-thumb-empty">—</span>
+          <div class="bf-logo-field-controls">
+            <label class="btn ghost small bf-logo-upload-btn" for="authAvatarInput">Choose file</label>
+            <input type="file" accept="image/png,image/jpeg" id="authAvatarInput" style="display:none">
+          </div>
+        </div>
+      </div>
       <div class="bf-field" style="margin-bottom:12px">
         <label for="authEmail">Email</label>
         <input type="email" id="authEmail" autocomplete="username">
@@ -9242,6 +9266,12 @@ function setAuthMode(mode){
   byId("authSubmitBtn").textContent = mode==="login" ? "Log in" : "Register";
   byId("authModeToggle").textContent = mode==="login" ? "Need an account? Register" : "Already have an account? Log in";
   byId("authError").style.display = "none";
+  // Imię/nazwisko/avatar mają sens TYLKO przy zakładaniu konta — user:
+  // "daj możliwość przy rejestracji podawania imię, nazwisko, wgranie
+  // avatara" (nie przy logowaniu istniejącym kontem).
+  byId("authNameRow").style.display = mode==="register" ? "flex" : "none";
+  byId("authAvatarField").style.display = mode==="register" ? "" : "none";
+  if(mode==="login") clearAuthAvatarSelection();
 }
 byId("authModeToggle").addEventListener("click", function(){ setAuthMode(authMode==="login"?"register":"login"); });
 function authShowError(msg){
@@ -9249,6 +9279,32 @@ function authShowError(msg){
   el.textContent = msg;
   el.style.display = "";
 }
+// user: "Zamknij możliwość rejestracji tylko dla domen @retentionq.com.
+// Jeśli ktoś poda inny adres to wywal błąd" — sprawdzane TU (natychmiastowy
+// komunikat, bez rundy do Firebase) I DRUGI RAZ w module Firebase (patrz
+// window.MQAuth.register) — ta druga kopia to prawdziwa granica
+// bezpieczeństwa (klient można obejść przez devtools, ta druga nie).
+var AUTH_ALLOWED_EMAIL_RE = /@retentionq\.com$/i;
+var authAvatarFile = null;
+function clearAuthAvatarSelection(){
+  authAvatarFile = null;
+  byId("authAvatarInput").value = "";
+  byId("authAvatarThumb").style.display = "none";
+  byId("authAvatarThumb").removeAttribute("src");
+  byId("authAvatarThumbEmpty").style.display = "";
+}
+byId("authAvatarInput").addEventListener("change", function(){
+  var file = byId("authAvatarInput").files[0];
+  if(!file) return;
+  authAvatarFile = file;
+  var reader = new FileReader();
+  reader.onload = function(){
+    byId("authAvatarThumb").src = reader.result;
+    byId("authAvatarThumb").style.display = "";
+    byId("authAvatarThumbEmpty").style.display = "none";
+  };
+  reader.readAsDataURL(file);
+});
 // Kody błędów Firebase Auth -> zrozumiały komunikat (angielski, spójnie
 // z resztą chrome apki — polski zostaje tylko w komentarzach/treści maili).
 var AUTH_ERROR_MESSAGES = {
@@ -9258,20 +9314,36 @@ var AUTH_ERROR_MESSAGES = {
   "auth/invalid-credential": "Wrong email or password.",
   "auth/email-already-in-use": "An account with that email already exists — try logging in instead.",
   "auth/weak-password": "Password must be at least 6 characters.",
-  "auth/too-many-requests": "Too many attempts — wait a moment and try again."
+  "auth/too-many-requests": "Too many attempts — wait a moment and try again.",
+  "app/domain-not-allowed": "Only company (@retentionq.com) accounts are accepted."
 };
 function authSubmit(){
   if(!window.MQAuth) return;
   var email = byId("authEmail").value.trim();
   var password = byId("authPassword").value;
   if(!email || !password){ authShowError("Enter both an email and a password."); return; }
+  var action;
+  if(authMode==="login"){
+    action = window.MQAuth.login(email, password);
+  } else {
+    if(!AUTH_ALLOWED_EMAIL_RE.test(email)){ authShowError(AUTH_ERROR_MESSAGES["app/domain-not-allowed"]); return; }
+    var firstName = byId("authFirstName").value.trim();
+    var lastName = byId("authLastName").value.trim();
+    if(!firstName || !lastName){ authShowError("Enter both your first and last name."); return; }
+    action = window.MQAuth.register(email, password, { firstName: firstName, lastName: lastName, avatarFile: authAvatarFile });
+  }
   byId("authSubmitBtn").disabled = true;
-  var action = authMode==="login" ? window.MQAuth.login(email, password) : window.MQAuth.register(email, password);
-  action.catch(function(err){
+  action.then(function(cred){
+    // onAuthStateChanged (moduł Firebase) zwykle już wywołał window.MQBoot
+    // w chwili SAMEGO utworzenia konta — ZANIM w register() zdąży dokończyć
+    // się updateProfile (avatar/imię+nazwisko). Wołamy MQBoot jeszcze raz
+    // tu, z już kompletnym cred.user, żeby badge w topbarze na pewno
+    // pokazał finalne dane, a nie gołe "przed chwilą utworzone" konto.
+    if(cred && cred.user && window.MQBoot) window.MQBoot(cred.user);
+  }).catch(function(err){
     byId("authSubmitBtn").disabled = false;
     authShowError(AUTH_ERROR_MESSAGES[err.code] || "Something went wrong — try again.");
   });
-  // sukces -> onAuthStateChanged w module-scripcie sam woła window.MQBoot
 }
 byId("authSubmitBtn").addEventListener("click", authSubmit);
 byId("authPassword").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); authSubmit(); } });
@@ -9283,9 +9355,12 @@ byId("authUserBtn").addEventListener("click", function(){
   var btn = byId("authUserBtn");
   if(!authLogoutArmed){
     authLogoutArmed = true;
-    var originalLabel = btn.textContent;
+    // .innerHTML (nie .textContent!) — badge nosi avatar <img> obok
+    // nazwy/e-maila (patrz window.MQBoot); .textContent zjadłby go przy
+    // odbrojeniu po 4s.
+    var originalLabel = btn.innerHTML;
     btn.textContent = "Click again to log out";
-    setTimeout(function(){ authLogoutArmed = false; if(btn) btn.textContent = originalLabel; }, 4000);
+    setTimeout(function(){ authLogoutArmed = false; if(btn) btn.innerHTML = originalLabel; }, 4000);
     return;
   }
   authLogoutArmed = false;
@@ -9297,8 +9372,11 @@ byId("authUserBtn").addEventListener("click", function(){
 // na końcu skryptu, bez żadnej bramki).
 window.MQBoot = async function(user){
   hideAuthGate();
-  byId("authUserBtn").textContent = user.email;
-  byId("authUserBtn").style.display = "";
+  var btn = byId("authUserBtn");
+  var label = esc(user.displayName || user.email);
+  var avatarHtml = user.photoURL ? '<img src="'+esc(user.photoURL)+'" alt="" style="width:18px;height:18px;border-radius:50%;object-fit:cover;vertical-align:-4px;margin-right:5px">' : "";
+  btn.innerHTML = avatarHtml + label;
+  btn.style.display = "";
   var remote = null, remoteErrored = false;
   try{ remote = await window.MQStore.load(); }
   catch(e){ remoteErrored = true; }
@@ -9337,11 +9415,14 @@ setTimeout(function(){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  signOut, onAuthStateChanged
+  signOut, onAuthStateChanged, updateProfile
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, setDoc
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+import {
+  getStorage, ref, uploadBytes, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCzXWLpAK-GDGMcp1Hkwoztz7IN8VuaN_o",
@@ -9355,13 +9436,39 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 // Jeden wspólny dokument dla całego zespołu (user: wiele osób, każda z
 // własnym kontem, ale wszyscy pracują na TYCH SAMYCH markach/komponentach
 // — to firmowe zasoby, nie prywatne dane per-user).
 const WORKSPACE_DOC = doc(db, "workspaces", "shared");
+// Prawdziwa granica bezpieczeństwa dla domeny — user: "Zamknij możliwość
+// rejestracji tylko dla domen @retentionq.com". Ta sama regex co w
+// klasycznym skrypcie (patrz AUTH_ALLOWED_EMAIL_RE), ale TA kopia jest tym,
+// co faktycznie się liczy: klient/devtools można obejść, importu modułu
+// Firebase i tej funkcji — nie, bez tego konto by można było stworzyć
+// bezpośrednim wywołaniem window.MQAuth.register z pominiętym UI. Reguły
+// Firestore/Storage (patrz dokumentacja projektu) domykają to jeszcze raz
+// na poziomie samych danych, gdyby jednak jakieś stare/obce konto istniało.
+const ALLOWED_EMAIL_RE = /@retentionq\.com$/i;
 
 window.MQAuth = {
-  register(email, password){ return createUserWithEmailAndPassword(auth, email, password); },
+  async register(email, password, profile){
+    if(!ALLOWED_EMAIL_RE.test(email)){
+      const err = new Error("domain not allowed"); err.code = "app/domain-not-allowed"; throw err;
+    }
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    const user = cred.user;
+    var photoURL = null;
+    if(profile && profile.avatarFile){
+      const ext = (profile.avatarFile.name.split(".").pop() || "jpg").toLowerCase();
+      const avatarRef = ref(storage, "avatars/" + user.uid + "." + ext);
+      await uploadBytes(avatarRef, profile.avatarFile);
+      photoURL = await getDownloadURL(avatarRef);
+    }
+    const displayName = [profile && profile.firstName, profile && profile.lastName].filter(Boolean).join(" ") || null;
+    await updateProfile(user, { displayName: displayName, photoURL: photoURL });
+    return cred;
+  },
   login(email, password){ return signInWithEmailAndPassword(auth, email, password); },
   logout(){ return signOut(auth); }
 };
