@@ -80,12 +80,24 @@
     position:sticky; top:0; z-index:30; background:var(--paper);
     border-bottom:1px solid var(--line); padding:14px 0;
   }
-  .topbar-inner{max-width:1400px; margin:0 auto; padding:0 20px; display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap; box-sizing:border-box}
+  /* user: "trochę tu za duży ścisk jest. rozszerz content poza box strony.
+     logo ma być po lewej na maxa. user po prawej na maxa. Brand/edit/add/
+     ustawienia na środku" — grid 1fr/auto/1fr zamiast flexa: obie skrajne
+     kolumny dostają RÓWNY udział wolnej przestrzeni, więc środkowa grupa
+     zawsze wypada wizualnie na środku PASKA, niezależnie od tego, że lewa
+     grupa (logo+ikony) i prawa (badge usera) mają różną szerokość — czego
+     flex justify-content:space-between by nie dał (tamto centruje TYLKO
+     gdy skrajne grupy są tej samej szerokości). max-width usunięty celowo
+     — pasek ma iść od krawędzi do krawędzi ekranu, nie trzymać się tego
+     samego 1400px co treść pod spodem (.shell). */
+  .topbar-inner{max-width:none; margin:0; padding:0 28px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:24px; box-sizing:border-box}
   .brand-title{display:flex; align-items:center; gap:1px; font-size:26px; letter-spacing:-0.01em}
   .brand-wordmark{font-weight:700; color:var(--ink)}
   .brand-mark{width:28px; height:28px; flex-shrink:0; margin-left:1px}
   .brand-picker{display:flex; align-items:center; gap:8px}
-  .topbar-left{display:flex; align-items:center; gap:14px}
+  .topbar-left{display:flex; align-items:center; gap:14px; justify-self:start}
+  .topbar-center{justify-self:center}
+  .topbar-right{justify-self:end}
   .icon-btn-group{display:flex; align-items:center; gap:6px}
   .icon-btn-lg{width:32px; height:32px; border:1px solid var(--line-strong); background:var(--surface); border-radius:8px; color:var(--ink-muted); font-size:15px; display:flex; align-items:center; justify-content:center; line-height:1}
   .icon-btn-lg:hover{color:var(--ink); border-color:var(--ink)}
@@ -635,10 +647,7 @@
         <input type="file" id="backupImportInput" accept="application/json,.json" style="display:none">
       </div>
     </div>
-    <div class="brand-picker">
-      <button class="btn ghost small" id="countdownOpenBtn" type="button">Countdown GIF</button>
-    </div>
-    <div class="brand-picker">
+    <div class="brand-picker topbar-center">
       <span class="brand-picker-dot" id="brandPickerDot"></span>
       <div class="brand-select" id="brandSelectWrap">
         <button type="button" class="brand-select-btn" id="brandSelectBtn" aria-haspopup="listbox" aria-expanded="false">
@@ -650,6 +659,8 @@
       <button class="btn ghost small" id="brandEditBtn" type="button">Edit</button>
       <button class="btn small" id="brandAddBtn" type="button">Add</button>
       <button class="icon-btn icon-btn-crm-settings" id="crmSettingsTopbarBtn" type="button" title="Site settings" aria-label="Site settings">&#9881;</button>
+    </div>
+    <div class="topbar-right">
       <button class="btn ghost small auth-user-badge" id="authUserBtn" type="button" title="Edit profile" style="display:none"></button>
     </div>
   </div>
@@ -860,6 +871,15 @@
       <button type="button" class="icon-btn" id="railFlowsEditBtn" title="Edit categories" aria-label="Edit categories"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>
     </div>
     <div id="railFlowList"></div>
+    <!-- user: "Countdown GIF wrzuć do kolumny z components i e-mail do
+         nowej sekcji 'Tools' i daj tam przycisk Create Countdown" —
+         przeniesione z topbara (patrz countdownOpenBtn, teraz tutaj). -->
+    <div class="rail-title-row" style="margin-top:22px">
+      <p class="rail-title">Tools</p>
+    </div>
+    <div style="padding:0 10px">
+      <button class="btn ghost small" id="countdownOpenBtn" type="button" style="width:100%">Create Countdown</button>
+    </div>
   </nav>
 
   <main class="grid-wrap">
