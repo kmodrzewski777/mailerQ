@@ -158,11 +158,16 @@
     padding:4px; margin:0; list-style:none; max-height:280px; overflow-y:auto;
   }
   .brand-select-option{
-    padding:7px 10px; border-radius:5px; font-size:12.5px; font-weight:500; color:var(--ink);
-    cursor:pointer; white-space:nowrap;
+    padding:5px 5px 5px 10px; border-radius:5px; font-size:12.5px; font-weight:500; color:var(--ink);
+    cursor:pointer; white-space:nowrap; display:flex; align-items:center; justify-content:space-between; gap:10px;
   }
   .brand-select-option:hover{background:var(--surface-2)}
   .brand-select-option[aria-selected="true"]{background:var(--accent-soft); font-weight:600; color:var(--accent)}
+  /* user: "zamiast tych dwóch przycisków [Edit/Add] zrób przy każdej
+     pozycji w dropdownie po prawej stronie ikonę ołówka" + "Add new" jako
+     wydzielona pozycja na końcu listy. */
+  .brand-select-edit-btn{flex:none}
+  .brand-select-add{border-top:1px solid var(--line); margin-top:4px; padding-top:10px; color:var(--accent); font-weight:600; justify-content:flex-start}
 
   /* ---------- shell ---------- */
   .shell{max-width:1400px; margin:0 auto; display:grid; grid-template-columns:236px 1fr 320px; gap:0; align-items:start}
@@ -656,8 +661,6 @@
         </button>
         <ul class="brand-select-menu" id="brandSelectMenu" role="listbox" aria-label="Brand selection" style="display:none"></ul>
       </div>
-      <button class="btn ghost small" id="brandEditBtn" type="button">Edit</button>
-      <button class="btn small" id="brandAddBtn" type="button">Add</button>
       <button class="icon-btn icon-btn-crm-settings" id="crmSettingsTopbarBtn" type="button" title="Site settings" aria-label="Site settings">&#9881;</button>
     </div>
     <div class="topbar-right">
@@ -7120,17 +7123,40 @@ function renderSwatches(){
   var current = BRANDS[state.brand];
   byId("brandSelectLabel").textContent = current.short + (current.custom ? " (custom)" : "");
   var menu = byId("brandSelectMenu");
+  // user: "zamiast tych dwóch przycisków [Edit/Add obok dropdownu] zrób
+  // przy każdej pozycji w dropdownie po prawej stronie ikonę ołówka —
+  // stąd odpalamy edycję brandu, a zamiast Add daj wydzielony na końcu
+  // dropdownu item 'Add new'". Ołówek celuje w TĘ konkretną markę z
+  // wiersza (openBrandForm("edit", key)), niezależnie od tego, która jest
+  // aktualnie wybrana — nie trzeba już najpierw przełączać marki, żeby ją
+  // edytować.
   menu.innerHTML = BRAND_ORDER.map(function(key){
     var b = BRANDS[key];
     var label = b.short + (b.custom ? " (custom)" : "");
-    return '<li class="brand-select-option" role="option" data-brand-key="'+key+'" aria-selected="'+(state.brand===key?"true":"false")+'">'+esc(label)+'</li>';
-  }).join("");
+    return '<li class="brand-select-option" role="option" data-brand-key="'+key+'" aria-selected="'+(state.brand===key?"true":"false")+'">'+
+      '<span>'+esc(label)+'</span>'+
+      '<button type="button" class="icon-btn brand-select-edit-btn" data-brand-edit="'+key+'" title="Edit '+esc(b.short)+'" aria-label="Edit '+esc(b.short)+'">'+ICON_PENCIL+'</button>'+
+    '</li>';
+  }).join("") +
+  '<li class="brand-select-option brand-select-add" data-brand-add="1">+ Add new</li>';
   menu.querySelectorAll("[data-brand-key]").forEach(function(li){
     li.addEventListener("click", function(){
       state.brand = li.getAttribute("data-brand-key");
       closeBrandSelectMenu();
       renderAll();
     });
+  });
+  menu.querySelectorAll("[data-brand-edit]").forEach(function(btn){
+    btn.addEventListener("click", function(e){
+      e.stopPropagation(); // nie wybieraj marki spod ołówka — tylko otwórz edycję
+      closeBrandSelectMenu();
+      openBrandForm("edit", btn.getAttribute("data-brand-edit"));
+    });
+  });
+  menu.querySelector("[data-brand-add]").addEventListener("click", function(e){
+    e.stopPropagation();
+    closeBrandSelectMenu();
+    openBrandForm("new");
   });
   byId("brandPickerDot").style.background = brand().accent;
 }
@@ -7150,8 +7176,6 @@ document.addEventListener("click", function(e){
   var wrap = byId("brandSelectWrap");
   if(wrap && !wrap.contains(e.target)) closeBrandSelectMenu();
 });
-byId("brandEditBtn").addEventListener("click", function(){ openBrandForm("edit", state.brand); });
-byId("brandAddBtn").addEventListener("click", function(){ openBrandForm("new"); });
 
 /* CRM/ESP platform: back in Brand Kit (user: "wolałem jak te ustawienia
    były w Brand Kit" — reverting the earlier move to the topbar). The
