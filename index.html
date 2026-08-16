@@ -192,11 +192,11 @@
   .cat-chips{display:none}
 
   main.grid-wrap{padding:20px 20px 60px; border-left:1px solid var(--line); border-right:1px solid var(--line); min-height:calc(100vh - 69px)}
-  .grid-heading{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px; gap:12px; flex-wrap:wrap}
+  .grid-heading{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; gap:12px; flex-wrap:wrap}
   /* Search + Platform filter w jednej linii — user: "search bar ma byc w
      jednej linii z platformami. po lewej search bar, po prawej Platforms".
      Search rośnie (flex:1), filtr trzyma się prawej krawędzi (flex:none). */
-  .search-row{display:flex; align-items:center; gap:16px; margin-bottom:16px}
+  .search-row{display:flex; align-items:center; gap:16px; margin-bottom:26px}
   .crm-filter-row{display:flex; align-items:center; gap:14px; flex:none}
   .crm-filter-row .bf-checkbox{color:var(--ink-muted); font-size:13px}
   /* Checkbox platformy obsługiwanej przez aktywną markę — zablokowany do
@@ -503,9 +503,24 @@
      jest renderowany przez system/przeglądarkę i poza tym nie da się go
      ostylować z poziomu CSS. */
   .bf-field input[type="datetime-local"]{ accent-color:var(--accent); color-scheme:light }
-  .bf-field input[type="text"]:focus, .bf-field input[type="number"]:focus, .bf-field input[type="datetime-local"]:focus, .bf-field input[type="email"]:focus, .bf-field input[type="password"]:focus, .bf-field select:focus, .bf-color-swatch:focus-visible{ outline:2px solid var(--accent); outline-offset:1px }
+  .bf-color-swatch:focus-visible{ outline:2px solid var(--accent); outline-offset:1px }
+  /* user: "miałeś zlikwidować WSZĘDZIE ten styl pogrubienia każdych
+     inputów. ma być 1px i nie czarny tylko lekko ciemniejszy od obecnego"
+     — jeden globalny catch-all zamiast łatania każdej klasy inputu z
+     osobna (dawniej: search-input i .code w ogóle nie miały :focus, więc
+     dostawały grubą, czarną, natywną obwódkę przeglądarki; .bf-field
+     inputy miały SWOJĄ własną, 2px pomarańczową). Teraz KAŻDY zwykły
+     input/textarea/select w apce (poza świadomie odrębnymi wyjątkami:
+     .inline-edit-input — pomarańcz, zamierzony osobny akcent przy "wpisz
+     nazwę w miejscu"; checkboxy/swatche kolorów — inny typ kontrolki, mają
+     własne, wyżej wyspecyfikowane reguły) dostaje TĘ SAMĄ, spokojną
+     obwódkę: 1px, o jeden odcień ciemniejszy niż domyślny --line. */
+  input[type="text"]:focus, input[type="number"]:focus, input[type="datetime-local"]:focus,
+  input[type="email"]:focus, input[type="password"]:focus, input[type="search"]:focus,
+  textarea:focus, select:focus{ outline:none; border-color:var(--line-strong) }
   .bf-color-field{display:flex; align-items:center; gap:6px}
   .bf-color-field input[type="color"]{width:30px; height:26px; border:1px solid var(--line); border-radius:4px; padding:0; background:none; flex:none}
+  .bf-color-field input[type="color"]:focus{outline:1px solid var(--line-strong); outline-offset:1px}
   .bf-color-field input[type="text"]{flex:1; min-width:0}
   .bf-checkbox{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-muted)}
   /* Natywny checkbox (system-owy niebieski haczyk, patrz screenshot usera)
@@ -878,7 +893,15 @@
 
 <div class="shell">
   <nav class="rail" id="rail" aria-label="Categories and ready-made emails">
+    <!-- user: "sekcję tools w kolumnie daj najpierw ją" — Tools jest teraz
+         pierwszą sekcją w kolumnie, przed Categories/E-mails. -->
     <div class="rail-title-row">
+      <p class="rail-title">Tools</p>
+    </div>
+    <div style="padding:0 10px">
+      <button class="btn ghost small" id="countdownOpenBtn" type="button" style="width:100%">Create Countdown</button>
+    </div>
+    <div class="rail-title-row" style="margin-top:22px">
       <p class="rail-title">Categories</p>
       <button type="button" class="icon-btn" id="railCategoriesEditBtn" title="Edit categories" aria-label="Edit categories"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>
     </div>
@@ -888,28 +911,22 @@
       <button type="button" class="icon-btn" id="railFlowsEditBtn" title="Edit categories" aria-label="Edit categories"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>
     </div>
     <div id="railFlowList"></div>
-    <!-- user: "Countdown GIF wrzuć do kolumny z components i e-mail do
-         nowej sekcji 'Tools' i daj tam przycisk Create Countdown" —
-         przeniesione z topbara (patrz countdownOpenBtn, teraz tutaj). -->
-    <div class="rail-title-row" style="margin-top:22px">
-      <p class="rail-title">Tools</p>
-    </div>
-    <div style="padding:0 10px">
-      <button class="btn ghost small" id="countdownOpenBtn" type="button" style="width:100%">Create Countdown</button>
-    </div>
   </nav>
 
   <main class="grid-wrap">
-    <div class="search-row">
-      <input type="text" id="searchInput" class="search-input" placeholder="Search…" aria-label="Search components and ready-made emails">
-      <div class="crm-filter-row" id="crmFilterRow"></div>
-    </div>
+    <!-- user: "tu jest za duży ścisk. zamień te sekcje miejscami. najpierw
+         nagłówek potem search i daj więcej oddechu" — nagłówek sekcji
+         teraz nad wyszukiwarką, nie pod nią. -->
     <div class="grid-heading">
       <h2 id="gridTitle">All components</h2>
       <span style="display:flex; align-items:center; gap:10px">
         <span class="grid-count" id="gridCount"></span>
         <button class="btn small" id="addComponentBtn" type="button">+ New component</button>
       </span>
+    </div>
+    <div class="search-row">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search…" aria-label="Search components and ready-made emails">
+      <div class="crm-filter-row" id="crmFilterRow"></div>
     </div>
     <div class="card-grid" id="cardGrid"></div>
     <div class="pagination" id="gridPagination"></div>
