@@ -98,10 +98,6 @@
   .topbar-left{display:flex; align-items:center; gap:14px; justify-self:start}
   .topbar-center{justify-self:center}
   .topbar-right{justify-self:end}
-  .icon-btn-group{display:flex; align-items:center; gap:6px}
-  .icon-btn-lg{width:32px; height:32px; border:1px solid var(--line-strong); background:var(--surface); border-radius:8px; color:var(--ink-muted); font-size:15px; display:flex; align-items:center; justify-content:center; line-height:1}
-  .icon-btn-lg:hover{color:var(--ink); border-color:var(--ink)}
-  .icon-btn-lg:disabled{opacity:.4; cursor:not-allowed}
   .brand-picker-dot{width:14px; height:14px; border-radius:50%; border:1px solid rgba(0,0,0,.12); flex:none}
   /* Natywny <select> nie da się realnie ostylować (lista opcji/podświetlenie
      to renderowanie systemu operacyjnego, poza zasięgiem CSS) — dlatego
@@ -351,16 +347,6 @@
   .modal.mail-preview-modal{max-width:calc(660px + 88px)}
   .device-toggle{display:flex; gap:2px; background:var(--surface-2); border-radius:8px; padding:3px}
   .device-btn{border:0; background:transparent; padding:6px 12px; font-size:12px; font-family:inherit; border-radius:6px; cursor:pointer; color:var(--ink-faint)}
-  /* Ten sam font-size co przyciski Edit/Add obok (.btn.small), żeby cała
-     grupa w topbarze (marka + CRM) wyglądała spójnie, nie jak dwa różne
-     komponenty przypadkiem postawione koło siebie. */
-  /* Poprzednia wersja (44x44 sztywny box) była wyższa niż sąsiednie Edit/Add
-     (.btn.small) — user: "przycisk ma miec identyczna wysokosc jak EDIT
-     czy ADD". Zamiast sztywnych width/height: auto rozmiar z paddingu (jak
-     .btn.small: 8px góra/dół), line-height:1 tak, żeby wysokość liczyła
-     się identycznie jak tamtych przycisków (border 2px + padding 16px +
-     linia = font-size), a ikona rośnie samym font-size, bez oddzielnego boxa. */
-  .icon-btn-crm-settings{width:auto; height:auto; padding:8px 14px; font-size:17px; line-height:1; border-radius:6px}
   .device-btn[aria-pressed="true"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.1)}
   /* Podgląd pojedynczego komponentu (editPreviewBox) — Mobile zwęża
      TYLKO to okienko, nie cały popup edytora (patrz syncEditDeviceToggleUI;
@@ -665,11 +651,13 @@
           <circle cx="66" cy="66" r="19" fill="none" stroke="var(--brand-mark)" stroke-width="13" stroke-linecap="round" stroke-dasharray="79 40" transform="rotate(-45 66 66)"></circle>
         </svg>
       </h1>
-      <div class="icon-btn-group">
-        <button class="icon-btn-lg" id="backupExportBtn" type="button" title="Copy backup (.json)" aria-label="Copy backup">&#8681;</button>
-        <button class="icon-btn-lg" id="backupImportBtn" type="button" title="Import backup (.json)" aria-label="Import backup">&#8679;</button>
-        <input type="file" id="backupImportInput" accept="application/json,.json" style="display:none">
-      </div>
+      <!-- user: "przycisk SITE SETTINGS przerzucasz teraz obok logo, ikony
+           Import/Export mają być teraz częścią Site Settings" — backup
+           export/import przeniesione do nowej zakładki w #crmSettingsOverlay
+           (patrz niżej), ten guzik zostaje jedynym ikonowym przyciskiem w
+           topbarze — zwykły .icon-btn, bez własnego, większego rozmiaru
+           (patrz komentarz o niekonsekwencji rozmiarów ikon). -->
+      <button class="icon-btn" id="crmSettingsTopbarBtn" type="button" title="Site settings" aria-label="Site settings">&#9881;</button>
     </div>
     <div class="brand-picker topbar-center">
       <span class="brand-picker-dot" id="brandPickerDot"></span>
@@ -680,7 +668,6 @@
         </button>
         <ul class="brand-select-menu" id="brandSelectMenu" role="listbox" aria-label="Brand selection" style="display:none"></ul>
       </div>
-      <button class="icon-btn icon-btn-crm-settings" id="crmSettingsTopbarBtn" type="button" title="Site settings" aria-label="Site settings">&#9881;</button>
     </div>
     <div class="topbar-right">
       <!-- user: "kliknięcie w to ma wywołać dropdown chmurkę z opcjami
@@ -832,6 +819,7 @@
         <button type="button" class="bf-tab-btn" data-settings-tab="crm" aria-pressed="true">CRM/ESP</button>
         <button type="button" class="bf-tab-btn" data-settings-tab="categories" aria-pressed="false">Categories</button>
         <button type="button" class="bf-tab-btn" data-settings-tab="industries" aria-pressed="false">Industries</button>
+        <button type="button" class="bf-tab-btn" data-settings-tab="import-export" aria-pressed="false">Import/Export</button>
       </div>
       <div class="settings-tab-panel" data-settings-tab="crm">
         <div class="bf-group">
@@ -881,6 +869,16 @@
               <input type="text" id="newIndustryInput">
             </div>
             <button class="btn small" type="button" id="addIndustryBtn" style="align-self:flex-end">Add</button>
+          </div>
+        </div>
+      </div>
+      <div class="settings-tab-panel" data-settings-tab="import-export" style="display:none">
+        <div class="bf-group">
+          <p class="bf-group-title">Backup</p>
+          <div style="display:flex; gap:8px">
+            <button class="btn ghost" type="button" id="backupExportBtn">Copy backup</button>
+            <button class="btn ghost" type="button" id="backupImportBtn">Import backup</button>
+            <input type="file" id="backupImportInput" accept="application/json,.json" style="display:none">
           </div>
         </div>
       </div>
