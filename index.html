@@ -337,9 +337,11 @@
      wewnątrz (overflow-y:auto). */
   .modal-preview-box.stacked{display:block; height:70vh; overflow-y:auto; overflow-anchor:none}
   /* STAŁA wysokość (patrz mountMjmlIframe, fixedHeight:true) — treść
-     krótsza niż okno ląduje wycentrowana (patrz resizeStyle w
-     mountMjmlIframe), dłuższa dostaje PIONOWY scrollbar wewnątrz samego
-     iframe'a. overflow-x:auto tutaj to dodatkowy bezpiecznik — user:
+     zaczyna się ZAWSZE od górnej krawędzi (patrz resizeStyle w
+     mountMjmlIframe — flex-start, nie center, żeby dłuższa treść nigdy
+     nie zaczynała się z górą już poza ekranem), dłuższa dostaje PIONOWY
+     scrollbar wewnątrz samego iframe'a. overflow-x:auto tutaj to
+     dodatkowy bezpiecznik — user:
      "jeżeli content wyjeżdża poza okno preview dodaj boczny scrollbar"
      (komponent szerszy niż okno, np. dwukolumnowy feed, ma dostać POZIOMY
      scrollbar zamiast po prostu się przycinać bez śladu). */
@@ -8193,15 +8195,21 @@ function mountMjmlIframe(containerId, bodyMjml, b, opts){
      bar i tyle"). #editPreviewBox ma teraz w CSS SZTYWNĄ wysokość
      (480px) — iframe wypełnia ją w 100% i w OGÓLE nie mierzy/nie
      zgłasza swojej wysokości (brak ResizeObservera/postMessage), więc
-     nie ma już czym uruchomić pętli narastania. Krótsza treść ląduje na
-     środku dzięki body{display:flex; align-items:center} WEWNĄTRZ
-     dokumentu iframe'a; dłuższa po prostu przelewa się i iframe (domyślnie
-     przewijalny) dostaje WŁASNY, wewnętrzny scrollbar — bez żadnej
-     matematyki po stronie rodzica. */
+     nie ma już czym uruchomić pętli narastania. Dłuższa treść przelewa
+     się i iframe (domyślnie przewijalny) dostaje WŁASNY, wewnętrzny
+     scrollbar — bez żadnej matematyki po stronie rodzica.
+     Wycentrowanie (justify-content:center) zostało COFNIĘTE — user:
+     "to preview nie może się jednak centrować, bo jeśli content jest
+     dłuższy niż okno w preview, to góry nie widać. musi się jednak
+     zawartość ustawiać od górnej krawędzi". Centrowanie przelewającej się
+     treści w overflow:auto kontenerze domyślnie startuje z już
+     "przewiniętym" widokiem (górna połowa nadmiaru jest od razu poza
+     ekranem) — flex-start eliminuje ten problem: treść zawsze zaczyna się
+     od góry, niezależnie od tego, czy się mieści, czy przelewa. */
   var fixedHeightMode = !!(opts && opts.fixedHeight);
   var resizeStyle, resizeScript;
   if(fixedHeightMode){
-    resizeStyle = '\n<style>html,body{height:100%!important; margin:0!important}body{display:flex!important; flex-direction:column!important; justify-content:center!important; min-height:100%!important}</style>\n';
+    resizeStyle = '\n<style>html,body{height:100%!important; margin:0!important}body{display:flex!important; flex-direction:column!important; justify-content:flex-start!important; min-height:100%!important}</style>\n';
     resizeScript = "";
   } else {
     resizeStyle = '\n<style>html,body{height:auto!important}</style>\n';
