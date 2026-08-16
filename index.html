@@ -661,14 +661,14 @@
            (patrz niżej), ten guzik zostaje jedynym ikonowym przyciskiem w
            topbarze — zwykły .icon-btn, bez własnego, większego rozmiaru
            (patrz komentarz o niekonsekwencji rozmiarów ikon). -->
-      <button class="icon-btn" id="crmSettingsTopbarBtn" type="button" title="Site settings" aria-label="Site settings">&#9881;</button>
+      <button class="icon-btn" id="crmSettingsTopbarBtn" type="button" title="Site settings" aria-label="Site settings"><svg width="12" height="12" viewBox="0 -960 960 960" fill="currentColor"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg></button>
     </div>
     <div class="brand-picker topbar-center">
       <span class="brand-picker-dot" id="brandPickerDot"></span>
       <div class="brand-select" id="brandSelectWrap">
         <button type="button" class="brand-select-btn" id="brandSelectBtn" aria-haspopup="listbox" aria-expanded="false">
           <span id="brandSelectLabel"></span>
-          <span class="brand-select-caret" aria-hidden="true">&#9662;</span>
+          <span class="brand-select-caret" aria-hidden="true"><svg width="12" height="12" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"/></svg></span>
         </button>
         <ul class="brand-select-menu" id="brandSelectMenu" role="listbox" aria-label="Brand selection" style="display:none"></ul>
       </div>
@@ -764,7 +764,7 @@
   <div class="modal" style="max-width:420px">
     <div class="modal-head">
       <h3>Edit profile</h3>
-      <button class="modal-close" id="profileFormClose" aria-label="Close">&times;</button>
+      <button class="modal-close" id="profileFormClose" aria-label="Close"><svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="bf-field" style="margin-bottom:12px">
@@ -800,7 +800,7 @@
   <div class="modal" style="max-width:640px">
     <div class="modal-head">
       <h3>Backup</h3>
-      <button class="modal-close" id="backupExportClose" aria-label="Close">&times;</button>
+      <button class="modal-close" id="backupExportClose" aria-label="Close"><svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <textarea class="code" id="backupExportTextarea" readonly spellcheck="false" style="height:360px; width:100%"></textarea>
@@ -816,7 +816,7 @@
   <div class="modal" style="max-width:640px">
     <div class="modal-head">
       <h3>Site settings</h3>
-      <button class="modal-close" id="crmSettingsClose" aria-label="Close">&times;</button>
+      <button class="modal-close" id="crmSettingsClose" aria-label="Close"><svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="bf-tabs" role="tablist">
@@ -937,7 +937,7 @@
   <aside class="drawer" id="drawer">
     <div class="drawer-handle" id="drawerHandle">
       <h3 class="drawer-title" style="justify-content:flex-start; gap:8px">Mail stack <span class="drawer-count" id="listCount">(0)</span>
-        <button class="icon-btn" id="refreshAllBtn" type="button" style="display:none" title="Syncs every item with the latest catalog version. Filled-in content stays." aria-label="Refresh whole list from catalog">&#8635;</button>
+        <button class="icon-btn" id="refreshAllBtn" type="button" style="display:none" title="Syncs every item with the latest catalog version. Filled-in content stays." aria-label="Refresh whole list from catalog"><svg width="12" height="12" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg></button>
         <button class="btn ghost small" id="saveEmailBtn" type="button" disabled style="margin-left:auto">Save as</button>
       </h3>
     </div>
@@ -961,7 +961,7 @@
   <div class="modal" id="previewModal">
     <div class="modal-head">
       <h3 id="previewTitle"></h3>
-      <button class="modal-close" id="previewClose" aria-label="Close">&times;</button>
+      <button class="modal-close" id="previewClose" aria-label="Close"><svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="preview-chrome-row" id="previewChromeRow">
@@ -996,8 +996,8 @@
             <div class="inbox-chrome-right">
               <span class="inbox-chrome-date" id="inboxDate"></span>
               <span class="inbox-chrome-icon" title="Star">&#9734;</span>
-              <span class="inbox-chrome-icon" title="Reply">&#8617;</span>
-              <span class="inbox-chrome-icon" title="More">&#8942;</span>
+              <span class="inbox-chrome-icon" title="Reply"><svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="M760-200v-160q0-50-35-85t-85-35H273l144 144-57 56-240-240 240-240 57 56-144 144h367q83 0 141.5 58.5T840-360v160h-80Z"/></svg></span>
+              <span class="inbox-chrome-icon" title="More"><svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/></svg></span>
             </div>
           </div>
         </div>
@@ -1021,7 +1021,7 @@
   <div class="modal" style="max-width:640px">
     <div class="modal-head">
       <h3 id="saveEmailFormTitle">Save as ready-made email</h3>
-      <button class="modal-close" id="saveEmailFormClose" aria-label="Close">&times;</button>
+      <button class="modal-close" id="saveEmailFormClose" aria-label="Close"><svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <form id="saveEmailForm" class="brand-form"></form>
@@ -1037,7 +1037,7 @@
   <div class="modal" style="max-width:820px">
     <div class="modal-head">
       <h3 id="componentFormTitle">New component</h3>
-      <button class="modal-close" id="componentFormClose" aria-label="Close">&times;</button>
+      <button class="modal-close" id="componentFormClose" aria-label="Close"><svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <p class="modal-desc" id="componentFormDesc"></p>
@@ -1058,7 +1058,7 @@
   <div class="modal" id="editModal" style="max-width:1100px">
     <div class="modal-head">
       <h3 id="editTitle">Edit component</h3>
-      <button class="modal-close" id="editClose" aria-label="Close">&times;</button>
+      <button class="modal-close" id="editClose" aria-label="Close"><svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="bf-group" style="margin-bottom:16px">
@@ -1128,7 +1128,7 @@
   <div class="modal" style="max-width:900px">
     <div class="modal-head">
       <h3 id="brandFormTitle">New brand</h3>
-      <button class="modal-close" id="brandFormClose" aria-label="Close">&times;</button>
+      <button class="modal-close" id="brandFormClose" aria-label="Close"><svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="bf-device-toggle device-toggle" id="brandFormDeviceToggle" role="tablist">
@@ -1158,8 +1158,8 @@
       </div>
       <div id="brandFormFooterPrompt" style="display:none; flex:1; align-items:center; gap:8px">
         <input type="text" id="brandFormSaveAsNewInput" class="inline-edit-input" placeholder="New brand name" style="flex:1">
-        <button type="button" class="icon-btn icon-btn-field" id="brandFormSaveAsNewConfirm" title="Save" aria-label="Save">&#10003;</button>
-        <button type="button" class="icon-btn icon-btn-field" id="brandFormSaveAsNewCancel" title="Cancel" aria-label="Cancel">&times;</button>
+        <button type="button" class="icon-btn icon-btn-field" id="brandFormSaveAsNewConfirm" title="Save" aria-label="Save"><svg width="12" height="12" viewBox="0 -960 960 960" fill="currentColor"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg></button>
+        <button type="button" class="icon-btn icon-btn-field" id="brandFormSaveAsNewCancel" title="Cancel" aria-label="Cancel"><svg width="12" height="12" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
       </div>
     </div>
   </div>
@@ -1169,7 +1169,7 @@
   <div class="modal" style="max-width:1140px">
     <div class="modal-head">
       <h3>Countdown GIF</h3>
-      <button class="modal-close" id="countdownClose" aria-label="Close">&times;</button>
+      <button class="modal-close" id="countdownClose" aria-label="Close"><svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="brand-form-layout cd-layout">
@@ -5465,12 +5465,12 @@ function cfVariantFieldHtml(){
       '<select id="cf-variant" style="flex:1"></select>'+
       '<button type="button" class="icon-btn icon-btn-field" id="cfVariantRenameBtn" title="Rename variant" aria-label="Rename variant" style="display:none">'+ICON_PENCIL+'</button>'+
       '<button type="button" class="icon-btn icon-btn-field" id="cfVariantAddBtn" title="Add variant" aria-label="Add variant">+</button>'+
-      '<button type="button" class="icon-btn icon-btn-field" id="cfVariantDeleteBtn" title="Delete variant" aria-label="Delete variant" style="display:none; color:#b42318">&times;</button>'+
+      '<button type="button" class="icon-btn icon-btn-field" id="cfVariantDeleteBtn" title="Delete variant" aria-label="Delete variant" style="display:none; color:#b42318">'+ICON_CLOSE+'</button>'+
     '</div>'+
     '<div id="cfVariantAddRow" style="display:none; gap:4px">'+
       '<input type="text" id="cfVariantNameInput" class="inline-edit-input">'+
-      '<button type="button" class="icon-btn icon-btn-field" id="cfVariantAddConfirm" title="Save" aria-label="Save">&#10003;</button>'+
-      '<button type="button" class="icon-btn icon-btn-field" id="cfVariantAddCancel" title="Cancel" aria-label="Cancel">&times;</button>'+
+      '<button type="button" class="icon-btn icon-btn-field" id="cfVariantAddConfirm" title="Save" aria-label="Save">'+ICON_CHECK+'</button>'+
+      '<button type="button" class="icon-btn icon-btn-field" id="cfVariantAddCancel" title="Cancel" aria-label="Cancel">'+ICON_CLOSE+'</button>'+
     '</div>'+
   '</div>';
 }
@@ -5712,7 +5712,23 @@ var editState = { componentId:null, listUid:null, values:{}, touched:{}, default
 /* Mały wektorowy "ołówek" (zamiast emoji, spójnie z resztą UI) — używany
    przy przycisku zmiany nazwy wariantu, w obu miejscach (edytor istniejącego
    komponentu / New component). */
-var ICON_PENCIL = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>';
+// Zestaw ikon — user: "korzystaj proszę z ikon tych https://fonts.google.com/
+// icons te które używasz są tragiczne". Wcześniej: gołe znaki Unicode
+// (⚙⇧⇩✎⧉↺×▾✓⋮☰) albo ręcznie rysowany ICON_PENCIL — teraz prawdziwe,
+// oficjalne ścieżki Material Symbols (Outlined, licencja Apache 2.0),
+// osadzone jako inline SVG (fill="currentColor", żeby dziedziczyły kolor
+// tak samo jak dawniej robił to sam tekst glifu) — nie webfont/ligatura
+// (uniknięcie migotania "surowej nazwy ikony" zanim font się doładuje).
+var ICON_PENCIL = '<svg width="12" height="12" viewBox="0 -960 960 960" fill="currentColor"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>';
+var ICON_CLOSE = '<svg width="12" height="12" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>';
+var ICON_CHECK = '<svg width="12" height="12" viewBox="0 -960 960 960" fill="currentColor"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>';
+var ICON_REFRESH = '<svg width="12" height="12" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>';
+var ICON_DUPLICATE = '<svg width="12" height="12" viewBox="0 -960 960 960" fill="currentColor"><path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/></svg>';
+var ICON_DRAG = '<svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="M360-160q-33 0-56.5-23.5T280-240q0-33 23.5-56.5T360-320q33 0 56.5 23.5T440-240q0 33-23.5 56.5T360-160Zm240 0q-33 0-56.5-23.5T520-240q0-33 23.5-56.5T600-320q33 0 56.5 23.5T680-240q0 33-23.5 56.5T600-160ZM360-400q-33 0-56.5-23.5T280-480q0-33 23.5-56.5T360-560q33 0 56.5 23.5T440-480q0 33-23.5 56.5T360-400Zm240 0q-33 0-56.5-23.5T520-480q0-33 23.5-56.5T600-560q33 0 56.5 23.5T680-480q0 33-23.5 56.5T600-400ZM360-640q-33 0-56.5-23.5T280-720q0-33 23.5-56.5T360-800q33 0 56.5 23.5T440-720q0 33-23.5 56.5T360-640Zm240 0q-33 0-56.5-23.5T520-720q0-33 23.5-56.5T600-800q33 0 56.5 23.5T680-720q0 33-23.5 56.5T600-640Z"/></svg>';
+var ICON_CARET_DOWN = '<svg width="12" height="12" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"/></svg>';
+var ICON_SETTINGS = '<svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg>';
+var ICON_REPLY = '<svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="M760-200v-160q0-50-35-85t-85-35H273l144 144-57 56-240-240 240-240 57 56-144 144h367q83 0 141.5 58.5T840-360v160h-80Z"/></svg>';
+var ICON_MORE_VERT = '<svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/></svg>';
 // "code" | "phrases" — który panel jest aktualnie widoczny w edytorze
 // komponentu (patrz syncEditModeUI/editModeToggle). Tylko JEDEN panel na
 // raz, w tym samym miejscu — nie dwa sklejone jak wcześniej.
@@ -5932,12 +5948,12 @@ function variantFieldHtml(){
       '<select id="em-variant" style="flex:1"></select>'+
       '<button type="button" class="icon-btn icon-btn-field" id="editVariantRenameBtn" title="Rename variant" aria-label="Rename variant" style="display:none">'+ICON_PENCIL+'</button>'+
       '<button type="button" class="icon-btn icon-btn-field" id="editVariantAddBtn" title="Add variant" aria-label="Add variant">+</button>'+
-      '<button type="button" class="icon-btn icon-btn-field" id="editVariantDeleteBtn" title="Delete variant" aria-label="Delete variant" style="display:none; color:#b42318">&times;</button>'+
+      '<button type="button" class="icon-btn icon-btn-field" id="editVariantDeleteBtn" title="Delete variant" aria-label="Delete variant" style="display:none; color:#b42318">'+ICON_CLOSE+'</button>'+
     '</div>'+
     '<div id="editVariantAddRow" style="display:none; gap:4px">'+
       '<input type="text" id="editVariantNameInput" class="inline-edit-input">'+
-      '<button type="button" class="icon-btn icon-btn-field" id="editVariantAddConfirm" title="Save" aria-label="Save">&#10003;</button>'+
-      '<button type="button" class="icon-btn icon-btn-field" id="editVariantAddCancel" title="Cancel" aria-label="Cancel">&times;</button>'+
+      '<button type="button" class="icon-btn icon-btn-field" id="editVariantAddConfirm" title="Save" aria-label="Save">'+ICON_CHECK+'</button>'+
+      '<button type="button" class="icon-btn icon-btn-field" id="editVariantAddCancel" title="Cancel" aria-label="Cancel">'+ICON_CLOSE+'</button>'+
     '</div>'+
   '</div>';
 }
@@ -6754,7 +6770,7 @@ function bfFieldHtml(f, d, device){
       '<div class="bf-logo-field-controls">'+
         '<label class="btn ghost small bf-logo-upload-btn"'+(fileDisabled?' aria-disabled="true"':'')+' for="'+bfInputId(f.key)+'">Choose file</label>'+
         '<input type="file" accept="image/png,image/jpeg" id="'+bfInputId(f.key)+'" data-bf-file="'+f.key+'" style="display:none"'+disAttr+'>'+
-        (val ? '<button type="button" class="icon-btn icon-btn-field" data-bf-file-clear="'+f.key+'" aria-label="Remove logo">&times;</button>' : '')+
+        (val ? '<button type="button" class="icon-btn icon-btn-field" data-bf-file-clear="'+f.key+'" aria-label="Remove logo">'+ICON_CLOSE+'</button>' : '')+
       '</div>'+
     '</div>';
   } else {
@@ -7068,7 +7084,7 @@ function enhanceSelect(select, opts){
   var caret = document.createElement("span");
   caret.className = "cs-select-caret";
   caret.setAttribute("aria-hidden", "true");
-  caret.innerHTML = "&#9662;";
+  caret.innerHTML = ICON_CARET_DOWN;
   btn.appendChild(label);
   btn.appendChild(caret);
   wrap.appendChild(btn);
@@ -7286,7 +7302,7 @@ function renderCategoryManager(){
       '<span class="cat-manage-count">'+n+'</span>'+
       '<span class="cat-manage-actions">'+
         '<button type="button" class="icon-btn" data-rename-category="'+cat.id+'" title="Rename category" aria-label="Rename category">'+ICON_PENCIL+'</button>'+
-        '<button type="button" class="icon-btn" data-remove-category="'+cat.id+'" aria-label="Remove category">&times;</button>'+
+        '<button type="button" class="icon-btn" data-remove-category="'+cat.id+'" aria-label="Remove category">'+ICON_CLOSE+'</button>'+
       '</span>'+
     '</div>';
   }).join("");
@@ -7308,7 +7324,7 @@ function renderCategoryManager(){
       '<span class="cat-manage-count">'+n+'</span>'+
       '<span class="cat-manage-actions">'+
         '<button type="button" class="icon-btn" data-rename-flow="'+f.id+'" title="Rename category" aria-label="Rename category">'+ICON_PENCIL+'</button>'+
-        '<button type="button" class="icon-btn" data-remove-flow="'+f.id+'" aria-label="Remove category">&times;</button>'+
+        '<button type="button" class="icon-btn" data-remove-flow="'+f.id+'" aria-label="Remove category">'+ICON_CLOSE+'</button>'+
       '</span>'+
       industryRow+
     '</div>';
@@ -7553,7 +7569,7 @@ function renderIndustryManager(){
   list.innerHTML = INDUSTRIES.map(function(ind){
     return '<div class="cat-manage-row" data-industry-row="'+ind.id+'">'+
       '<span class="cat-manage-label">'+esc(ind.label)+'</span>'+
-      '<button type="button" class="icon-btn" data-remove-industry="'+ind.id+'" aria-label="Remove industry">&times;</button>'+
+      '<button type="button" class="icon-btn" data-remove-industry="'+ind.id+'" aria-label="Remove industry">'+ICON_CLOSE+'</button>'+
     '</div>';
   }).join("");
   list.querySelectorAll("[data-remove-industry]").forEach(function(btn){
@@ -7686,8 +7702,15 @@ var lastGridSignature = null;
    gwiazdka (SVG, nie emoji — spójnie z resztą ikon w appce): kontur, gdy
    nieaktywna, wypełniona kolorem akcentu, gdy aktywna — ta sama znacznik
    wielokrotnie użyty w obu listingach (komponenty/maile). */
+// Material Symbols "star" (solid, filled=1) vs. bazowy "star" (outline) —
+// user: "korzystaj z ikon Google Fonts Icons". Prawdziwa para gwiazdek
+// zamiast ręcznie rysowanej — ta sama logika: pełna = ulubione, kontur =
+// nie.
 function starIconHtml(filled){
-  return '<svg width="14" height="14" viewBox="0 0 24 24" fill="'+(filled?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 L14.9 8.6 L22 9.3 L16.8 14.1 L18.2 21 L12 17.6 L5.8 21 L7.2 14.1 L2 9.3 L9.1 8.6 Z"></path></svg>';
+  var path = filled
+    ? 'm233-120 65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Z'
+    : 'm354-287 126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143ZM233-120l65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Zm247-350Z';
+  return '<svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="'+path+'"></path></svg>';
 }
 function isCompFavorite(id){ return !!state.favoriteComponents[id]; }
 function toggleCompFavorite(id){
@@ -8697,10 +8720,10 @@ function renderList(){
       // to usunięcie — nie ma czego edytować ani czym renderować.
       row.classList.add("list-item-broken");
       row.innerHTML =
-        '<span class="li-handle" draggable="true" aria-label="Drag to reorder" title="Drag to reorder">&#9776;</span>'+
+        '<span class="li-handle" draggable="true" aria-label="Drag to reorder" title="Drag to reorder">'+ICON_DRAG+'</span>'+
         '<span class="li-key mono" title="A component with this ID no longer exists — remove this item">⚠ '+esc(item.componentId)+' (not found)</span>'+
         '<span class="li-actions">'+
-          '<button class="icon-btn" data-remove="'+item.uid+'" aria-label="Remove">&times;</button>'+
+          '<button class="icon-btn" data-remove="'+item.uid+'" aria-label="Remove">'+ICON_CLOSE+'</button>'+
         '</span>';
       body.appendChild(row);
       return;
@@ -8714,13 +8737,13 @@ function renderList(){
     var variant = item.variantId ? (c.variants||[]).filter(function(v){ return v.id===item.variantId; })[0] : null;
     var variantSuffix = variant ? ' <span class="li-variant">('+esc(variant.label)+')</span>' : "";
     row.innerHTML =
-      '<span class="li-handle" draggable="true" aria-label="Drag to reorder" title="Drag to reorder">&#9776;</span>'+
-      '<span class="li-key mono"'+edited+' title="'+esc(c.label)+(item.code?' · content edited':'')+'">'+esc(c.id)+(item.code?' &#9998;':'')+variantSuffix+'</span>'+
+      '<span class="li-handle" draggable="true" aria-label="Drag to reorder" title="Drag to reorder">'+ICON_DRAG+'</span>'+
+      '<span class="li-key mono"'+edited+' title="'+esc(c.label)+(item.code?' · content edited':'')+'">'+esc(c.id)+(item.code?' '+ICON_PENCIL:'')+variantSuffix+'</span>'+
       '<span class="li-actions">'+
-        '<button class="icon-btn" data-edit-item="'+item.uid+'" aria-label="Edit content">&#9998;</button>'+
-        (item.code ? '<button class="icon-btn" data-refresh-item="'+item.uid+'" title="Sync with the latest catalog version — content stays" aria-label="Refresh from catalog">&#8635;</button>' : '')+
-        '<button class="icon-btn" data-duplicate="'+item.uid+'" aria-label="Duplicate">&#10697;</button>'+
-        '<button class="icon-btn" data-remove="'+item.uid+'" aria-label="Remove">&times;</button>'+
+        '<button class="icon-btn" data-edit-item="'+item.uid+'" aria-label="Edit content">'+ICON_PENCIL+'</button>'+
+        (item.code ? '<button class="icon-btn" data-refresh-item="'+item.uid+'" title="Sync with the latest catalog version — content stays" aria-label="Refresh from catalog">'+ICON_REFRESH+'</button>' : '')+
+        '<button class="icon-btn" data-duplicate="'+item.uid+'" aria-label="Duplicate">'+ICON_DUPLICATE+'</button>'+
+        '<button class="icon-btn" data-remove="'+item.uid+'" aria-label="Remove">'+ICON_CLOSE+'</button>'+
       '</span>';
     body.appendChild(row);
   });
