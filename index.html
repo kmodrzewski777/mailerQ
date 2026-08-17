@@ -433,23 +433,37 @@
   .toast.error{background:#b42318}
 
   /* ---------- feedback ---------- */
-  /* user: "w prawym dolnym rogu przycisk Feedback" — poniżej .overlay
-     (z-index:100), żeby otwarty modal zawsze go zasłaniał zamiast pływać
-     nad nim. */
+  /* user: "przycisk ma być przyklejony do dolnej krawędzi i border radius
+     mniejszy i tylko górne krawędzie" — bottom:0 zamiast pływającego
+     marginesu, mały radius tylko u góry (dolne rogi i tak nie są widoczne,
+     bo przycisk styka się z krawędzią ekranu). */
   .feedback-fab{
-    position:fixed; right:22px; bottom:22px; z-index:90;
-    background:var(--ink); color:var(--paper); border:none; border-radius:var(--radius-chip);
+    position:fixed; right:22px; bottom:0; z-index:90;
+    background:var(--ink); color:var(--paper); border:none; border-radius:8px 8px 0 0;
     padding:11px 18px; font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer;
-    box-shadow:0 6px 20px rgba(0,0,0,.18); transition:transform .12s ease, opacity .12s ease;
+    box-shadow:0 -4px 16px rgba(0,0,0,.15); transition:opacity .12s ease;
   }
   .feedback-fab:hover{opacity:.85}
-  .feedback-fab:active{transform:scale(.97)}
+  /* user: "ma nie wyskakiwać popup tylko wyjezdzac od dolu taki modal" —
+     ten sam mechanizm co aside.drawer na mobile (transform+transition,
+     zawsze w DOM, off-screen domyślnie), bez ciemnego .overlay tła. */
+  .feedback-panel{
+    position:fixed; right:22px; bottom:0; z-index:95;
+    width:380px; max-width:calc(100vw - 44px);
+    background:var(--surface); border:1px solid var(--line); border-bottom:none;
+    border-radius:10px 10px 0 0; box-shadow:0 -10px 34px rgba(0,0,0,.18);
+    display:flex; flex-direction:column; max-height:min(70vh,560px);
+    transform:translateY(100%); transition:transform .25s ease;
+  }
+  .feedback-panel.open{transform:translateY(0)}
+  .feedback-panel .modal-body{overflow-y:auto}
   .feedback-textarea{
     border:1px solid var(--line); border-radius:5px; padding:10px 12px; font-size:13px; line-height:1.5;
     background:var(--surface); color:var(--ink); font-family:inherit; width:100%; box-sizing:border-box;
     min-height:150px; resize:vertical;
   }
   .feedback-textarea:focus{outline:none; border-color:var(--line-strong)}
+  @media (max-width:520px){ .feedback-panel{right:0; width:100%; max-width:100%} }
 
   /* ---------- formularz marki ---------- */
   .modal-body{max-height:86vh}
@@ -1419,20 +1433,22 @@
      zalogowany, nie trzeba pytać), kiedy stemplowane po stronie Google
      Apps Script (patrz FEEDBACK_WEBHOOK_URL w JS), nie zegarem klienta. -->
 <button type="button" class="feedback-fab" id="feedbackFabBtn">Feedback</button>
-<div class="overlay" id="feedbackOverlay" role="dialog" aria-modal="true">
-  <div class="modal" style="max-width:460px">
-    <div class="modal-head">
-      <h3>Send feedback</h3>
-      <button class="modal-close" id="feedbackClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+<!-- user: "ma nie wyskakiwać popup tylko wyjezdzac od dolu" — własny
+     panel zamiast .overlay/.modal (bez ciemnego tła, bez blokady
+     scrolla), przypięty do dolnej krawędzi i animowany transformem, ten
+     sam mechanizm co aside.drawer na mobile. -->
+<div class="feedback-panel" id="feedbackPanel" role="dialog" aria-modal="false" aria-label="Send feedback">
+  <div class="modal-head">
+    <h3>Send feedback</h3>
+    <button class="modal-close" id="feedbackClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+  </div>
+  <div class="modal-body">
+    <div class="bf-field">
+      <label for="feedbackText">What should we improve, fix, or add?</label>
+      <textarea id="feedbackText" class="feedback-textarea"></textarea>
     </div>
-    <div class="modal-body">
-      <div class="bf-field">
-        <label for="feedbackText">What should we improve, fix, or add?</label>
-        <textarea id="feedbackText" class="feedback-textarea" placeholder="Co poprawić, co nie działa, co by się przydało dodać…"></textarea>
-      </div>
-      <div class="bf-actions">
-        <button class="btn" type="button" id="feedbackSubmitBtn">Send</button>
-      </div>
+    <div class="bf-actions">
+      <button class="btn" type="button" id="feedbackSubmitBtn">Send</button>
     </div>
   </div>
 </div>
@@ -9478,13 +9494,24 @@ byId("backupImportInput").addEventListener("change", function(){
 var FEEDBACK_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwOcy2pdKPQwuDSTthiQbx40QZ628jAIM0lH6X4DBf0maZ0hTe-TZYWWQ0msy9Ek_ikgg/exec";
 function openFeedbackModal(){
   byId("feedbackText").value = "";
-  byId("feedbackOverlay").classList.add("open");
+  byId("feedbackPanel").classList.add("open");
   byId("feedbackText").focus();
 }
-function closeFeedbackModal(){ byId("feedbackOverlay").classList.remove("open"); }
-byId("feedbackFabBtn").addEventListener("click", openFeedbackModal);
+function closeFeedbackModal(){ byId("feedbackPanel").classList.remove("open"); }
+byId("feedbackFabBtn").addEventListener("click", function(e){
+  e.stopPropagation();
+  var open = byId("feedbackPanel").classList.contains("open");
+  if(open){ closeFeedbackModal(); } else { openFeedbackModal(); }
+});
 byId("feedbackClose").addEventListener("click", closeFeedbackModal);
-bindOverlayBackdropClose("feedbackOverlay", closeFeedbackModal);
+// Brak ciemnego .overlay tła (patrz CSS) — zamknięcie klikiem "na zewnątrz"
+// trzeba dopiąć ręcznie, ten sam wzorzec co np. closeBrandSelectMenu.
+document.addEventListener("click", function(e){
+  var panel = byId("feedbackPanel");
+  if(panel.classList.contains("open") && !panel.contains(e.target) && e.target!==byId("feedbackFabBtn")){
+    closeFeedbackModal();
+  }
+});
 byId("feedbackSubmitBtn").addEventListener("click", function(){
   var text = byId("feedbackText").value.trim();
   if(!text){ showToast("Write something first"); byId("feedbackText").focus(); return; }
