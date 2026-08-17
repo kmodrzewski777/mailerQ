@@ -5483,25 +5483,42 @@ function buildBackupPayload(){
   // markę, tak jak robi to każdy inny wołający code(b) w tej appce —
   // dla w pełni stokenizowanych komponentów (function(){return fixed;})
   // argument jest po prostu ignorowany, więc to bezpieczne wszędzie.
-  var b = brand();
+  // "cos sie zjebalo" wracał mimo poprzedniego fixa — brand() sam potrafi
+  // zwrócić undefined (np. state.brand wskazujący na klucz, którego akurat
+  // nie ma w BRANDS), więc c.code(b) dostawało DOKŁADNIE to samo undefined
+  // co wcześniej. Twardy fallback: byle jaki REALNY obiekt, nigdy
+  // undefined/null — dowolna właściwość odczytana Z obiektu (nawet pustego
+  // {}) po prostu daje undefined, nie rzuca; rzuca TYLKO odczyt właściwości
+  // Z SAMEGO undefined/null, a temu ten fallback kategorycznie zapobiega.
+  var b = brand() || BRANDS[BRAND_ORDER[0]] || {};
   return {
     brands: BRANDS,
     brandOrder: BRAND_ORDER,
+    // user: "ciagle jest blad couldnt not preapre data to sync" — DRUGI raz
+    // ten sam objaw z innej przyczyny (patrz komentarz przy "var b"), więc
+    // dodatkowo IZOLUJEMY per-komponent: jeden wadliwy c.code(b)/v.code(b)
+    // (z JAKIEGOKOLWIEK powodu, nawet nieznanego dziś) ma pomijać TYLKO
+    // siebie (z ostrzeżeniem w konsoli), a nie wywalać zapis WSZYSTKIEGO.
     customComponents: COMPONENTS.filter(function(c){ return c.custom; }).map(function(c){
-      return {
-        id:c.id, category:c.category, source:c.source, label:c.label, desc:c.desc, code:c.code(b),
-        crmPlatform:c.crmPlatform||"all",
-        // Zapisane domyślne frazy (patrz saveComponentCatalogChanges) —
-        // user: "daj mi też mozliwosc zapisywania komponentu jesli zmienie
-        // frazy w nim wystepujące".
-        defaultValues:c.defaultValues,
-        variants:(c.variants||[]).map(function(v){ return { id:v.id, label:v.label, code:v.code(b) }; }),
-        // "Created by" — user: adnotacja twórcy na kartach (patrz
-        // createdByBadgeHtml); ustawiane raz, przy tworzeniu (patrz
-        // currentUserStamp w saveComponentForm), niezmienne dalej.
-        createdBy:c.createdBy
-      };
-    }),
+      try{
+        return {
+          id:c.id, category:c.category, source:c.source, label:c.label, desc:c.desc, code:c.code(b),
+          crmPlatform:c.crmPlatform||"all",
+          // Zapisane domyślne frazy (patrz saveComponentCatalogChanges) —
+          // user: "daj mi też mozliwosc zapisywania komponentu jesli zmienie
+          // frazy w nim wystepujące".
+          defaultValues:c.defaultValues,
+          variants:(c.variants||[]).map(function(v){ return { id:v.id, label:v.label, code:v.code(b) }; }),
+          // "Created by" — user: adnotacja twórcy na kartach (patrz
+          // createdByBadgeHtml); ustawiane raz, przy tworzeniu (patrz
+          // currentUserStamp w saveComponentForm), niezmienne dalej.
+          createdBy:c.createdBy
+        };
+      }catch(e){
+        console.error("buildBackupPayload: component '"+c.id+"' failed to serialize, skipping it this save", e);
+        return null;
+      }
+    }).filter(function(cc){ return cc!==null; }),
     // Gotowe maile zapisane przez usera (patrz saveEmailFormSubmit) — to
     // czyste dane (bez domknięć jak komponenty), więc serializują się
     // wprost, bez żadnej fabryki przy wczytywaniu.
