@@ -10256,8 +10256,12 @@ byId("profileFormSave").addEventListener("click", function(){
         closeProfileForm();
         showToast("Profile updated");
       })
-      .catch(function(){
-        profileShowError("Something went wrong — try again.");
+      .catch(function(err){
+        // user: "czemu nie da się zuploadować avatara" — pokazuje realny
+        // kod/komunikat błędu (np. "storage/unauthorized") zamiast gołego
+        // "coś poszło nie tak", żeby dało się to w ogóle zdiagnozować.
+        console.error("Profile update failed:", err);
+        profileShowError((err && (err.code || err.message)) ? "Couldn't save: " + (err.code || err.message) : "Something went wrong — try again.");
       });
   });
 });
@@ -10433,6 +10437,21 @@ async function upsertUserDirectory(user, extra){
   return finalSnap.data();
 }
 
+// user: "czemu nie da się zuploadować avatara" — przycisk zostawał w
+// spinnerze na zawsze. uploadBytes/getDownloadURL teoretycznie zawsze
+// się rozstrzygają (resolve albo reject), ale jeśli reguły Storage są
+// wciąż domyślne ("deny all", patrz dokumentacja projektu) albo sieć
+// się zatnie w dziwny sposób, obietnica potrafi wisieć bez końca — a
+// wtedy withBtnLoading (który czeka na settle) nigdy nie przywraca
+// przycisku. Twardy timeout gwarantuje, że UI ZAWSZE się odblokuje,
+// nawet gdy realna przyczyna zawiśnięcia zostaje nieznana.
+function withTimeout(promise, ms, message){
+  return Promise.race([
+    promise,
+    new Promise(function(_, reject){ setTimeout(function(){ reject(new Error(message)); }, ms); })
+  ]);
+}
+
 // Wspólna dla register() i updateProfile() — wgrywa avatar (jeśli podany)
 // pod TĄ SAMĄ ścieżką co uid (nadpisuje poprzedni przy zmianie) i woła
 // Firebase Auth updateProfile. Zwraca zwykły, JSON-owalny snapshot (nie
@@ -10443,8 +10462,17 @@ async function applyProfileUpdate(user, profile){
   if(profile && profile.avatarFile){
     const ext = (profile.avatarFile.name.split(".").pop() || "jpg").toLowerCase();
     const avatarRef = ref(storage, "avatars/" + user.uid + "." + ext);
-    await uploadBytes(avatarRef, profile.avatarFile);
-    photoURL = await getDownloadURL(avatarRef);
+    try{
+      await withTimeout(uploadBytes(avatarRef, profile.avatarFile), 25000, "Avatar upload timed out");
+      photoURL = await withTimeout(getDownloadURL(avatarRef), 15000, "Couldn't fetch the uploaded avatar's URL");
+    }catch(e){
+      // Nie blokujemy CAŁEJ zmiany profilu (imię/nazwisko) tylko dlatego,
+      // że sam upload avatara się nie udał — user i tak dostanie jasny
+      // komunikat błędu w UI (patrz catch w classic script), ale dane,
+      // które faktycznie się zapisały, zostają zapisane.
+      console.error("Avatar upload failed:", e);
+      throw e;
+    }
   }
   const displayName = [profile && profile.firstName, profile && profile.lastName].filter(Boolean).join(" ") || user.displayName || null;
   await updateProfile(user, { displayName: displayName, photoURL: photoURL });
