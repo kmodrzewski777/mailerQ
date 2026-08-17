@@ -316,7 +316,12 @@
   .li-handle:active{cursor:grabbing}
   .list-item-broken{background:#fef3f2; border-color:#f3a89c}
   .list-item-broken .li-key{color:#b42318}
-  .list-item .li-key{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  /* user: "w stackach komponentów ma pojawić się też główna nazwa.
+     ciemniejszym fontem, poniżej kod taki jak jest" — .li-key-wrap
+     dwuwierszowy: label (ciemny, pogrubiony) nad dotychczasowym mono kluczem. */
+  .li-key-wrap{display:flex; flex-direction:column; gap:1px; flex:1; overflow:hidden}
+  .li-label{font-size:12px; font-weight:600; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .list-item .li-key{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .li-variant{font-family:var(--font-body); color:var(--ink-faint)}
   .li-order{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-faint); width:16px; flex:none}
   .li-actions{display:flex; gap:3px; flex:none}
@@ -9379,7 +9384,10 @@ function renderList(){
     var variantSuffix = variant ? ' <span class="li-variant">('+esc(variant.label)+')</span>' : "";
     row.innerHTML =
       '<span class="li-handle" draggable="true" aria-label="Drag to reorder" title="Drag to reorder">'+ICON_DRAG+'</span>'+
-      '<span class="li-key mono"'+edited+' title="'+esc(c.label)+(item.code?' · content edited':'')+'">'+esc(c.id)+(item.code?' '+ICON_PENCIL:'')+variantSuffix+'</span>'+
+      '<span class="li-key-wrap">'+
+        '<span class="li-label">'+esc(c.label)+'</span>'+
+        '<span class="li-key mono"'+edited+' title="'+esc(c.label)+(item.code?' · content edited':'')+'">'+esc(c.id)+(item.code?' '+ICON_PENCIL:'')+variantSuffix+'</span>'+
+      '</span>'+
       '<span class="li-actions">'+
         '<button class="icon-btn" data-edit-item="'+item.uid+'" aria-label="Edit content">'+ICON_PENCIL+'</button>'+
         (item.code ? '<button class="icon-btn" data-refresh-item="'+item.uid+'" title="Sync with the latest catalog version — content stays" aria-label="Refresh from catalog">'+ICON_REFRESH+'</button>' : '')+
