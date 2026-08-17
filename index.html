@@ -94,8 +94,9 @@
      prostu czarny napis maylr. jakiś spoko" — sam wordmark, bez znaku
      graficznego (dawne dwa kółka). Cięższy waga + ciaśniejszy tracking
      zamiast kropek/kółek robi "coś fajnego" z samej typografii. */
-  .brand-title{display:flex; align-items:center; font-size:26px}
+  .brand-title{display:flex; align-items:center; font-size:26px; gap:8px}
   .brand-wordmark{font-weight:800; color:var(--ink); letter-spacing:-0.03em}
+  .brand-logo-img{height:28px; width:auto; display:block}
   .brand-picker{display:flex; align-items:center; gap:8px}
   .topbar-left{display:flex; align-items:center; gap:14px; justify-self:start}
   .topbar-center{justify-self:center}
@@ -734,6 +735,7 @@
   <div class="topbar-inner">
     <div class="topbar-left">
       <h1 class="brand-title" aria-label="maylr">
+        <img src="https://i.ibb.co/hxGw4T7C/logo.png" alt="" class="brand-logo-img">
         <span class="brand-wordmark">maylr</span>
       </h1>
       <!-- user: "przycisk SITE SETTINGS przerzucasz teraz obok logo, ikony
