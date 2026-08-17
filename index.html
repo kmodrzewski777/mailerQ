@@ -2579,7 +2579,7 @@ var RESPONSIVE_STYLE_MAP = [
   {cssClass:"mj-btn-tertiary", prop:"letter-spacing", key:"btnTertiaryLetterSpacing", unit:""},
   {cssClass:"mj-radius", prop:"border-radius", key:"radius", unit:""},
   {cssClass:"mj-gap", prop:"height", key:"componentGap", unit:""},
-  {cssClass:"mj-body-box", prop:"padding", key:"boxPadding", unit:""},
+  {cssClass:"mj-body-content", prop:"padding", key:"boxPadding", unit:""},
   {cssClass:"mj-logo", prop:"max-width", key:"logoWidth", unit:""}
 ];
 function buildResponsiveMediaRules(b){
@@ -2827,9 +2827,18 @@ forcedDarkStyleBlock+
 '<div class="mj-canvas-bg" style="background:'+pageBg+';">\n'+
 '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" align="center">\n<tr><td align="center">\n'+
 '<!--[if mso]><table role="presentation" width="'+mso+'" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->\n'+
-'<div class="mj-body-box" style="max-width:'+b.mailWidth+";margin:0 auto;background:"+bodyBoxBg+";border-radius:"+bodyRadius+";padding:"+boxPadding+';overflow:hidden;">\n'+
+'<div class="mj-body-box" style="max-width:'+b.mailWidth+";margin:0 auto;background:"+bodyBoxBg+";border-radius:"+bodyRadius+';overflow:hidden;">\n'+
 headerHtml+"\n"+
+// user: "ten padding nakłada się na cały content łącznie z headerem/
+// footerem. Padding ma nakładać się na box, w którym znajdują się dodane
+// komponenty" — przeniesiony z .mj-body-box (obejmował header+treść) na
+// TEN wewnętrzny div (tylko bodyHtml); header zostaje przyklejony do
+// krawędzi wspólnego tła/zaokrąglenia. Osobna klasa mj-body-content (nie
+// mj-body-box) dla mobile-override w RESPONSIVE_STYLE_MAP — inaczej ta
+// reguła i tak wróciłaby na cały box.
+'<div class="mj-body-content" style="padding:'+boxPadding+'">\n'+
 bodyHtml+
+"\n</div>\n"+
 "\n</div>\n"+
 "<!--[if mso]></td></tr></table><![endif]-->\n"+
 (footerHtml ? (
