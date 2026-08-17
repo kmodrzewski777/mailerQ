@@ -5271,11 +5271,14 @@ var state = { brand:"neutral", category:"all", section:"components", emailFlow:"
   // wejściu do apki.
   searchQuery:"", page:1,
   // Filtr CRM/ESP nad listingiem (checkboxy) — DODATKOWO zawęża to, co i tak
-  // przepuszcza compVisibleForBrand (widoczność wg aktywnej marki). Domyślnie
-  // wszystkie zaznaczone = brak dodatkowego zawężenia, identyczne zachowanie
-  // co przed dodaniem tego filtra. Tak samo jak searchQuery/page — stan
-  // przeglądania, nie dane usera, nie zapisujemy w localStorage.
-  crmFilter: Object.keys(CRM_PLATFORM_LABELS).reduce(function(acc,k){ acc[k]=true; return acc; }, {}),
+  // przepuszcza compVisibleForBrand (widoczność wg aktywnej marki). user:
+  // "niech domyślnie te dwa nieprzypisane do brandu CRMy będą odznaczone"
+  // — startuje PUSTY (nic zaznaczone), a renderCrmFilterRow zawsze wymusza
+  // true na platformie WŁASNEJ marki przy każdym renderze (patrz tam),
+  // więc efektywnie startuje: tylko platforma brandu zaznaczona, reszta
+  // odznaczona, dopóki user sam czegoś nie doda. Tak samo jak searchQuery/
+  // page — stan przeglądania, nie dane usera, nie zapisujemy w localStorage.
+  crmFilter: {},
   // Ulubione — user: "polubione komponenty/gotowe maile mają... wyswietlac
   // się zawsze jako pierwsze na listingu". W odróżnieniu od searchQuery/page/
   // crmFilter TO są dane usera (zapisywane w localStorage, patrz
@@ -7644,6 +7647,11 @@ function toggleUserDisabled(uid){
     .catch(function(){ showToast("Couldn't update access — check your connection", "error"); });
 }
 function openCrmSettings(initialTab){
+  // user: "Site Settings ma być dostępne wyłącznie dla Admina" — poza
+  // chowaniem przycisku (patrz renderAuthUserBadge) blokada TU jest tym,
+  // co faktycznie się liczy: bez tego rail-owe ołówki Categories/E-mails
+  // (patrz railCategoriesEditBtn/railFlowsEditBtn) byłyby cichym obejściem.
+  if(!isAdminUser()){ showToast("Site Settings is admin-only", "error"); return; }
   var b = brand();
   var platform = b.crmPlatform || "klaviyo";
   byId("crmSettingsTitle").textContent = (CRM_PLATFORM_LABELS[platform]||platform) + " settings";
@@ -10433,6 +10441,14 @@ function renderAuthUserBadge(){
   // user: "fajnie jakbyś tu gdzieś nieklikalnie dodał e-mail konta" —
   // statyczny nagłówek dropdownu.
   byId("authUserMenuHeader").innerHTML = esc(MQ_CURRENT_USER.email);
+  // user: "Site Settings ma być dostępne wyłącznie dla Admina. Membersy
+  // mają nie widzieć tego przycisku w headerze" — chowa WSZYSTKIE wejścia
+  // (guzik w topbarze + oba ołówki w railu), nie tylko ten jeden przycisk;
+  // openCrmSettings ma dodatkowo twardą blokadę, gdyby coś to ominęło.
+  var adminOnly = isAdminUser();
+  byId("crmSettingsTopbarBtn").style.display = adminOnly ? "" : "none";
+  byId("railCategoriesEditBtn").style.display = adminOnly ? "" : "none";
+  byId("railFlowsEditBtn").style.display = adminOnly ? "" : "none";
 }
 window.MQShowGate = showAuthGate;
 // Awaryjnie: gdyby moduł Firebase w ogóle się nie załadował (np.
