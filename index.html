@@ -5640,6 +5640,25 @@ function loadFromStorage(){
     applyBackupPayload(JSON.parse(raw));
   }catch(e){ /* uszkodzone/niekompatybilne dane w localStorage — ignorujemy, zaczynamy od domyślnych */ }
 }
+// user: "komponenty wisza nadal z podpisem starej kategorii, a w nowej ich
+// nie ma" — naprawia dane USZKODZONE W POPRZEDNICH SESJACH przez bug w
+// requestRemoveCategory (patrz tam), zanim dostał poprawkę z c.custom=true:
+// komponent, którego category wskazuje na kategorię już nieistniejącą w
+// CATEGORIES, dostaje sensowny fallback ("Others", jeśli istnieje, inaczej
+// pierwsza dostępna) i zostaje oznaczony custom, żeby ta naprawa też
+// przetrwała kolejny reload. Wołane raz przy każdym starcie (patrz MQBoot)
+// — no-op (repaired=false), jeśli wszystko jest już spójne.
+function repairOrphanedComponentCategories(){
+  if(!CATEGORIES.length) return false;
+  var validIds = {};
+  CATEGORIES.forEach(function(c){ validIds[c.id] = true; });
+  var fallbackCat = CATEGORIES.filter(function(c){ return c.id==="others"; })[0] || CATEGORIES[0];
+  var repaired = false;
+  COMPONENTS.forEach(function(c){
+    if(!validIds[c.category]){ c.category = fallbackCat.id; c.custom = true; repaired = true; }
+  });
+  return repaired;
+}
 
 /* ================================================================
    DODAWANIE NOWEGO KOMPONENTU — pełny formularz + pole kodu x-box
@@ -7873,7 +7892,11 @@ function requestRemoveCategory(catId){
   });
   panel.querySelector("[data-cat-move]").addEventListener("click", function(){
     var target = byId("cat-reassign-target").value;
-    COMPONENTS.forEach(function(c){ if(c.category===catId) c.category = target; });
+    // user: "komponenty wisza nadal z podpisem starej kategorii, a w nowej
+    // ich nie ma" — buildBackupPayload zapisuje category TYLKO dla
+    // c.custom===true (patrz customComponents); bez tego wbudowane
+    // komponenty wracały po odświeżeniu do starej, już usuniętej kategorii.
+    COMPONENTS.forEach(function(c){ if(c.category===catId){ c.category = target; c.custom = true; } });
     CATEGORIES = CATEGORIES.filter(function(c){ return c.id!==catId; });
     if(state.category===catId) state.category = "all";
     saveToStorage(); renderCategoryManager(); renderAll();
@@ -7918,6 +7941,14 @@ function requestRemoveFlow(flowId){
   });
   panel.querySelector("[data-flow-move]").addEventListener("click", function(){
     var target = byId("flow-reassign-target").value;
+    // UWAGA: dla wbudowanych (nie-custom) gotowych maili to przypisanie
+    // dziś przetrwa tylko bieżącą sesję — applyBackupPayload dla
+    // customEmails aktualizuje TYLKO nowo dodane wpisy, nigdy nie
+    // patchuje już istniejącego wbudowanego maila w miejscu (celowo, patrz
+    // komentarz przy openEditReadyEmail/saveEmailFormSubmit: "zmiany do
+    // wbudowanego maila trwają tylko tę sesję"). Naprawa analogiczna do
+    // requestRemoveCategory wymagałaby najpierw zmiany TEJ architektury —
+    // celowo tego tu nie robimy bez potwierdzenia.
     READY_EMAILS.forEach(function(e){ if(e.flow===flowId) e.flow = target; });
     EMAIL_FLOWS = EMAIL_FLOWS.filter(function(f){ return f.id!==flowId; });
     if(state.emailFlow===flowId) state.emailFlow = target;
@@ -10423,6 +10454,7 @@ window.MQBoot = async function(user){
     loadFromStorage();
   }
   if(remote && remote.priv) applyBackupPayload(remote.priv);
+  if(repairOrphanedComponentCategories()) saveToStorage();
   renderAll();
   // user: "nie da sie konkretnej podstrony nawet komuś przekazać" — dopiero
   // TU dane (COMPONENTS/READY_EMAILS/CATEGORIES) są na pewno załadowane,
