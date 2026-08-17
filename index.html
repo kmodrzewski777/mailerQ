@@ -931,6 +931,11 @@
             <input type="file" accept="image/png,image/jpeg" id="profileAvatarInput" style="display:none">
           </div>
         </div>
+        <!-- user: "musze zaplacic za ten storage. to wrzuć narazie mój
+             avatar z tego linka" — obejście: link do zewnętrznie hostowanego
+             obrazka jako photoURL wprost, bez wgrywania niczego do Firebase
+             Storage (patrz applyProfileUpdate w module Firebase). -->
+        <input type="text" id="profileAvatarUrlInput" placeholder="or paste an image URL" style="margin-top:8px">
       </div>
       <div class="bf-row" style="margin-bottom:12px">
         <div class="bf-field">
@@ -10530,6 +10535,7 @@ byId("authPassword").addEventListener("keydown", function(e){ if(e.key==="Enter"
    zmiany". Logout żyje TERAZ tu (przycisk w stopce), nie na samym kliku
    w badge. */
 var profileAvatarFile = null;
+var profileAvatarUrl = "";
 function closeProfileForm(){ byId("profileFormOverlay").classList.remove("open"); }
 function renderProfileAvatarPreview(){
   byId("profileAvatarPreview").innerHTML = avatarHtml(MQ_CURRENT_USER, 40);
@@ -10540,7 +10546,9 @@ function openProfileForm(){
   byId("profileFirstName").value = nameParts[0] || "";
   byId("profileLastName").value = nameParts.slice(1).join(" ") || "";
   profileAvatarFile = null;
+  profileAvatarUrl = "";
   byId("profileAvatarInput").value = "";
+  byId("profileAvatarUrlInput").value = "";
   renderProfileAvatarPreview();
   byId("profileError").style.display = "none";
   byId("profileFormOverlay").classList.add("open");
@@ -10580,11 +10588,25 @@ byId("profileAvatarInput").addEventListener("change", function(){
   var file = byId("profileAvatarInput").files[0];
   if(!file) return;
   profileAvatarFile = file;
+  profileAvatarUrl = "";
+  byId("profileAvatarUrlInput").value = "";
   var reader = new FileReader();
   reader.onload = function(){
     byId("profileAvatarPreview").innerHTML = '<img src="'+reader.result+'" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover">';
   };
   reader.readAsDataURL(file);
+});
+// user: "musze zaplacic za ten storage. to wrzuć narazie mój avatar z tego
+// linka" — obejście dla kont bez skonfigurowanego/opłaconego Firebase
+// Storage: wklejony URL trafia wprost do photoURL (patrz applyProfileUpdate
+// w module Firebase), zero uploadu. Wybór URL czyści ewentualnie wybrany
+// plik i odwrotnie (input file listener wyżej) — jedno albo drugie, nie oba.
+byId("profileAvatarUrlInput").addEventListener("input", function(){
+  profileAvatarUrl = this.value.trim();
+  if(!profileAvatarUrl){ renderProfileAvatarPreview(); return; }
+  profileAvatarFile = null;
+  byId("profileAvatarInput").value = "";
+  byId("profileAvatarPreview").innerHTML = '<img src="'+esc(profileAvatarUrl)+'" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover">';
 });
 function profileShowError(msg){
   var el = byId("profileError");
@@ -10597,7 +10619,7 @@ byId("profileFormSave").addEventListener("click", function(){
   var lastName = byId("profileLastName").value.trim();
   if(!firstName || !lastName){ profileShowError("Enter both your first and last name."); return; }
   withBtnLoading(byId("profileFormSave"), function(){
-    return window.MQAuth.updateProfile({ firstName:firstName, lastName:lastName, avatarFile:profileAvatarFile })
+    return window.MQAuth.updateProfile({ firstName:firstName, lastName:lastName, avatarFile:profileAvatarFile, avatarUrl:profileAvatarUrl })
       .then(function(updated){
         MQ_CURRENT_USER = { uid:updated.uid, displayName:updated.displayName||null, photoURL:updated.photoURL||null, email:updated.email };
         renderAuthUserBadge();
@@ -10840,6 +10862,11 @@ async function applyProfileUpdate(user, profile){
       console.error("Avatar upload failed:", e);
       throw e;
     }
+  } else if(profile && profile.avatarUrl){
+    // user: "musze zaplacic za ten storage. to wrzuć narazie mój avatar z
+    // tego linka" — obejście dla kont bez Firebase Storage: zewnętrznie
+    // hostowany URL trafia wprost do photoURL, zero uploadu/kosztu.
+    photoURL = profile.avatarUrl;
   }
   const displayName = [profile && profile.firstName, profile && profile.lastName].filter(Boolean).join(" ") || user.displayName || null;
   await updateProfile(user, { displayName: displayName, photoURL: photoURL });
