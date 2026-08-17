@@ -432,6 +432,25 @@
      nie dla zwykłych potwierdzeń czy przypomnień o wypełnieniu pola. */
   .toast.error{background:#b42318}
 
+  /* ---------- feedback ---------- */
+  /* user: "w prawym dolnym rogu przycisk Feedback" — poniżej .overlay
+     (z-index:100), żeby otwarty modal zawsze go zasłaniał zamiast pływać
+     nad nim. */
+  .feedback-fab{
+    position:fixed; right:22px; bottom:22px; z-index:90;
+    background:var(--ink); color:var(--paper); border:none; border-radius:var(--radius-chip);
+    padding:11px 18px; font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer;
+    box-shadow:0 6px 20px rgba(0,0,0,.18); transition:transform .12s ease, opacity .12s ease;
+  }
+  .feedback-fab:hover{opacity:.85}
+  .feedback-fab:active{transform:scale(.97)}
+  .feedback-textarea{
+    border:1px solid var(--line); border-radius:5px; padding:10px 12px; font-size:13px; line-height:1.5;
+    background:var(--surface); color:var(--ink); font-family:inherit; width:100%; box-sizing:border-box;
+    min-height:150px; resize:vertical;
+  }
+  .feedback-textarea:focus{outline:none; border-color:var(--line-strong)}
+
   /* ---------- formularz marki ---------- */
   .modal-body{max-height:86vh}
   .edit-layout{display:grid; grid-template-columns:420px 1fr; gap:20px; align-items:start}
@@ -1393,6 +1412,30 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- user: "w prawym dolnym rogu przycisk Feedback, klikniecie rozwija
+     modal gdzie można zrzucić feedback... poleci do arkusza Sheets +
+     kto go dodał, kiedy" — kto/kiedy: kto z MQ_CURRENT_USER (już
+     zalogowany, nie trzeba pytać), kiedy stemplowane po stronie Google
+     Apps Script (patrz FEEDBACK_WEBHOOK_URL w JS), nie zegarem klienta. -->
+<button type="button" class="feedback-fab" id="feedbackFabBtn">Feedback</button>
+<div class="overlay" id="feedbackOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head">
+      <h3>Send feedback</h3>
+      <button class="modal-close" id="feedbackClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="bf-field">
+        <label for="feedbackText">What should we improve, fix, or add?</label>
+        <textarea id="feedbackText" class="feedback-textarea" placeholder="Co poprawić, co nie działa, co by się przydało dodać…"></textarea>
+      </div>
+      <div class="bf-actions">
+        <button class="btn" type="button" id="feedbackSubmitBtn">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -9417,6 +9460,56 @@ byId("backupImportInput").addEventListener("change", function(){
       };
       reader.onerror = function(){ showToast("Couldn't read the file", "error"); resolve(); };
       reader.readAsText(file);
+    });
+  });
+});
+
+/* ---------- Feedback ----------
+   user: "chce zeby w prawym dolnym rogu był przycisk Feedback... i taki
+   feedback ma poleciec do arkusza sheets... + kto go dodał, kiedy".
+   Apka jest czysto kliencka (bez backendu), więc jedyny bezpieczny sposób
+   dopisania wiersza do Google Sheets bez trzymania sekretu w kodzie strony
+   to Google Apps Script wdrożony jako Web App (kod dla usera do wklejenia
+   w edytorze Apps Script tego arkusza — patrz rozmowa w czacie) — działa
+   pod uprawnieniami właściciela arkusza, klient tylko robi POST na jego URL.
+   "Kto" = MQ_CURRENT_USER (już zalogowany, nie trzeba pytać). "Kiedy" —
+   celowo NIE zegar klienta (można sobie przestawić), tylko new Date()
+   ustawiane po stronie Apps Script (patrz kod skryptu). */
+// TODO(user): podmień na URL wdrożenia Google Apps Script (Deploy > New
+// deployment > Web app > Execute as: Me, Who has access: Anyone), patrz
+// gotowy kod skryptu podany w czacie. Dopóki puste, Send pokaże błąd
+// zamiast cicho gubić feedback.
+var FEEDBACK_WEBHOOK_URL = "";
+function openFeedbackModal(){
+  byId("feedbackText").value = "";
+  byId("feedbackOverlay").classList.add("open");
+  byId("feedbackText").focus();
+}
+function closeFeedbackModal(){ byId("feedbackOverlay").classList.remove("open"); }
+byId("feedbackFabBtn").addEventListener("click", openFeedbackModal);
+byId("feedbackClose").addEventListener("click", closeFeedbackModal);
+bindOverlayBackdropClose("feedbackOverlay", closeFeedbackModal);
+byId("feedbackSubmitBtn").addEventListener("click", function(){
+  var text = byId("feedbackText").value.trim();
+  if(!text){ showToast("Write something first"); byId("feedbackText").focus(); return; }
+  if(!FEEDBACK_WEBHOOK_URL){ showToast("Feedback isn't wired up yet — ask an admin", "error"); return; }
+  var who = MQ_CURRENT_USER ? (MQ_CURRENT_USER.displayName || MQ_CURRENT_USER.email) : "unknown";
+  var email = MQ_CURRENT_USER ? MQ_CURRENT_USER.email : "";
+  withBtnLoading(byId("feedbackSubmitBtn"), function(){
+    // no-cors: Apps Script Web Apps nie odsyłają nagłówków CORS czytelnych
+    // dla fetch() z innej domeny (GitHub Pages -> script.google.com) — to
+    // NIE jest błąd konfiguracji, tylko oczekiwane zachowanie. "opaque"
+    // response wciąż oznacza, że żądanie faktycznie doleciało i doPost się
+    // wykonał; po prostu nie możemy tu odczytać jego treści.
+    return fetch(FEEDBACK_WEBHOOK_URL, {
+      method: "POST", mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ name: who, email: email, feedback: text })
+    }).then(function(){
+      closeFeedbackModal();
+      showToast("Thanks for the feedback!");
+    }).catch(function(){
+      showToast("Couldn't send feedback — check your connection", "error");
     });
   });
 });
