@@ -323,7 +323,10 @@
   .li-key-wrap{flex:1; overflow:hidden}
   .li-label{font-size:11px; font-weight:600; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .list-item .li-key{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-  .li-variant{font-family:var(--font-body); color:var(--ink-faint)}
+  /* user: "wariant mial byc lzejszym font weight lacznie z nawiasem" —
+     bez jawnego font-weight dziedziczyło pogrubienie z rodzica .li-label
+     (600), łącznie z nawiasami (są częścią TEGO spana, nie osobnym tekstem). */
+  .li-variant{font-family:var(--font-body); font-weight:400; color:var(--ink-faint)}
   .li-order{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-faint); width:16px; flex:none}
   .li-actions{display:flex; gap:3px; flex:none}
   /* user: "toć te ikony są mikroskopijne" — box powiększony razem z
