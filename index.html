@@ -78,18 +78,19 @@
   .mono{font-family:var(--font-mono)}
 
   /* ---------- header ---------- */
-  /* user: "cały ten bar z logo, przyciskami, profilem jednak niech siedzi
-     w boxie" — .topbar-inner jest teraz właściwym pływającym boxem
-     (obramowanie/radius/cień), .topbar samo tylko daje mu oddech od
-     krawędzi ekranu i utrzymuje sticky. */
+  /* user: "nie podoba mi się że zrobiłeś z tego taki box. wolałem jak
+     było jak poprzednio tylko content w środku zamknięty w boxie" — pasek
+     wraca do płaskiego, pełnoszerokościowego wyglądu (bez obramowania/
+     radiusu/cienia na CAŁYM barze); TYLKO .topbar-inner dostaje max-width
+     (ten sam 1400px co .shell), żeby treść była wyrównana z contentem
+     pod spodem, bez wizualnego "boxa" wokół samego paska. */
   .topbar{
     position:sticky; top:0; z-index:30; background:var(--paper);
-    padding:14px 20px;
+    border-bottom:1px solid var(--line); padding:14px 0;
   }
   .topbar-inner{
-    max-width:1400px; margin:0 auto; padding:10px 20px; box-sizing:border-box;
+    max-width:1400px; margin:0 auto; padding:0 28px; box-sizing:border-box;
     display:flex; align-items:center; justify-content:space-between; gap:24px;
-    background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow-card);
   }
   .brand-title{display:flex; align-items:center; font-size:26px}
   /* user: "wrzuć ten font [Stack Sans Notch] jednak do logo" — sam
