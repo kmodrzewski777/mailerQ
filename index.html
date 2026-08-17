@@ -269,10 +269,6 @@
      "nazwę kategorii przenieś nad nazwę komponentu". */
   .card-cat{display:flex; align-items:center; justify-content:space-between; gap:6px; font-family:var(--font-mono); font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 4px}
   .card-preview{height:150px; flex:none; background:var(--surface-2); overflow:hidden; position:relative}
-  /* user: "Przenieś te ikony wyżej... mają być na białej apli z
-     zaokrąglonym rogiem lewo-góra. mają być na divie z podglądem
-     komponentu" — chip w rogu podglądu, nie w rzędzie kategorii. */
-  .card-preview-crm{position:absolute; bottom:0; right:0; display:flex; align-items:center; gap:4px; background:var(--surface); padding:5px; border-radius:8px 0 0 0}
   /* user: "dół z kolei niech się wygasza kolorem #F5F6F8 (gradient)" —
      tylko na snapshotach gotowych maili (renderEmailThumb/renderEmailGrid),
      bo tam treść jest CELOWO ucinana na dole (długi mail w krótkim boxie). */
@@ -281,6 +277,11 @@
   .card-label{font-weight:600; font-size:13.5px; line-height:1.3; margin:0 0 3px; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
   .card-desc{font-size:12px; color:var(--ink-muted); margin:0; line-height:1.45; min-height:4.35em; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden}
   .card-created-by{display:flex; align-items:center; gap:5px; margin:6px 0 0; font-size:10px; color:var(--ink-faint)}
+  /* user: "chujowo wygladaja te badge... Zlikwiduj to... dodaj sekcje z
+     górnym lekkim obrysem: compatible with: wymieniasz te crmy. małym
+     fontem" — margin-top:auto przykleja to zawsze do dołu card-body
+     (nad przyciskami), niezależnie od długości opisu nad nim. */
+  .card-crm-compat{margin:auto 0 0; padding-top:8px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-faint)}
   .card-actions{display:flex; gap:6px; padding:0 12px 12px}
   .card-actions .btn{flex:1; padding:10px 4px; font-size:11.5px; text-align:center; white-space:nowrap}
   .btn{
@@ -539,16 +540,6 @@
   .bf-crm-logo-badge{display:flex; align-items:center; gap:5px; color:var(--ink-faint); font-weight:600; font-size:13px; flex:none}
   .bf-crm-logo-badge svg{width:16px; height:16px; flex:none}
   .bf-crm-logo-badge img{height:16px; width:16px; object-fit:contain; flex:none; opacity:.35}
-  /* Sygnety CRM — user: "sygnety... badge ilustrujące dla jakich CRM to
-     jest komponent/mail". Od Faz "przenieś te ikony wyżej" żyją w
-     .card-preview-crm (chip na podglądzie, patrz linia ~275), NIE w
-     .card-cat-platforms już (ten span dawno przestał być emitowany w
-     markupie — te reguły MUSZĄ celować w faktyczny rodzic, inaczej <img>
-     renderuje się w naturalnym, ogromnym rozmiarze — dokładnie to zgłosił
-     user: "logosy CRMów są na pełnym preview"). */
-  .card-preview-crm svg{display:block; width:12px; height:12px}
-  .card-preview-crm img{display:block; height:12px; width:12px; object-fit:contain; opacity:.35}
-  .card-preview-crm .crm-badge{display:inline-flex; line-height:0; padding:4px; border:1px solid color-mix(in srgb, var(--line) 50%, transparent); border-radius:3px}
   /* align-items:flex-start (nie domyślny stretch) — pole Logo jest
      wyraźnie wyższe niż zwykłe jednowierszowe pola obok (miniatura +
      przycisk + notka), stretch rozciągał WSZYSTKIE pola w wierszu do
@@ -2438,18 +2429,12 @@ function compileMjmlFragment(source, ctx){
 // się TYLKO wyświetlana nazwa — user: "Zmień SalesManago na ManagoAI".
 var CRM_PLATFORM_LABELS = { klaviyo:"Klaviyo", salesmanago:"ManagoAI", customerio:"Customer.io" };
 /* Sygnety (znaki graficzne, bez nazwy) platform CRM/ESP — user podesłał
-   realne pliki logo hostowane na ibb.co. Próba jednolitego niebieskiego
-   tonu przez CSS mask-image (poprzednia wersja) user odrzucił ("zlikwiduj
-   tą niebieską maskę... przywroc zwykly kolor") — z powrotem zwykłe <img>,
-   oryginalne kolory każdego logo, samo opacity reguluje wyciszenie
-   (patrz .card-cat-platforms img / .bf-crm-logo-badge img). */
-// user: "te ikony delikatnie obramuj bo wyglądają obok siebie jak hieroglify.
-// najeżdżając na wybraną ikone ma się pojawić podpowiedź że element jest
-// kompatybilny z XXX" — .crm-badge (obramowanie tylko w kontekście kart,
-// patrz .card-cat-platforms .crm-badge — watermark w Brand Kit zostaje bez
-// zmian) + title na hover. Sam <img> nadal łapie istniejące reguły opacity
-// (.card-cat-platforms img / .bf-crm-logo-badge img — selektor potomny,
-// działa niezależnie od nowego opakowania).
+   realne pliki logo hostowane na ibb.co. Dziś używane TYLKO przez
+   crmFullLogoHtml (wyciszony watermark w Brand Kit, patrz .bf-crm-logo-badge
+   niżej) — karty komponentów/maili od "Zlikwiduj to... compatible with"
+   pokazują zgodność CRM jako zwykły tekst (patrz crmCompatRowHtml),
+   nie ikony. title="Compatible with X" na każdym sygnecie zostaje —
+   nieszkodliwy w tym jedynym miejscu, gdzie te ikony jeszcze się pojawiają. */
 var CRM_PLATFORM_ICONS = {
   customerio: '<span class="crm-badge" title="Compatible with Customer.io"><img src="https://i.ibb.co/yc1Ywr39/cio-sygnet.png" alt="Customer.io" aria-hidden="true"></span>',
   klaviyo: '<span class="crm-badge" title="Compatible with Klaviyo"><img src="https://i.ibb.co/CK4YjjD9/Klaviyo.png" alt="Klaviyo" aria-hidden="true"></span>',
@@ -8338,19 +8323,16 @@ function emailCompatiblePlatforms(e){
   });
   return compat;
 }
-function platformBadgesHtml(keys){
-  // user: "niech pojawiają się wszystkie [logosy] jeśli CRM jest przypisany
-  // ALL" — wcześniej "all" (keys = WSZYSTKIE platformy) świadomie nie
-  // pokazywało nic (patrz komentarz przy componentCompatiblePlatforms);
-  // user chce teraz odwrotnie, więc pokazujemy komplet zamiast pustki.
-  return keys.map(function(k){ return CRM_PLATFORM_ICONS[k]||""; }).join("");
-}
-// Chip nad podglądem (patrz .card-preview-crm) — pomijamy całkiem, gdy nie
-// ma żadnych badge'y (np. komponent kompatybilny ze wszystkim), żeby nie
-// wisiał pusty biały kwadrat w rogu.
-function crmOverlayHtml(keys){
-  var badges = platformBadgesHtml(keys);
-  return badges ? '<div class="card-preview-crm">'+badges+'</div>' : "";
+// user: "chujowo wygladaja te badge jednak z CRMami. Zlikwiduj to... dodaj
+// sekcje z górnym lekkim obrysem: compatible with: wymieniasz te crmy" —
+// ikony (poprzednia wersja) zastąpione zwykłym tekstem, doklejonym do dołu
+// card-body (patrz .card-crm-compat). Pomijamy całkiem, gdy nic nie ma do
+// wypisania (np. gotowy mail złożony z wzajemnie wykluczających się
+// komponentów — puste przecięcie, patrz emailCompatiblePlatforms).
+function crmCompatRowHtml(keys){
+  if(!keys || !keys.length) return "";
+  var names = keys.map(function(k){ return CRM_PLATFORM_LABELS[k]||k; }).join(", ");
+  return '<p class="card-crm-compat">Compatible with: '+esc(names)+'</p>';
 }
 function renderGrid(){
   if(state.section==="emails"){ renderEmailGrid(); return; }
@@ -8371,11 +8353,12 @@ function renderGrid(){
       '<div class="card-head"><span class="card-key mono"'+sourceTitle+'>'+esc(c.id)+'</span>'+
         '<button type="button" class="icon-btn card-favorite-btn'+(fav?' is-favorite':'')+'" data-fav-component="'+c.id+'" aria-label="'+(fav?'Remove from favorites':'Add to favorites')+'" title="'+(fav?'Remove from favorites':'Add to favorites')+'">'+starIconHtml(fav)+'</button>'+
       '</div>'+
-      '<div class="card-preview">'+renderComponentThumb(c, b)+crmOverlayHtml(componentCompatiblePlatforms(c))+'</div>'+
+      '<div class="card-preview">'+renderComponentThumb(c, b)+'</div>'+
       '<div class="card-body">'+
         '<span class="card-cat"><span>'+esc((CATEGORIES.filter(function(x){return x.id===c.category;})[0]||{label:c.category}).label)+'</span></span>'+
         '<p class="card-label">'+esc(c.label)+'</p><p class="card-desc">'+esc(c.desc)+'</p>'+
         createdByBadgeHtml(c)+
+        crmCompatRowHtml(componentCompatiblePlatforms(c))+
       '</div>'+
       '<div class="card-actions">'+
         '<button class="btn ghost small" data-open="'+c.id+'">Open</button>'+
@@ -8463,11 +8446,12 @@ function renderEmailGrid(){
         '<button type="button" class="icon-btn card-favorite-btn'+(fav?' is-favorite':'')+'" data-fav-email="'+e.id+'" aria-label="'+(fav?'Remove from favorites':'Add to favorites')+'" title="'+(fav?'Remove from favorites':'Add to favorites')+'">'+starIconHtml(fav)+'</button>'+
         '</span>'+
       '</div>'+
-      '<div class="card-preview">'+renderEmailThumb(e, b)+emailThumbFadeHtml()+crmOverlayHtml(emailCompatiblePlatforms(e))+'</div>'+
+      '<div class="card-preview">'+renderEmailThumb(e, b)+emailThumbFadeHtml()+'</div>'+
       '<div class="card-body">'+
         '<span class="card-cat"><span>'+esc(e.componentIds.length)+' components</span></span>'+
         '<p class="card-label">'+esc(e.label)+'</p><p class="card-desc">'+esc(e.desc)+'</p>'+
         createdByBadgeHtml(e)+
+        crmCompatRowHtml(emailCompatiblePlatforms(e))+
       '</div>'+
       '<div class="card-actions">'+
         '<button class="btn ghost small" data-email-preview="'+e.id+'">Preview</button>'+
