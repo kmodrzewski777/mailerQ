@@ -10540,7 +10540,12 @@ function renderAuthUserBadge(){
   // (guzik w topbarze + oba ołówki w railu), nie tylko ten jeden przycisk;
   // openCrmSettings ma dodatkowo twardą blokadę, gdyby coś to ominęło.
   var adminOnly = isAdminUser();
-  byId("crmSettingsTopbarBtn").style.display = adminOnly ? "" : "none";
+  // user: "napisz Settings poleciał w dół" — regresja z powyższego: ""
+  // CZYŚCI inline display:inline-flex wpisany w HTML (patrz ten button),
+  // przycisk wraca do domyślnego inline-block i ikona+tekst wypadają z
+  // flex-owego centrowania na zwykły baseline inline. Trzeba wprost
+  // przywrócić "inline-flex", nie tylko "cokolwiek nie jest none".
+  byId("crmSettingsTopbarBtn").style.display = adminOnly ? "inline-flex" : "none";
   byId("railCategoriesEditBtn").style.display = adminOnly ? "" : "none";
   byId("railFlowsEditBtn").style.display = adminOnly ? "" : "none";
 }
