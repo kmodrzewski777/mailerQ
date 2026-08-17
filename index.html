@@ -6376,13 +6376,21 @@ function saveComponentCatalogChanges(){
     comp.custom = true; // przetrwanie odświeżenia strony, patrz buildBackupPayload
   }
   editState.defaultValues = Object.assign({}, savedValues);
+  // user: "po kliknięciu Save mogę nadal zapisać pomimo braku wprowadzonych
+  // zmian, przycisk powinien się zdezaktywować" — withBtnLoading NA KOŃCU
+  // sam przywraca disabled do stanu SPRZED kliknięcia (czyli "aktywny",
+  // bo inaczej nie dałoby się w ogóle kliknąć Save). updateEditSaveOnlyBtnState
+  // musi więc dostać ostatnie słowo PO tym przywróceniu, nie wewnątrz
+  // opakowanego callbacku — inaczej withBtnLoading i tak nadpisze je
+  // z powrotem na "aktywny" zaraz po zapisie.
   return withBtnLoading(byId("editSaveOnlyBtn"), function(){
     return saveToStorage().then(function(){
       renderList(); // saveToStorage() ponownie w środku (ten sam współdzielony debounce, nieszkodliwe) + odświeża ewentualne miniatury tego komponentu już dodane do listy
       renderGrid();
-      updateEditSaveOnlyBtnState();
       showToast("Component saved");
     });
+  }).then(function(){
+    updateEditSaveOnlyBtnState();
   });
 }
 /* "Save as" — user edytuje istniejący komponent, ale chce to zachować jako
