@@ -1617,6 +1617,16 @@ function withDerivedStyleDefaults(d){
   if(d.bodySecondaryTextTransform==null) d.bodySecondaryTextTransform = "none";
   if(d.bodySecondaryTextDecoration==null) d.bodySecondaryTextDecoration = "none";
   if(d.bodySecondaryLineHeight==null) d.bodySecondaryLineHeight = "1.45";
+  // Tertiary — drobny tekst (stopka/wypisz się/fine print), patrz komentarz
+  // przy BRAND_FIELDS Text > Tertiary. 11px domyślnie, bo tyle ma dziś
+  // literalnie większość istniejących miejsc używających {{brand.faint}}.
+  if(d.fontBodyTertiary==null) d.fontBodyTertiary = d.fontBody;
+  if(d.bodyTertiarySize==null) d.bodyTertiarySize = 11;
+  if(d.bodyTertiaryWeight==null) d.bodyTertiaryWeight = "400";
+  if(d.bodyTertiaryLetterSpacing==null) d.bodyTertiaryLetterSpacing = "normal";
+  if(d.bodyTertiaryTextTransform==null) d.bodyTertiaryTextTransform = "none";
+  if(d.bodyTertiaryTextDecoration==null) d.bodyTertiaryTextDecoration = "none";
+  if(d.bodyTertiaryLineHeight==null) d.bodyTertiaryLineHeight = "1.5";
   if(d.btnPrimaryFont==null) d.btnPrimaryFont = d.fontBody;
   if(d.btnPrimaryLetterSpacing==null) d.btnPrimaryLetterSpacing = "normal";
   if(d.btnPrimaryBorder==null) d.btnPrimaryBorder = "none";
@@ -6858,7 +6868,19 @@ var BRAND_FIELDS = [
       {key:"bodySecondaryTextDecoration", label:"Text-decoration", type:"select", options:DECORATION_OPTIONS}
     ]},
     {title:"Tertiary", fields:[
-      {key:"faint", label:"Color", type:"color"}
+      // user: "ustawienia dla Tertiary font są strasznie upośledzone. dlaczego
+      // tylko kolor? mają byc takie same ustawienia jak dla primary i
+      // secondary" — ten sam komplet pól co Secondary, ten sam klucz koloru
+      // (faint) co dotąd, żeby nie złamać istniejących {{brand.faint}} w
+      // ~175 komponentach.
+      {key:"fontBodyTertiary", label:"Font-family", type:"text", placeholder:"e.g. Arial, Helvetica, sans-serif"},
+      {key:"bodyTertiarySize", label:"Size (px)", type:"number", responsive:true},
+      {key:"bodyTertiaryWeight", label:"Font weight", type:"select", options:WEIGHT_OPTIONS},
+      {key:"faint", label:"Color", type:"color"},
+      {key:"bodyTertiaryLineHeight", label:"Line-height", type:"text", placeholder:"e.g. 1.5, 150%", responsive:true},
+      {key:"bodyTertiaryLetterSpacing", label:"Letter-spacing", type:"text", placeholder:"e.g. normal, 0.05em", responsive:true},
+      {key:"bodyTertiaryTextTransform", label:"Text-transform", type:"select", options:TRANSFORM_OPTIONS},
+      {key:"bodyTertiaryTextDecoration", label:"Text-decoration", type:"select", options:DECORATION_OPTIONS}
     ]}
   ]},
   { title:"Brand & accents", fields:[
