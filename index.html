@@ -268,7 +268,10 @@
   /* Przeniesione z card-head NAD tytuł komponentu (card-body) — user:
      "nazwę kategorii przenieś nad nazwę komponentu". */
   .card-cat{display:flex; align-items:center; justify-content:space-between; gap:6px; font-family:var(--font-mono); font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 4px}
-  .card-preview{height:150px; flex:none; background:var(--surface-2); overflow:hidden; position:relative}
+  /* user: "dodatkowo zaokrąglij górne boki tego preview" — TYLKO górne rogi
+     (dolne stykają się z card-body, nie z zewnętrzną, już zaokrągloną
+     krawędzią .card). */
+  .card-preview{height:150px; flex:none; background:var(--surface-2); overflow:hidden; position:relative; border-radius:8px 8px 0 0}
   /* user: "dół z kolei niech się wygasza kolorem #F5F6F8 (gradient)" —
      tylko na snapshotach gotowych maili (renderEmailThumb/renderEmailGrid),
      bo tam treść jest CELOWO ucinana na dole (długi mail w krótkim boxie). */
@@ -8410,14 +8413,13 @@ function renderEmailThumb(e, b){
     compiled = simulateLiquidForPreview(fillTokensForPreview(compiled, b), b);
     var mailWidth = parseInt(b.mailWidth, 10) || 600;
     var scale = 224 / mailWidth;
-    // user: "miałeś tu padding zrobić górny, żeby preview nie dotykało
-    // krawędzi" — poprzednia próba (padding-top NA treści) dokładała puste
-    // miejsce WEWNĄTRZ białego tła, więc było niewidoczne (białe na białym).
-    // To, co faktycznie widać po bokach, to SZARE tło .card-preview
-    // prześwitujące zza węższej, wyśrodkowanej treści — analogiczny efekt
-    // u góry wymaga przesunięcia całego wrappera w dół (top, nie padding
-    // treści), żeby to samo szare tło prześwitywało nad nim.
-    return '<div style="position:absolute; top:12px; left:50%; width:'+mailWidth+'px; transform:translateX(-50%) scale('+scale+'); transform-origin:top center; background:'+(b.bg||"#ffffff")+';">'+compiled+'</div>';
+    // user: "z czego wynika brak paddingu... treść w preview dotyka górnej
+    // krawędzi" — 12px okazało się zbyt subtelne, żeby odróżnić szare
+    // .card-preview od prawie-białej treści (#F5F6F8 vs #ffffff, mało
+    // kontrastu w małej miniaturze) — powiększone do 20px, żeby przerwa
+    // była czytelna nawet przy słabym kontraście, nie tylko "technicznie
+    // obecna" w kodzie.
+    return '<div style="position:absolute; top:20px; left:50%; width:'+mailWidth+'px; transform:translateX(-50%) scale('+scale+'); transform-origin:top center; background:'+(b.bg||"#ffffff")+';">'+compiled+'</div>';
   }catch(err){
     return '<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--ink-faint)">Preview unavailable</div>';
   }
