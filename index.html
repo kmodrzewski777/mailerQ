@@ -5589,7 +5589,8 @@ function applyBackupPayload(payload){
       if(!findEmail(ce.id)){
         READY_EMAILS.push({
           id:ce.id, flow:ce.flow, label:ce.label, desc:ce.desc, note:ce.note,
-          componentIds:ce.componentIds, custom:true, createdBy:ce.createdBy
+          componentIds:ce.componentIds, componentValues:ce.componentValues, componentVariants:ce.componentVariants,
+          custom:true, createdBy:ce.createdBy
         });
       }
     });
@@ -8467,13 +8468,16 @@ function renderCrmFilterRow(){
 
 function addEmailToList(emailId){
   var e = findEmail(emailId);
-  // componentValues (opcjonalne, patrz np. webinar-instrukcja-filmowa) —
-  // realne treści źródłowego maila per-komponent, w tej samej kolejności
-  // co componentIds; bez tego pola (większość gotowych maili) tokeny
-  // trafiają na listę jako surowe [[ ]], tak jak dotychczas.
+  // componentValues/componentVariants (opcjonalne, patrz np.
+  // webinar-instrukcja-filmowa oraz saveEmailFormSubmit dla maili
+  // zapisanych z Mail Stacka) — realne treści i wybrany wariant źródłowego
+  // maila per-komponent, w tej samej kolejności co componentIds; bez tych
+  // pól (większość gotowych maili) tokeny/wariant trafiają na listę jako
+  // surowe [[ ]]/Default, tak jak dotychczas.
   e.componentIds.forEach(function(cid, i){
     var vals = e.componentValues && e.componentValues[i];
-    state.list.push({ uid: uidSeq++, componentId: cid, code: null, values: vals ? Object.assign({}, vals) : null });
+    var variantId = e.componentVariants && e.componentVariants[i];
+    state.list.push({ uid: uidSeq++, componentId: cid, code: null, variantId: variantId || null, values: vals ? Object.assign({}, vals) : null });
   });
   renderList(); renderGrid();
   showToast(e.label + " — added " + e.componentIds.length + " blocks to the list");
@@ -9035,12 +9039,14 @@ function openEmailPreview(emailId){
   byId("previewFrame").classList.add("stacked", "email-frame-mode");
   var box = byId("previewBox");
   box.innerHTML = '<div id="previewIframeWrap"></div>';
+  // resolveItemCode (patrz definicja) uwzględnia i wartości, I wybrany
+  // wariant tej pozycji (componentVariants[i]) — bez tego podgląd zawsze
+  // renderował Default, nawet jeśli mail zapisano z innym wariantem.
   var bodyMjml = stitchComponentCodes(e.componentIds.map(function(cid, i){
-    var c = findComp(cid);
-    if(!c) return "";
-    var raw = c.code(b);
     var vals = e.componentValues && e.componentValues[i];
-    return vals ? applyValuesToCode(raw, vals) : raw;
+    var variantId = e.componentVariants && e.componentVariants[i];
+    var raw = resolveItemCode({ componentId: cid, variantId: variantId || null, code: null, values: vals || null }, b);
+    return raw || "";
   }), b.componentGap);
   mountMjmlIframe("previewIframeWrap", bodyMjml, b, { headerVariant: state.headerVariant, footerVariant: state.footerVariant, darkPreview: previewTheme==="dark" });
   resetPreviewCodeToggle();
@@ -9267,7 +9273,20 @@ function saveEmailFormSubmit(){
   // odsiewamy pozycje wskazujące na komponenty, których już nie ma (patrz
   // resolveItemCode/orphan-fix) — gotowy mail ma zawierać tylko to, co
   // faktycznie da się później odtworzyć z biblioteki.
-  var componentIds = state.list.map(function(item){ return item.componentId; }).filter(function(cid){ return !!findComp(cid); });
+  // user: "gdy zapisuję lub aktualizuję gotowy mail z komponentów w Mail
+  // Stacks, to mają również zapisać się wartości w kluczach, które
+  // wprowadziłem" — componentValues/componentVariants budowane RÓWNOLEGLE
+  // do componentIds (ten sam filtr, ta sama kolejność/indeksy), żeby
+  // addEmailToList (patrz tam, już czyta componentValues[i] dla kilku
+  // wbudowanych maili) odtworzyło zarówno wpisane frazy, jak i wybrany
+  // wariant każdej pozycji, nie tylko gołe [[TOKENY]] domyślnego wariantu.
+  var componentIds = [], componentValues = [], componentVariants = [];
+  state.list.forEach(function(item){
+    if(!findComp(item.componentId)) return;
+    componentIds.push(item.componentId);
+    componentValues.push(item.values ? Object.assign({}, item.values) : null);
+    componentVariants.push(item.variantId || null);
+  });
   if(componentIds.length===0){ showToast("The list doesn't contain any recognizable components"); return; }
 
   if(saveEmailForm.updateId){
@@ -9277,6 +9296,8 @@ function saveEmailFormSubmit(){
     existing.label = label;
     existing.flow = d.flow;
     existing.componentIds = componentIds;
+    existing.componentValues = componentValues;
+    existing.componentVariants = componentVariants;
     // Wbudowany mail zaktualizowany tak zostaje (bez .custom) — więc
     // aktualizacja przetrwa tylko bieżącą sesję, dokładnie jak przy
     // usuwaniu wbudowanych maili (saveToStorage zapisuje tylko custom).
@@ -9297,6 +9318,8 @@ function saveEmailFormSubmit(){
     desc: "Custom set of components saved from your build list.",
     note: "zapisany z Twojej listy budowy",
     componentIds: componentIds,
+    componentValues: componentValues,
+    componentVariants: componentVariants,
     custom: true,
     createdBy: currentUserStamp()
   });
