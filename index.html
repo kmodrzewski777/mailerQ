@@ -165,6 +165,12 @@
   }
   .brand-select-option:hover{background:var(--surface-2)}
   .brand-select-option[aria-selected="true"]{background:var(--accent-soft); font-weight:600; color:var(--accent)}
+  /* user: "fajnie jakbyś tu gdzieś nieklikalnie dodał e-mail konta" —
+     statyczny nagłówek dropdownu, nie .brand-select-option (brak
+     cursor:pointer/hover, nic się nie klika). */
+  .auth-user-menu-header{padding:6px 10px 8px; font-size:11.5px; color:var(--ink-muted); line-height:1.4}
+  .auth-user-menu-header .auth-user-menu-role{display:inline-block; margin-top:3px; padding:1px 7px; border-radius:999px; background:var(--surface-2); color:var(--ink-faint); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.04em}
+  .auth-user-menu-divider{height:1px; background:var(--line); margin:2px 4px 4px}
   /* user: "zamiast tych dwóch przycisków [Edit/Add] zrób przy każdej
      pozycji w dropdownie po prawej stronie ikonę ołówka" + "Add new" jako
      wydzielona pozycja na końcu listy. */
@@ -582,6 +588,26 @@
   .cat-manage-confirm{width:100%; margin-top:10px; padding:12px; background:var(--surface-2); border-radius:6px}
   .cat-manage-confirm p{margin:0 0 10px; font-size:12.5px; color:var(--ink-muted)}
   .cat-manage-industries{flex-basis:100%; display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:2px}
+  /* user: "nowa podstronę na której admin widzi użytkowników... imię,
+     nazwisko, e-mail, avatary... ile komponentów dodali, ile gotowych
+     maili" — za dużo kolumn na standardowe 640px Site Settings, stąd
+     poszerzony wariant modala TYLKO gdy otwarta jest zakładka Users
+     (patrz switchSettingsTab). Siatka zamiast flex — user woli, żeby
+     "formularze się wyrównywały w wierszach". */
+  #crmSettingsModal.settings-modal-wide{max-width:860px}
+  .user-manage-table{overflow-x:auto}
+  .user-manage-head,.user-manage-row{
+    display:grid; grid-template-columns:30px 1fr 1fr 1.6fr 96px 60px 60px 96px;
+    gap:8px; align-items:center; min-width:760px;
+  }
+  .user-manage-head{padding:0 4px 6px; font-size:10.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-faint); border-bottom:1px solid var(--line-strong)}
+  .user-manage-row{padding:7px 4px; border-bottom:1px solid var(--line)}
+  .user-manage-row:last-child{border-bottom:0}
+  .user-manage-row.is-disabled{opacity:.5}
+  .user-manage-name-input{width:100%; padding:6px 8px; font-size:12.5px}
+  .user-manage-email{font-size:12px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .user-manage-role{width:100%; padding:6px 6px; font-size:12px}
+  .user-manage-count{font-family:var(--font-mono); font-size:12px; color:var(--ink-muted); text-align:center}
   /* Wspólna klasa dla KAŻDEGO "wpisz nazwę w miejscu" inputu w appce (rename
      kategorii komponentu/maila w Site Settings, rename/add wariantu w
      edytorze komponentu) — user: "border ktory sie pojawia po edycji nazwy
@@ -716,6 +742,8 @@
       <div class="brand-select" id="authUserMenuWrap">
         <button class="btn ghost small auth-user-badge" id="authUserBtn" type="button" title="Account" aria-haspopup="menu" aria-expanded="false" style="display:none"></button>
         <ul class="brand-select-menu brand-select-menu-right" id="authUserMenu" role="menu" aria-label="Account menu" style="display:none">
+          <li class="auth-user-menu-header" id="authUserMenuHeader"></li>
+          <li class="auth-user-menu-divider"></li>
           <li class="brand-select-option" role="menuitem" id="authUserMenuEdit">Edit profile</li>
           <li class="brand-select-option" role="menuitem" id="authUserMenuLogout" style="color:#b42318">Logout</li>
         </ul>
@@ -851,7 +879,7 @@
 </div>
 
 <div class="overlay" id="crmSettingsOverlay" role="dialog" aria-modal="true">
-  <div class="modal" style="max-width:640px">
+  <div class="modal" id="crmSettingsModal" style="max-width:640px">
     <div class="modal-head">
       <h3>Site settings</h3>
       <button class="modal-close" id="crmSettingsClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
@@ -862,6 +890,10 @@
         <button type="button" class="bf-tab-btn" data-settings-tab="categories" aria-pressed="false">Categories</button>
         <button type="button" class="bf-tab-btn" data-settings-tab="industries" aria-pressed="false">Industries</button>
         <button type="button" class="bf-tab-btn" data-settings-tab="import-export" aria-pressed="false">Import/Export</button>
+        <!-- user: "dodaj dla admina nową podstronę na której widzi
+             użytkowników platformy" — zakładka widoczna TYLKO adminowi
+             (patrz syncSettingsTabsVisibility), reszta apki nietknięta. -->
+        <button type="button" class="bf-tab-btn" data-settings-tab="users" aria-pressed="false" id="settingsUsersTabBtn" style="display:none">Users</button>
       </div>
       <div class="settings-tab-panel" data-settings-tab="crm">
         <div class="bf-group">
@@ -921,6 +953,14 @@
             <button class="btn ghost" type="button" id="backupExportBtn">Copy backup</button>
             <button class="btn ghost" type="button" id="backupImportBtn">Import backup</button>
             <input type="file" id="backupImportInput" accept="application/json,.json" style="display:none">
+          </div>
+        </div>
+      </div>
+      <div class="settings-tab-panel" data-settings-tab="users" style="display:none">
+        <div class="bf-group">
+          <p class="bf-group-title">Platform users</p>
+          <div class="user-manage-table" id="userManagerList">
+            <p class="drawer-empty" style="padding:14px 0">Loading…</p>
           </div>
         </div>
       </div>
@@ -5202,8 +5242,14 @@ function currentUserStamp(){
 // Wbudowane wpisy (bez createdBy, np. seed-owe komponenty/maile) nie mają
 // twórcy — dla nich przechodzi TYLKO admin, nikt inny.
 var ADMIN_EMAIL = "k.modrzewski@retentionq.com";
+// user: "dodaj system ról Admin/Member" — rola z Firestore (users/{uid})
+// jest teraz normalną ścieżką, ale ADMIN_EMAIL zostaje jako awaryjny
+// fallback (np. katalog jeszcze niewgrany/reguły nieustawione) — właściciel
+// apki nie może się sam z niej wykluczyć przez brak/błąd danych w bazie.
 function isAdminUser(){
-  return !!(MQ_CURRENT_USER && MQ_CURRENT_USER.email && MQ_CURRENT_USER.email.toLowerCase()===ADMIN_EMAIL);
+  if(!MQ_CURRENT_USER) return false;
+  if(MQ_CURRENT_USER.role==="admin") return true;
+  return !!(MQ_CURRENT_USER.email && MQ_CURRENT_USER.email.toLowerCase()===ADMIN_EMAIL);
 }
 function isRecordOwner(record){
   return !!(MQ_CURRENT_USER && record && record.createdBy && record.createdBy.uid===MQ_CURRENT_USER.uid);
@@ -7394,12 +7440,94 @@ function switchSettingsTab(tab){
     if(el.tagName==="BUTTON") el.setAttribute("aria-pressed", el.getAttribute("data-settings-tab")===tab ? "true" : "false");
     else el.style.display = el.getAttribute("data-settings-tab")===tab ? "" : "none";
   });
+  byId("crmSettingsModal").classList.toggle("settings-modal-wide", tab==="users");
+  if(tab==="users") renderUsersManager();
 }
 // initialTab — user: pencil icon obok "Categories"/"E-mails" w sidebarze
 // (patrz railCategoriesEditBtn/railFlowsEditBtn) ma otwierać Site Settings
 // wprost na zakładce "Categories" (ta sama zakładka niesie OBIE grupy —
 // kategorie komponentów I kategorie gotowych maili, patrz HTML wyżej),
 // zamiast zawsze lądować na domyślnym CRM/ESP.
+// user: "dodaj dla admina nową podstronę na której widzi użytkowników
+// platformy- imie,nazwisko,e-mail,avatary. moze zmienic im dane, może ich
+// usunąć i/lub zmienić im rolę. widzi też ile komponentów dodali, ile
+// gotowych maili". "Usuń" = blokada dostępu (setDisabled/MQBoot), NIE
+// realne kasowanie konta Firebase Auth — klient nie ma do tego uprawnień
+// bez Admin SDK/Cloud Function (patrz komentarz przy window.MQUsers w
+// module Firebase, ta sama granica co przy odrzuconym wcześniej sekrecie
+// Admin SDK w tej sesji).
+var usersManagerCache = null;
+function findManagedUser(uid){ return (usersManagerCache||[]).filter(function(u){ return u.uid===uid; })[0]; }
+function usersManagerRowHtml(u){
+  var compCount = COMPONENTS.filter(function(c){ return c.createdBy && c.createdBy.uid===u.uid; }).length;
+  var emailCount = READY_EMAILS.filter(function(e){ return e.createdBy && e.createdBy.uid===u.uid; }).length;
+  var isSelf = !!(MQ_CURRENT_USER && MQ_CURRENT_USER.uid===u.uid);
+  var selfLock = isSelf ? ' disabled title="You can’t change your own role/access here"' : '';
+  return '<div class="user-manage-row'+(u.disabled?' is-disabled':'')+'" data-user-row="'+u.uid+'">'+
+    '<span>'+avatarHtml(u, 26)+'</span>'+
+    '<input type="text" class="user-manage-name-input" data-user-first="'+u.uid+'" value="'+esc(u.firstName||"")+'" placeholder="First name">'+
+    '<input type="text" class="user-manage-name-input" data-user-last="'+u.uid+'" value="'+esc(u.lastName||"")+'" placeholder="Last name">'+
+    '<span class="user-manage-email" title="'+esc(u.email||"")+'">'+esc(u.email||"")+'</span>'+
+    '<select class="user-manage-role" data-user-role="'+u.uid+'"'+selfLock+'>'+
+      '<option value="member"'+(u.role==="member"?' selected':'')+'>Member</option>'+
+      '<option value="admin"'+(u.role==="admin"?' selected':'')+'>Admin</option>'+
+    '</select>'+
+    '<span class="user-manage-count" title="Components created">'+compCount+'</span>'+
+    '<span class="user-manage-count" title="Ready-made emails created">'+emailCount+'</span>'+
+    '<button type="button" class="btn ghost small" data-user-toggle-disabled="'+u.uid+'"'+selfLock+'>'+(u.disabled?'Enable':'Disable')+'</button>'+
+  '</div>';
+}
+async function renderUsersManager(){
+  var box = byId("userManagerList");
+  if(!isAdminUser()){ box.innerHTML = '<p class="drawer-empty" style="padding:14px 0">Admins only.</p>'; return; }
+  if(!window.MQUsers){ box.innerHTML = '<p class="drawer-empty" style="padding:14px 0">Not available (Firebase not loaded).</p>'; return; }
+  box.innerHTML = '<p class="drawer-empty" style="padding:14px 0">Loading…</p>';
+  var users;
+  try{ users = await window.MQUsers.listAll(); }
+  catch(e){ box.innerHTML = '<p class="drawer-empty" style="padding:14px 0">Couldn’t load the user list.</p>'; return; }
+  users.sort(function(a,b){ return (a.email||"").localeCompare(b.email||""); });
+  usersManagerCache = users;
+  var head = '<div class="user-manage-head"><span></span><span>First name</span><span>Last name</span><span>Email</span><span>Role</span><span>Comp.</span><span>Emails</span><span>Access</span></div>';
+  box.innerHTML = head + users.map(usersManagerRowHtml).join("");
+  box.querySelectorAll("[data-user-first]").forEach(function(el){
+    el.addEventListener("blur", function(){ saveUserNameField(el.getAttribute("data-user-first"), "firstName", el.value); });
+  });
+  box.querySelectorAll("[data-user-last]").forEach(function(el){
+    el.addEventListener("blur", function(){ saveUserNameField(el.getAttribute("data-user-last"), "lastName", el.value); });
+  });
+  box.querySelectorAll("[data-user-role]").forEach(function(el){
+    el.addEventListener("change", function(){ setUserRole(el.getAttribute("data-user-role"), el.value); });
+  });
+  box.querySelectorAll("[data-user-toggle-disabled]").forEach(function(btn){
+    btn.addEventListener("click", function(){ toggleUserDisabled(btn.getAttribute("data-user-toggle-disabled")); });
+  });
+}
+function saveUserNameField(uid, field, value){
+  var u = findManagedUser(uid);
+  if(!u || !window.MQUsers) return;
+  var trimmed = value.trim();
+  if((u[field]||"")===trimmed) return; // bez realnej zmiany — nie strzelamy zapisem przy każdym focus/blur
+  u[field] = trimmed;
+  var first = field==="firstName" ? trimmed : (u.firstName||"");
+  var last = field==="lastName" ? trimmed : (u.lastName||"");
+  window.MQUsers.updateProfileFields(uid, { firstName:first, lastName:last, displayName:[first,last].filter(Boolean).join(" ")||u.email })
+    .then(function(){ showToast("User updated"); })
+    .catch(function(){ showToast("Couldn't update user — check your connection", "error"); });
+}
+function setUserRole(uid, role){
+  if(!window.MQUsers) return;
+  window.MQUsers.setRole(uid, role)
+    .then(function(){ var u = findManagedUser(uid); if(u) u.role = role; showToast("Role updated"); })
+    .catch(function(){ showToast("Couldn't update role — check your connection", "error"); renderUsersManager(); });
+}
+function toggleUserDisabled(uid){
+  var u = findManagedUser(uid);
+  if(!u || !window.MQUsers) return;
+  var next = !u.disabled;
+  window.MQUsers.setDisabled(uid, next)
+    .then(function(){ u.disabled = next; renderUsersManager(); showToast(next ? "User access disabled" : "User access enabled"); })
+    .catch(function(){ showToast("Couldn't update access — check your connection", "error"); });
+}
 function openCrmSettings(initialTab){
   var b = brand();
   var platform = b.crmPlatform || "klaviyo";
@@ -7409,6 +7537,7 @@ function openCrmSettings(initialTab){
   input.placeholder = "default: " + (CRM_UNSUBSCRIBE_DEFAULTS[platform] || "");
   renderCategoryManager();
   renderIndustryManager();
+  byId("settingsUsersTabBtn").style.display = isAdminUser() ? "" : "none";
   switchSettingsTab(initialTab || "crm");
   byId("crmSettingsOverlay").classList.add("open");
 }
@@ -9976,7 +10105,27 @@ byId("profileFormSave").addEventListener("click", function(){
 // na końcu skryptu, bez żadnej bramki).
 window.MQBoot = async function(user){
   hideAuthGate();
-  MQ_CURRENT_USER = { uid:user.uid, displayName:user.displayName||null, photoURL:user.photoURL||null, email:user.email };
+  MQ_CURRENT_USER = { uid:user.uid, displayName:user.displayName||null, photoURL:user.photoURL||null, email:user.email, role:"member" };
+  // user: "dodaj system ról Admin/Member" — sam Firebase Auth nic o rolach
+  // nie wie, więc katalog users/{uid} (patrz moduł Firebase) jest jedynym
+  // źródłem prawdy o roli i o tym, czy konto jest zablokowane. Sprawdzane
+  // TU, ZANIM cokolwiek się wyrenderuje — zablokowany user nie ma zobaczyć
+  // treści apki choćby przez mgnienie.
+  if(window.MQUsers){
+    try{
+      var directory = await window.MQUsers.upsertSelf();
+      if(directory){
+        MQ_CURRENT_USER.role = directory.role || "member";
+        if(directory.disabled){
+          if(window.MQAuth) await window.MQAuth.logout();
+          MQ_CURRENT_USER = null;
+          showAuthGate();
+          authShowError("This account has been disabled. Contact your admin.");
+          return;
+        }
+      }
+    }catch(e){ /* katalog niedostępny (np. reguły jeszcze nie wgrane) — nie blokujemy logowania, po prostu bez roli/disabled tym razem */ }
+  }
   renderAuthUserBadge();
   // window.MQStore.load() zwraca { priv, shared } (patrz moduł Firebase) —
   // "shared" (Brand Kity + biblioteka komponentów) istnieje = ładujemy TĘ
@@ -10005,6 +10154,10 @@ function renderAuthUserBadge(){
   btn.innerHTML = avatarHtml(MQ_CURRENT_USER, 24) + '<span style="margin-left:6px">'+label+'</span>';
   btn.style.display = "inline-flex";
   btn.style.alignItems = "center";
+  // user: "fajnie jakbyś tu gdzieś nieklikalnie dodał e-mail konta" —
+  // statyczny nagłówek dropdownu, nie kolejna pozycja menu.
+  byId("authUserMenuHeader").innerHTML = esc(MQ_CURRENT_USER.email) +
+    '<span class="auth-user-menu-role">'+(isAdminUser()?"Admin":"Member")+'</span>';
 }
 window.MQShowGate = showAuthGate;
 // Awaryjnie: gdyby moduł Firebase w ogóle się nie załadował (np.
@@ -10039,7 +10192,7 @@ import {
   signOut, onAuthStateChanged, updateProfile
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc
+  getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 import {
   getStorage, ref, uploadBytes, getDownloadURL
@@ -10081,6 +10234,35 @@ let privateDocRef = null;
 // Firestore/Storage (patrz dokumentacja projektu) domykają to jeszcze raz
 // na poziomie samych danych, gdyby jednak jakieś stare/obce konto istniało.
 const ALLOWED_EMAIL_RE = /@retentionq\.com$/i;
+// user: "dodaj system ról Admin/Member... nowa podstronę na której admin
+// widzi użytkowników". Ten sam adres co ADMIN_EMAIL w klasycznym skrypcie
+// (patrz canManageRecord) — TU decyduje o roli zapisanej w Firestore,
+// tam o uprawnieniach liczonych na już-załadowanym MQ_CURRENT_USER.role.
+const USERS_ADMIN_EMAIL = "k.modrzewski@retentionq.com";
+const USERS_COL = collection(db, "users");
+function usersDocRef(uid){ return doc(db, "users", uid); }
+
+// Wspólna dla register()/updateProfile()/każdego logowania — tworzy albo
+// dopisuje profil w katalogu users/{uid}. NIGDY nie ustawia role/disabled
+// przy zwykłym merge (poza pierwszym utworzeniem dokumentu) — to pilnują
+// też reguły Firestore (patrz dokumentacja projektu), więc nawet błąd tutaj
+// nie pozwoliłby samemu sobie nadać roli admina.
+async function upsertUserDirectory(user, extra){
+  const ref_ = usersDocRef(user.uid);
+  const snap = await getDoc(ref_);
+  const data = { uid: user.uid, email: user.email, photoURL: user.photoURL || null, updatedAt: Date.now() };
+  if(user.displayName) data.displayName = user.displayName;
+  if(extra && extra.firstName) data.firstName = extra.firstName;
+  if(extra && extra.lastName) data.lastName = extra.lastName;
+  if(!snap.exists()){
+    data.role = (user.email && user.email.toLowerCase()===USERS_ADMIN_EMAIL) ? "admin" : "member";
+    data.disabled = false;
+    data.createdAt = Date.now();
+  }
+  await setDoc(ref_, data, { merge: true });
+  const finalSnap = await getDoc(ref_);
+  return finalSnap.data();
+}
 
 // Wspólna dla register() i updateProfile() — wgrywa avatar (jeśli podany)
 // pod TĄ SAMĄ ścieżką co uid (nadpisuje poprzedni przy zmianie) i woła
@@ -10097,6 +10279,7 @@ async function applyProfileUpdate(user, profile){
   }
   const displayName = [profile && profile.firstName, profile && profile.lastName].filter(Boolean).join(" ") || user.displayName || null;
   await updateProfile(user, { displayName: displayName, photoURL: photoURL });
+  await upsertUserDirectory(user, { firstName: profile && profile.firstName, lastName: profile && profile.lastName });
   return { uid: user.uid, displayName: displayName, photoURL: photoURL, email: user.email };
 }
 
@@ -10114,6 +10297,30 @@ window.MQAuth = {
   updateProfile(profile){
     if(!auth.currentUser) return Promise.reject(new Error("not signed in"));
     return applyProfileUpdate(auth.currentUser, profile);
+  }
+};
+
+// user: "dodaj system ról Admin/Member... nowa podstronę na której admin
+// widzi użytkowników platformy... może zmienić im dane, może ich usunąć
+// i/lub zmienić im rolę". "Usuń" celowo NIE kasuje konta Firebase Auth —
+// klient nie ma do tego uprawnień bez Admin SDK/Cloud Function (to samo
+// ograniczenie, co przy realnym sekrecie Admin SDK odrzuconym wcześniej w
+// tej sesji) — zamiast tego setDisabled blokuje dostęp (patrz MQBoot w
+// klasycznym skrypcie, sprawdza disabled zaraz po zalogowaniu i wylogowuje).
+window.MQUsers = {
+  upsertSelf(extra){
+    if(!auth.currentUser) return Promise.resolve(null);
+    return upsertUserDirectory(auth.currentUser, extra);
+  },
+  async listAll(){
+    const snap = await getDocs(USERS_COL);
+    return snap.docs.map(function(d){ return d.data(); });
+  },
+  setRole(uid, role){ return updateDoc(usersDocRef(uid), { role: role, updatedAt: Date.now() }); },
+  setDisabled(uid, disabled){ return updateDoc(usersDocRef(uid), { disabled: disabled, updatedAt: Date.now() }); },
+  updateProfileFields(uid, fields){
+    const clean = Object.assign({}, fields, { updatedAt: Date.now() });
+    return updateDoc(usersDocRef(uid), clean);
   }
 };
 
