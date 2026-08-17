@@ -521,24 +521,17 @@
      z motywem, czytelne w obu trybach jasny/ciemny automatycznie). */
   .bf-crm-logo-badge{display:flex; align-items:center; gap:5px; color:var(--ink-faint); font-weight:600; font-size:13px; flex:none}
   .bf-crm-logo-badge svg{width:16px; height:16px; flex:none}
-  .bf-crm-logo-badge .crm-icon{width:16px; height:16px; flex:none}
-  /* Jednolity, jasnoniebieski kolor sygnetu wszędzie tam, gdzie się
-     pojawia (karty + ten badge) — patrz crmMaskIconHtml/.card-cat-platforms
-     .crm-icon. mask-size:contain zachowuje proporcje oryginalnego pliku. */
-  .crm-icon{display:inline-block; flex:none; background-color:#5b8fd6;
-    -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
-    -webkit-mask-position:center; mask-position:center;
-    -webkit-mask-size:contain; mask-size:contain}
+  .bf-crm-logo-badge img{height:16px; width:auto; flex:none; opacity:.1}
   /* Sygnety CRM na kartach komponentów/maili — user: "sygnety... w tej
      samej linii co nazwa kategorii, po prawej stronie... badge ilustrujące
      dla jakich CRM to jest komponent/mail". card-cat zmienia się z prostego
      bloku tekstu na wiersz (label | ikony), żeby zmieściły się obok siebie. */
   .card-cat-platforms{display:flex; align-items:center; gap:4px; flex:none; color:var(--ink-faint)}
   .card-cat-platforms svg{display:block; width:12px; height:12px}
-  /* .crm-icon — kształt logo jako mask-image, kolor jako background-color
-     (patrz crmMaskIconHtml) — user: "zmniejsz je do 12px, musisz im nalozyć
-     lekki niebieski, bo tak szaro chujowo to wygląda". */
-  .card-cat-platforms .crm-icon{width:12px; height:12px}
+  /* user: "zlikwiduj tą niebieską maske... przywroc zwykly kolor tylko
+     daj opacity na 10%" — z powrotem <img>, oryginalne kolory, samo
+     opacity reguluje wyciszenie. */
+  .card-cat-platforms img{display:block; height:12px; width:auto; opacity:.1}
   /* align-items:flex-start (nie domyślny stretch) — pole Logo jest
      wyraźnie wyższe niż zwykłe jednowierszowe pola obok (miniatura +
      przycisk + notka), stretch rozciągał WSZYSTKIE pola w wierszu do
@@ -2423,21 +2416,16 @@ function compileMjmlFragment(source, ctx){
 // się TYLKO wyświetlana nazwa — user: "Zmień SalesManago na ManagoAI".
 var CRM_PLATFORM_LABELS = { klaviyo:"Klaviyo", salesmanago:"ManagoAI", customerio:"Customer.io" };
 /* Sygnety (znaki graficzne, bez nazwy) platform CRM/ESP — user podesłał
-   realne pliki logo hostowane na ibb.co. Zwykłe <img> z opacity dawało
-   "szaro" (user: "tak szaro chujowo to wygląda") — kolorowe logo ściemnione
-   przez samo opacity nadal ciągnie swoje oryginalne, różne barwy. Zamiast
-   tego: CSS mask-image — kształt (alpha) z pliku, KOLOR z background-color
-   (patrz .crm-icon), więc wszystkie trzy sygnety wychodzą tym samym,
-   jednolitym, jasnoniebieskim tonem, niezależnie od oryginalnych kolorów. */
+   realne pliki logo hostowane na ibb.co. Próba jednolitego niebieskiego
+   tonu przez CSS mask-image (poprzednia wersja) user odrzucił ("zlikwiduj
+   tą niebieską maskę... przywroc zwykly kolor") — z powrotem zwykłe <img>,
+   oryginalne kolory każdego logo, samo opacity reguluje wyciszenie
+   (patrz .card-cat-platforms img / .bf-crm-logo-badge img). */
 var CRM_PLATFORM_ICONS = {
-  customerio: crmMaskIconHtml("https://i.ibb.co/yc1Ywr39/cio-sygnet.png", "Customer.io"),
-  klaviyo: crmMaskIconHtml("https://i.ibb.co/9mxNb72Y/klavio-sygnet.png", "Klaviyo"),
-  salesmanago: crmMaskIconHtml("https://i.ibb.co/yB8cBpB7/manago-sygnet.png", "ManagoAI")
+  customerio: '<img src="https://i.ibb.co/yc1Ywr39/cio-sygnet.png" alt="Customer.io" aria-hidden="true">',
+  klaviyo: '<img src="https://i.ibb.co/9mxNb72Y/klavio-sygnet.png" alt="Klaviyo" aria-hidden="true">',
+  salesmanago: '<img src="https://i.ibb.co/yB8cBpB7/manago-sygnet.png" alt="ManagoAI" aria-hidden="true">'
 };
-function crmMaskIconHtml(url, label){
-  var css = "mask-image:url('"+url+"'); -webkit-mask-image:url('"+url+"')";
-  return '<span class="crm-icon" style="'+css+'" role="img" aria-label="'+esc(label)+'"></span>';
-}
 /* Pełne logo (sygnet + nazwa) — użyte TYLKO jako wyciszony watermark obok
    nagłówka "CRM / ESP" w Brand Kit (patrz updateCrmLogoBadge); nie próbuje
    odtworzyć prawdziwej typografii logotypu (ryzykowne bez źródłowego pliku),
