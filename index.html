@@ -7756,7 +7756,10 @@ function renderCategoryNav(){
 
   railList.appendChild(makeRail("all","All",allCount,state.section==="components"&&state.category==="all"));
   chips.appendChild(makeChip("all","All",state.section==="components"&&state.category==="all"));
-  CATEGORIES.forEach(function(c){
+  // user: "kolumna z Categories ma się sortować alfabetycznie" — sortowana
+  // KOPIA (slice), więc kolejność w CATEGORIES samej (menedżer kategorii,
+  // dropdown przy tworzeniu komponentu) zostaje nietknięta.
+  CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).forEach(function(c){
     var n = compsByCategory(c.id).length;
     railList.appendChild(makeRail(c.id,c.label,n,state.section==="components"&&state.category===c.id));
     chips.appendChild(makeChip(c.id,c.label,state.section==="components"&&state.category===c.id));
