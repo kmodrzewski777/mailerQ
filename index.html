@@ -8216,7 +8216,10 @@ function emailCompatiblePlatforms(e){
   return compat;
 }
 function platformBadgesHtml(keys){
-  if(keys.length>=Object.keys(CRM_PLATFORM_LABELS).length) return "";
+  // user: "niech pojawiają się wszystkie [logosy] jeśli CRM jest przypisany
+  // ALL" — wcześniej "all" (keys = WSZYSTKIE platformy) świadomie nie
+  // pokazywało nic (patrz komentarz przy componentCompatiblePlatforms);
+  // user chce teraz odwrotnie, więc pokazujemy komplet zamiast pustki.
   return keys.map(function(k){ return CRM_PLATFORM_ICONS[k]||""; }).join("");
 }
 function renderGrid(){
@@ -8568,6 +8571,17 @@ function fillTokensForPreview(html, b){
   html = html.replace(/(<img\b[^>]*\ssrc=")\[\[[A-Za-z0-9_]+\]\](")/g, "$1"+PREVIEW_IMG_DATA_URI+"$2");
   return html.replace(/\[\[([A-Za-z0-9_]+)\]\]/g, function(m, token){ return guessTokenDefault(token); });
 }
+// Wartości do podglądu tagów {{customer.*}} (Liquid, Customer.io) — osobne
+// pole -> osobna, wiarygodna wartość, zamiast jednego sztywnego e-maila
+// podstawianego wszędzie (patrz simulateLiquidForPreview).
+var CUSTOMER_PREVIEW_FIELDS = {
+  first_name: "Jan",
+  last_name: "Kowalski",
+  display_name: "Jan Kowalski",
+  full_name: "Jan Kowalski",
+  name: "Jan Kowalski",
+  email: "jan.kowalski@przyklad.pl"
+};
 function simulateLiquidForPreview(html, b){
   var assigns = {};
 
@@ -8615,7 +8629,15 @@ function simulateLiquidForPreview(html, b){
     if(varName in assigns){ var v = assigns[varName]; return Array.isArray(v) ? v.join("") : v; }
     return m;
   });
-  html = html.replace(/\{\{\s*customer\.\w+\s*\}\}/g, "jan.kowalski@przyklad.pl");
+  // user: "w powyzszym kodzie nie ma klucza a mimo to w preview widze
+  // jan.kowalski@przyklad.pl — skad Ty bierzesz te jan.kowalski" — każde
+  // pole {{customer.*}} (first_name, display_name, email, ...) dostawało
+  // TĘ SAMĄ, sztywną wartość wyglądającą jak e-mail, więc "Cześć,
+  // {{customer.display_name}}" pokazywało adres zamiast imienia i
+  // nazwiska. Osobna, sensowna wartość na pole.
+  html = html.replace(/\{\{\s*customer\.(\w+)[\s\S]*?\}\}/g, function(m, field){
+    return CUSTOMER_PREVIEW_FIELDS[field] || "Jan Kowalski";
+  });
   html = html.replace(/\{\{\s*snippets\.\w+\s*\}\}/g, "Cześć");
 
   html = html.replace(/\{%\s*unsubscribe_url\s*%\}/g, "#");
