@@ -5484,18 +5484,30 @@ var STORAGE_KEY = "katalogKomponentowMjml.v1";
    ręczny eksport/import pliku .json (patrz przyciski "Eksportuj"/"Importuj"
    w topbarze) — plik na dysku usera przetrwa niezależnie od przeglądarki. */
 function buildBackupPayload(){
+  // c.code()/v.code() BEZ argumentu — user: "cos sie zjebalo. nie da sie
+  // nic zapisac" — kilka komponentów (np. pełnoszerokie zdjęcia:
+  // width="(mailWidth-80)px") liczy REALNĄ matematykę na b.mailWidth,
+  // której nie da się sprowadzić do statycznego tokenu {{brand.mailWidth}}
+  // — ich code(b) NAPRAWDĘ potrzebuje obiektu marki. Wołane bez argumentu
+  // (undefined), rzucały "Cannot read properties of undefined" w środku
+  // buildBackupPayload — SYNCHRONICZNIE, więc nawet zapis do Firestore
+  // (patrz saveToStorage) nigdy nie startował. Fix: przekazać PRAWDZIWĄ
+  // markę, tak jak robi to każdy inny wołający code(b) w tej appce —
+  // dla w pełni stokenizowanych komponentów (function(){return fixed;})
+  // argument jest po prostu ignorowany, więc to bezpieczne wszędzie.
+  var b = brand();
   return {
     brands: BRANDS,
     brandOrder: BRAND_ORDER,
     customComponents: COMPONENTS.filter(function(c){ return c.custom; }).map(function(c){
       return {
-        id:c.id, category:c.category, source:c.source, label:c.label, desc:c.desc, code:c.code(),
+        id:c.id, category:c.category, source:c.source, label:c.label, desc:c.desc, code:c.code(b),
         crmPlatform:c.crmPlatform||"all",
         // Zapisane domyślne frazy (patrz saveComponentCatalogChanges) —
         // user: "daj mi też mozliwosc zapisywania komponentu jesli zmienie
         // frazy w nim wystepujące".
         defaultValues:c.defaultValues,
-        variants:(c.variants||[]).map(function(v){ return { id:v.id, label:v.label, code:v.code() }; }),
+        variants:(c.variants||[]).map(function(v){ return { id:v.id, label:v.label, code:v.code(b) }; }),
         // "Created by" — user: adnotacja twórcy na kartach (patrz
         // createdByBadgeHtml); ustawiane raz, przy tworzeniu (patrz
         // currentUserStamp w saveComponentForm), niezmienne dalej.
