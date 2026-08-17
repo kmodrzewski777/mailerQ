@@ -2297,12 +2297,18 @@ function mjCompileButton(el, ctx){
   var align = mjGetAttr(el,"align","center");
   var tt = mjGetAttr(el,"text-transform","none");
   var border = el.hasAttribute("border") ? "border:"+el.getAttribute("border")+";" : "";
+  // user: pasted button code using letter-spacing="{{brand.btnPrimaryLetterSpacing}}"
+  // (a real Brand Kit field, see btnFullFieldsFor) — mjCompileButton never
+  // read/emitted it at all, so it silently did nothing regardless of what
+  // was configured. mj-text already supports this attribute; mj-button
+  // just never got it.
+  var ls = el.hasAttribute("letter-spacing") ? "letter-spacing:"+el.getAttribute("letter-spacing")+";" : "";
   var isFull = mjGetAttr(el,"width","")==="100%";
   var cssClass = mjGetAttr(el,"css-class","");
   var classNames = (isFull ? ["mj-btn-full"] : []).concat(cssClass ? [cssClass] : []);
   var classAttr = classNames.length ? ' class="'+classNames.join(" ")+'"' : "";
   var containerPadding = mjGetAttr(el,"container-padding","0px");
-  var a = '<a href="'+href+'" target="_blank"'+classAttr+' style="display:inline-block;background:'+bg+';color:'+color+';font-family:'+fontFamily+';font-size:'+fontSize+';font-weight:'+fontWeight+';text-transform:'+tt+';line-height:120%;text-decoration:none;padding:'+padding+';border-radius:'+radius+";"+border+'">'+el.innerHTML+"</a>";
+  var a = '<a href="'+href+'" target="_blank"'+classAttr+' style="display:inline-block;background:'+bg+';color:'+color+';font-family:'+fontFamily+';font-size:'+fontSize+';font-weight:'+fontWeight+';text-transform:'+tt+';'+ls+'line-height:120%;text-decoration:none;padding:'+padding+';border-radius:'+radius+";"+border+'">'+el.innerHTML+"</a>";
   var table = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="'+align+'" style="padding:'+containerPadding+';">'+a+"</td></tr></table>";
   return mjHideWrap(el, table);
 }
