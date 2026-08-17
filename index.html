@@ -5,54 +5,42 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  /* Design tokens — user: "zmień stylistykę strony na taką widoczną na tym
-     screenie [Dribbble dashboard: czarny zaokrąglony rail, białe pływające
-     karty na jasnoszarym tle, duże promienie, miękkie cienie] a kolorem
-     brandu jest #FE7577... biały, czarny, kolor brandu jako akcenty,
-     trochę szarości." --paper (tło strony) jest teraz celowo jaśniejszym
-     szarym niż --surface (białe karty/panele) — to właśnie ten kontrast
-     "karta pływa na płótnie" z reference'u, dawniej oba były czystą
-     bielą. Promień/cień podbite (14→20px, cień grubszy/miększy) pod
-     bardziej "zaokrąglony" charakter referencji. */
+  /* Design tokens — inspired by mailforge.ai: deep navy ink + white paper,
+     one fiery orange accent used sparingly, Inter everywhere, 8-14px radius
+     with generous, breathing whitespace. */
   :root{
-    --paper:#f2f2f4; --surface:#ffffff; --surface-2:#f5f5f7;
-    --ink:#101114; --ink-muted:#6b6d74; --ink-faint:#9a9ca3;
-    --line:#e8e8eb; --line-strong:#dadadf;
-    --accent:#FE7577; --accent-ink:#ffffff; --accent-soft:rgba(254,117,119,.15);
-    --radius-card:20px; --radius-chip:999px;
-    --shadow-card:0 2px 8px rgba(16,17,20,.04), 0 20px 44px rgba(16,17,20,.09);
+    --paper:#ffffff; --surface:#ffffff; --surface-2:#f5f6f8;
+    --ink:#14162b; --ink-muted:#5c5f78; --ink-faint:#9698ad;
+    --line:#e3e4ea; --line-strong:#cfd1db;
+    --accent:#ff5722; --accent-ink:#ffffff; --accent-soft:rgba(255,87,34,.15);
+    --radius-card:14px; --radius-chip:999px;
+    --shadow-card:0 1px 2px rgba(20,22,43,.05), 0 8px 20px rgba(20,22,43,.06);
     --font-display:'Inter',Arial,sans-serif;
     --font-body:'Inter',Arial,sans-serif;
     --font-mono:'Inter',Arial,sans-serif;
-    /* Rail (patrz .rail niżej) jest CELOWO stały czarny w obu motywach
-       app-owych (jasny/ciemny) — to element layoutu z reference'u, nie
-       "tło strony", więc nie odwraca się razem z --ink/--paper. Zdefiniowane
-       TYLKO tutaj (nie powtórzone w blokach prefers-color-scheme/data-theme),
-       więc zostaje niezmienne niezależnie od reszty motywu. */
-    --rail-dark:#101114; --rail-dark-line:rgba(255,255,255,.08);
   }
   @media (prefers-color-scheme:dark){
     :root{
-      --paper:#0a0b0e; --surface:#18191e; --surface-2:#202127;
-      --ink:#ffffff; --ink-muted:#a6a8b0; --ink-faint:#6d6f78;
-      --line:#28292f; --line-strong:#36373e;
-      --accent:#FE7577; --accent-ink:#ffffff; --accent-soft:rgba(254,117,119,.22);
-      --shadow-card:0 2px 8px rgba(0,0,0,.35), 0 20px 44px rgba(0,0,0,.4);
+      --paper:#0d0e1a; --surface:#171929; --surface-2:#1f2235;
+      --ink:#ffffff; --ink-muted:#a8aac0; --ink-faint:#6f7189;
+      --line:#2a2d42; --line-strong:#3a3d55;
+      --accent:#ff5722; --accent-ink:#ffffff; --accent-soft:rgba(255,87,34,.22);
+      --shadow-card:0 1px 2px rgba(0,0,0,.3), 0 8px 20px rgba(0,0,0,.35);
     }
   }
   :root[data-theme="dark"]{
-    --paper:#0a0b0e; --surface:#18191e; --surface-2:#202127;
-    --ink:#ffffff; --ink-muted:#a6a8b0; --ink-faint:#6d6f78;
-    --line:#28292f; --line-strong:#36373e;
-    --accent:#FE7577; --accent-ink:#ffffff; --accent-soft:rgba(254,117,119,.22);
-    --shadow-card:0 2px 8px rgba(0,0,0,.35), 0 20px 44px rgba(0,0,0,.4);
+    --paper:#0d0e1a; --surface:#171929; --surface-2:#1f2235;
+    --ink:#ffffff; --ink-muted:#a8aac0; --ink-faint:#6f7189;
+    --line:#2a2d42; --line-strong:#3a3d55;
+    --accent:#ff5722; --accent-ink:#ffffff; --accent-soft:rgba(255,87,34,.22);
+    --shadow-card:0 1px 2px rgba(0,0,0,.3), 0 8px 20px rgba(0,0,0,.35);
   }
   :root[data-theme="light"]{
-    --paper:#f2f2f4; --surface:#ffffff; --surface-2:#f5f5f7;
-    --ink:#101114; --ink-muted:#6b6d74; --ink-faint:#9a9ca3;
-    --line:#e8e8eb; --line-strong:#dadadf;
-    --accent:#FE7577; --accent-ink:#ffffff; --accent-soft:rgba(254,117,119,.15);
-    --shadow-card:0 2px 8px rgba(16,17,20,.04), 0 20px 44px rgba(16,17,20,.09);
+    --paper:#ffffff; --surface:#ffffff; --surface-2:#f5f6f8;
+    --ink:#14162b; --ink-muted:#5c5f78; --ink-faint:#9698ad;
+    --line:#e3e4ea; --line-strong:#cfd1db;
+    --accent:#ff5722; --accent-ink:#ffffff; --accent-soft:rgba(255,87,34,.15);
+    --shadow-card:0 1px 2px rgba(20,22,43,.05), 0 8px 20px rgba(20,22,43,.06);
   }
 
   *{box-sizing:border-box}
@@ -126,7 +114,7 @@
   .brand-select{position:relative}
   .brand-select-btn{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
-    border:1px solid var(--line); border-radius:10px; padding:7px 10px; font-size:12.5px; font-weight:600;
+    border:1px solid var(--line); border-radius:6px; padding:7px 10px; font-size:12.5px; font-weight:600;
     background:var(--surface); color:var(--ink); font-family:inherit; min-width:160px; cursor:pointer;
   }
   .brand-select-btn:hover{border-color:var(--line-strong)}
@@ -199,43 +187,26 @@
   .brand-select-add{border-top:1px solid var(--line); margin-top:4px; padding-top:10px; color:var(--accent); font-weight:600; justify-content:flex-start}
 
   /* ---------- shell ---------- */
-  /* user: "zmień stylistykę... czarny zaokrąglony rail, białe pływające
-     karty na jasnoszarym tle" — gap zamiast border-only podziałów, każda
-     kolumna to teraz osobna karta (radius+cień) na --paper (płótnie). */
-  .shell{max-width:1400px; margin:0 auto; padding:20px 20px 0; display:grid; grid-template-columns:236px 1fr 320px; gap:20px; align-items:start}
-  .rail{
-    position:sticky; top:89px; align-self:start; padding:20px 14px 28px;
-    max-height:calc(100vh - 109px); overflow-y:auto;
-    background:var(--rail-dark); border-radius:var(--radius-card); box-shadow:var(--shadow-card);
-  }
-  .rail-title{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.4); margin:0 0 10px; padding:0 10px}
+  .shell{max-width:1400px; margin:0 auto; display:grid; grid-template-columns:236px 1fr 320px; gap:0; align-items:start}
+  .rail{position:sticky; top:69px; align-self:start; padding:20px 20px 40px; max-height:calc(100vh - 69px); overflow-y:auto}
+  .rail-title{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 10px; padding:0 10px}
   .rail-title-row{display:flex; align-items:center; justify-content:space-between; padding:0 10px 10px}
   .rail-title-row .rail-title{margin:0; padding:0}
   .cat-btn{
     display:flex; width:100%; align-items:center; justify-content:space-between; gap:8px;
-    padding:7px 10px; border:none; background:transparent; color:rgba(255,255,255,.75);
-    border-radius:8px; font-size:13px; text-align:left; margin-bottom:1px;
+    padding:7px 10px; border:none; background:transparent; color:var(--ink-muted);
+    border-radius:5px; font-size:13px; text-align:left; margin-bottom:1px;
   }
-  .cat-btn:hover{background:rgba(255,255,255,.08); color:#fff}
-  /* Aktywna kategoria = pełna akcentowa pigułka (jak dzień "9 Wed" w
-     reference'u), nie tylko przebarwiony label jak dawniej na jasnym tle. */
-  .cat-btn[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink); font-weight:600}
-  .cat-btn .n{font-family:var(--font-mono); font-size:11px; color:rgba(255,255,255,.35)}
-  .cat-btn[aria-pressed="true"] .n{color:var(--accent-ink); opacity:.85}
-  /* Przyciski wewnątrz ciemnego railu (Create Countdown, ołówki Categories/
-     E-mails) dawały ciemny tekst na ciemnym tle — jasny wariant tylko w
-     tym kontekście, reszta apki nietknięta. */
-  .rail .btn.ghost{background:rgba(255,255,255,.06); color:#fff; border-color:rgba(255,255,255,.14)}
-  .rail .btn.ghost:hover{background:rgba(255,255,255,.12)}
-  .rail .icon-btn{color:rgba(255,255,255,.6)}
-  .rail .icon-btn:hover{background:rgba(255,255,255,.1); color:#fff}
+  .cat-btn:hover{background:var(--surface-2); color:var(--ink)}
+  /* user: "zamiast podświetlać cały wiersz, niech tylko napisy mają
+     pomarańczowy kolor" — bez tła, sam label przechodzi na akcent. */
+  .cat-btn[aria-pressed="true"]{background:transparent; color:var(--accent); font-weight:600}
+  .cat-btn .n{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint)}
+  .cat-btn[aria-pressed="true"] .n{color:var(--ink-muted)}
 
   .cat-chips{display:none}
 
-  main.grid-wrap{
-    padding:24px 24px 60px; min-height:calc(100vh - 109px);
-    background:var(--surface); border-radius:var(--radius-card); box-shadow:var(--shadow-card);
-  }
+  main.grid-wrap{padding:20px 20px 60px; border-left:1px solid var(--line); border-right:1px solid var(--line); min-height:calc(100vh - 69px)}
   .grid-heading{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; gap:12px; flex-wrap:wrap}
   /* Search + Platform filter w jednej linii — user: "search bar ma byc w
      jednej linii z platformami. po lewej search bar, po prawej Platforms".
@@ -254,13 +225,10 @@
   /* Lekka kreska oddzielająca platformę marki od pozostałych — user:
      "najpierw platforma... potem lekka kreska oddzielająca pozostałe". */
   .crm-filter-divider{width:1px; height:14px; background:var(--line); flex:none}
-  /* user: reference — pole search bez obwódki, jasnoszare wypełnienie,
-     bardziej zaokrąglone (patrz "Search something..." w screenie). */
   .search-input{
-    flex:1; min-width:0; box-sizing:border-box; border:1px solid transparent; border-radius:12px;
-    padding:10px 14px; font-size:13.5px; font-family:inherit; background:var(--surface-2); color:var(--ink);
+    flex:1; min-width:0; box-sizing:border-box; border:1px solid var(--line); border-radius:8px;
+    padding:10px 14px; font-size:13.5px; font-family:inherit; background:var(--surface); color:var(--ink);
   }
-  .search-input:focus{background:var(--surface); border-color:var(--line-strong)}
   .pagination{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:28px}
   .page-btn{
     min-width:32px; height:32px; padding:0 8px; border:1px solid var(--line); border-radius:6px;
@@ -301,7 +269,7 @@
   .card-actions .btn{flex:1; padding:10px 4px; font-size:11.5px; text-align:center; white-space:nowrap}
   .btn{
     border:1px solid var(--ink); background:var(--ink); color:var(--surface);
-    padding:10px 16px; border-radius:11px; font-size:12.5px; font-weight:600;
+    padding:10px 16px; border-radius:8px; font-size:12.5px; font-weight:600;
     /* line-height:1 — user: "wyrównaj przyciski, czasami część z nich ma
        różne wysokości, ogarnij to wszędzie". Bez jawnego line-height każdy
        .btn liczy wysokość z ODZIEDZICZONEGO line-height body (metryka
@@ -321,17 +289,13 @@
      kolejny przycisk-obwódka obok Edit/Add. */
   .btn.ghost.auth-user-badge{border-color:transparent; padding-left:4px; padding-right:8px}
   .btn.ghost.auth-user-badge:hover{border-color:transparent; opacity:.7}
-  .btn.small{padding:8px 12px; font-size:11.5px; border-radius:9px}
+  .btn.small{padding:8px 12px; font-size:11.5px; border-radius:6px}
   .btn.added{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
   .btn.ghost[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent); color:var(--ink)}
   .btn-preview{border:none; background:transparent; color:var(--ink-muted); font-size:11.5px; text-decoration:underline; padding:0}
 
   /* ---------- build list drawer ---------- */
-  aside.drawer{
-    position:sticky; top:89px; align-self:start; padding:20px 20px 40px;
-    max-height:calc(100vh - 109px); overflow-y:auto; display:flex; flex-direction:column; gap:12px;
-    background:var(--surface); border-radius:var(--radius-card); box-shadow:var(--shadow-card);
-  }
+  aside.drawer{position:sticky; top:69px; align-self:start; padding:20px 20px 40px; max-height:calc(100vh - 69px); overflow-y:auto; display:flex; flex-direction:column; gap:12px}
   .drawer-title{font-size:15px; display:flex; align-items:center; justify-content:space-between}
   .drawer-count{font-family:var(--font-mono); font-size:11px; color:var(--ink-muted); font-weight:400}
   .drawer-empty{font-size:12.5px; color:var(--ink-faint); border:1px dashed var(--line-strong); border-radius:6px; padding:16px; text-align:center}
@@ -379,7 +343,7 @@
      skryptu, syncModalScrollLock) — user: "moge scrollować sobie majac
      otwarty popup". */
   body.modal-open{overflow:hidden}
-  .modal{background:var(--surface); border-radius:18px; max-width:720px; width:100%; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 12px 40px rgba(0,0,0,.25); overflow:hidden}
+  .modal{background:var(--surface); border-radius:8px; max-width:720px; width:100%; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 12px 40px rgba(0,0,0,.25); overflow:hidden}
   .modal-head{display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--line)}
   .modal-head h3{font-size:16px}
   .modal-close{width:29px; height:29px; border-radius:6px; border:1px solid var(--line); background:var(--surface); color:var(--ink-muted); font-size:14px; display:flex; align-items:center; justify-content:center}
