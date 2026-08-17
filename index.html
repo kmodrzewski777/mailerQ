@@ -4,6 +4,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- user: "logo napisz tym fontem" (Pixelify Sans) — sam napis "nexus"
+     jest teraz logiem, bez osobnej grafiki. -->
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
 <style>
   /* Design tokens — inspired by mailforge.ai: deep navy ink + white paper,
      one fiery orange accent used sparingly, Inter everywhere, 8-14px radius
@@ -91,13 +94,11 @@
      samego 1400px co treść pod spodem (.shell). */
   .topbar-inner{max-width:none; margin:0; padding:0 28px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:24px; box-sizing:border-box}
   .brand-title{display:flex; align-items:center; font-size:26px}
-  /* user: "dodaj to logo w miejsce obecnego sygnetu i napisu" — jeden
-     obrazek niesie teraz cały lockup (ikona+wordmark), stąd większy
-     rozmiar niż dawna sama ikonka obok osobnego tekstu. */
-  .brand-logo-img{height:34px; width:auto; display:block}
-  /* Używane teraz TYLKO na ekranie logowania (patrz #authGate) — w
-     topbarze wordmark zastąpiło .brand-logo-img powyżej. */
-  .brand-wordmark{font-weight:800; color:var(--ink); letter-spacing:-0.03em}
+  /* user: "logo napisz tym fontem [Pixelify Sans]... napisz nexus po
+     prostu, to będzie logo" — sam stylizowany napis jest logiem, jedna
+     wspólna klasa użyta w topbarze, stopce I na ekranie logowania
+     (patrz #authGate), rozmiar dobierany per-użycie inline. */
+  .brand-logo-text{font-family:'Pixelify Sans',monospace; font-weight:700; color:var(--ink); line-height:1}
   .brand-picker{display:flex; align-items:center; gap:8px}
   .topbar-left{display:flex; align-items:center; gap:14px; justify-self:start}
   .topbar-center{justify-self:center}
@@ -756,9 +757,6 @@
     display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px 24px;
   }
   .app-footer-left{display:flex; align-items:center; flex-wrap:wrap; gap:12px 10px}
-  /* user: "w stopce też daj to logo tylko mniejsze" — ten sam obrazek co
-     w topbarze (patrz .brand-logo-img), w mniejszym rozmiarze. */
-  .app-footer-logo-img{height:18px; width:auto; display:block}
   .app-footer-copy{font-size:12px; color:var(--ink-muted)}
   .app-footer-copy .app-footer-nip{display:block; color:var(--ink-faint); font-size:10.5px; margin-top:2px}
   .app-footer-powered{display:flex; align-items:center; gap:7px; font-size:11px; color:var(--ink-faint); text-decoration:none}
@@ -770,11 +768,8 @@
 <div class="topbar">
   <div class="topbar-inner">
     <div class="topbar-left">
-      <!-- user: "zmień nazwę aplikacji na NEXUS... dodaj to logo w miejsce
-           obecnego sygnetu i napisu" — jeden obrazek zastępuje CAŁY dawny
-           lockup (ikona+wordmark), nie tylko samą ikonę. -->
-      <h1 class="brand-title" aria-label="NEXUS">
-        <img src="https://i.ibb.co/bjg9kyRR/nexus-logo.png" alt="NEXUS" class="brand-logo-img">
+      <h1 class="brand-title" aria-label="nexus">
+        <span class="brand-logo-text" style="font-size:28px">nexus</span>
       </h1>
     </div>
     <div class="brand-picker topbar-center">
@@ -838,7 +833,7 @@
   <!-- user: "w oknie logowania też by wypadało żebyś dał logo strony" —
      ten sam wordmark co w topbarze, widoczny przez cały czas (spinner i
      formularz), nie tylko po rozwiązaniu stanu logowania. -->
-  <div class="brand-wordmark" style="font-size:30px; margin-bottom:28px">NEXUS</div>
+  <div class="brand-logo-text" style="font-size:32px; margin-bottom:28px">nexus</div>
   <div class="mf-spinner" id="authGateSpinner"></div>
   <div class="modal" id="authGateModal" style="max-width:420px; display:none">
     <div class="modal-head">
@@ -1089,7 +1084,7 @@
 <footer class="app-footer">
   <div class="app-footer-inner">
     <div class="app-footer-left">
-      <img src="https://i.ibb.co/bjg9kyRR/nexus-logo.png" alt="NEXUS" class="app-footer-logo-img">
+      <span class="brand-logo-text" style="font-size:16px">nexus</span>
       <span class="app-footer-copy">&copy; <span id="footerYear"></span> NEXUS by RetentionQ Sp. z o.o. All rights reserved.<span class="app-footer-nip">NIP: 5273127096</span></span>
     </div>
     <a class="app-footer-powered" href="https://www.linkedin.com/company/retentionq/posts/?feedView=all" target="_blank" rel="noopener noreferrer">
