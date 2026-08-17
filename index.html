@@ -423,7 +423,18 @@
      dochodziło jeszcze do przewijania .modal-body — jeden scrollbar
      (ramy), nie dwa zagnieżdżone. */
   .preview-frame.stacked{height:60vh; overflow-y:auto; overflow-anchor:none; border:1px solid var(--line); border-radius:8px; margin-bottom:16px}
-  .preview-frame.stacked.is-mobile{width:420px; max-width:100%; margin-left:auto; margin-right:auto; border-radius:20px}
+  /* user: "podgląd na wersji mobile... zależy mi by rozmiar treści w
+     podglądzie był bardzo zbliżony do tego co mam faktycznie [na
+     telefonie]" — realne kliencki poczty (Gmail app w szczególności)
+     zwykle zmniejszają/dopasowują treść do faktycznej szerokości ekranu
+     mocniej, niż zwykłe wyrenderowanie przy 420px CSS-owej szerokości w
+     iframe pokazuje. transform:scale na CAŁEJ ramce (nagłówek+treść) —
+     nie na samym iframie/jego zawartości — bo to czysto wizualny,
+     zewnętrzny zabieg PO fakcie: w ogóle nie dotyka mierzenia wysokości
+     (patrz recalcIframeHeight/ResizeObserver w JS), które liczy się
+     WEWNĄTRZ iframe'a, niezależnie od transformu zastosowanego na jego
+     przodku z zewnątrz. */
+  .preview-frame.stacked.is-mobile{width:420px; max-width:100%; margin-left:auto; margin-right:auto; border-radius:20px; height:calc(60vh * .92); transform:scale(.92); transform-origin:top center}
   .preview-frame .inbox-chrome{border:0; border-bottom:1px solid var(--line); border-radius:0; margin-bottom:0}
   .preview-frame .modal-preview-box{border:0; border-radius:0; margin-bottom:0; display:block; padding:20px}
   .inbox-chrome{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-bottom:12px}
