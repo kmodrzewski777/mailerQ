@@ -521,12 +521,16 @@
      z motywem, czytelne w obu trybach jasny/ciemny automatycznie). */
   .bf-crm-logo-badge{display:flex; align-items:center; gap:5px; color:var(--ink-faint); font-weight:600; font-size:13px; flex:none}
   .bf-crm-logo-badge svg{width:16px; height:16px; flex:none}
+  .bf-crm-logo-badge img{height:16px; width:auto; flex:none; opacity:.3}
   /* Sygnety CRM na kartach komponentów/maili — user: "sygnety... w tej
      samej linii co nazwa kategorii, po prawej stronie... badge ilustrujące
      dla jakich CRM to jest komponent/mail". card-cat zmienia się z prostego
      bloku tekstu na wiersz (label | ikony), żeby zmieściły się obok siebie. */
-  .card-cat-platforms{display:flex; align-items:center; gap:4px; flex:none; color:var(--ink-faint)}
+  .card-cat-platforms{display:flex; align-items:center; gap:6px; flex:none; color:var(--ink-faint)}
   .card-cat-platforms svg{display:block; width:12px; height:12px}
+  /* user: "umieść je w zaznaczonym miejscu... powiększ... opacity jakies
+     30%" — prawdziwe logo (PNG), więc wyciszenie przez opacity, nie kolor. */
+  .card-cat-platforms img{display:block; height:18px; width:auto; opacity:.3}
   /* align-items:flex-start (nie domyślny stretch) — pole Logo jest
      wyraźnie wyższe niż zwykłe jednowierszowe pola obok (miniatura +
      przycisk + notka), stretch rozciągał WSZYSTKIE pola w wierszu do
@@ -2410,22 +2414,16 @@ function compileMjmlFragment(source, ctx){
 // klucza wymagałaby migracji wszystkiego, co już go referencuje). Zmienia
 // się TYLKO wyświetlana nazwa — user: "Zmień SalesManago na ManagoAI".
 var CRM_PLATFORM_LABELS = { klaviyo:"Klaviyo", salesmanago:"ManagoAI", customerio:"Customer.io" };
-/* Sygnety (znaki graficzne, bez nazwy) platform CRM/ESP — user wrzucił
-   prawdziwe pliki logo (_full/_sygnet), ale ten plik jako Claude Artifact
-   nie ma programowego dostępu do bajtów wklejonego obrazka (tylko
-   multimodalny "wgląd") — to własnoręcznie odtworzone, UPROSZCZONE
-   przybliżenia kształtu każdej marki (chevron/strzałka dla Customer.io,
-   zaokrąglony kwadrat dla Klaviyo, sylwetka gór/diamentów dla ManagoAI),
-   nie kalka 1:1 z przesłanych plików. TERAZ, skoro appka żyje w prawdziwym
-   repo Git (nie w piaskownicy Claude Artifact), jest dużo lepsza opcja niż
-   kiedyś: wrzuć te pliki (_full/_sygnet, PNG/SVG) do repo mailerQ, a wstawię
-   je jako prawdziwe <img>, 1:1 — zero zgadywania kształtu. Jeden kolor
-   (currentColor) — badge'e mają czytać się jako spójne, wyciszone ikony,
-   nie kolorowe logotypy. */
+/* Sygnety (znaki graficzne, bez nazwy) platform CRM/ESP — user podesłał
+   realne pliki logo hostowane na ibb.co, więc zamiast wcześniejszych,
+   ręcznie odtworzonych przybliżeń SVG (chevron/kwadrat/góry) wstawiamy
+   teraz prawdziwe <img>, 1:1. Kolorowe (nie da się currentColor jak przy
+   SVG) — wyciszenie/spójność uzyskujemy przez opacity w CSS zamiast
+   przez kolor (patrz .card-cat-platforms img / .bf-crm-logo-badge img). */
 var CRM_PLATFORM_ICONS = {
-  customerio: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 4 L13 12 L3 20 Z"></path><path d="M11 4 L21 12 L11 20 Z" opacity=".55"></path></svg>',
-  klaviyo: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"></rect></svg>',
-  salesmanago: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 20 L8 8 L12 14 L16 5 L22 20 Z"></path></svg>'
+  customerio: '<img src="https://i.ibb.co/yc1Ywr39/cio-sygnet.png" alt="Customer.io" aria-hidden="true">',
+  klaviyo: '<img src="https://i.ibb.co/9mxNb72Y/klavio-sygnet.png" alt="Klaviyo" aria-hidden="true">',
+  salesmanago: '<img src="https://i.ibb.co/yB8cBpB7/manago-sygnet.png" alt="ManagoAI" aria-hidden="true">'
 };
 /* Pełne logo (sygnet + nazwa) — użyte TYLKO jako wyciszony watermark obok
    nagłówka "CRM / ESP" w Brand Kit (patrz updateCrmLogoBadge); nie próbuje
