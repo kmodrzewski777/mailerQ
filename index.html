@@ -2231,7 +2231,20 @@ function frame(b,inner){
 function mjGetAttr(el, name, fallback){
   return el.hasAttribute(name) ? el.getAttribute(name) : fallback;
 }
+// user: wklejony <mj-divider .../> (samo-zamykający się, jak w prawdziwym
+// MJML) w stopce Pstryka — dwa bloki mj-text PO nim (linki prawne, adres
+// firmy) nie pojawiały się w podglądzie. Przyczyna: parsowanie przez
+// natywny <template> to parser HTML, nie XML — HTML NIE zamyka nieznanych/
+// customowych elementów na "/>" (to działa tylko dla prawdziwych void
+// elementów jak <br>/<img> i w SVG/MathML), więc <mj-divider .../> stawał
+// się otwierającym tagiem BEZ zamknięcia — wszystko po nim, aż do końca
+// źródła, stawało się jego (nierenderowanym, bo mjCompileDivider ignoruje
+// dzieci) dzieckiem. Normalizacja PRZED parsowaniem: <mj-tag .../> ->
+// <mj-tag ...></mj-tag>, dla dowolnego elementu mj-*. Regex świadomie
+// pomija ukośniki WEWNĄTRZ cudzysłowów (np. w URL-u atrybutu href/src),
+// zatrzymując się tylko na faktycznym, nie-cudzysłowionym "/>".
 function mjParseFragment(source){
+  source = source.replace(/<(mj-[\w-]+)((?:"[^"]*"|'[^']*'|[^'">])*)\/>/g, "<$1$2></$1>");
   var tpl = document.createElement("template");
   tpl.innerHTML = source;
   return Array.prototype.filter.call(tpl.content.childNodes, function(n){ return n.nodeType===1; });
