@@ -659,21 +659,28 @@
   .skeleton-card-body .skeleton-block{margin-bottom:8px}
   .skeleton-card-body .skeleton-block:last-child{margin-bottom:0}
 
-  /* ---------- footer ---------- */
-  .app-footer{
-    background:radial-gradient(100% 160% at 100% 0%, rgba(255,87,34,.18), transparent 55%), #14162b;
-    margin-top:40px;
-  }
+  /* ---------- footer ----------
+     user: "popraw stopkę, ma wyglądać strukturalnie jak ta co wrzuciłem
+     zdjęcie" (referencyjny zrzut: jasne tło, logo + copyright po lewej,
+     "Powered by [marka]" po prawej) — jasne tło zamiast dawnego ciemnego
+     bloku, spójne z resztą apki (--paper). Logo RetentionQ to PRAWDZIWE
+     wektory ściągnięte z retentionq.com/CDN (Footer-Big-Logo.svg +
+     RetentionQ-Small-Mark.svg), tylko przebarwione z wariantu na ciemne
+     tło (biały tekst 15% opacity) na czarny — sama koralowa ścieżka "Q"
+     (#FF5456) zostaje nietknięta, to wciąż ten sam autentyczny znak. */
+  .app-footer{ background:var(--paper); margin-top:40px; border-top:1px solid var(--line) }
   .app-footer-inner{
-    max-width:1400px; margin:0 auto; padding:26px 20px; box-sizing:border-box;
-    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px;
-    border-top:1px solid rgba(255,255,255,.1);
+    max-width:1400px; margin:0 auto; padding:22px 20px; box-sizing:border-box;
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px 24px;
   }
-  .app-footer-logo{font-family:var(--font-display); font-weight:700; font-size:16px; color:#fff; text-decoration:none; letter-spacing:-0.01em}
-  .app-footer-logo b{color:#ff5456; font-weight:700}
-  .app-footer-legal{text-align:right; font-size:12px; color:rgba(255,255,255,.6); line-height:1.6}
-  .app-footer-legal .muted{color:rgba(255,255,255,.36); margin-top:2px}
-  @media (max-width:520px){ .app-footer-legal{text-align:left} }
+  .app-footer-left{display:flex; align-items:center; flex-wrap:wrap; gap:12px 10px}
+  .app-footer-logo{font-family:var(--font-display); font-weight:800; font-size:15px; color:var(--ink); text-decoration:none; letter-spacing:-0.02em}
+  .app-footer-copy{font-size:12px; color:var(--ink-muted)}
+  .app-footer-copy .app-footer-nip{display:block; color:var(--ink-faint); font-size:10.5px; margin-top:2px}
+  .app-footer-powered{display:flex; align-items:center; gap:7px; font-size:11px; color:var(--ink-faint); text-decoration:none}
+  .app-footer-powered .rq-logo{height:14px; width:auto; display:block}
+  .app-footer-powered:hover{opacity:.75}
+  @media (max-width:520px){ .app-footer-inner{justify-content:flex-start} }
 </style>
 
 <div class="topbar">
@@ -980,11 +987,26 @@
 
 <footer class="app-footer">
   <div class="app-footer-inner">
-    <a class="app-footer-logo" href="https://retentionq.com" target="_blank" rel="noopener noreferrer">Retention<b>Q</b></a>
-    <div class="app-footer-legal">
-      <div>RetentionQ Sp. z o.o. &middot; NIP: 5273127096</div>
-      <div class="muted">maylr &mdash; built by RetentionQ</div>
+    <div class="app-footer-left">
+      <span class="app-footer-logo">maylr</span>
+      <span class="app-footer-copy">&copy; <span id="footerYear"></span> maylr by RetentionQ Sp. z o.o. All rights reserved.<span class="app-footer-nip">NIP: 5273127096</span></span>
     </div>
+    <a class="app-footer-powered" href="https://www.linkedin.com/company/retentionq/posts/?feedView=all" target="_blank" rel="noopener noreferrer">
+      Powered by
+      <svg class="rq-logo" viewBox="0 0 1356 230" xmlns="http://www.w3.org/2000/svg" aria-label="RetentionQ">
+        <path d="M1355.99 107.924C1355.99 92.7337 1353.17 78.5994 1347.55 65.4892C1341.91 52.3789 1334.06 40.9435 1323.98 31.1828C1313.9 21.4221 1301.86 13.7842 1287.86 8.26919C1273.87 2.75414 1258.6 0.00195312 1242.08 0.00195312C1225.56 0.00195312 1210.05 2.75414 1196.15 8.26919C1182.26 13.7842 1170.3 21.4221 1160.31 31.1828C1150.32 40.9435 1142.51 52.3789 1136.87 65.4892C1131.23 78.5994 1128.43 92.7444 1128.43 107.924C1128.43 123.104 1131.24 137.259 1136.87 150.359C1142.5 163.469 1150.32 174.905 1160.31 184.665C1170.3 194.426 1182.25 202.064 1196.15 207.579C1208.36 212.422 1221.67 215.142 1236.07 215.729L1250.54 165.155C1266.44 196.677 1298.01 226.642 1355.66 230.002V166.766C1334.56 166.766 1301.06 148.706 1300.69 107.999H1356C1356 107.999 1356 107.945 1356 107.924H1355.99ZM1236.45 107.924C1236.45 122.645 1239.94 143.201 1249.73 163.395L1249.76 163.544C1247.29 163.875 1244.61 164.333 1242.07 164.333C1234.26 164.333 1226.85 162.936 1219.85 160.13C1212.86 157.325 1206.73 153.399 1201.46 148.332C1196.19 143.276 1192.01 137.302 1188.93 130.432C1185.84 123.563 1184.29 116.063 1184.29 107.924C1184.29 99.7849 1185.83 92.2857 1188.93 85.4159C1192.01 78.5461 1196.19 72.583 1201.46 67.516C1206.73 62.4596 1212.86 58.5234 1219.85 55.7178C1226.85 52.9123 1234.25 51.5149 1242.07 51.5149C1249.89 51.5149 1257.28 52.923 1264.28 55.7178C1271.27 58.5234 1277.45 62.449 1282.82 67.516C1288.17 72.583 1292.4 78.5461 1295.49 85.4159C1298.51 92.1577 1300.05 99.4969 1300.12 107.455L1236.45 107.924Z" fill="#FF5456"/>
+        <path d="M0 13.1775C0.731513 13.0922 1.33394 12.9642 1.94712 12.9642C27.8405 13.0282 53.7447 12.6762 79.6166 13.2949C107.78 13.9776 130.263 35.3658 133.146 63.0797C135.308 83.8811 129.682 101.813 112.373 114.667C106.833 118.785 99.8301 120.972 93.4724 124.012C92.5795 124.439 91.579 124.641 90.3742 125.025C104.757 151.032 119.032 176.837 133.652 203.271C127.262 203.271 121.485 203.271 115.719 203.271C110.641 203.271 105.553 203.089 100.486 203.345C97.6893 203.484 96.2586 202.577 94.9461 200.103C82.8009 177.232 70.4512 154.467 58.3059 131.596C56.8752 128.908 55.2723 127.831 52.1634 127.948C45.7411 128.204 39.2866 128.023 32.4878 128.023V203.089H0V13.1775ZM32.6922 99.3169C33.3054 99.4449 33.7895 99.6369 34.2736 99.6369C47.2149 99.5196 60.167 99.7862 73.076 99.1355C89.2554 98.3248 100.271 86.644 100.422 71.0802C100.583 54.8444 89.9762 43.057 73.4633 41.9049C63.7385 41.2222 53.9491 41.4568 44.1813 41.3182C40.4054 41.2648 36.6402 41.3182 32.6814 41.3182V99.3275L32.6922 99.3169Z" fill="#14162b"/>
+        <path d="M408.927 146.414C407.765 160.068 419.179 175.162 433.981 178.928C450.892 183.227 468.814 179.792 477.732 157.721C486.413 160.431 495.127 163.151 504.11 165.946C497.687 184.902 485.445 198.001 466.533 203.847C424.439 216.861 381.99 192.529 377.364 146.03C375.987 132.119 377.59 118.732 383.55 105.984C395.437 80.5849 420.427 66.312 448.558 68.8615C474.354 71.1976 492.438 83.8065 501.334 108.278C504.992 118.326 505.981 128.812 505.562 139.437C505.239 147.63 506.057 146.371 498.204 146.392C469.901 146.435 441.597 146.414 413.294 146.414H408.905H408.927ZM473.784 123.244C472.633 104.299 458.81 93.3965 438.004 94.6873C423.234 95.594 408.808 110.048 409.712 123.244H473.784Z" fill="#14162b"/>
+        <path d="M176.306 146.414C175.735 160.996 187.268 175.557 202.489 179.109C219.605 183.099 236.516 179.259 245.391 157.732C253.997 160.42 262.635 163.119 271.607 165.914C269.111 174.213 265.12 181.392 259.44 187.579C247.725 200.337 232.923 206.503 215.646 207.154C194.324 207.954 175.875 201.5 161.589 185.392C149.11 171.322 144.087 154.457 144.528 135.992C145.141 110.635 155.318 90.207 177.726 76.9687C202.264 62.4717 236.365 66.664 255.47 86.132C266.583 97.4502 271.445 111.531 272.812 126.924C273.263 132.034 272.833 137.208 273.059 142.349C273.21 145.688 271.876 146.499 268.605 146.488C239.409 146.36 210.224 146.414 181.028 146.414C179.533 146.414 178.048 146.414 176.306 146.414ZM177.048 123.159H241.432C240.281 104.747 227.243 94.1006 206.825 94.6446C191.549 95.05 177.209 108.683 177.048 123.159Z" fill="#14162b"/>
+        <path d="M885.691 207.218C846.092 207.164 817.316 177.786 817.369 137.463C817.423 97.93 846.652 68.4133 885.766 68.392C925.074 68.3706 954.518 98.2821 954.399 138.104C954.281 177.893 925.074 207.26 885.691 207.218ZM922.987 137.975C922.299 133.282 921.987 128.481 920.836 123.905C917.06 108.864 904.656 98.1007 890.241 96.938C872.427 95.5085 859.184 103.082 852.482 118.742C848.125 128.919 847.846 139.501 850.212 150.136C856.086 176.442 885.895 188.155 907.109 172.463C918.652 163.919 922.396 151.726 922.987 137.975Z" fill="#14162b"/>
+        <path d="M526.851 72.8083H557.402V89.0868C559.64 86.2919 561.146 84.1798 562.878 82.2703C570.021 74.4191 579.326 70.4508 589.6 69.2774C605.252 67.4853 619.796 70.3015 630.952 82.5157C640.461 92.9164 643.904 105.707 644.033 119.329C644.28 146.595 644.119 173.861 644.119 201.127C644.119 201.724 643.968 202.332 643.872 203.1H612.492C612.492 201.585 612.492 200.135 612.492 198.673C612.492 175.055 612.546 151.427 612.438 127.809C612.417 123.82 612.287 119.692 611.265 115.873C607.543 101.973 598.97 95.3379 581.187 97.3434C567.471 98.9008 558.467 110.038 558.317 124.919C558.069 149.422 558.209 173.925 558.188 198.417C558.188 199.889 558.188 201.372 558.188 203.068H526.851V72.8083Z" fill="#14162b"/>
+        <path d="M1086.17 203.079H1054.81V198.47C1054.81 174.97 1054.84 151.459 1054.77 127.959C1054.76 124.46 1054.62 120.865 1053.83 117.473C1050.25 102.048 1041.14 95.4125 1023.48 97.29C1011.01 98.6128 1002.66 107.744 1000.88 120.652C1000.42 124.001 1000.2 127.404 1000.19 130.786C1000.14 153.411 1000.16 176.037 1000.16 198.662C1000.16 200.028 1000.16 201.393 1000.16 203.015H969.051V72.851H999.29V88.4681C999.645 88.6814 1000 88.9054 1000.36 89.1188C1000.51 88.6387 1000.56 88.116 1000.82 87.7C1014.66 65.1598 1051.81 63.357 1069.57 78.9954C1078.83 87.1453 1083.45 97.6847 1085.31 109.526C1085.93 113.472 1086.11 117.526 1086.13 121.537C1086.2 147.427 1086.16 173.317 1086.16 199.217C1086.16 200.444 1086.17 201.671 1086.17 203.079Z" fill="#14162b"/>
+        <path d="M683.191 100.106H659.008V72.8082C662.159 72.6375 665.29 72.6161 668.388 72.2855C679.189 71.1227 685.45 64.3596 685.665 53.5108C685.805 46.7477 685.686 39.9739 685.686 32.88H714.291V72.4241H741.443V100.106H714.592C714.517 101.728 714.409 102.954 714.409 104.17C714.409 122.646 714.409 141.112 714.409 159.588C714.409 161.22 714.441 162.862 714.57 164.484C715.173 171.706 719.637 176.346 726.963 176.847C731.739 177.178 736.559 176.911 741.733 176.911C741.776 177.253 741.97 178.181 741.97 179.109C742.002 184.763 741.981 190.416 741.981 196.07C741.981 202.204 742.024 202.407 736.064 203.633C725.973 205.703 715.85 205.639 706.04 202.247C692.399 197.521 683.578 185.221 683.373 170.084C683.083 148.472 683.223 126.86 683.18 105.248C683.18 103.754 683.18 102.261 683.18 100.117L683.191 100.106Z" fill="#14162b"/>
+        <path d="M281.03 100.234V72.4351C283.999 72.4351 286.775 72.6377 289.507 72.4031C301.394 71.3683 307.784 64.5625 308.01 52.711C308.128 46.1932 308.032 39.6754 308.032 32.8483H336.432C336.432 34.1177 336.432 35.4405 336.432 36.7632C336.432 47.5693 336.507 58.3754 336.378 69.1815C336.345 71.8163 337.163 72.6591 339.831 72.6164C347.662 72.4671 355.505 72.5631 363.573 72.5631V99.9356H336.668C336.571 101.642 336.442 102.976 336.432 104.299C336.421 122.519 336.41 140.738 336.442 158.958C336.442 161.081 336.636 163.225 336.926 165.338C337.873 172.186 341.972 176.165 348.9 176.848C351.417 177.093 353.966 177.072 356.494 176.997C358.883 176.922 361.271 176.624 364.24 176.378C364.24 182.917 364.24 189.393 364.24 195.868C364.24 202.225 364.283 202.449 358.086 203.676C347.996 205.682 337.83 205.735 328.073 202.151C314.475 197.158 306.741 186.971 305.934 172.922C304.944 155.63 305.353 138.264 305.202 120.929C305.138 114.155 305.202 107.392 305.202 100.234H281.009H281.03Z" fill="#14162b"/>
+        <path d="M796.285 203.271H765.507V72.8618H796.285V203.271Z" fill="#14162b"/>
+        <path d="M780.945 6.28641C792.606 6.35042 801.244 14.991 801.255 26.5865C801.255 38.1286 792.552 46.6732 780.794 46.6732C769.133 46.6732 760.398 37.9686 760.484 26.4265C760.57 14.863 769.348 6.21174 780.955 6.27574L780.945 6.28641Z" fill="#14162b"/>
+      </svg>
+    </a>
   </div>
 </footer>
 
@@ -5173,6 +5195,22 @@ function currentUserStamp(){
   if(!MQ_CURRENT_USER) return null;
   return { uid: MQ_CURRENT_USER.uid, displayName: MQ_CURRENT_USER.displayName||null, photoURL: MQ_CURRENT_USER.photoURL||null, email: MQ_CURRENT_USER.email };
 }
+// user: "tak samo z usuwaniem komponentów/gotowych maili/brandów, itp.
+// tylko ich twórca lub admin - czyli ja k.modrzewski@retentionq.com mogą
+// to zrobić" — jeden punkt prawdy dla "czy WOLNO mi zarządzać tym
+// rekordem" (edycja gotowego maila przez ołówek ORAZ usuwanie wszędzie).
+// Wbudowane wpisy (bez createdBy, np. seed-owe komponenty/maile) nie mają
+// twórcy — dla nich przechodzi TYLKO admin, nikt inny.
+var ADMIN_EMAIL = "k.modrzewski@retentionq.com";
+function isAdminUser(){
+  return !!(MQ_CURRENT_USER && MQ_CURRENT_USER.email && MQ_CURRENT_USER.email.toLowerCase()===ADMIN_EMAIL);
+}
+function isRecordOwner(record){
+  return !!(MQ_CURRENT_USER && record && record.createdBy && record.createdBy.uid===MQ_CURRENT_USER.uid);
+}
+function canManageRecord(record){
+  return isAdminUser() || isRecordOwner(record);
+}
 /* Zamykanie popupu klikiem w tło (poza kartą modala) — NIE ma się
    uruchamiać, gdy user zaznacza tekst w polu wewnątrz popupu myszką i
    puszcza przycisk poza tłem (typowe przy zaznaczaniu blisko krawędzi).
@@ -6484,6 +6522,8 @@ byId("editClose").addEventListener("click", closeEditor);
 var editDeleteArmed = false;
 byId("editDeleteBtn").addEventListener("click", function(){
   var btn = byId("editDeleteBtn");
+  var compForDelete = findComp(editState.componentId);
+  if(!canManageRecord(compForDelete)){ showToast("You're not the creator of this component", "error"); return; }
   if(!editDeleteArmed){
     editDeleteArmed = true;
     btn.textContent = "Are you sure? Click again";
@@ -7048,10 +7088,16 @@ function saveBrandForm(asNew, newName){
     name = (newName||"").trim() || name;
     key = uniqueBrandKey(slugify(name));
   }
+  var existingBrand = BRANDS[key];
   var brandObj = draftAsBrand(d);
   brandObj.name = name; brandObj.short = name;
   var wasBuiltIn = !asNew && brandForm.mode==="edit" && BRANDS[key] && !BRANDS[key].custom;
   brandObj.custom = wasBuiltIn ? false : true;
+  // user: "tylko ich twórca lub admin mogą to zrobić" — brandy dotąd nie
+  // niosły createdBy w ogóle (patrz canManageRecord/requestDeleteBrandFromForm).
+  // Zachowujemy istniejącego twórcę przy zwykłej edycji w miejscu; nowy
+  // klucz (nowy brand albo "Save as new") dostaje świeżą migawkę.
+  brandObj.createdBy = (existingBrand && existingBrand.createdBy) ? existingBrand.createdBy : currentUserStamp();
   BRANDS[key] = brandObj;
   if(BRAND_ORDER.indexOf(key)===-1) BRAND_ORDER.push(key);
   state.brand = key;
@@ -7068,6 +7114,7 @@ function saveBrandForm(asNew, newName){
 var deleteArmed = false;
 function requestDeleteBrandFromForm(){
   var btn = byId("brandFormDelete");
+  if(!canManageRecord(BRANDS[brandForm.editingKey])){ showToast("You're not the creator of this brand", "error"); return; }
   if(!deleteArmed){
     deleteArmed = true;
     btn.textContent = "Are you sure? Click again";
@@ -7942,7 +7989,10 @@ function renderEmailGrid(){
     var el = document.createElement("div"); el.className = "card"; el.style.gridColumn = "span 1";
     el.innerHTML =
       '<div class="card-head"><span class="card-key mono">'+esc(e.id)+'</span>'+
+        '<span style="display:flex; align-items:center; gap:4px">'+
+        '<button type="button" class="icon-btn" data-edit-email="'+e.id+'" aria-label="Edit" title="Edit">'+ICON_PENCIL+'</button>'+
         '<button type="button" class="icon-btn card-favorite-btn'+(fav?' is-favorite':'')+'" data-fav-email="'+e.id+'" aria-label="'+(fav?'Remove from favorites':'Add to favorites')+'" title="'+(fav?'Remove from favorites':'Add to favorites')+'">'+starIconHtml(fav)+'</button>'+
+        '</span>'+
       '</div>'+
       '<div class="card-body" style="padding-top:14px">'+
         '<span class="card-cat"><span>'+esc(e.componentIds.length)+' components</span>'+
@@ -7964,6 +8014,9 @@ function renderEmailGrid(){
   });
   grid.querySelectorAll("[data-fav-email]").forEach(function(btn){
     btn.addEventListener("click", function(e){ e.stopPropagation(); toggleEmailFavorite(btn.getAttribute("data-fav-email")); });
+  });
+  grid.querySelectorAll("[data-edit-email]").forEach(function(btn){
+    btn.addEventListener("click", function(e){ e.stopPropagation(); openEditReadyEmail(btn.getAttribute("data-edit-email")); });
   });
   renderPagination(page.totalPages);
 }
@@ -8539,6 +8592,7 @@ byId("previewFooterVariantSelect").addEventListener("change", function(){
 var emailDeleteArmed = false;
 function requestDeleteReadyEmail(emailId){
   var btn = byId("previewDeleteBtn");
+  if(!canManageRecord(findEmail(emailId))){ showToast("You're not the creator of this ready-made email", "error"); return; }
   if(!emailDeleteArmed){
     emailDeleteArmed = true;
     btn.textContent = "Are you sure? Click again";
@@ -8581,13 +8635,12 @@ function openEmailPreview(emailId){
   addBtn.style.display = "";
   addBtn.textContent = "Get";
   addBtn.onclick = function(){ addEmailToList(e.id); byId("previewOverlay").classList.remove("open"); };
-  // Usuwanie dostępne dla KAŻDEGO gotowego maila, wbudowanego czy własnego
-  // — tak samo jak wbudowane komponenty (patrz editDeleteBtn w edytorze
-  // komponentu) daje się skasować z katalogu bez ograniczeń. Wbudowany wpis wraca po
-  // odświeżeniu strony (jest zdefiniowany w kodzie źródłowym, nie w
-  // localStorage — usuwanie zapisuje się trwale TYLKO dla własnych,
-  // zapisanych przez usera maili, patrz saveToStorage/customEmails) —
-  // to ten sam kompromis co przy komponentach, nie regres.
+  // Usuwanie ograniczone do twórcy albo admina (patrz canManageRecord) —
+  // user: "tylko ich twórca lub admin... mogą to zrobić". Wbudowane maile
+  // (bez createdBy) nie mają twórcy, więc przechodzi tylko admin. Wbudowany
+  // wpis i tak wraca po odświeżeniu strony (zdefiniowany w kodzie źródłowym,
+  // nie w localStorage — usuwanie zapisuje się trwale TYLKO dla własnych,
+  // zapisanych przez usera maili, patrz saveToStorage/customEmails).
   var delBtn = byId("previewDeleteBtn");
   emailDeleteArmed = false;
   delBtn.style.display = "";
@@ -8665,7 +8718,7 @@ var SAVE_EMAIL_FIELDS = [
   {key:"label", label:"Email name", type:"text"},
   {key:"flow", label:"Category", type:"select", options:null}
 ];
-var saveEmailForm = { draft:null, updateId:null };
+var saveEmailForm = { draft:null, updateId:null, metaOnly:false };
 function uniqueEmailKey(base){
   var key = base, n = 2;
   while(findEmail(key)){ key = base + "-" + n; n++; }
@@ -8688,13 +8741,30 @@ function readyEmailOptionsForSelect(){
 }
 function updateSaveEmailFormChrome(){
   var updating = !!saveEmailForm.updateId;
-  byId("saveEmailFormTitle").textContent = updating ? "Update ready-made email" : "Save as ready-made email";
-  byId("saveEmailFormSave").textContent = updating ? "Update" : "Save";
+  byId("saveEmailFormTitle").textContent = saveEmailForm.metaOnly ? "Edit ready-made email" : (updating ? "Update ready-made email" : "Save as ready-made email");
+  byId("saveEmailFormSave").textContent = saveEmailForm.metaOnly ? "Save changes" : (updating ? "Update" : "Save");
 }
 function openSaveEmailForm(){
   if(state.list.length===0) return;
   saveEmailForm.updateId = null;
+  saveEmailForm.metaOnly = false;
   saveEmailForm.draft = freshSaveEmailDraft();
+  updateSaveEmailFormChrome();
+  renderSaveEmailFormFields();
+  byId("saveEmailFormOverlay").classList.add("open");
+}
+// user: "daj mozliwosc edycji zapisanych gotowych maili... ikona ołówka
+// przy gwiazdce - ale tylko dla tego, kto to stworzył". Reużywa TEN SAM
+// modal co "Save as" (nazwa/kategoria), ale w trybie metaOnly: nie rusza
+// componentIds, więc bieżąca zawartość Mail Stacka usera nie nadpisuje
+// przypadkiem cudzego (albo swojego) zapisanego maila.
+function openEditReadyEmail(emailId){
+  var e = findEmail(emailId);
+  if(!e) return;
+  if(!canManageRecord(e)){ showToast("You're not the creator of this ready-made email", "error"); return; }
+  saveEmailForm.updateId = emailId;
+  saveEmailForm.metaOnly = true;
+  saveEmailForm.draft = { label: e.label, flow: e.flow };
   updateSaveEmailFormChrome();
   renderSaveEmailFormFields();
   byId("saveEmailFormOverlay").classList.add("open");
@@ -8703,7 +8773,9 @@ function closeSaveEmailForm(){ byId("saveEmailFormOverlay").classList.remove("op
 function renderSaveEmailFormFields(){
   var form = byId("saveEmailForm");
   var d = saveEmailForm.draft;
-  var targetHtml = '<div class="bf-group"><p class="bf-group-title">Save target</p><div class="bf-row">'+
+  // Tryb metaOnly edytuje JEDEN konkretny, już wybrany mail — dropdown
+  // "Update an existing..." nie ma tu zastosowania (cel jest ustalony).
+  var targetHtml = saveEmailForm.metaOnly ? "" : '<div class="bf-group"><p class="bf-group-title">Save target</p><div class="bf-row">'+
     '<div class="bf-field" style="flex-basis:100%">'+
       '<label for="sef-target">Update an existing ready-made email (optional)</label>'+
       '<select id="sef-target" data-cs-searchable="1">'+
@@ -8728,7 +8800,7 @@ function renderSaveEmailFormFields(){
     return html+'</div>';
   }).join("") + '</div></div>';
   form.innerHTML = targetHtml + fieldsHtml;
-  byId("sef-target").addEventListener("change", function(){
+  if(byId("sef-target")) byId("sef-target").addEventListener("change", function(){
     var id = this.value || null;
     saveEmailForm.updateId = id;
     if(id){
@@ -8749,16 +8821,37 @@ function saveEmailFormSubmit(){
   var d = saveEmailForm.draft;
   var label = (d.label||"").trim();
   if(!label){ showToast("Enter an email name"); byId("sef-label").focus(); return; }
+  var btn = byId("saveEmailFormSave");
+
+  // Tryb metaOnly (patrz openEditReadyEmail — ołówek na karcie) edytuje
+  // TYLKO nazwę/kategorię, celowo nie rusza componentIds — bieżący Mail
+  // Stack usera nie ma z tym nic wspólnego, nadpisanie go byłoby bugiem.
+  if(saveEmailForm.metaOnly && saveEmailForm.updateId){
+    var metaExisting = findEmail(saveEmailForm.updateId);
+    if(!metaExisting){ showToast("The selected email no longer exists"); return; }
+    if(!canManageRecord(metaExisting)){ showToast("You're not the creator of this ready-made email", "error"); return; }
+    metaExisting.label = label;
+    metaExisting.flow = d.flow;
+    state.section = "emails"; state.emailFlow = d.flow;
+    return withBtnLoading(btn, function(){
+      return saveToStorage().then(function(){
+        closeSaveEmailForm();
+        renderAll();
+        showToast("Ready-made email updated");
+      });
+    });
+  }
+
   // odsiewamy pozycje wskazujące na komponenty, których już nie ma (patrz
   // resolveItemCode/orphan-fix) — gotowy mail ma zawierać tylko to, co
   // faktycznie da się później odtworzyć z biblioteki.
   var componentIds = state.list.map(function(item){ return item.componentId; }).filter(function(cid){ return !!findComp(cid); });
   if(componentIds.length===0){ showToast("The list doesn't contain any recognizable components"); return; }
-  var btn = byId("saveEmailFormSave");
 
   if(saveEmailForm.updateId){
     var existing = findEmail(saveEmailForm.updateId);
     if(!existing){ showToast("The selected email no longer exists — save as new"); return; }
+    if(!canManageRecord(existing)){ showToast("You're not the creator of this ready-made email", "error"); return; }
     existing.label = label;
     existing.flow = d.flow;
     existing.componentIds = componentIds;
@@ -9669,6 +9762,7 @@ function renderSkeletonPlaceholders(){
   byId("listBody").innerHTML = '<div class="skeleton-block skeleton-list-row"></div><div class="skeleton-block skeleton-list-row"></div>';
 }
 renderSkeletonPlaceholders();
+byId("footerYear").textContent = new Date().getFullYear();
 
 /* ================================================================
    LOGOWANIE / REJESTRACJA — most do modułu Firebase (patrz <script
