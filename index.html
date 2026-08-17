@@ -10000,6 +10000,7 @@ function authSubmit(){
     if(!firstName || !lastName){ authShowError("Enter both your first and last name."); return; }
     action = window.MQAuth.register(email, password, { firstName: firstName, lastName: lastName, avatarFile: authAvatarFile });
   }
+  var submittedMode = authMode; // authMode mogłoby się zmienić zanim action się rozwiąże
   withBtnLoading(byId("authSubmitBtn"), function(){
     return action.then(function(cred){
       // onAuthStateChanged (moduł Firebase) zwykle już wywołał window.MQBoot
@@ -10008,6 +10009,16 @@ function authSubmit(){
       // tu, z już kompletnym cred.user, żeby badge w topbarze na pewno
       // pokazał finalne dane, a nie gołe "przed chwilą utworzone" konto.
       if(cred && cred.user && window.MQBoot) window.MQBoot(cred.user);
+      // user: "dodaj taki mały hint informujący o tym, że ktoś się
+      // zalogował, ot tak żeby było komuś miło to zobaczyć" — ciepłe
+      // powitanie TYLKO przy faktycznym kliknięciu Log in/Register, nie
+      // przy cichym odtworzeniu sesji w MQBoot po zwykłym odświeżeniu
+      // strony (inaczej wyskakiwałoby to za każdym razem — już nie miło,
+      // tylko nużąco).
+      if(cred && cred.user){
+        var firstName = (cred.user.displayName||"").trim().split(/\s+/)[0] || cred.user.email;
+        showToast((submittedMode==="login" ? "Welcome back, " : "Welcome, ")+firstName+"!");
+      }
     }).catch(function(err){
       authShowError(AUTH_ERROR_MESSAGES[err.code] || "Something went wrong — try again.");
     });
