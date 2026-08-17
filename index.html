@@ -636,6 +636,28 @@
      regułę prefers-reduced-motion powyżej. */
   .mf-spinner{width:22px; height:22px; border:2.5px solid var(--line-strong); border-top-color:var(--accent); border-radius:50%; animation:mf-spin .7s linear infinite}
   @keyframes mf-spin{to{transform:rotate(360deg)}}
+  /* user: "po wciśnięciu dowolnego przycisku ... animacja ładowania do
+     momentu aż faktycznie coś się nie wczyta" — spinner podmieniający
+     całą zawartość przycisku na czas realnej akcji async (patrz
+     withBtnLoading w JS). currentColor, więc pasuje i do .btn (biały
+     tekst na czarnym tle), i do .btn.ghost (ciemny tekst). */
+  .btn-spinner{width:14px; height:14px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation:mf-spin .7s linear infinite; display:inline-block; vertical-align:-2px}
+  /* user: "na stronie zastosuj skeleton loading" — placeholder-bloki
+     wypełniające rail/grid/Mail Stack ZANIM realne dane w ogóle dotrą
+     (patrz renderSkeletonPlaceholders w JS, wołane raz od razu przy
+     starcie skryptu). Znikają same, bo renderCategoryNav/renderFlowNav/
+     renderGrid/renderList i tak nadpisują innerHTML tych samych
+     kontenerów przy pierwszym prawdziwym renderAll() — bez osobnego
+     "ukryj skeleton" kroku. */
+  @keyframes skeleton-pulse{0%,100%{opacity:.5}50%{opacity:1}}
+  .skeleton-block{background:var(--surface-2); border-radius:6px; animation:skeleton-pulse 1.3s ease-in-out infinite}
+  .skeleton-rail-row{height:14px; margin:11px 4px}
+  .skeleton-list-row{height:44px; border-radius:5px; margin-bottom:8px}
+  .skeleton-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-card); overflow:hidden}
+  .skeleton-card .skeleton-block{border-radius:0}
+  .skeleton-card-body{padding:12px}
+  .skeleton-card-body .skeleton-block{margin-bottom:8px}
+  .skeleton-card-body .skeleton-block:last-child{margin-bottom:0}
 
   /* ---------- footer ---------- */
   .app-footer{
@@ -5369,6 +5391,7 @@ function splitBackupPayload(full){
   MQ_SHARED_KEYS.forEach(function(k){ shared[k] = full[k]; });
   return { priv: priv, shared: shared };
 }
+var mqSavePendingResolvers = [];
 function saveToStorage(){
   try{
     localStorage.setItem(STORAGE_KEY, JSON.stringify(buildBackupPayload()));
@@ -5378,16 +5401,48 @@ function saveToStorage(){
   // osobnego zapisu do bazy przy KAŻDYM keydownie. localStorage powyżej
   // zapisuje się zawsze, natychmiast — Firestore jest "dodatkiem", nie
   // zastępuje lokalnej kopii.
-  if(window.MQStore){
+  // Zwraca Promise, żeby przyciski Zapisz/Usuń (patrz withBtnLoading)
+  // mogły faktycznie czekać na REALNE zapisanie w bazie, a nie tylko na
+  // lokalny zapis stanu — jeśli kilka wywołań trafi w to samo okno
+  // debounce, wszystkie dostają wynik TEGO SAMEGO, scalonego zapisu.
+  if(!window.MQStore) return Promise.resolve();
+  return new Promise(function(resolve){
+    mqSavePendingResolvers.push(resolve);
     clearTimeout(mqSaveTimer);
     mqSaveTimer = setTimeout(function(){
       var split = splitBackupPayload(buildBackupPayload());
+      var resolvers = mqSavePendingResolvers; mqSavePendingResolvers = [];
       Promise.all([
         window.MQStore.savePrivate(split.priv),
         window.MQStore.saveShared(split.shared)
-      ]).catch(function(){ showToast("Couldn't sync to the database — check your connection", "error"); });
+      ]).then(function(){
+        resolvers.forEach(function(r){ r(); });
+      }).catch(function(){
+        showToast("Couldn't sync to the database — check your connection", "error");
+        resolvers.forEach(function(r){ r(); });
+      });
     }, 800);
-  }
+  });
+}
+// user: "po wciśnięciu dowolnego przycisku na stronie ma się w nim
+// pojawić animacja ładowania do momentu aż faktycznie coś się nie
+// wczyta" — wąski helper zamiast globalnego przechwytywania KAŻDEGO
+// kliknięcia: podmienia zawartość przycisku na spinner na czas realnej
+// operacji async, przywraca oryginalną treść po zakończeniu (sukces lub
+// błąd). Celowo używany tylko tam, gdzie POD spodem faktycznie jest
+// coś asynchronicznego do poczekania (zapis do bazy, upload, import
+// pliku) — przycisk bez żadnej operacji w tle nie ma na co czekać.
+function withBtnLoading(btn, run){
+  if(!btn) return Promise.resolve(run());
+  var prevHtml = btn.innerHTML;
+  var prevDisabled = btn.disabled;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="btn-spinner" aria-hidden="true"></span>';
+  function restore(){ btn.disabled = prevDisabled; btn.innerHTML = prevHtml; }
+  var result;
+  try{ result = run(); }
+  catch(e){ restore(); throw e; }
+  return Promise.resolve(result).then(function(v){ restore(); return v; }, function(err){ restore(); throw err; });
 }
 function loadFromStorage(){
   try{
@@ -5610,8 +5665,12 @@ function saveComponentForm(){
     createdBy: currentUserStamp()
   });
   state.section = "components"; state.category = d.category;
-  closeComponentForm(); renderAll();
-  showToast("Added component “"+label+"”"+(variantsForComp.length ? " with "+variantsForComp.length+(variantsForComp.length===1?" variant":" variants") : ""));
+  return withBtnLoading(byId("componentFormSave"), function(){
+    return saveToStorage().then(function(){
+      closeComponentForm(); renderAll();
+      showToast("Added component “"+label+"”"+(variantsForComp.length ? " with "+variantsForComp.length+(variantsForComp.length===1?" variant":" variants") : ""));
+    });
+  });
 }
 
 function makeCustomPreview(rawCode){
@@ -6279,10 +6338,14 @@ function saveComponentCatalogChanges(){
     comp.custom = true; // przetrwanie odświeżenia strony, patrz buildBackupPayload
   }
   editState.defaultValues = Object.assign({}, savedValues);
-  renderList(); // saveToStorage() + odświeża ewentualne miniatury tego komponentu już dodane do listy
-  renderGrid();
-  updateEditSaveOnlyBtnState();
-  showToast("Component saved");
+  return withBtnLoading(byId("editSaveOnlyBtn"), function(){
+    return saveToStorage().then(function(){
+      renderList(); // saveToStorage() ponownie w środku (ten sam współdzielony debounce, nieszkodliwe) + odświeża ewentualne miniatury tego komponentu już dodane do listy
+      renderGrid();
+      updateEditSaveOnlyBtnState();
+      showToast("Component saved");
+    });
+  });
 }
 /* "Save as" — user edytuje istniejący komponent, ale chce to zachować jako
    ZUPEŁNIE NOWY komponent, nie nadpisywać oryginału (user: "kiedy coś sobie
@@ -6400,16 +6463,22 @@ function saveComponentEdit(){
   var savedValues = {};
   Object.keys(editState.touched).forEach(function(t){ savedValues[t] = editState.values[t]; });
   var hasValues = Object.keys(savedValues).length > 0;
+  var toastMsg;
   if(editState.listUid){
     var item = state.list.filter(function(i){ return i.uid===editState.listUid; })[0];
     if(item){ item.variantId = editState.activeVariantId || null; item.code = null; item.values = hasValues ? savedValues : null; }
-    showToast("Changes saved");
+    toastMsg = "Changes saved";
   } else {
     state.list.push({ uid: uidSeq++, componentId: editState.componentId, variantId: editState.activeVariantId || null, code: null, values: hasValues ? savedValues : null });
-    showToast((codeChanged || metaChanged) ? "Component saved and added to list" : "Component added to list");
+    toastMsg = (codeChanged || metaChanged) ? "Component saved and added to list" : "Component added to list";
   }
-  closeEditor();
-  renderList(); renderGrid();
+  return withBtnLoading(byId("editSaveBtn"), function(){
+    return saveToStorage().then(function(){
+      closeEditor();
+      renderList(); renderGrid();
+      showToast(toastMsg);
+    });
+  });
 }
 byId("editClose").addEventListener("click", closeEditor);
 var editDeleteArmed = false;
@@ -6426,9 +6495,13 @@ byId("editDeleteBtn").addEventListener("click", function(){
   state.list = state.list.filter(function(item){ return item.componentId!==id; });
   READY_EMAILS.forEach(function(e){ e.componentIds = e.componentIds.filter(function(cid){ return cid!==id; }); });
   editDeleteArmed = false;
-  closeEditor();
-  renderAll();
-  showToast("Component deleted");
+  withBtnLoading(btn, function(){
+    return saveToStorage().then(function(){
+      closeEditor();
+      renderAll();
+      showToast("Component deleted");
+    });
+  });
 });
 byId("editSaveBtn").addEventListener("click", saveComponentEdit);
 byId("editSaveOnlyBtn").addEventListener("click", saveComponentCatalogChanges);
@@ -6982,9 +7055,14 @@ function saveBrandForm(asNew, newName){
   BRANDS[key] = brandObj;
   if(BRAND_ORDER.indexOf(key)===-1) BRAND_ORDER.push(key);
   state.brand = key;
-  closeBrandForm();
-  renderAll();
-  showToast((asNew?"Saved as a new brand “":"Brand saved “")+name+"”");
+  var saveBtn = asNew ? byId("brandFormSaveAsNewConfirm") : byId("brandFormSave");
+  return withBtnLoading(saveBtn, function(){
+    return saveToStorage().then(function(){
+      closeBrandForm();
+      renderAll();
+      showToast((asNew?"Saved as a new brand “":"Brand saved “")+name+"”");
+    });
+  });
 }
 
 var deleteArmed = false;
@@ -7000,9 +7078,13 @@ function requestDeleteBrandFromForm(){
   delete BRANDS[key];
   BRAND_ORDER = BRAND_ORDER.filter(function(k){ return k!==key; });
   if(state.brand===key) state.brand = "neutral";
-  closeBrandForm();
-  renderAll();
-  showToast("Brand deleted");
+  return withBtnLoading(btn, function(){
+    return saveToStorage().then(function(){
+      closeBrandForm();
+      renderAll();
+      showToast("Brand deleted");
+    });
+  });
 }
 
 function brandFormCancelSaveAsNewPrompt(){
@@ -8465,9 +8547,13 @@ function requestDeleteReadyEmail(emailId){
   }
   READY_EMAILS = READY_EMAILS.filter(function(e){ return e.id!==emailId; });
   emailDeleteArmed = false;
-  byId("previewOverlay").classList.remove("open");
-  renderAll();
-  showToast("Ready-made email deleted");
+  return withBtnLoading(btn, function(){
+    return saveToStorage().then(function(){
+      byId("previewOverlay").classList.remove("open");
+      renderAll();
+      showToast("Ready-made email deleted");
+    });
+  });
 }
 function openEmailPreview(emailId){
   var e = findEmail(emailId), b = brand();
@@ -8668,6 +8754,7 @@ function saveEmailFormSubmit(){
   // faktycznie da się później odtworzyć z biblioteki.
   var componentIds = state.list.map(function(item){ return item.componentId; }).filter(function(cid){ return !!findComp(cid); });
   if(componentIds.length===0){ showToast("The list doesn't contain any recognizable components"); return; }
+  var btn = byId("saveEmailFormSave");
 
   if(saveEmailForm.updateId){
     var existing = findEmail(saveEmailForm.updateId);
@@ -8680,10 +8767,13 @@ function saveEmailFormSubmit(){
     // usuwaniu wbudowanych maili (saveToStorage zapisuje tylko custom).
     existing.note = existing.custom ? "zapisany z Twojej listy budowy" : ((existing.note||"") + " · zaktualizowany z listy budowy");
     state.section = "emails"; state.emailFlow = d.flow;
-    closeSaveEmailForm();
-    renderAll();
-    showToast("Updated ready-made email “"+label+"”" + (existing.custom ? "" : " (changes to a built-in email only last this session)"));
-    return;
+    return withBtnLoading(btn, function(){
+      return saveToStorage().then(function(){
+        closeSaveEmailForm();
+        renderAll();
+        showToast("Updated ready-made email “"+label+"”" + (existing.custom ? "" : " (changes to a built-in email only last this session)"));
+      });
+    });
   }
 
   var id = uniqueEmailKey(slugify(label));
@@ -8696,9 +8786,13 @@ function saveEmailFormSubmit(){
     createdBy: currentUserStamp()
   });
   state.section = "emails"; state.emailFlow = d.flow;
-  closeSaveEmailForm();
-  renderAll();
-  showToast("Saved ready-made email “"+label+"”");
+  return withBtnLoading(btn, function(){
+    return saveToStorage().then(function(){
+      closeSaveEmailForm();
+      renderAll();
+      showToast("Saved ready-made email “"+label+"”");
+    });
+  });
 }
 byId("saveEmailBtn").addEventListener("click", openSaveEmailForm);
 byId("saveEmailFormClose").addEventListener("click", closeSaveEmailForm);
@@ -9038,20 +9132,26 @@ byId("backupImportInput").addEventListener("change", function(){
   var file = this.files && this.files[0];
   this.value = "";
   if(!file) return;
-  var reader = new FileReader();
-  reader.onload = function(){
-    var payload;
-    try{ payload = JSON.parse(reader.result); }
-    catch(e){ showToast("Invalid backup file", "error"); return; }
-    try{
-      applyBackupPayload(payload);
-      saveToStorage();
-      renderAll();
-      showToast("Backup restored");
-    }catch(e){ showToast("Couldn't load the backup — the file may be corrupted", "error"); }
-  };
-  reader.onerror = function(){ showToast("Couldn't read the file", "error"); };
-  reader.readAsText(file);
+  withBtnLoading(byId("backupImportBtn"), function(){
+    return new Promise(function(resolve){
+      var reader = new FileReader();
+      reader.onload = function(){
+        var payload;
+        try{ payload = JSON.parse(reader.result); }
+        catch(e){ showToast("Invalid backup file", "error"); resolve(); return; }
+        try{
+          applyBackupPayload(payload);
+          saveToStorage().then(function(){
+            renderAll();
+            showToast("Backup restored");
+            resolve();
+          });
+        }catch(e){ showToast("Couldn't load the backup — the file may be corrupted", "error"); resolve(); }
+      };
+      reader.onerror = function(){ showToast("Couldn't read the file", "error"); resolve(); };
+      reader.readAsText(file);
+    });
+  });
 });
 
 /* ---------- Countdown GIF: buduje animowany GIF w przeglądarce, klatka
@@ -9542,6 +9642,34 @@ function syncModalScrollLock(){
   syncModalScrollLock();
 })();
 
+// user: "na stronie zastosuj skeleton loading" — wypełnia rail/grid/Mail
+// Stack placeholderami NATYCHMIAST przy starcie skryptu (jeszcze pod
+// #authGate, zanim MQBoot w ogóle zdąży doczekać się window.MQStore.load()).
+// Realne renderCategoryNav/renderFlowNav/renderGrid/renderList nadpisują
+// dokładnie te same kontenery przy pierwszym renderAll() — nie trzeba nic
+// osobno "chować".
+function skeletonRailRowsHtml(widths){
+  return widths.map(function(w){ return '<div class="skeleton-block skeleton-rail-row" style="width:'+w+'"></div>'; }).join("");
+}
+function skeletonCardHtml(){
+  return '<div class="skeleton-card">'+
+    '<div class="skeleton-block" style="height:150px"></div>'+
+    '<div class="skeleton-card-body">'+
+      '<div class="skeleton-block" style="height:9px;width:45%"></div>'+
+      '<div class="skeleton-block" style="height:13px;width:85%"></div>'+
+      '<div class="skeleton-block" style="height:11px;width:95%"></div>'+
+      '<div class="skeleton-block" style="height:11px;width:65%"></div>'+
+    '</div>'+
+  '</div>';
+}
+function renderSkeletonPlaceholders(){
+  byId("railList").innerHTML = skeletonRailRowsHtml(["70%","55%","80%","60%","72%"]);
+  byId("railFlowList").innerHTML = skeletonRailRowsHtml(["65%","82%","58%"]);
+  byId("cardGrid").innerHTML = new Array(8).fill(0).map(skeletonCardHtml).join("");
+  byId("listBody").innerHTML = '<div class="skeleton-block skeleton-list-row"></div><div class="skeleton-block skeleton-list-row"></div>';
+}
+renderSkeletonPlaceholders();
+
 /* ================================================================
    LOGOWANIE / REJESTRACJA — most do modułu Firebase (patrz <script
    type="module"> tuż pod tym <script>, ładowany z window.MQAuth/
@@ -9638,17 +9766,17 @@ function authSubmit(){
     if(!firstName || !lastName){ authShowError("Enter both your first and last name."); return; }
     action = window.MQAuth.register(email, password, { firstName: firstName, lastName: lastName, avatarFile: authAvatarFile });
   }
-  byId("authSubmitBtn").disabled = true;
-  action.then(function(cred){
-    // onAuthStateChanged (moduł Firebase) zwykle już wywołał window.MQBoot
-    // w chwili SAMEGO utworzenia konta — ZANIM w register() zdąży dokończyć
-    // się updateProfile (avatar/imię+nazwisko). Wołamy MQBoot jeszcze raz
-    // tu, z już kompletnym cred.user, żeby badge w topbarze na pewno
-    // pokazał finalne dane, a nie gołe "przed chwilą utworzone" konto.
-    if(cred && cred.user && window.MQBoot) window.MQBoot(cred.user);
-  }).catch(function(err){
-    byId("authSubmitBtn").disabled = false;
-    authShowError(AUTH_ERROR_MESSAGES[err.code] || "Something went wrong — try again.");
+  withBtnLoading(byId("authSubmitBtn"), function(){
+    return action.then(function(cred){
+      // onAuthStateChanged (moduł Firebase) zwykle już wywołał window.MQBoot
+      // w chwili SAMEGO utworzenia konta — ZANIM w register() zdąży dokończyć
+      // się updateProfile (avatar/imię+nazwisko). Wołamy MQBoot jeszcze raz
+      // tu, z już kompletnym cred.user, żeby badge w topbarze na pewno
+      // pokazał finalne dane, a nie gołe "przed chwilą utworzone" konto.
+      if(cred && cred.user && window.MQBoot) window.MQBoot(cred.user);
+    }).catch(function(err){
+      authShowError(AUTH_ERROR_MESSAGES[err.code] || "Something went wrong — try again.");
+    });
   });
 }
 byId("authSubmitBtn").addEventListener("click", authSubmit);
@@ -9724,19 +9852,18 @@ byId("profileFormSave").addEventListener("click", function(){
   var firstName = byId("profileFirstName").value.trim();
   var lastName = byId("profileLastName").value.trim();
   if(!firstName || !lastName){ profileShowError("Enter both your first and last name."); return; }
-  byId("profileFormSave").disabled = true;
-  window.MQAuth.updateProfile({ firstName:firstName, lastName:lastName, avatarFile:profileAvatarFile })
-    .then(function(updated){
-      MQ_CURRENT_USER = { uid:updated.uid, displayName:updated.displayName||null, photoURL:updated.photoURL||null, email:updated.email };
-      renderAuthUserBadge();
-      byId("profileFormSave").disabled = false;
-      closeProfileForm();
-      showToast("Profile updated");
-    })
-    .catch(function(){
-      byId("profileFormSave").disabled = false;
-      profileShowError("Something went wrong — try again.");
-    });
+  withBtnLoading(byId("profileFormSave"), function(){
+    return window.MQAuth.updateProfile({ firstName:firstName, lastName:lastName, avatarFile:profileAvatarFile })
+      .then(function(updated){
+        MQ_CURRENT_USER = { uid:updated.uid, displayName:updated.displayName||null, photoURL:updated.photoURL||null, email:updated.email };
+        renderAuthUserBadge();
+        closeProfileForm();
+        showToast("Profile updated");
+      })
+      .catch(function(){
+        profileShowError("Something went wrong — try again.");
+      });
+  });
 });
 // Wołane przez moduł Firebase (onAuthStateChanged) po realnym
 // zalogowaniu/rejestracji — jedyne miejsce, które teraz ładuje dane i
