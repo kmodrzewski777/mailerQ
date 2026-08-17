@@ -169,8 +169,11 @@
      statyczny nagłówek dropdownu, nie .brand-select-option (brak
      cursor:pointer/hover, nic się nie klika). */
   .auth-user-menu-header{padding:6px 10px 8px; font-size:11.5px; color:var(--ink-muted); line-height:1.4}
-  .auth-user-menu-header .auth-user-menu-role{display:inline-block; margin-top:3px; padding:1px 7px; border-radius:999px; background:var(--surface-2); color:var(--ink-faint); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.04em}
   .auth-user-menu-divider{height:1px; background:var(--line); margin:2px 4px 4px}
+  /* user: "ten napis roli niech będzie malutki pod imieniem/nazwiskiem" —
+     drugi, drobny wiersz wprost w badge'u topbaru (patrz renderAuthUserBadge),
+     zamiast osobnej pigułki w dropdownie. */
+  .auth-user-role-sub{font-size:9.5px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint)}
   /* user: "zamiast tych dwóch przycisków [Edit/Add] zrób przy każdej
      pozycji w dropdownie po prawej stronie ikonę ołówka" + "Add new" jako
      wydzielona pozycja na końcu listy. */
@@ -10162,13 +10165,20 @@ function renderAuthUserBadge(){
   var btn = byId("authUserBtn");
   if(!MQ_CURRENT_USER) return;
   var label = esc(MQ_CURRENT_USER.displayName || MQ_CURRENT_USER.email);
-  btn.innerHTML = avatarHtml(MQ_CURRENT_USER, 24) + '<span style="margin-left:6px">'+label+'</span>';
+  var roleLabel = isAdminUser() ? "Admin" : "Member";
+  // user: "ten napis roli niech będzie malutki pod imieniem/nazwiskiem" —
+  // przeniesione z pigułki w dropdownie na drugi, drobny wiersz WPROST pod
+  // nazwiskiem w samym badge'u topbaru.
+  btn.innerHTML = avatarHtml(MQ_CURRENT_USER, 24) +
+    '<span style="margin-left:6px; display:flex; flex-direction:column; align-items:flex-start; line-height:1.25">'+
+      '<span>'+label+'</span>'+
+      '<span class="auth-user-role-sub">'+roleLabel+'</span>'+
+    '</span>';
   btn.style.display = "inline-flex";
   btn.style.alignItems = "center";
   // user: "fajnie jakbyś tu gdzieś nieklikalnie dodał e-mail konta" —
-  // statyczny nagłówek dropdownu, nie kolejna pozycja menu.
-  byId("authUserMenuHeader").innerHTML = esc(MQ_CURRENT_USER.email) +
-    '<span class="auth-user-menu-role">'+(isAdminUser()?"Admin":"Member")+'</span>';
+  // statyczny nagłówek dropdownu.
+  byId("authUserMenuHeader").innerHTML = esc(MQ_CURRENT_USER.email);
 }
 window.MQShowGate = showAuthGate;
 // Awaryjnie: gdyby moduł Firebase w ogóle się nie załadował (np.
