@@ -2814,6 +2814,14 @@ function compileEmailHtml(bodyMjml, b, opts){
   var boxPadding = opts.noChrome ? "0px" : (b.boxPadding || "0px");
   var mso = parseInt(b.mailWidth,10)||600;
   var responsiveRules = buildResponsiveMediaRules(b);
+  // user: "potrzebuje móc dla mobile okreslic inny letterbox color" —
+  // outerBg nie ma "css-class" na żadnym elemencie MJML (to zwykłe body/
+  // letterbox tło, nie coś na konkretnym tagu), więc nie pasuje do
+  // generycznego RESPONSIVE_STYLE_MAP (który zakłada JEDNĄ klasę CSS) —
+  // osobna reguła wprost na body ORAZ .mj-canvas-bg (oba mają dziś inline
+  // pageBg, patrz niżej — !important w media query bije zwykły inline styl).
+  var outerBgMobileRule = (!opts.noChrome && b.outerBgMobile && b.outerBgMobile!==b.outerBg)
+    ? "    body,.mj-canvas-bg{background:"+b.outerBgMobile+"!important}\n" : "";
   // Dark mode jest już TYLKO symulacją podglądu (patrz simulateGmailDarkRules
   // powyżej) — Gmail i tak ignoruje @media(prefers-color-scheme:dark), więc
   // eksport NIE dostaje żadnego prawdziwego dark-CSS bloku. opts.darkPreview
@@ -2846,6 +2854,7 @@ googleFontsLinkHtml(b)+
 "    .mj-btn-full{display:block!important;width:auto!important}\n"+
 "    .mj-hide-mobile{display:none!important}\n"+
 responsiveRules+
+outerBgMobileRule+
 "  }\n"+
 "  @media only screen and (min-width:481px){\n"+
 "    .mj-hide-desktop{display:none!important}\n"+
@@ -6919,7 +6928,7 @@ var BRAND_FIELDS = [
     {key:"logoWidth", label:"Logo width (px)", type:"text", unitPx:true, responsive:true}
   ]},
   { title:"Email background", fields:[
-    {key:"outerBg", label:"Letterbox color", type:"color"}
+    {key:"outerBg", label:"Letterbox color", type:"color", responsive:true}
   ]},
   { title:"Body", fields:[
     {key:"bg", label:"Background color", type:"color"},
@@ -7141,7 +7150,7 @@ function bfFieldHtml(f, d, device){
   var labelTitle = '{{brand.'+f.key+'}}' + (responsive ? ' · has a separate mobile value' : '');
   html += '<label for="'+bfInputId(f.key)+'" title="'+esc(labelTitle)+'">'+esc(f.label)+'</label>';
 
-  if(mobile && responsive && (f.type==="text"||f.type==="number")){
+  if(mobile && responsive && (f.type==="text"||f.type==="number"||f.type==="color")){
     var mKey = f.key+"Mobile", mVal = d[mKey];
     if(isPx){
       var ph = "default: "+pxStrToNum(d[f.key]);
@@ -7149,6 +7158,16 @@ function bfFieldHtml(f, d, device){
     } else if(f.type==="number"){
       var phN = "default: "+(d[f.key]==null?"":d[f.key]);
       html += '<input type="number" id="'+bfInputId(f.key)+'" value="'+esc(mVal==null?"":mVal)+'" placeholder="'+esc(phN)+'" data-bf-number-mobile="'+f.key+'">';
+    } else if(f.type==="color"){
+      // user: "potrzebuje móc dla mobile okreslic inny letterbox color" —
+      // brakująca gałąź: color-type pola w ogóle nie miały wersji mobile,
+      // spadały do zwykłej (desktopowej) ścieżki niżej i edytowały tę samą
+      // wartość co Desktop. Ten sam wzorzec co data-bf-color/-text-color
+      // (para picker+tekst, zsynchronizowane), tylko piszący do Mobile.
+      html += '<div class="bf-color-field">'+
+        '<input type="color" id="'+bfInputId(f.key)+'-c" value="'+esc(mVal||d[f.key]||"#ffffff")+'" data-bf-color-mobile="'+f.key+'">'+
+        '<input type="text" id="'+bfInputId(f.key)+'" value="'+esc(mVal||"")+'" placeholder="'+esc("default: "+(d[f.key]||""))+'" data-bf-text-color-mobile="'+f.key+'">'+
+      '</div>';
     } else {
       var phT = "default: "+(d[f.key]==null?"":d[f.key]);
       html += '<input type="text" id="'+bfInputId(f.key)+'" value="'+esc(mVal||"")+'" placeholder="'+esc(phT)+'" data-bf-field-mobile="'+f.key+'">';
@@ -7316,6 +7335,27 @@ function renderBrandFormFields(){
     var key = el.getAttribute("data-bf-text-color");
     el.addEventListener("input", function(){
       brandForm.draft[key] = el.value;
+      var twin = byId(bfInputId(key)+"-c");
+      if(twin && /^#[0-9a-fA-F]{6}$/.test(el.value)) twin.value = el.value;
+      updateBrandFormPreview();
+    });
+  });
+  // odpowiedniki data-bf-color/data-bf-text-color, tylko piszące do
+  // "...Mobile" (patrz komentarz przy bfFieldHtml — brakująca gałąź dla
+  // pól type:"color" w widoku Mobile).
+  form.querySelectorAll("[data-bf-color-mobile]").forEach(function(el){
+    var key = el.getAttribute("data-bf-color-mobile");
+    el.addEventListener("input", function(){
+      brandForm.draft[key+"Mobile"] = el.value;
+      var twin = byId(bfInputId(key));
+      if(twin) twin.value = el.value;
+      updateBrandFormPreview();
+    });
+  });
+  form.querySelectorAll("[data-bf-text-color-mobile]").forEach(function(el){
+    var key = el.getAttribute("data-bf-text-color-mobile");
+    el.addEventListener("input", function(){
+      brandForm.draft[key+"Mobile"] = el.value;
       var twin = byId(bfInputId(key)+"-c");
       if(twin && /^#[0-9a-fA-F]{6}$/.test(el.value)) twin.value = el.value;
       updateBrandFormPreview();
