@@ -8410,11 +8410,14 @@ function renderEmailThumb(e, b){
     compiled = simulateLiquidForPreview(fillTokensForPreview(compiled, b), b);
     var mailWidth = parseInt(b.mailWidth, 10) || 600;
     var scale = 224 / mailWidth;
-    // user: "nie zaczynał się od równej krawędzi górnej tylko daj mu taki
-    // padding jaki jest po bokach" — ten sam token co gutter boczny
-    // (mj-section padding), więc po przeskalowaniu wygląda spójnie z
-    // marginesami, które sekcje i tak już mają wbudowane w kod.
-    return '<div style="position:absolute; top:0; left:50%; width:'+mailWidth+'px; padding-top:'+(b.contentPadding||"0px")+'; transform:translateX(-50%) scale('+scale+'); transform-origin:top center; background:'+(b.bg||"#ffffff")+';">'+compiled+'</div>';
+    // user: "miałeś tu padding zrobić górny, żeby preview nie dotykało
+    // krawędzi" — poprzednia próba (padding-top NA treści) dokładała puste
+    // miejsce WEWNĄTRZ białego tła, więc było niewidoczne (białe na białym).
+    // To, co faktycznie widać po bokach, to SZARE tło .card-preview
+    // prześwitujące zza węższej, wyśrodkowanej treści — analogiczny efekt
+    // u góry wymaga przesunięcia całego wrappera w dół (top, nie padding
+    // treści), żeby to samo szare tło prześwitywało nad nim.
+    return '<div style="position:absolute; top:12px; left:50%; width:'+mailWidth+'px; transform:translateX(-50%) scale('+scale+'); transform-origin:top center; background:'+(b.bg||"#ffffff")+';">'+compiled+'</div>';
   }catch(err){
     return '<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--ink-faint)">Preview unavailable</div>';
   }
