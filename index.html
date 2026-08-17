@@ -269,6 +269,10 @@
      "nazwę kategorii przenieś nad nazwę komponentu". */
   .card-cat{display:flex; align-items:center; justify-content:space-between; gap:6px; font-family:var(--font-mono); font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 4px}
   .card-preview{height:150px; flex:none; background:var(--surface-2); overflow:hidden; position:relative}
+  /* user: "Przenieś te ikony wyżej... mają być na białej apli z
+     zaokrąglonym rogiem lewo-góra. mają być na divie z podglądem
+     komponentu" — chip w rogu podglądu, nie w rzędzie kategorii. */
+  .card-preview-crm{position:absolute; bottom:0; right:0; display:flex; align-items:center; gap:4px; background:var(--surface); padding:5px; border-radius:8px 0 0 0}
   .card-body{padding:12px 12px 10px; flex:1; display:flex; flex-direction:column; min-height:0}
   .card-label{font-weight:600; font-size:13.5px; line-height:1.3; margin:0 0 3px; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
   .card-desc{font-size:12px; color:var(--ink-muted); margin:0; line-height:1.45; min-height:4.35em; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden}
@@ -544,7 +548,7 @@
      wysokości" — width:auto dawał każdemu logo jego własne proporcje;
      stały kwadrat + object-fit:contain skaluje każde bez zniekształceń. */
   .card-cat-platforms img{display:block; height:12px; width:12px; object-fit:contain; opacity:.35}
-  .card-cat-platforms .crm-badge{display:inline-flex; line-height:0; padding:2px; border:1px solid color-mix(in srgb, var(--line) 50%, transparent); border-radius:3px}
+  .card-cat-platforms .crm-badge{display:inline-flex; line-height:0; padding:4px; border:1px solid color-mix(in srgb, var(--line) 50%, transparent); border-radius:3px}
   /* align-items:flex-start (nie domyślny stretch) — pole Logo jest
      wyraźnie wyższe niż zwykłe jednowierszowe pola obok (miniatura +
      przycisk + notka), stretch rozciągał WSZYSTKIE pola w wierszu do
@@ -2443,7 +2447,7 @@ var CRM_PLATFORM_LABELS = { klaviyo:"Klaviyo", salesmanago:"ManagoAI", customeri
 // działa niezależnie od nowego opakowania).
 var CRM_PLATFORM_ICONS = {
   customerio: '<span class="crm-badge" title="Compatible with Customer.io"><img src="https://i.ibb.co/yc1Ywr39/cio-sygnet.png" alt="Customer.io" aria-hidden="true"></span>',
-  klaviyo: '<span class="crm-badge" title="Compatible with Klaviyo"><img src="https://i.ibb.co/9mxNb72Y/klavio-sygnet.png" alt="Klaviyo" aria-hidden="true"></span>',
+  klaviyo: '<span class="crm-badge" title="Compatible with Klaviyo"><img src="https://i.ibb.co/CK4YjjD9/Klaviyo.png" alt="Klaviyo" aria-hidden="true"></span>',
   salesmanago: '<span class="crm-badge" title="Compatible with ManagoAI"><img src="https://i.ibb.co/yB8cBpB7/manago-sygnet.png" alt="ManagoAI" aria-hidden="true"></span>'
 };
 /* Pełne logo (sygnet + nazwa) — użyte TYLKO jako wyciszony watermark obok
@@ -8336,6 +8340,13 @@ function platformBadgesHtml(keys){
   // user chce teraz odwrotnie, więc pokazujemy komplet zamiast pustki.
   return keys.map(function(k){ return CRM_PLATFORM_ICONS[k]||""; }).join("");
 }
+// Chip nad podglądem (patrz .card-preview-crm) — pomijamy całkiem, gdy nie
+// ma żadnych badge'y (np. komponent kompatybilny ze wszystkim), żeby nie
+// wisiał pusty biały kwadrat w rogu.
+function crmOverlayHtml(keys){
+  var badges = platformBadgesHtml(keys);
+  return badges ? '<div class="card-preview-crm">'+badges+'</div>' : "";
+}
 function renderGrid(){
   if(state.section==="emails"){ renderEmailGrid(); return; }
   var b = brand();
@@ -8355,10 +8366,9 @@ function renderGrid(){
       '<div class="card-head"><span class="card-key mono"'+sourceTitle+'>'+esc(c.id)+'</span>'+
         '<button type="button" class="icon-btn card-favorite-btn'+(fav?' is-favorite':'')+'" data-fav-component="'+c.id+'" aria-label="'+(fav?'Remove from favorites':'Add to favorites')+'" title="'+(fav?'Remove from favorites':'Add to favorites')+'">'+starIconHtml(fav)+'</button>'+
       '</div>'+
-      '<div class="card-preview">'+renderComponentThumb(c, b)+'</div>'+
+      '<div class="card-preview">'+renderComponentThumb(c, b)+crmOverlayHtml(componentCompatiblePlatforms(c))+'</div>'+
       '<div class="card-body">'+
-        '<span class="card-cat"><span>'+esc((CATEGORIES.filter(function(x){return x.id===c.category;})[0]||{label:c.category}).label)+'</span>'+
-        '<span class="card-cat-platforms">'+platformBadgesHtml(componentCompatiblePlatforms(c))+'</span></span>'+
+        '<span class="card-cat"><span>'+esc((CATEGORIES.filter(function(x){return x.id===c.category;})[0]||{label:c.category}).label)+'</span></span>'+
         '<p class="card-label">'+esc(c.label)+'</p><p class="card-desc">'+esc(c.desc)+'</p>'+
         createdByBadgeHtml(c)+
       '</div>'+
@@ -8390,7 +8400,35 @@ function emailVisibleForCrmFilter(e){
     return !c || crmFilterAllows(c);
   });
 }
+/* Snapshot rzeczywistej treści gotowego maila na karcie — user: "Gotowym
+   mailom rob snapshot i wrzucaj go do preview na listingu... Tylko nie
+   wrzucaj tam headera, jedynie content z mail stacków. nie wrzucaj całości
+   tylko niech to się ucina." Ten sam mechanizm co renderComponentThumb
+   (compileMjmlFragment, nie pełny compileEmailHtml — stąd brak
+   headera/stopki z automatu), ale ZSZYWA wszystkie komponenty maila
+   (resolveItemCode respektuje zapisane values/warianty, patrz
+   saveEmailFormSubmit/openEmailPreview) i renderuje od GÓRY (nie
+   wyśrodkowane jak pojedynczy komponent) — .card-preview i tak przycina
+   przez overflow:hidden, więc długi mail po prostu ucina się na dole. */
+function renderEmailThumb(e, b){
+  try{
+    var bodyMjml = stitchComponentCodes(e.componentIds.map(function(cid, i){
+      var vals = e.componentValues && e.componentValues[i];
+      var variantId = e.componentVariants && e.componentVariants[i];
+      var raw = resolveItemCode({ componentId: cid, variantId: variantId || null, code: null, values: vals || null }, b);
+      return raw || "";
+    }), b.componentGap);
+    var compiled = compileMjmlFragment(resolveBrandTokens(bodyMjml, b), { fontBody: b.fontBody });
+    compiled = simulateLiquidForPreview(fillTokensForPreview(compiled, b), b);
+    var mailWidth = parseInt(b.mailWidth, 10) || 600;
+    var scale = 224 / mailWidth;
+    return '<div style="position:absolute; top:0; left:50%; width:'+mailWidth+'px; transform:translateX(-50%) scale('+scale+'); transform-origin:top center; background:'+(b.bg||"#ffffff")+';">'+compiled+'</div>';
+  }catch(err){
+    return '<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--ink-faint)">Preview unavailable</div>';
+  }
+}
 function renderEmailGrid(){
+  var b = brand();
   var flow = EMAIL_FLOWS.filter(function(f){return f.id===state.emailFlow;})[0];
   var q = state.searchQuery;
   var fullList = emailsByFlow(state.emailFlow).filter(function(e){ return matchesSearch([e.label, e.id, e.desc], q) && emailVisibleForCrmFilter(e); });
@@ -8409,9 +8447,9 @@ function renderEmailGrid(){
         '<button type="button" class="icon-btn card-favorite-btn'+(fav?' is-favorite':'')+'" data-fav-email="'+e.id+'" aria-label="'+(fav?'Remove from favorites':'Add to favorites')+'" title="'+(fav?'Remove from favorites':'Add to favorites')+'">'+starIconHtml(fav)+'</button>'+
         '</span>'+
       '</div>'+
-      '<div class="card-body" style="padding-top:14px">'+
-        '<span class="card-cat"><span>'+esc(e.componentIds.length)+' components</span>'+
-        '<span class="card-cat-platforms">'+platformBadgesHtml(emailCompatiblePlatforms(e))+'</span></span>'+
+      '<div class="card-preview">'+renderEmailThumb(e, b)+crmOverlayHtml(emailCompatiblePlatforms(e))+'</div>'+
+      '<div class="card-body">'+
+        '<span class="card-cat"><span>'+esc(e.componentIds.length)+' components</span></span>'+
         '<p class="card-label">'+esc(e.label)+'</p><p class="card-desc">'+esc(e.desc)+'</p>'+
         createdByBadgeHtml(e)+
       '</div>'+
