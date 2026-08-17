@@ -4,9 +4,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!-- user: "logo napisz tym fontem" (Pixelify Sans) — sam napis "nexus"
-     jest teraz logiem, bez osobnej grafiki. -->
-<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
+<!-- user: "wrzuć ten font [Stack Sans Notch] jednak do logo" — sam napis
+     "nexus" jest logiem, bez osobnej grafiki. -->
+<link href="https://fonts.googleapis.com/css2?family=Stack+Sans+Notch:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   /* Design tokens — inspired by mailforge.ai: deep navy ink + white paper,
      one fiery orange accent used sparingly, Inter everywhere, 8-14px radius
@@ -78,34 +78,32 @@
   .mono{font-family:var(--font-mono)}
 
   /* ---------- header ---------- */
+  /* user: "cały ten bar z logo, przyciskami, profilem jednak niech siedzi
+     w boxie" — .topbar-inner jest teraz właściwym pływającym boxem
+     (obramowanie/radius/cień), .topbar samo tylko daje mu oddech od
+     krawędzi ekranu i utrzymuje sticky. */
   .topbar{
     position:sticky; top:0; z-index:30; background:var(--paper);
-    border-bottom:1px solid var(--line); padding:14px 0;
+    padding:14px 20px;
   }
-  /* user: "trochę tu za duży ścisk jest. rozszerz content poza box strony.
-     logo ma być po lewej na maxa. user po prawej na maxa. Brand/edit/add/
-     ustawienia na środku" — grid 1fr/auto/1fr zamiast flexa: obie skrajne
-     kolumny dostają RÓWNY udział wolnej przestrzeni, więc środkowa grupa
-     zawsze wypada wizualnie na środku PASKA, niezależnie od tego, że lewa
-     grupa (logo+ikony) i prawa (badge usera) mają różną szerokość — czego
-     flex justify-content:space-between by nie dał (tamto centruje TYLKO
-     gdy skrajne grupy są tej samej szerokości). max-width usunięty celowo
-     — pasek ma iść od krawędzi do krawędzi ekranu, nie trzymać się tego
-     samego 1400px co treść pod spodem (.shell). */
-  .topbar-inner{max-width:none; margin:0; padding:0 28px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:24px; box-sizing:border-box}
+  .topbar-inner{
+    max-width:1400px; margin:0 auto; padding:10px 20px; box-sizing:border-box;
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+    background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow-card);
+  }
   .brand-title{display:flex; align-items:center; font-size:26px}
-  /* user: "logo napisz tym fontem [Pixelify Sans]... napisz nexus po
-     prostu, to będzie logo" — sam stylizowany napis jest logiem, jedna
-     wspólna klasa użyta w topbarze, stopce I na ekranie logowania
-     (patrz #authGate), rozmiar dobierany per-użycie inline. */
-  .brand-logo-text{font-family:'Pixelify Sans',monospace; font-weight:500; color:var(--ink); line-height:1}
+  /* user: "wrzuć ten font [Stack Sans Notch] jednak do logo" — sam
+     stylizowany napis "nexus" jest logiem, jedna wspólna klasa użyta w
+     topbarze, stopce I na ekranie logowania (patrz #authGate), rozmiar
+     dobierany per-użycie inline. */
+  .brand-logo-text{font-family:'Stack Sans Notch',sans-serif; font-weight:500; color:var(--ink); line-height:1}
   .brand-picker{display:flex; align-items:center; gap:8px}
-  .topbar-left{display:flex; align-items:center; gap:14px; justify-self:start}
-  .topbar-center{justify-self:center}
-  /* user: "przycisk New component... zmieniasz jego położenie przed
-     avatarem/imię-nazwisko, tylko oddziel to jakąś kreską troszkę" —
-     przeniesiony z nagłówka siatki do topbaru, tuż przed badge'em usera. */
-  .topbar-right{justify-self:end; display:flex; align-items:center; gap:14px}
+  .topbar-left{display:flex; align-items:center; gap:14px}
+  /* user: "add component - site settings - wybór brandu | avatar/imie
+     nazwisko a logo po lewej" — picker marki przeniesiony tu z dawnej
+     środkowej kolumny (patrz HTML), ta sama kreska co wcześniej dzieli
+     go teraz od avatara zamiast od Add component. */
+  .topbar-right{display:flex; align-items:center; gap:14px}
   .topbar-right-divider{width:1px; height:22px; background:var(--line-strong); flex:none}
   .brand-picker-dot{width:14px; height:14px; border-radius:50%; border:1px solid rgba(0,0,0,.12); flex:none}
   /* Natywny <select> nie da się realnie ostylować (lista opcji/podświetlenie
@@ -772,26 +770,27 @@
         <span class="brand-logo-text" style="font-size:28px">nexus</span>
       </h1>
     </div>
-    <div class="brand-picker topbar-center">
-      <span class="brand-picker-dot" id="brandPickerDot"></span>
-      <div class="brand-select" id="brandSelectWrap">
-        <button type="button" class="brand-select-btn" id="brandSelectBtn" aria-haspopup="listbox" aria-expanded="false">
-          <span id="brandSelectLabel"></span>
-          <span class="brand-select-caret" aria-hidden="true"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"/></svg></span>
-        </button>
-        <ul class="brand-select-menu" id="brandSelectMenu" role="listbox" aria-label="Brand selection" style="display:none"></ul>
-      </div>
-    </div>
+    <!-- user: "wybor brandu niech bedzie po lewej od imie/nazwisko...
+         kolejnosc: add component - site settings - wybór brandu |
+         avatar/imie nazwisko a logo po lewej" — picker marki przeniesiony
+         ze środka topbaru (patrz stary komentarz o "Brand na środku",
+         nieaktualny) do klastra po prawej, między Settings a avatarem. -->
     <div class="topbar-right">
-      <!-- user: "ikone z Site Settings przenieś na prawą stronę przy Add
-           Component i daj w nim nazwę Settings" — przeniesione z
-           topbar-left, dopisany widoczny label (dawniej sam ikonowy
-           .icon-btn). -->
+      <button class="btn small" id="addComponentBtn" type="button">Add component</button>
       <button class="btn ghost small" id="crmSettingsTopbarBtn" type="button" title="Site settings" aria-label="Site settings" style="display:inline-flex; align-items:center">
         <svg width="16" height="16" viewBox="0 -960 960 960" fill="currentColor"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg>
         <span style="margin-left:6px">Settings</span>
       </button>
-      <button class="btn small" id="addComponentBtn" type="button">Add component</button>
+      <div class="brand-picker">
+        <span class="brand-picker-dot" id="brandPickerDot"></span>
+        <div class="brand-select" id="brandSelectWrap">
+          <button type="button" class="brand-select-btn" id="brandSelectBtn" aria-haspopup="listbox" aria-expanded="false">
+            <span id="brandSelectLabel"></span>
+            <span class="brand-select-caret" aria-hidden="true"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"/></svg></span>
+          </button>
+          <ul class="brand-select-menu" id="brandSelectMenu" role="listbox" aria-label="Brand selection" style="display:none"></ul>
+        </div>
+      </div>
       <span class="topbar-right-divider" aria-hidden="true"></span>
       <!-- user: "kliknięcie w to ma wywołać dropdown chmurkę z opcjami
            Edit profile / Logout" — ten sam widget co brand-select
