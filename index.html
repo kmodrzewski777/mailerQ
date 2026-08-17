@@ -9475,11 +9475,7 @@ byId("backupImportInput").addEventListener("change", function(){
    "Kto" = MQ_CURRENT_USER (już zalogowany, nie trzeba pytać). "Kiedy" —
    celowo NIE zegar klienta (można sobie przestawić), tylko new Date()
    ustawiane po stronie Apps Script (patrz kod skryptu). */
-// TODO(user): podmień na URL wdrożenia Google Apps Script (Deploy > New
-// deployment > Web app > Execute as: Me, Who has access: Anyone), patrz
-// gotowy kod skryptu podany w czacie. Dopóki puste, Send pokaże błąd
-// zamiast cicho gubić feedback.
-var FEEDBACK_WEBHOOK_URL = "";
+var FEEDBACK_WEBHOOK_URL = "https://script.google.com/a/macros/retentionq.com/s/AKfycbxZTBvGhNL5FJzULHdIu3YR04dfjutraPn7_XR3BoXvLdvKjrRI8UbVacg2SIo0uvqYWA/exec";
 function openFeedbackModal(){
   byId("feedbackText").value = "";
   byId("feedbackOverlay").classList.add("open");
