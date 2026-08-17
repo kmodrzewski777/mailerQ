@@ -7693,7 +7693,11 @@ document.querySelectorAll('#crmSettingsOverlay [data-settings-tab]').forEach(fun
    propaguje się wszędzie, dokładnie jak przy usuwaniu komponentów/BRANDS. */
 function renderCategoryManager(){
   var compList = byId("categoryManagerList");
-  compList.innerHTML = CATEGORIES.map(function(cat){
+  // user: "tu tez sie te kategorie maja alfabetycznie ukladac *w
+  // ustawieniach" — slice() jak przy sortowaniu railu (patrz linia ~8022),
+  // żeby kolejność w samej CATEGORIES (dropdown przy tworzeniu komponentu)
+  // zostawała nietknięta, sortujemy tylko to, co się tu wyświetla.
+  compList.innerHTML = CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).map(function(cat){
     var n = COMPONENTS.filter(function(c){ return c.category===cat.id; }).length;
     return '<div class="cat-manage-row" data-cat-row="'+cat.id+'">'+
       '<span class="cat-manage-label" data-cat-label="'+cat.id+'">'+esc(cat.label)+'</span>'+
@@ -7712,7 +7716,7 @@ function renderCategoryManager(){
   });
 
   var flowList = byId("flowManagerList");
-  flowList.innerHTML = EMAIL_FLOWS.map(function(f){
+  flowList.innerHTML = EMAIL_FLOWS.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).map(function(f){
     var n = READY_EMAILS.filter(function(e){ return e.flow===f.id; }).length;
     var industryRow = INDUSTRIES.length ? '<div class="cat-manage-industries">'+INDUSTRIES.map(function(ind){
       return '<label class="bf-checkbox"><input type="checkbox" data-flow-industry="'+f.id+'" data-industry-key="'+ind.id+'"'+(flowIndustryChecked(f, ind.id)?' checked':'')+'> '+esc(ind.label)+'</label>';
