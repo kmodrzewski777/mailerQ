@@ -8290,6 +8290,7 @@ function renderEmailGrid(){
 byId("searchInput").addEventListener("input", function(){
   state.searchQuery = this.value.trim().toLowerCase();
   renderGrid();
+  syncUrlFromState();
 });
 /* Przebudowywane przy KAŻDYM renderAll() (patrz tamta funkcja) — nie tylko
    raz na starcie — bo checkbox platformy obsługiwanej przez AKTUALNĄ markę
@@ -9325,6 +9326,8 @@ function syncUrlFromState(){
   } else {
     params.set("category", state.category||"all");
   }
+  // user: "przy wyszukiwaniu ma tez sie dodawach parametr search="
+  if(state.searchQuery) params.set("search", state.searchQuery);
   if(urlOpenComponentId) params.set("component", urlOpenComponentId);
   if(urlOpenEmailId) params.set("email", urlOpenEmailId);
   var qs = params.toString();
@@ -9340,6 +9343,7 @@ function restoreStateFromUrl(){
   var section = params.get("section");
   var category = params.get("category");
   var flow = params.get("flow");
+  var search = params.get("search");
   var componentId = params.get("component");
   var emailId = params.get("email");
   var changed = false;
@@ -9350,6 +9354,7 @@ function restoreStateFromUrl(){
     state.section = "components"; changed = true;
     if(category && (category==="all" || CATEGORIES.some(function(c){ return c.id===category; }))){ state.category = category; }
   }
+  if(search){ state.searchQuery = search; byId("searchInput").value = search; changed = true; }
   if(changed) renderAll();
   if(componentId && findComp(componentId)) openComponentEditor(componentId, null);
   else if(emailId && findEmail(emailId)) openEmailPreview(emailId);
