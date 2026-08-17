@@ -99,7 +99,11 @@
   .brand-picker{display:flex; align-items:center; gap:8px}
   .topbar-left{display:flex; align-items:center; gap:14px; justify-self:start}
   .topbar-center{justify-self:center}
-  .topbar-right{justify-self:end}
+  /* user: "przycisk New component... zmieniasz jego położenie przed
+     avatarem/imię-nazwisko, tylko oddziel to jakąś kreską troszkę" —
+     przeniesiony z nagłówka siatki do topbaru, tuż przed badge'em usera. */
+  .topbar-right{justify-self:end; display:flex; align-items:center; gap:14px}
+  .topbar-right-divider{width:1px; height:22px; background:var(--line-strong); flex:none}
   .brand-picker-dot{width:14px; height:14px; border-radius:50%; border:1px solid rgba(0,0,0,.12); flex:none}
   /* Natywny <select> nie da się realnie ostylować (lista opcji/podświetlenie
      to renderowanie systemu operacyjnego, poza zasięgiem CSS) — dlatego
@@ -751,6 +755,8 @@
       </div>
     </div>
     <div class="topbar-right">
+      <button class="btn small" id="addComponentBtn" type="button">Add component</button>
+      <span class="topbar-right-divider" aria-hidden="true"></span>
       <!-- user: "kliknięcie w to ma wywołać dropdown chmurkę z opcjami
            Edit profile / Logout" — ten sam widget co brand-select
            (position:relative + .brand-select-menu), tylko rozwija się w
@@ -1016,10 +1022,7 @@
          teraz nad wyszukiwarką, nie pod nią. -->
     <div class="grid-heading">
       <h2 id="gridTitle">All components</h2>
-      <span style="display:flex; align-items:center; gap:10px">
-        <span class="grid-count" id="gridCount"></span>
-        <button class="btn small" id="addComponentBtn" type="button">+ New component</button>
-      </span>
+      <span class="grid-count" id="gridCount"></span>
     </div>
     <div class="search-row">
       <input type="text" id="searchInput" class="search-input" placeholder="Search…" aria-label="Search components and ready-made emails">
