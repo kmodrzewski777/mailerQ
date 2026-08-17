@@ -5601,6 +5601,22 @@ function splitBackupPayload(full){
   MQ_SHARED_KEYS.forEach(function(k){ shared[k] = full[k]; });
   return { priv: priv, shared: shared };
 }
+// user: "cos sie zjebalo. nie da sie nic zapisac" — przycisk zostawał w
+// spinnerze na zawsze (patrz identyczny wcześniejszy bug przy uploadzie
+// avatara: withTimeout w skrypcie modułowym). window.MQStore.savePrivate/
+// saveShared teoretycznie zawsze się rozstrzygają, ale jeśli sieć/reguły
+// Firestore się zatną, obietnica potrafi wisieć bez końca — withBtnLoading
+// (czeka na settle) wtedy NIGDY nie przywraca przycisku, niezależnie od
+// tego, co user kliknie. Twardy timeout gwarantuje, że zapis (i przycisk)
+// ZAWSZE się w końcu rozstrzygnie, nawet gdy realna przyczyna zawiśnięcia
+// zostaje nieznana. Osobna kopia od modułowego withTimeout — inny <script>,
+// inny zasięg zmiennych, nie da się go stąd bezpośrednio wywołać.
+function withTimeout(promise, ms, message){
+  return Promise.race([
+    promise,
+    new Promise(function(_, reject){ setTimeout(function(){ reject(new Error(message)); }, ms); })
+  ]);
+}
 var mqSavePendingResolvers = [];
 function saveToStorage(){
   try{
@@ -5620,12 +5636,21 @@ function saveToStorage(){
     mqSavePendingResolvers.push(resolve);
     clearTimeout(mqSaveTimer);
     mqSaveTimer = setTimeout(function(){
-      var split = splitBackupPayload(buildBackupPayload());
       var resolvers = mqSavePendingResolvers; mqSavePendingResolvers = [];
-      Promise.all([
+      var split;
+      // buildBackupPayload() rzucając TU (przed Promise.all) osierocałby
+      // resolvers bez żadnego catch — stąd osobny try/catch, nie tylko
+      // timeout na zapisie samym w sobie.
+      try{ split = splitBackupPayload(buildBackupPayload()); }
+      catch(e){
+        showToast("Couldn't prepare data to sync — check the console", "error");
+        resolvers.forEach(function(r){ r(); });
+        return;
+      }
+      withTimeout(Promise.all([
         window.MQStore.savePrivate(split.priv),
         window.MQStore.saveShared(split.shared)
-      ]).then(function(){
+      ]), 20000, "Sync to database timed out").then(function(){
         resolvers.forEach(function(r){ r(); });
       }).catch(function(){
         showToast("Couldn't sync to the database — check your connection", "error");
