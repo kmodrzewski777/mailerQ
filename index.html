@@ -1,6 +1,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>maylr — MJML → HTML</title>
+<title>NEXUS — MJML → HTML</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -90,13 +90,14 @@
      — pasek ma iść od krawędzi do krawędzi ekranu, nie trzymać się tego
      samego 1400px co treść pod spodem (.shell). */
   .topbar-inner{max-width:none; margin:0; padding:0 28px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:24px; box-sizing:border-box}
-  /* user: "zmień nazwę na maylr... wywal te gówniane logo, daj tam po
-     prostu czarny napis maylr. jakiś spoko" — sam wordmark, bez znaku
-     graficznego (dawne dwa kółka). Cięższy waga + ciaśniejszy tracking
-     zamiast kropek/kółek robi "coś fajnego" z samej typografii. */
-  .brand-title{display:flex; align-items:center; font-size:26px; gap:8px}
+  .brand-title{display:flex; align-items:center; font-size:26px}
+  /* user: "dodaj to logo w miejsce obecnego sygnetu i napisu" — jeden
+     obrazek niesie teraz cały lockup (ikona+wordmark), stąd większy
+     rozmiar niż dawna sama ikonka obok osobnego tekstu. */
+  .brand-logo-img{height:34px; width:auto; display:block}
+  /* Używane teraz TYLKO na ekranie logowania (patrz #authGate) — w
+     topbarze wordmark zastąpiło .brand-logo-img powyżej. */
   .brand-wordmark{font-weight:800; color:var(--ink); letter-spacing:-0.03em}
-  .brand-logo-img{height:28px; width:auto; display:block}
   .brand-picker{display:flex; align-items:center; gap:8px}
   .topbar-left{display:flex; align-items:center; gap:14px; justify-self:start}
   .topbar-center{justify-self:center}
@@ -755,7 +756,9 @@
     display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px 24px;
   }
   .app-footer-left{display:flex; align-items:center; flex-wrap:wrap; gap:12px 10px}
-  .app-footer-logo{font-family:var(--font-display); font-weight:800; font-size:15px; color:var(--ink); text-decoration:none; letter-spacing:-0.02em}
+  /* user: "w stopce też daj to logo tylko mniejsze" — ten sam obrazek co
+     w topbarze (patrz .brand-logo-img), w mniejszym rozmiarze. */
+  .app-footer-logo-img{height:18px; width:auto; display:block}
   .app-footer-copy{font-size:12px; color:var(--ink-muted)}
   .app-footer-copy .app-footer-nip{display:block; color:var(--ink-faint); font-size:10.5px; margin-top:2px}
   .app-footer-powered{display:flex; align-items:center; gap:7px; font-size:11px; color:var(--ink-faint); text-decoration:none}
@@ -767,17 +770,12 @@
 <div class="topbar">
   <div class="topbar-inner">
     <div class="topbar-left">
-      <h1 class="brand-title" aria-label="maylr">
-        <img src="https://i.ibb.co/hxGw4T7C/logo.png" alt="" class="brand-logo-img">
-        <span class="brand-wordmark">maylr</span>
+      <!-- user: "zmień nazwę aplikacji na NEXUS... dodaj to logo w miejsce
+           obecnego sygnetu i napisu" — jeden obrazek zastępuje CAŁY dawny
+           lockup (ikona+wordmark), nie tylko samą ikonę. -->
+      <h1 class="brand-title" aria-label="NEXUS">
+        <img src="https://i.ibb.co/bjg9kyRR/nexus-logo.png" alt="NEXUS" class="brand-logo-img">
       </h1>
-      <!-- user: "przycisk SITE SETTINGS przerzucasz teraz obok logo, ikony
-           Import/Export mają być teraz częścią Site Settings" — backup
-           export/import przeniesione do nowej zakładki w #crmSettingsOverlay
-           (patrz niżej), ten guzik zostaje jedynym ikonowym przyciskiem w
-           topbarze — zwykły .icon-btn, bez własnego, większego rozmiaru
-           (patrz komentarz o niekonsekwencji rozmiarów ikon). -->
-      <button class="icon-btn" id="crmSettingsTopbarBtn" type="button" title="Site settings" aria-label="Site settings"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg></button>
     </div>
     <div class="brand-picker topbar-center">
       <span class="brand-picker-dot" id="brandPickerDot"></span>
@@ -790,6 +788,14 @@
       </div>
     </div>
     <div class="topbar-right">
+      <!-- user: "ikone z Site Settings przenieś na prawą stronę przy Add
+           Component i daj w nim nazwę Settings" — przeniesione z
+           topbar-left, dopisany widoczny label (dawniej sam ikonowy
+           .icon-btn). -->
+      <button class="btn ghost small" id="crmSettingsTopbarBtn" type="button" title="Site settings" aria-label="Site settings" style="display:inline-flex; align-items:center">
+        <svg width="16" height="16" viewBox="0 -960 960 960" fill="currentColor"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg>
+        <span style="margin-left:6px">Settings</span>
+      </button>
       <button class="btn small" id="addComponentBtn" type="button">Add component</button>
       <span class="topbar-right-divider" aria-hidden="true"></span>
       <!-- user: "kliknięcie w to ma wywołać dropdown chmurkę z opcjami
@@ -832,7 +838,7 @@
   <!-- user: "w oknie logowania też by wypadało żebyś dał logo strony" —
      ten sam wordmark co w topbarze, widoczny przez cały czas (spinner i
      formularz), nie tylko po rozwiązaniu stanu logowania. -->
-  <div class="brand-wordmark" style="font-size:30px; margin-bottom:28px">maylr</div>
+  <div class="brand-wordmark" style="font-size:30px; margin-bottom:28px">NEXUS</div>
   <div class="mf-spinner" id="authGateSpinner"></div>
   <div class="modal" id="authGateModal" style="max-width:420px; display:none">
     <div class="modal-head">
@@ -1083,8 +1089,8 @@
 <footer class="app-footer">
   <div class="app-footer-inner">
     <div class="app-footer-left">
-      <span class="app-footer-logo">maylr</span>
-      <span class="app-footer-copy">&copy; <span id="footerYear"></span> maylr by RetentionQ Sp. z o.o. All rights reserved.<span class="app-footer-nip">NIP: 5273127096</span></span>
+      <img src="https://i.ibb.co/bjg9kyRR/nexus-logo.png" alt="NEXUS" class="app-footer-logo-img">
+      <span class="app-footer-copy">&copy; <span id="footerYear"></span> NEXUS by RetentionQ Sp. z o.o. All rights reserved.<span class="app-footer-nip">NIP: 5273127096</span></span>
     </div>
     <a class="app-footer-powered" href="https://www.linkedin.com/company/retentionq/posts/?feedView=all" target="_blank" rel="noopener noreferrer">
       Powered by
@@ -4189,7 +4195,7 @@ function spacerPreview(b, px){
    tylko "gniazdo" na gotowy, wygenerowany i wgrany plik.
    ================================================================ */
 COMPONENTS.push({
-  id:"countdown-gif-image", category:"countdown", source:"maylr",
+  id:"countdown-gif-image", category:"countdown", source:"NEXUS",
   label:"Countdown GIF", desc:"Displays a countdown GIF built with the Countdown GIF tool (topbar) — generate it there, host the file, then paste the URL here.",
   preview:function(b){ return frame(b,
     '<div style="display:flex;justify-content:center;gap:10px;font-family:'+b.fontHeading+';font-weight:700;font-size:20px;color:'+b.text+'">'+
