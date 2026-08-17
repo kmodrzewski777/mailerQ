@@ -541,6 +541,7 @@
      daj opacity na 10%" — z powrotem <img>, oryginalne kolory, samo
      opacity reguluje wyciszenie. */
   .card-cat-platforms img{display:block; height:12px; width:auto; opacity:.1}
+  .card-cat-platforms .crm-badge{display:inline-flex; line-height:0; padding:2px; border:1px solid var(--line); border-radius:3px}
   /* align-items:flex-start (nie domyślny stretch) — pole Logo jest
      wyraźnie wyższe niż zwykłe jednowierszowe pola obok (miniatura +
      przycisk + notka), stretch rozciągał WSZYSTKIE pola w wierszu do
@@ -2430,10 +2431,17 @@ var CRM_PLATFORM_LABELS = { klaviyo:"Klaviyo", salesmanago:"ManagoAI", customeri
    tą niebieską maskę... przywroc zwykly kolor") — z powrotem zwykłe <img>,
    oryginalne kolory każdego logo, samo opacity reguluje wyciszenie
    (patrz .card-cat-platforms img / .bf-crm-logo-badge img). */
+// user: "te ikony delikatnie obramuj bo wyglądają obok siebie jak hieroglify.
+// najeżdżając na wybraną ikone ma się pojawić podpowiedź że element jest
+// kompatybilny z XXX" — .crm-badge (obramowanie tylko w kontekście kart,
+// patrz .card-cat-platforms .crm-badge — watermark w Brand Kit zostaje bez
+// zmian) + title na hover. Sam <img> nadal łapie istniejące reguły opacity
+// (.card-cat-platforms img / .bf-crm-logo-badge img — selektor potomny,
+// działa niezależnie od nowego opakowania).
 var CRM_PLATFORM_ICONS = {
-  customerio: '<img src="https://i.ibb.co/yc1Ywr39/cio-sygnet.png" alt="Customer.io" aria-hidden="true">',
-  klaviyo: '<img src="https://i.ibb.co/9mxNb72Y/klavio-sygnet.png" alt="Klaviyo" aria-hidden="true">',
-  salesmanago: '<img src="https://i.ibb.co/yB8cBpB7/manago-sygnet.png" alt="ManagoAI" aria-hidden="true">'
+  customerio: '<span class="crm-badge" title="Compatible with Customer.io"><img src="https://i.ibb.co/yc1Ywr39/cio-sygnet.png" alt="Customer.io" aria-hidden="true"></span>',
+  klaviyo: '<span class="crm-badge" title="Compatible with Klaviyo"><img src="https://i.ibb.co/9mxNb72Y/klavio-sygnet.png" alt="Klaviyo" aria-hidden="true"></span>',
+  salesmanago: '<span class="crm-badge" title="Compatible with ManagoAI"><img src="https://i.ibb.co/yB8cBpB7/manago-sygnet.png" alt="ManagoAI" aria-hidden="true"></span>'
 };
 /* Pełne logo (sygnet + nazwa) — użyte TYLKO jako wyciszony watermark obok
    nagłówka "CRM / ESP" w Brand Kit (patrz updateCrmLogoBadge); nie próbuje
