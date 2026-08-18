@@ -521,6 +521,19 @@
     border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:12.5px;
     background:var(--surface); color:var(--ink); font-family:inherit; resize:vertical;
   }
+  /* Pasek pogrubienie/kursywa/przekreślenie nad polem frazy — user: "chcę
+     móc pogrubić/kursywić/przekreślić zaznaczony tekst". Znaczniki (<b>/
+     <i>/<s>) trafiają wprost w wartość [[TOKENU]], która wchodzi
+     nieescapowana w MJML (patrz applyValuesToCode) — mj-text renderuje
+     swoją zawartość jako surowe HTML, więc te tagi po prostu działają w
+     skompilowanym mailu bez żadnych zmian w kompilatorze. */
+  .edit-field-head{display:flex; align-items:center; justify-content:space-between; gap:8px}
+  .fmt-toolbar{display:flex; gap:3px}
+  .fmt-btn{width:20px; height:20px; border:1px solid var(--line); border-radius:4px; background:var(--surface); color:var(--ink-muted); font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer}
+  .fmt-btn:hover{border-color:var(--line-strong); color:var(--ink)}
+  .fmt-btn[data-fmt="b"]{font-weight:700}
+  .fmt-btn[data-fmt="i"]{font-style:italic}
+  .fmt-btn[data-fmt="s"]{text-decoration:line-through}
   .edit-empty-note{font-size:12px; color:var(--ink-faint); padding:10px}
   .edit-form-col{display:flex; flex-direction:column; gap:10px}
   /* position:sticky + top:0 — kolumna podglądu ma "podążać" za scrollem
@@ -6262,6 +6275,40 @@ function resolveItemCodeEditableForPreview(item, b){
    treść da się teraz edytować bezpośrednio klikając w podglądzie (patrz
    mf-edit-token), ten formularz jest opcją dla kogoś, kto woli klasyczne
    pola, nie widokiem domyślnym. */
+/* Pogrubienie/kursywa/przekreślenie zaznaczonego fragmentu w polu frazy
+   (przycisk paska ORAZ Ctrl+B/Ctrl+I/Ctrl+U — user: "kliknięcie
+   odpowiedniego skrótu"). Prosty toggle bez pełnego parsera: gdy
+   zaznaczenie już jest DOKŁADNIE otoczone tym znacznikiem (z zewnątrz albo
+   od środka), zdejmuje go; inaczej owija zaznaczenie od nowa. Wystarczające
+   dla pojedynczych, nie zagnieżdżonych znaczników — więcej nie było proszone. */
+var FMT_TAGS = { b:["<b>","</b>"], i:["<i>","</i>"], s:["<s>","</s>"] };
+function applyInlineFormat(el, fmt){
+  var tags = FMT_TAGS[fmt];
+  if(!tags) return;
+  var open = tags[0], close = tags[1];
+  var start = el.selectionStart, end = el.selectionEnd;
+  if(start==null || end==null || start===end) return;
+  var val = el.value;
+  var selected = val.slice(start, end);
+  var before = val.slice(Math.max(0, start-open.length), start);
+  var after = val.slice(end, end+close.length);
+  var newVal, newStart, newEnd;
+  if(before===open && after===close){
+    newVal = val.slice(0, start-open.length) + selected + val.slice(end+close.length);
+    newStart = start-open.length; newEnd = newStart+selected.length;
+  } else if(selected.slice(0, open.length)===open && selected.slice(-close.length)===close){
+    var inner = selected.slice(open.length, selected.length-close.length);
+    newVal = val.slice(0, start) + inner + val.slice(end);
+    newStart = start; newEnd = start+inner.length;
+  } else {
+    newVal = val.slice(0, start) + open + selected + close + val.slice(end);
+    newStart = start+open.length; newEnd = newStart+selected.length;
+  }
+  el.value = newVal;
+  el.setSelectionRange(newStart, newEnd);
+  el.focus();
+  el.dispatchEvent(new Event("input", { bubbles:true }));
+}
 function renderEditTokenForm(tokens){
   var form = byId("editForm");
   var tabBtn = byId("editModePhrasesBtn");
@@ -6277,7 +6324,12 @@ function renderEditTokenForm(tokens){
   form.innerHTML = tokens.map(function(t){
     var val = editState.values[t] || "";
     var long = val.length > 60;
-    return '<div class="edit-field"><label for="ef-'+t+'">'+esc(t)+'</label>'+
+    var toolbar = '<div class="fmt-toolbar">'+
+      '<button type="button" class="fmt-btn" data-fmt="b" data-fmt-target="ef-'+t+'" title="Bold (Ctrl+B)" aria-label="Bold">B</button>'+
+      '<button type="button" class="fmt-btn" data-fmt="i" data-fmt-target="ef-'+t+'" title="Italic (Ctrl+I)" aria-label="Italic">I</button>'+
+      '<button type="button" class="fmt-btn" data-fmt="s" data-fmt-target="ef-'+t+'" title="Strikethrough (Ctrl+U)" aria-label="Strikethrough">S</button>'+
+    '</div>';
+    return '<div class="edit-field"><div class="edit-field-head"><label for="ef-'+t+'">'+esc(t)+'</label>'+toolbar+'</div>'+
       (long ? '<textarea id="ef-'+t+'" rows="2" data-ef-token="'+t+'">'+esc(val)+'</textarea>'
             : '<input type="text" id="ef-'+t+'" value="'+esc(val)+'" data-ef-token="'+t+'">')+
     '</div>';
@@ -6287,6 +6339,18 @@ function renderEditTokenForm(tokens){
       updateTokenValue(el.getAttribute("data-ef-token"), el.value);
       scheduleEditPreviewUpdate();
       updateEditSaveOnlyBtnState();
+    });
+    el.addEventListener("keydown", function(e){
+      if(!e.ctrlKey && !e.metaKey) return;
+      var fmt = e.key==="b" ? "b" : e.key==="i" ? "i" : e.key==="u" ? "s" : null;
+      if(!fmt) return;
+      e.preventDefault();
+      applyInlineFormat(el, fmt);
+    });
+  });
+  form.querySelectorAll("[data-fmt-target]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      applyInlineFormat(byId(btn.getAttribute("data-fmt-target")), btn.getAttribute("data-fmt"));
     });
   });
 }
