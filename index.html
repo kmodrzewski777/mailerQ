@@ -5604,12 +5604,35 @@ function buildBackupPayload(){
     emailFlows: EMAIL_FLOWS,
     industries: INDUSTRIES,
     favoriteComponents: state.favoriteComponents,
-    favoriteEmails: state.favoriteEmails
+    favoriteEmails: state.favoriteEmails,
+    deletedBuiltinComponentIds: DELETED_BUILTIN_COMPONENT_IDS,
+    deletedBuiltinEmailIds: DELETED_BUILTIN_EMAIL_IDS
   };
 }
+// user: "Jeśli coś usunę to ma permamentnie znikać" — komponenty i gotowe
+// maile WBUDOWANE (custom!==true) żyją jako literały w kodzie źródłowym
+// (COMPONENTS/READY_EMAILS na starcie skryptu) i odtwarzają się od zera
+// przy KAŻDYM wczytaniu strony, PRZED wczytaniem czegokolwiek z Firestore.
+// Usunięcie takiego wpisu filtrowało tylko tablicę W PAMIĘCI — nic o tym
+// fakcie nie trafiało do bazy (buildBackupPayload zapisuje tylko
+// customComponents/customEmails, czyli c.custom===true), więc wbudowany
+// wpis wracał przy następnym wejściu. Te dwie listy ID-ków usuniętych
+// wbudowanych wpisów są częścią współdzielonej biblioteki (patrz
+// MQ_SHARED_KEYS) i filtrują COMPONENTS/READY_EMAILS poniżej, zaraz po ich
+// odtworzeniu z literałów.
+var DELETED_BUILTIN_COMPONENT_IDS = [];
+var DELETED_BUILTIN_EMAIL_IDS = [];
 function applyBackupPayload(payload){
   if(payload.brands) BRANDS = payload.brands;
   if(payload.brandOrder) BRAND_ORDER = payload.brandOrder;
+  if(payload.deletedBuiltinComponentIds){
+    DELETED_BUILTIN_COMPONENT_IDS = payload.deletedBuiltinComponentIds;
+    COMPONENTS = COMPONENTS.filter(function(c){ return DELETED_BUILTIN_COMPONENT_IDS.indexOf(c.id)===-1; });
+  }
+  if(payload.deletedBuiltinEmailIds){
+    DELETED_BUILTIN_EMAIL_IDS = payload.deletedBuiltinEmailIds;
+    READY_EMAILS = READY_EMAILS.filter(function(e){ return DELETED_BUILTIN_EMAIL_IDS.indexOf(e.id)===-1; });
+  }
   if(payload.customComponents){
     payload.customComponents.forEach(function(cc){
       var restoredVariants = (cc.variants||[]).map(function(v){
@@ -5682,7 +5705,7 @@ var mqSaveTimer = null;
 // WSZYSTKO razem (bez podziału) — to czysto lokalna kopia zapasowa
 // przeglądarki, nie ma tu ryzyka konfliktu między osobami.
 var MQ_PRIVATE_KEYS = ["buildList","currentBrand","headerVariant","footerVariant","favoriteComponents","favoriteEmails"];
-var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries"];
+var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds"];
 function splitBackupPayload(full){
   var priv = {}, shared = {};
   MQ_PRIVATE_KEYS.forEach(function(k){ priv[k] = full[k]; });
@@ -6904,6 +6927,12 @@ byId("editDeleteBtn").addEventListener("click", function(){
     return;
   }
   var id = editState.componentId;
+  // patrz analogiczny komentarz przy requestDeleteReadyEmail — bez tego
+  // wbudowany komponent wraca po odświeżeniu, bo customComponents nigdy
+  // go nie obejmuje.
+  if(compForDelete && !compForDelete.custom && DELETED_BUILTIN_COMPONENT_IDS.indexOf(id)===-1){
+    DELETED_BUILTIN_COMPONENT_IDS.push(id);
+  }
   COMPONENTS = COMPONENTS.filter(function(c){ return c.id!==id; });
   state.list = state.list.filter(function(item){ return item.componentId!==id; });
   READY_EMAILS.forEach(function(e){ e.componentIds = e.componentIds.filter(function(cid){ return cid!==id; }); });
@@ -8121,6 +8150,13 @@ function requestRemoveCategory(catId){
   enhanceAllSelects(panel);
   panel.querySelector("[data-cat-cancel]").addEventListener("click", function(){ panel.remove(); });
   panel.querySelector("[data-cat-delete-all]").addEventListener("click", function(){
+    // patrz analogiczny komentarz przy requestDeleteReadyEmail — inaczej
+    // wbudowane komponenty z tej kategorii wracają po odświeżeniu.
+    COMPONENTS.forEach(function(c){
+      if(c.category===catId && !c.custom && DELETED_BUILTIN_COMPONENT_IDS.indexOf(c.id)===-1){
+        DELETED_BUILTIN_COMPONENT_IDS.push(c.id);
+      }
+    });
     COMPONENTS = COMPONENTS.filter(function(c){ return c.category!==catId; });
     CATEGORIES = CATEGORIES.filter(function(c){ return c.id!==catId; });
     if(state.category===catId) state.category = "all";
@@ -9205,6 +9241,14 @@ function requestDeleteReadyEmail(emailId){
     btn.textContent = "Are you sure? Click again";
     setTimeout(function(){ emailDeleteArmed = false; if(btn) btn.textContent = "Delete"; }, 4000);
     return;
+  }
+  // wbudowany (niecustomowy) mail nigdy nie trafia do customEmails w
+  // buildBackupPayload, więc samo filtrowanie tablicy w pamięci nic nie
+  // zapisuje — bez tego wpisu do DELETED_BUILTIN_EMAIL_IDS wracałby przy
+  // następnym wczytaniu strony (patrz applyBackupPayload).
+  var deletedEmail = findEmail(emailId);
+  if(deletedEmail && !deletedEmail.custom && DELETED_BUILTIN_EMAIL_IDS.indexOf(emailId)===-1){
+    DELETED_BUILTIN_EMAIL_IDS.push(emailId);
   }
   READY_EMAILS = READY_EMAILS.filter(function(e){ return e.id!==emailId; });
   emailDeleteArmed = false;
