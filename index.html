@@ -1232,6 +1232,7 @@
     </div>
     <div class="modal-footer-bar" id="previewExportBar" style="display:none; gap:8px">
       <button class="btn ghost" id="previewCodeToggleBtn" style="flex:1">Preview code</button>
+      <button class="btn ghost" id="previewStackFullPreviewBtn" type="button" style="flex:1">Full preview</button>
       <button class="btn" id="copyBtn" style="flex:1">Compile</button>
     </div>
   </div>
@@ -9370,6 +9371,14 @@ function openMailPreview(){
   addBtn.style.display = "none";
   byId("previewDeleteBtn").style.display = "none";
   byId("previewFullPreviewBtn").style.display = "none";
+  // "Full preview" musi renderować CZYSTY kod (bez data-mf-token/
+  // contenteditable, które applyValuesToCodeEditable dokleja do podglądu
+  // w SAMEJ appce) — stąd osobny bodyMjml przez zwykłe resolveItemCode
+  // (to samo, czego używa openEmailPreview), nie ten editable powyżej.
+  byId("previewStackFullPreviewBtn").onclick = function(){
+    var plainCodes = state.list.map(function(item){ return resolveItemCode(item, b); }).filter(function(code){ return code!=null; });
+    openFullEmailInNewTab(stitchComponentCodes(plainCodes, b.componentGap), b, { headerVariant: state.headerVariant, footerVariant: state.footerVariant });
+  };
   previewExportCode = buildExportCode();
   byId("previewExportBar").style.display = "flex";
   byId("previewOverlay").classList.add("open");
