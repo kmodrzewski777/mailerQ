@@ -285,6 +285,12 @@
      fontem" — margin-top:auto przykleja to zawsze do dołu card-body
      (nad przyciskami), niezależnie od długości opisu nad nim. */
   .card-crm-compat{margin:auto 0 0; padding-top:8px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-faint)}
+  /* user: "w miejscu opisu wrzuć inner boxa z Compatibile with" — tylko
+     karty gotowych maili (renderEmailGrid); karty komponentów zostają przy
+     .card-crm-compat (proste podkreślenie, bez tła). margin-top:auto —
+     ten sam trik co .card-crm-compat: przykleja box do dołu card-body,
+     nad przyciskami, niezależnie od długości tytułu nad nim. */
+  .card-compat-box{margin-top:auto; background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-size:11px; line-height:1.5; color:var(--ink-muted)}
   .card-actions{display:flex; gap:6px; padding:0 12px 12px}
   .card-actions .btn{flex:1; padding:10px 4px; font-size:11.5px; text-align:center; white-space:nowrap}
   .btn{
@@ -8511,6 +8517,21 @@ function crmCompatRowHtml(keys){
   var names = keys.map(function(k){ return CRM_PLATFORM_LABELS[k]||k; }).join(", ");
   return '<p class="card-crm-compat">Compatible with: '+esc(names)+'</p>';
 }
+// user: "w miejscu obecnego X component daj created by - tylko zmień to na
+// [Avatar] Imię Nazwisko (bez Created by)" + "w miejscu opisu wrzuć inner
+// boxa z Compatibile with: i od nowego wiersza ... (kropka środkowa)" —
+// dwa warianty SCOPED do kart gotowych maili (renderEmailGrid); karty
+// komponentów zostają przy createdByBadgeHtml/crmCompatRowHtml bez zmian.
+function emailCreatedByNameHtml(record){
+  if(!record.createdBy) return "";
+  var who = record.createdBy.displayName || record.createdBy.email || "";
+  return '<p class="card-created-by">'+avatarHtml(record.createdBy, 14)+esc(who)+'</p>';
+}
+function emailCompatBoxHtml(keys){
+  if(!keys || !keys.length) return "";
+  var names = keys.map(function(k){ return CRM_PLATFORM_LABELS[k]||k; }).join(" · ");
+  return '<div class="card-compat-box">Compatible with:<br>'+esc(names)+'</div>';
+}
 function renderGrid(){
   if(state.section==="emails"){ renderEmailGrid(); return; }
   var b = brand();
@@ -8619,7 +8640,7 @@ function renderEmailGrid(){
     var fav = isEmailFavorite(e.id);
     var el = document.createElement("div"); el.className = "card"; el.style.gridColumn = "span 1";
     el.innerHTML =
-      '<div class="card-head"><span class="card-key mono">'+esc(e.id)+'</span>'+
+      '<div class="card-head"><span class="card-key mono">'+esc(e.componentIds.length)+' components</span>'+
         '<span style="display:flex; align-items:center; gap:4px">'+
         '<button type="button" class="icon-btn" data-edit-email="'+e.id+'" aria-label="Edit" title="Edit">'+ICON_PENCIL+'</button>'+
         '<button type="button" class="icon-btn card-favorite-btn'+(fav?' is-favorite':'')+'" data-fav-email="'+e.id+'" aria-label="'+(fav?'Remove from favorites':'Add to favorites')+'" title="'+(fav?'Remove from favorites':'Add to favorites')+'">'+starIconHtml(fav)+'</button>'+
@@ -8627,10 +8648,9 @@ function renderEmailGrid(){
       '</div>'+
       '<div class="card-preview">'+renderEmailThumb(e, b)+emailThumbFadeHtml()+'</div>'+
       '<div class="card-body">'+
-        '<span class="card-cat"><span>'+esc(e.componentIds.length)+' components</span></span>'+
-        '<p class="card-label">'+esc(e.label)+'</p><p class="card-desc">'+esc(e.desc)+'</p>'+
-        createdByBadgeHtml(e)+
-        crmCompatRowHtml(emailCompatiblePlatforms(e))+
+        emailCreatedByNameHtml(e)+
+        '<p class="card-label">'+esc(e.label)+'</p>'+
+        emailCompatBoxHtml(emailCompatiblePlatforms(e))+
       '</div>'+
       '<div class="card-actions">'+
         '<button class="btn ghost small" data-email-preview="'+e.id+'">Preview</button>'+
