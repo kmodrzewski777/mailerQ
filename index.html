@@ -12,12 +12,20 @@
 <meta name="twitter:image" content="https://kmodrzewski777.github.io/mailerQ/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Urbanist — cała reszta UI (patrz --font-display/--font-body/--font-mono
-     niżej). user potem: "Jaki to font? [screenshot 'Maximus'] Chce logo
-     tym fontem" — Poppins, TYLKO na logo (patrz .brand-logo-text), reszta
-     interfejsu zostaje przy Urbanist. Jedno zapytanie ładuje obie rodziny
-     naraz. -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<!-- user: "Nie podoba mi sie ten font urbanist. zmien na google sans" —
+     Google Sans jest wewnętrznym fontem Google (Gmail/Search/Android),
+     NIE jest publicznie dostępny na Google Fonts ani do legalnego
+     osadzenia na stronie. Po wyjaśnieniu tego user wybrał "Product Sans /
+     Roboto" jako zamiennik — Product Sans ma DOKŁADNIE ten sam problem z
+     licencją co Google Sans (to bliźniacza rodzina, też wewnętrzna), więc
+     realnie ładujemy Roboto: jedyny z tej pary, który jest naprawdę
+     publicznym fontem Google (używany w Androidzie/Material Design).
+     Roboto TYLKO na resztę UI (--font-display/--font-body/--font-mono) —
+     Poppins na logo (patrz .brand-logo-text) zostaje bez zmian, to osobna
+     decyzja z poprzedniego promptu. Roboto ma DYSKRETNE wagi (nie pełny
+     zmienny zakres jak Urbanist) — 400/500/700/900 pokrywa to, czego
+     appka faktycznie używa. -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
   /* Design tokens — z Ledgerix Design System (user: "Zastosuj ten Design
      System w naszej aplikacji"): near-black ink + warm-white paper, jeden
@@ -39,9 +47,9 @@
     --accent:#75fb90; --accent-strong:#1e7a3d; --accent-ink:#0e2016; --accent-soft:rgba(117,251,144,.18);
     --radius-card:24px; --radius-chip:999px;
     --shadow-card:0 1px 2px rgba(16,16,18,.04), 0 8px 24px rgba(16,16,18,.07);
-    --font-display:'Urbanist',Arial,sans-serif;
-    --font-body:'Urbanist',Arial,sans-serif;
-    --font-mono:'Urbanist',Arial,sans-serif;
+    --font-display:'Roboto',Arial,sans-serif;
+    --font-body:'Roboto',Arial,sans-serif;
+    --font-mono:'Roboto',Arial,sans-serif;
   }
   @media (prefers-color-scheme:dark){
     :root{
@@ -81,7 +89,10 @@
     background:var(--paper); color:var(--ink); font-family:var(--font-body);
     font-size:14px; line-height:1.5; min-height:100vh; overflow-x:hidden;
   }
-  h1,h2,h3{font-family:var(--font-display); font-weight:600; line-height:1.2; letter-spacing:-0.02em; margin:0; text-wrap:balance}
+  /* font-weight:700, nie 600 — Roboto ma tylko dyskretne wagi
+     (100/300/400/500/700/900, nie pełny zmienny zakres jak Urbanist),
+     700 to najbliższa realna, natywna waga. */
+  h1,h2,h3{font-family:var(--font-display); font-weight:700; line-height:1.2; letter-spacing:-0.02em; margin:0; text-wrap:balance}
   ::selection{background:var(--accent-soft)}
   /* Scrollbary wg designu strony — cieńsze niż domyślny pasek przeglądarki,
      w kolorach palety (--line-strong/--ink-faint), zamiast grubego,
