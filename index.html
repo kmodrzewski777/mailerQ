@@ -275,15 +275,21 @@
   .card-preview-fade{position:absolute; left:0; right:0; bottom:0; height:40px; background:linear-gradient(to bottom, transparent, var(--surface-2)); pointer-events:none}
   .card-body{padding:12px 12px 10px; flex:1; display:flex; flex-direction:column; min-height:0}
   .card-label{font-weight:600; font-size:13.5px; line-height:1.3; margin:0 0 3px; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
-  .card-created-by{display:flex; align-items:center; gap:5px; margin:6px 0 0; font-size:10px; color:var(--ink-faint)}
+  /* user: "oddal troche twórce od nazwy" — margin-bottom oddziela avatar+imię
+     od tytułu pod spodem (wcześniej stykały się bez odstępu). */
+  .card-created-by{display:flex; align-items:center; gap:5px; margin:6px 0 8px; font-size:10px; color:var(--ink-faint)}
   /* user: "chujowo wygladaja te badge... Zlikwiduj to... dodaj sekcje z
      górnym lekkim obrysem: compatible with: wymieniasz te crmy" — potem
-     user: "w miejscu opisu wrzuć inner boxa z Compatibile with" (najpierw
-     tylko karty maili, potem "karty komponentów zrób tak samo" — więc
-     wspólne dla obu, patrz compatBoxHtml). margin-top:auto przykleja box
-     zawsze do dołu card-body (nad przyciskami), niezależnie od długości
-     tytułu nad nim. */
-  .card-compat-box{margin-top:auto; background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-size:11px; line-height:1.5; color:var(--ink-muted)}
+     "w miejscu opisu wrzuć inner boxa z Compatibile with" (najpierw tylko
+     karty maili, potem "karty komponentów zrób tak samo") — potem user:
+     "compatibile with usun, zostaw tylko nazwy CRM ale kazdy CRM ma być w
+     osobnym chipsie": etykieta znika, boks z tłem/obramowaniem zamienia się
+     w rząd osobnych chipsów (patrz .card-crm-chip), więc sam kontener nie
+     ma już własnego tła/obramowania — je noszą teraz pojedyncze chipsy.
+     margin-top:auto przykleja rząd zawsze do dołu card-body (nad
+     przyciskami), niezależnie od długości tytułu nad nim. */
+  .card-compat-box{margin-top:auto; display:flex; flex-wrap:wrap; gap:4px}
+  .card-crm-chip{display:inline-block; padding:3px 8px; border:1px solid var(--line); border-radius:999px; font-size:10.5px; color:var(--ink-muted); background:var(--surface); white-space:nowrap}
   .card-actions{display:flex; gap:6px; padding:0 12px 12px}
   .card-actions .btn{flex:1; padding:10px 4px; font-size:11.5px; text-align:center; white-space:nowrap}
   .btn{
@@ -8508,8 +8514,8 @@ function createdByNameOnlyHtml(record){
 }
 function compatBoxHtml(keys){
   if(!keys || !keys.length) return "";
-  var names = keys.map(function(k){ return CRM_PLATFORM_LABELS[k]||k; }).join(" · ");
-  return '<div class="card-compat-box">Compatible with:<br>'+esc(names)+'</div>';
+  var chips = keys.map(function(k){ return '<span class="card-crm-chip">'+esc(CRM_PLATFORM_LABELS[k]||k)+'</span>'; }).join("");
+  return '<div class="card-compat-box">'+chips+'</div>';
 }
 function renderGrid(){
   if(state.section==="emails"){ renderEmailGrid(); return; }
