@@ -265,9 +265,6 @@
   .card-favorite-btn.is-favorite svg{color:var(--accent)}
   .card-head{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:9px 10px; border-bottom:1px solid var(--line)}
   .card-key{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-  /* Przeniesione z card-head NAD tytuł komponentu (card-body) — user:
-     "nazwę kategorii przenieś nad nazwę komponentu". */
-  .card-cat{display:flex; align-items:center; justify-content:space-between; gap:6px; font-family:var(--font-mono); font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 4px}
   /* user: "dodatkowo zaokrąglij górne boki tego preview" — TYLKO górne rogi
      (dolne stykają się z card-body, nie z zewnętrzną, już zaokrągloną
      krawędzią .card). */
@@ -278,18 +275,14 @@
   .card-preview-fade{position:absolute; left:0; right:0; bottom:0; height:40px; background:linear-gradient(to bottom, transparent, var(--surface-2)); pointer-events:none}
   .card-body{padding:12px 12px 10px; flex:1; display:flex; flex-direction:column; min-height:0}
   .card-label{font-weight:600; font-size:13.5px; line-height:1.3; margin:0 0 3px; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
-  .card-desc{font-size:12px; color:var(--ink-muted); margin:0; line-height:1.45; min-height:4.35em; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden}
   .card-created-by{display:flex; align-items:center; gap:5px; margin:6px 0 0; font-size:10px; color:var(--ink-faint)}
   /* user: "chujowo wygladaja te badge... Zlikwiduj to... dodaj sekcje z
-     górnym lekkim obrysem: compatible with: wymieniasz te crmy. małym
-     fontem" — margin-top:auto przykleja to zawsze do dołu card-body
-     (nad przyciskami), niezależnie od długości opisu nad nim. */
-  .card-crm-compat{margin:auto 0 0; padding-top:8px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-faint)}
-  /* user: "w miejscu opisu wrzuć inner boxa z Compatibile with" — tylko
-     karty gotowych maili (renderEmailGrid); karty komponentów zostają przy
-     .card-crm-compat (proste podkreślenie, bez tła). margin-top:auto —
-     ten sam trik co .card-crm-compat: przykleja box do dołu card-body,
-     nad przyciskami, niezależnie od długości tytułu nad nim. */
+     górnym lekkim obrysem: compatible with: wymieniasz te crmy" — potem
+     user: "w miejscu opisu wrzuć inner boxa z Compatibile with" (najpierw
+     tylko karty maili, potem "karty komponentów zrób tak samo" — więc
+     wspólne dla obu, patrz compatBoxHtml). margin-top:auto przykleja box
+     zawsze do dołu card-body (nad przyciskami), niezależnie od długości
+     tytułu nad nim. */
   .card-compat-box{margin-top:auto; background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-size:11px; line-height:1.5; color:var(--ink-muted)}
   .card-actions{display:flex; gap:6px; padding:0 12px 12px}
   .card-actions .btn{flex:1; padding:10px 4px; font-size:11.5px; text-align:center; white-space:nowrap}
@@ -2488,7 +2481,7 @@ var CRM_PLATFORM_LABELS = { klaviyo:"Klaviyo", salesmanago:"ManagoAI", customeri
    realne pliki logo hostowane na ibb.co. Dziś używane TYLKO przez
    crmFullLogoHtml (wyciszony watermark w Brand Kit, patrz .bf-crm-logo-badge
    niżej) — karty komponentów/maili od "Zlikwiduj to... compatible with"
-   pokazują zgodność CRM jako zwykły tekst (patrz crmCompatRowHtml),
+   pokazują zgodność CRM jako zwykły tekst (patrz compatBoxHtml),
    nie ikony. title="Compatible with X" na każdym sygnecie zostaje —
    nieszkodliwy w tym jedynym miejscu, gdzie te ikony jeszcze się pojawiają. */
 var CRM_PLATFORM_ICONS = {
@@ -5417,15 +5410,6 @@ function avatarHtml(profile, size){
   var initials = initialsFor(profile);
   return '<span style="display:inline-flex;align-items:center;justify-content:center;width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+color+';color:#fff;font-size:'+Math.round(size*0.42)+'px;font-weight:700;flex:none;line-height:1">'+esc(initials)+'</span>';
 }
-// user: "w każdym komponencie czy gotowym mailu ma być gdzieś adnotacja
-// stworzone przed (avatar) imię nazwisko — jakaś naprawdę drobna, ale żeby
-// to było widać". Tylko dla własnych (custom) wpisów zespołu — 175
-// fabrycznych komponentów nie mają twórcy, więc się nie renderuje.
-function createdByBadgeHtml(record){
-  if(!record.createdBy) return "";
-  var who = record.createdBy.displayName || record.createdBy.email || "";
-  return '<p class="card-created-by">'+avatarHtml(record.createdBy, 14)+'Created by '+esc(who)+'</p>';
-}
 // Migawka aktualnie zalogowanego usera — ustawiana w window.MQBoot (patrz
 // koniec skryptu). Komponenty/gotowe maile zapisują ją TERAZ, przy
 // tworzeniu — celowo snapshot, nie samo uid: gdyby ktoś potem zmienił
@@ -5598,7 +5582,7 @@ function buildBackupPayload(){
           defaultValues:c.defaultValues,
           variants:(c.variants||[]).map(function(v){ return { id:v.id, label:v.label, code:v.code(b) }; }),
           // "Created by" — user: adnotacja twórcy na kartach (patrz
-          // createdByBadgeHtml); ustawiane raz, przy tworzeniu (patrz
+          // createdByNameOnlyHtml); ustawiane raz, przy tworzeniu (patrz
           // currentUserStamp w saveComponentForm), niezmienne dalej.
           createdBy:c.createdBy
         };
@@ -8508,26 +8492,21 @@ function emailCompatiblePlatforms(e){
 }
 // user: "chujowo wygladaja te badge jednak z CRMami. Zlikwiduj to... dodaj
 // sekcje z górnym lekkim obrysem: compatible with: wymieniasz te crmy" —
-// ikony (poprzednia wersja) zastąpione zwykłym tekstem, doklejonym do dołu
-// card-body (patrz .card-crm-compat). Pomijamy całkiem, gdy nic nie ma do
+// ikony (poprzednia wersja) zastąpione zwykłym tekstem; potem user: "w
+// miejscu obecnego X component daj created by - tylko zmień to na
+// [Avatar] Imię Nazwisko (bez Created by)" + "w miejscu opisu wrzuć inner
+// boxa z Compatibile with: i od nowego wiersza ... (kropka środkowa)",
+// najpierw wdrożone tylko dla kart gotowych maili, potem user: "karty
+// komponentów zrób tak samo" — więc generyczne (nie "email"-owe), użyte
+// w obu renderGrid/renderEmailGrid. Pomijamy całkiem, gdy nic nie ma do
 // wypisania (np. gotowy mail złożony z wzajemnie wykluczających się
 // komponentów — puste przecięcie, patrz emailCompatiblePlatforms).
-function crmCompatRowHtml(keys){
-  if(!keys || !keys.length) return "";
-  var names = keys.map(function(k){ return CRM_PLATFORM_LABELS[k]||k; }).join(", ");
-  return '<p class="card-crm-compat">Compatible with: '+esc(names)+'</p>';
-}
-// user: "w miejscu obecnego X component daj created by - tylko zmień to na
-// [Avatar] Imię Nazwisko (bez Created by)" + "w miejscu opisu wrzuć inner
-// boxa z Compatibile with: i od nowego wiersza ... (kropka środkowa)" —
-// dwa warianty SCOPED do kart gotowych maili (renderEmailGrid); karty
-// komponentów zostają przy createdByBadgeHtml/crmCompatRowHtml bez zmian.
-function emailCreatedByNameHtml(record){
+function createdByNameOnlyHtml(record){
   if(!record.createdBy) return "";
   var who = record.createdBy.displayName || record.createdBy.email || "";
   return '<p class="card-created-by">'+avatarHtml(record.createdBy, 14)+esc(who)+'</p>';
 }
-function emailCompatBoxHtml(keys){
+function compatBoxHtml(keys){
   if(!keys || !keys.length) return "";
   var names = keys.map(function(k){ return CRM_PLATFORM_LABELS[k]||k; }).join(" · ");
   return '<div class="card-compat-box">Compatible with:<br>'+esc(names)+'</div>';
@@ -8547,16 +8526,16 @@ function renderGrid(){
     var sourceTitle = c.source==="universal" ? "" : ' title="pattern: '+esc(c.source)+'"';
     var fav = isCompFavorite(c.id);
     var el = document.createElement("div"); el.className = "card";
+    var catLabel = (CATEGORIES.filter(function(x){return x.id===c.category;})[0]||{label:c.category}).label;
     el.innerHTML =
-      '<div class="card-head"><span class="card-key mono"'+sourceTitle+'>'+esc(c.id)+'</span>'+
+      '<div class="card-head"><span class="card-key mono"'+sourceTitle+'>'+esc(catLabel)+'</span>'+
         '<button type="button" class="icon-btn card-favorite-btn'+(fav?' is-favorite':'')+'" data-fav-component="'+c.id+'" aria-label="'+(fav?'Remove from favorites':'Add to favorites')+'" title="'+(fav?'Remove from favorites':'Add to favorites')+'">'+starIconHtml(fav)+'</button>'+
       '</div>'+
       '<div class="card-preview">'+renderComponentThumb(c, b)+'</div>'+
       '<div class="card-body">'+
-        '<span class="card-cat"><span>'+esc((CATEGORIES.filter(function(x){return x.id===c.category;})[0]||{label:c.category}).label)+'</span></span>'+
-        '<p class="card-label">'+esc(c.label)+'</p><p class="card-desc">'+esc(c.desc)+'</p>'+
-        createdByBadgeHtml(c)+
-        crmCompatRowHtml(componentCompatiblePlatforms(c))+
+        createdByNameOnlyHtml(c)+
+        '<p class="card-label">'+esc(c.label)+'</p>'+
+        compatBoxHtml(componentCompatiblePlatforms(c))+
       '</div>'+
       '<div class="card-actions">'+
         '<button class="btn ghost small" data-open="'+c.id+'">Open</button>'+
@@ -8648,9 +8627,9 @@ function renderEmailGrid(){
       '</div>'+
       '<div class="card-preview">'+renderEmailThumb(e, b)+emailThumbFadeHtml()+'</div>'+
       '<div class="card-body">'+
-        emailCreatedByNameHtml(e)+
+        createdByNameOnlyHtml(e)+
         '<p class="card-label">'+esc(e.label)+'</p>'+
-        emailCompatBoxHtml(emailCompatiblePlatforms(e))+
+        compatBoxHtml(emailCompatiblePlatforms(e))+
       '</div>'+
       '<div class="card-actions">'+
         '<button class="btn ghost small" data-email-preview="'+e.id+'">Preview</button>'+
