@@ -5711,7 +5711,7 @@ function applyBackupPayload(payload){
         READY_EMAILS.push({
           id:ce.id, flow:ce.flow, label:ce.label, desc:ce.desc, note:ce.note,
           componentIds:ce.componentIds, componentValues:ce.componentValues, componentVariants:ce.componentVariants,
-          custom:true, createdBy:ce.createdBy
+          crmPlatforms:ce.crmPlatforms, custom:true, createdBy:ce.createdBy
         });
       }
     });
@@ -8516,6 +8516,13 @@ function componentCompatiblePlatforms(c){
 // praktyce nie działa w całości na ŻADNEJ platformie (puste przecięcie,
 // świadomie pokazywane jako "0 badge'y" zamiast fałszywie sugerować "all").
 function emailCompatiblePlatforms(e){
+  // user: "dodaj mi w edycji ready-made email opcje przypisania go do
+  // CRMów wybranych" — jawne przypięcie z Edit e-mail (patrz
+  // openEditReadyEmail/saveEmailFormSubmit) nadrzędne wobec automatycznego
+  // przecięcia poniżej. Sprawdzamy !=null (nie samą długość) — email, który
+  // NIGDY nie przeszedł przez ten edytor, nie ma w ogóle tego pola, więc
+  // wraca do starego, automatycznego zachowania.
+  if(e.crmPlatforms!=null) return e.crmPlatforms;
   var compat = Object.keys(CRM_PLATFORM_LABELS);
   e.componentIds.forEach(function(cid){
     var c = findComp(cid);
@@ -9110,7 +9117,15 @@ function mountMjmlIframe(containerId, bodyMjml, b, opts){
   // nowa po tym komunikacie, bo DOM już jest poprawny.
   var itemDeleteStyle = "", itemDeleteScript = "";
   if(opts && opts.itemMjmlList){
-    itemDeleteStyle = '\n<style>.mf-item-wrap{position:relative}.mf-item-del{position:absolute;top:50%;left:4px;transform:translateY(-50%);width:24px;height:24px;border:1px solid #e5484d;border-radius:6px;background:#fff;color:#e5484d;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:20;box-shadow:0 1px 4px rgba(0,0,0,.18);padding:0}.mf-item-wrap:hover .mf-item-del{display:flex}.mf-item-del:hover{background:#e5484d;color:#fff}</style>\n';
+    // user: "oddal trochę te ikone od komponentu, obecnie 50% jej nachodzi
+    // na komponent. oddal 2 razy dalej" — left:4px siedziało w gutter-ze
+    // KONKRETNEGO komponentu (padding jego własnej mj-section), więc dla
+    // komponentów z węższym/zerowym paddingiem po lewej faktycznie
+    // nachodziło. overflow:visible na .mj-body-box (TYLKO w tym trybie
+    // podglądu, nigdy w eksporcie/innych podglądach) daje ikonie realne
+    // miejsce NA ZEWNĄTRZ białego boxa, niezależnie od paddingu
+    // konkretnego komponentu — solidniejsze niż zgadywanie gutter-a.
+    itemDeleteStyle = '\n<style>.mj-body-box{overflow:visible!important}.mf-item-wrap{position:relative}.mf-item-del{position:absolute;top:50%;left:-14px;transform:translateY(-50%);width:24px;height:24px;border:1px solid #e5484d;border-radius:6px;background:#fff;color:#e5484d;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:20;box-shadow:0 1px 4px rgba(0,0,0,.18);padding:0}.mf-item-wrap:hover .mf-item-del{display:flex}.mf-item-del:hover{background:#e5484d;color:#fff}</style>\n';
     itemDeleteScript = '\n<scr'+'ipt>(function(){try{'+
       'document.querySelectorAll(".mf-item-wrap").forEach(function(wrap){'+
         'var uid=wrap.getAttribute("data-mf-item-uid");'+
@@ -9524,7 +9539,7 @@ function readyEmailOptionsForSelect(){
 }
 function updateSaveEmailFormChrome(){
   var updating = !!saveEmailForm.updateId;
-  byId("saveEmailFormTitle").textContent = saveEmailForm.metaOnly ? "Edit ready-made email" : (updating ? "Update ready-made email" : "Save as ready-made email");
+  byId("saveEmailFormTitle").textContent = saveEmailForm.metaOnly ? "Edit e-mail" : (updating ? "Update ready-made email" : "Save as ready-made email");
   byId("saveEmailFormSave").textContent = saveEmailForm.metaOnly ? "Save changes" : (updating ? "Update" : "Save");
 }
 function openSaveEmailForm(){
@@ -9547,7 +9562,13 @@ function openEditReadyEmail(emailId){
   if(!canManageRecord(e)){ showToast("You're not the creator of this ready-made email", "error"); return; }
   saveEmailForm.updateId = emailId;
   saveEmailForm.metaOnly = true;
-  saveEmailForm.draft = { label: e.label, flow: e.flow };
+  // user: "dodaj mi w edycji ready-made email opcje przypisania go do
+  // CRMów wybranych" — e.crmPlatforms (jeśli już ustawione wcześniej przez
+  // ten formularz) to jawne przypięcie, nadrzędne wobec automatycznego
+  // przecięcia komponentów (patrz emailCompatiblePlatforms). Przy
+  // PIERWSZYM otwarciu edytora startujemy od aktualnego wyniku tego
+  // przecięcia — sensowny punkt startowy do ręcznej korekty, nie pusta lista.
+  saveEmailForm.draft = { label: e.label, flow: e.flow, crmPlatforms: e.crmPlatforms || emailCompatiblePlatforms(e) };
   updateSaveEmailFormChrome();
   renderSaveEmailFormFields();
   byId("saveEmailFormOverlay").classList.add("open");
@@ -9582,7 +9603,27 @@ function renderSaveEmailFormFields(){
     }
     return html+'</div>';
   }).join("") + '</div></div>';
-  form.innerHTML = targetHtml + fieldsHtml;
+  // user: "dodaj mi w edycji ready-made email opcje przypisania go do
+  // CRMów wybranych" — TYLKO w trybie metaOnly (edycja istniejącego maila);
+  // "Save as new"/"Update" ze świeżej listy budowy zostają przy
+  // automatycznym przecięciu komponentów, bez ręcznej korekty.
+  var crmHtml = "";
+  if(saveEmailForm.metaOnly){
+    crmHtml = '<div class="bf-group"><p class="bf-group-title">Compatible with</p><div class="bf-row" id="sefCrmRow">'+
+      Object.keys(CRM_PLATFORM_LABELS).map(function(key){
+        var checked = (d.crmPlatforms||[]).indexOf(key)!==-1;
+        return '<label class="bf-checkbox"><input type="checkbox" data-sef-crm="'+key+'"'+(checked?' checked':'')+'>'+esc(CRM_PLATFORM_LABELS[key])+'</label>';
+      }).join("")+
+    '</div></div>';
+  }
+  form.innerHTML = targetHtml + fieldsHtml + crmHtml;
+  form.querySelectorAll("[data-sef-crm]").forEach(function(el){
+    el.addEventListener("change", function(){
+      var key = el.getAttribute("data-sef-crm");
+      var list = d.crmPlatforms || [];
+      d.crmPlatforms = el.checked ? list.concat([key]) : list.filter(function(k){ return k!==key; });
+    });
+  });
   if(byId("sef-target")) byId("sef-target").addEventListener("change", function(){
     var id = this.value || null;
     saveEmailForm.updateId = id;
@@ -9615,6 +9656,7 @@ function saveEmailFormSubmit(){
     if(!canManageRecord(metaExisting)){ showToast("You're not the creator of this ready-made email", "error"); return; }
     metaExisting.label = label;
     metaExisting.flow = d.flow;
+    metaExisting.crmPlatforms = d.crmPlatforms || [];
     state.section = "emails"; state.emailFlow = d.flow;
     return withBtnLoading(btn, function(){
       return saveToStorage().then(function(){
