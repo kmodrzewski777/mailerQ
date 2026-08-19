@@ -428,13 +428,25 @@
      telefonie]" — realne kliencki poczty (Gmail app w szczególności)
      zwykle zmniejszają/dopasowują treść do faktycznej szerokości ekranu
      mocniej, niż zwykłe wyrenderowanie przy 420px CSS-owej szerokości w
-     iframe pokazuje. transform:scale na CAŁEJ ramce (nagłówek+treść) —
-     nie na samym iframie/jego zawartości — bo to czysto wizualny,
-     zewnętrzny zabieg PO fakcie: w ogóle nie dotyka mierzenia wysokości
-     (patrz recalcIframeHeight/ResizeObserver w JS), które liczy się
-     WEWNĄTRZ iframe'a, niezależnie od transformu zastosowanego na jego
-     przodku z zewnątrz. */
-  .preview-frame.stacked.is-mobile{width:420px; max-width:100%; margin-left:auto; margin-right:auto; border-radius:20px; height:calc(60vh * .92); transform:scale(.92); transform-origin:top center}
+     iframe pokazuje.
+     user: "w miejscach zaznaczonych strzałką widać kreski, których nie
+     może być widać" — transform:scale(.92) (poprzednia wersja tego
+     zabiegu) potrafi w Chrome zostawić 1px "rysę" o innym kolorze na
+     granicy dwóch sąsiadujących sekcji tego samego koloru (subpikselowe
+     zaokrąglanie przy kompozycji GPU dla niecałkowitej skali) —
+     zweryfikowane obiektywnie (pomiar koloru pikseli) na realnie
+     skompilowanym mailu: rysa jest w Mobile (transform), nieobecna w
+     Desktop (bez transformu). zoom NIE ma tego efektu (layoutowe
+     skalowanie, nie kompozycja warstw po fakcie) — i tak jak transform,
+     NIE dotyka mierzenia wysokości wewnątrz iframe'a (patrz
+     recalcIframeHeight/ResizeObserver w JS): zweryfikowane osobnym
+     testem, że documentElement.scrollHeight zmierzony WEWNĄTRZ iframe'a
+     jest identyczny z/bez zoom na jego przodku z zewnątrz — jedyna
+     różnica to nieistotne ~1px w raportowanej szerokości wewnętrznej.
+     Bez premnożenia height przez .92 (jak przy transform) — zoom sam
+     zmniejsza to, ile miejsca ramka zajmuje w SWOIM rodzicu, zachowując
+     przy tym normalny (nie-pomniejszony) układ WEWNĄTRZ siebie. */
+  .preview-frame.stacked.is-mobile{width:420px; max-width:100%; margin-left:auto; margin-right:auto; border-radius:20px; height:60vh; zoom:.92}
   .preview-frame .inbox-chrome{border:0; border-bottom:1px solid var(--line); border-radius:0; margin-bottom:0}
   .preview-frame .modal-preview-box{border:0; border-radius:0; margin-bottom:0; display:block; padding:20px}
   .inbox-chrome{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-bottom:12px}
