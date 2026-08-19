@@ -2830,7 +2830,33 @@ function compileEmailHtml(bodyMjml, b, opts){
   var headerSrc = opts.headerVariant===3 ? b.header3Code : opts.headerVariant===2 ? b.header2Code : b.headerCode;
   var footerSrc = opts.footerVariant===3 ? b.footer3Code : opts.footerVariant===2 ? b.footer2Code : b.footerCode;
   var headerHtml = (!opts.noChrome && headerSrc) ? compileMjmlFragment(resolveBrandTokens(headerSrc, b), { fontBody: b.fontBody }) : "";
-  var bodyHtml = compileMjmlFragment(resolveBrandTokens(bodyMjml, b), { fontBody: b.fontBody });
+  // user: "gdy najade na jakiś komponent... dodaj pojawiającą się ikonę...
+  // śmietnika: usunięcie komponentu -> komponent się usuwa i znika z
+  // podglądu (bez refreshu całkowitego preview maila)" — wymaga, żeby
+  // KAŻDA pozycja Mail Stacka miała w skompilowanym HTML-u swój OSOBNY,
+  // rozpoznawalny wrapper (żeby hover/klik iframe'a wiedział, KTÓRY
+  // item.uid usunąć). Zwykłe stitchComponentCodes+JEDNO wywołanie
+  // compileMjmlFragment na całym sklejonym MJML-u tego nie daje — kompilator
+  // spłaszcza nieznane tagi (patrz mjCompileChildren, default case), więc
+  // owinięcie już SKOMPILOWANEGO HTML-a w <div> i przepuszczenie przez
+  // compileMjmlFragment PONOWNIE zgubiłoby ten wrapper. Zamiast tego —
+  // opt-in opts.itemMjmlList: kompilujemy KAŻDĄ pozycję OSOBNO (dokładnie
+  // te same wywołania co niżej dla zwykłego bodyMjml, tylko per-item) i
+  // owijamy wynik PRZED złączeniem, nigdy nie wracając przez kompilator.
+  // Domyślna ścieżka (bez opts.itemMjmlList) zostaje bit-w-bit identyczna —
+  // eksport i wszystkie inne podglądy jej nie używają.
+  var bodyHtml;
+  if(opts.itemMjmlList){
+    var gapHtml = compileMjmlFragment('<mj-spacer height="'+(b.componentGap||"24px")+'" css-class="mj-gap"></mj-spacer>', { fontBody: b.fontBody });
+    var n = opts.itemMjmlList.length;
+    bodyHtml = opts.itemMjmlList.map(function(it, i){
+      var mjml = i < n-1 ? stripTrailingComponentGap(it.mjml) : it.mjml;
+      var compiled = compileMjmlFragment(resolveBrandTokens(mjml, b), { fontBody: b.fontBody });
+      return '<div class="mf-item-wrap" data-mf-item-uid="'+it.uid+'">'+compiled+'</div>';
+    }).join(gapHtml);
+  } else {
+    bodyHtml = compileMjmlFragment(resolveBrandTokens(bodyMjml, b), { fontBody: b.fontBody });
+  }
   var footerHtml = (!opts.noChrome && footerSrc) ? compileMjmlFragment(resolveBrandTokens(footerSrc, b), { fontBody: b.fontBody }) : "";
   // Znacznik "to jest header/stopka" — TYLKO w edytowalnym podglądzie
   // (opts.editable), nigdy w eksporcie/prawdziwym mailu — patrz
@@ -9073,7 +9099,34 @@ function mountMjmlIframe(containerId, bodyMjml, b, opts){
       '},true);'+
     '}catch(e){}})();</scr'+'ipt>\n';
   }
-  html = html.replace("</body>", resizeStyle+editableStyle+resizeScript+editableScript+"</body>");
+  // user: "gdy najade na jakiś komponent... dodaj pojawiającą się ikonę z
+  // obrysie po lewej stronie - wyśrodkowane pionowo... ikonę śmietnika:
+  // usunięcie komponentu -> znika z podglądu (bez refreshu całkowitego
+  // preview maila)" — TYLKO gdy opts.itemMjmlList dało każdej pozycji
+  // Mail Stacka rozpoznawalny wrapper (patrz compileEmailHtml). Kasowanie
+  // dzieje się NAJPIERW wewnątrz iframe'a (wrap.remove() — natychmiastowe,
+  // bez przeładowania), a DOPIERO POTEM leci postMessage do rodzica, żeby
+  // zaktualizować state.list/zapisać — rodzic NIE przebudowuje iframe'a od
+  // nowa po tym komunikacie, bo DOM już jest poprawny.
+  var itemDeleteStyle = "", itemDeleteScript = "";
+  if(opts && opts.itemMjmlList){
+    itemDeleteStyle = '\n<style>.mf-item-wrap{position:relative}.mf-item-del{position:absolute;top:50%;left:4px;transform:translateY(-50%);width:24px;height:24px;border:1px solid #e5484d;border-radius:6px;background:#fff;color:#e5484d;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:20;box-shadow:0 1px 4px rgba(0,0,0,.18);padding:0}.mf-item-wrap:hover .mf-item-del{display:flex}.mf-item-del:hover{background:#e5484d;color:#fff}</style>\n';
+    itemDeleteScript = '\n<scr'+'ipt>(function(){try{'+
+      'document.querySelectorAll(".mf-item-wrap").forEach(function(wrap){'+
+        'var uid=wrap.getAttribute("data-mf-item-uid");'+
+        'var btn=document.createElement("button");'+
+        'btn.type="button";btn.className="mf-item-del";btn.setAttribute("aria-label","Delete component");'+
+        'btn.innerHTML=\'<svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"></path></svg>\';'+
+        'btn.addEventListener("click",function(e){'+
+          'e.preventDefault();e.stopPropagation();'+
+          'wrap.remove();'+
+          'parent.postMessage({__mfDeleteItem:uid},"*");'+
+        '});'+
+        'wrap.insertBefore(btn,wrap.firstChild);'+
+      '});'+
+    '}catch(e){}})();</scr'+'ipt>\n';
+  }
+  html = html.replace("</body>", resizeStyle+editableStyle+itemDeleteStyle+resizeScript+editableScript+itemDeleteScript+"</body>");
 
   var iframe = container.querySelector("iframe");
   var iframeBg = (opts && opts.noChrome) ? "#F1F2F4" : b.outerBg;
@@ -9158,6 +9211,22 @@ function mountMjmlIframe(containerId, bodyMjml, b, opts){
       }
       if(e.data.__mfChromeClick){
         showToast("Header and footer content can't be edited here — it's defined in Brand Kit");
+      }
+      // DOM w iframe'ie usunął się już SAM (patrz itemDeleteScript —
+      // wrap.remove() leci PRZED tym postMessage) — tu tylko synchronizujemy
+      // state.list/sidebar/kartę "Add", bez przebudowy tego iframe'a. Jeśli
+      // to skróciło treść, ISTNIEJĄCY ResizeObserver (patrz resizeScript)
+      // sam zgłosi nową, mniejszą wysokość — nic dodatkowego nie trzeba tu
+      // robić dla płynnego zmniejszenia okna podglądu.
+      if(e.data.__mfDeleteItem!=null){
+        removeItem(+e.data.__mfDeleteItem);
+        // patrz identyczny fix przy handleInlineTokenEdit — previewExportCode
+        // to jednorazowy snapshot z otwarcia okna; bez przeliczenia tutaj
+        // "Preview code"/"Compile" pokazywałyby usunięty komponent dalej.
+        if(byId("previewOverlay").classList.contains("open") && byId("previewExportBar").style.display!=="none"){
+          previewExportCode = buildExportCode();
+          if(byId("previewCodeBox").style.display!=="none") byId("previewCodeBox").textContent = previewExportCode;
+        }
       }
     });
   } else {
@@ -9365,7 +9434,15 @@ function openMailPreview(){
   // który wciąż zostaje tylko-do-odczytu.
   var codes = state.list.map(function(item){ return resolveItemCodeEditableForPreview(item, b); }).filter(function(code){ return code!=null; });
   var bodyMjml = stitchComponentCodes(codes, b.componentGap);
-  mountMjmlIframe("previewIframeWrap", bodyMjml, b, { editable:true, headerVariant: state.headerVariant, footerVariant: state.footerVariant, darkPreview: previewTheme==="dark" });
+  // itemMjmlList (uid + kod TEJ pozycji) — patrz komentarz w
+  // compileEmailHtml: pozwala owinąć każdą pozycję we własny, rozpoznawalny
+  // <div data-mf-item-uid>, żeby ikona kosza w podglądzie wiedziała, KTÓRY
+  // item.uid usunąć (patrz mountMjmlIframe niżej i __mfDeleteItem).
+  var itemMjmlList = state.list.map(function(item){
+    var code = resolveItemCodeEditableForPreview(item, b);
+    return code==null ? null : { uid: item.uid, mjml: code };
+  }).filter(function(it){ return it!=null; });
+  mountMjmlIframe("previewIframeWrap", bodyMjml, b, { editable:true, itemMjmlList: itemMjmlList, headerVariant: state.headerVariant, footerVariant: state.footerVariant, darkPreview: previewTheme==="dark" });
   resetPreviewCodeToggle();
   var addBtn = byId("previewAddBtn");
   addBtn.style.display = "none";
