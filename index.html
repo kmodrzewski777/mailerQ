@@ -1,57 +1,70 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>nexus</title>
+<title>Maximus</title>
 <!-- user: "zrób też meta img. literka n na czarnym tle" — statyczny PNG
      osadzony w repo (og-image.png), nie da URL z hosta poza naszą
-     kontrolą — ten sam font co logo (Stack Sans Notch). -->
-<meta property="og:title" content="nexus">
+     kontrolą. Zostaje sprzed rebrandingu na Maximus/Urbanist — obrazek
+     trzeba by przegenerować osobno, poza zasięgiem tej zmiany. -->
+<meta property="og:title" content="Maximus">
 <meta property="og:image" content="https://kmodrzewski777.github.io/mailerQ/og-image.png">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://kmodrzewski777.github.io/mailerQ/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!-- user: "wrzuć ten font [Stack Sans Notch] jednak do logo" — sam napis
-     "nexus" jest logiem, bez osobnej grafiki. -->
-<link href="https://fonts.googleapis.com/css2?family=Stack+Sans+Notch:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- user: "Zastosuj [Ledgerix] Design System w naszej aplikacji... W logo
+     użyj fonta Urbanist 500" — jeden font wszędzie (logo + cała reszta
+     UI), tak jak w referencji; jedno zapytanie z pełnym zakresem wag
+     (400-900) ładuje CAŁY zmienny plik fontu, więc nie trzeba osobnych
+     linków na logo i na resztę tekstu. -->
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  /* Design tokens — inspired by mailforge.ai: deep navy ink + white paper,
-     one fiery orange accent used sparingly, Inter everywhere, 8-14px radius
-     with generous, breathing whitespace. */
+  /* Design tokens — z Ledgerix Design System (user: "Zastosuj ten Design
+     System w naszej aplikacji"): near-black ink + warm-white paper, jeden
+     miętowy akcent trzymany w rezerwie, Urbanist wszędzie, 24px promień
+     na kartach, gęsty spacing.
+     --accent-strong — DODATKOWY token, KTÓREGO NIE MA w referencji: sam
+     #75FB90 jako zwykły kolor TEKSTU/ikony/obramowania na jasnym tle ma
+     fatalny kontrast (jasna mięta na bieli) — w referencji akcent siedzi
+     WYŁĄCZNIE na tle (chip/badge/kwadrat), nigdy jako czysty tekst. Appka
+     już ma kilkanaście miejsc z color:var(--accent)/border-color:var(--accent)
+     (zaznaczona opcja w dropdownie, ulubiona gwiazdka, "uzbrojony" przycisk
+     usuwania itd.) — dla nich osobny, ciemniejszy odcień tej samej zieleni,
+     zgodny z WCAG AA na jasnym tle; w dark mode wraca do jasnej wersji,
+     bo tam TA sama jasna mięta ma świetny kontrast na ciemnym tle. */
   :root{
-    --paper:#ffffff; --surface:#ffffff; --surface-2:#f5f6f8;
-    --ink:#14162b; --ink-muted:#5c5f78; --ink-faint:#9698ad;
-    --line:#e3e4ea; --line-strong:#cfd1db;
-    --accent:#ff5722; --accent-ink:#ffffff; --accent-soft:rgba(255,87,34,.15);
-    --radius-card:14px; --radius-chip:999px;
-    --shadow-card:0 1px 2px rgba(20,22,43,.05), 0 8px 20px rgba(20,22,43,.06);
-    --font-display:'Inter',Arial,sans-serif;
-    --font-body:'Inter',Arial,sans-serif;
-    --font-mono:'Inter',Arial,sans-serif;
+    --paper:#ffffff; --surface:#ffffff; --surface-2:#f3f2ef;
+    --ink:#101012; --ink-muted:#3a3a3e; --ink-faint:#8b8a86;
+    --line:#dedcd8; --line-strong:#c7c5c0;
+    --accent:#75fb90; --accent-strong:#1e7a3d; --accent-ink:#0e2016; --accent-soft:rgba(117,251,144,.18);
+    --radius-card:24px; --radius-chip:999px;
+    --shadow-card:0 1px 2px rgba(16,16,18,.04), 0 8px 24px rgba(16,16,18,.07);
+    --font-display:'Urbanist',Arial,sans-serif;
+    --font-body:'Urbanist',Arial,sans-serif;
+    --font-mono:'Urbanist',Arial,sans-serif;
   }
   @media (prefers-color-scheme:dark){
     :root{
-      --paper:#0d0e1a; --surface:#171929; --surface-2:#1f2235;
-      --ink:#ffffff; --ink-muted:#a8aac0; --ink-faint:#6f7189;
-      --line:#2a2d42; --line-strong:#3a3d55;
-      --accent:#ff5722; --accent-ink:#ffffff; --accent-soft:rgba(255,87,34,.22);
-      --shadow-card:0 1px 2px rgba(0,0,0,.3), 0 8px 20px rgba(0,0,0,.35);
+      --paper:#0e0f10; --surface:#17181a; --surface-2:#1e1f22;
+      --ink:#f5f5f3; --ink-muted:#b8b7b2; --ink-faint:#7a7975;
+      --line:#2c2c2f; --line-strong:#3c3c40;
+      --accent:#75fb90; --accent-strong:#75fb90; --accent-ink:#0e2016; --accent-soft:rgba(117,251,144,.22);
+      --shadow-card:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
     }
   }
   :root[data-theme="dark"]{
-    --paper:#0d0e1a; --surface:#171929; --surface-2:#1f2235;
-    --ink:#ffffff; --ink-muted:#a8aac0; --ink-faint:#6f7189;
-    --line:#2a2d42; --line-strong:#3a3d55;
-    --accent:#ff5722; --accent-ink:#ffffff; --accent-soft:rgba(255,87,34,.22);
-    --shadow-card:0 1px 2px rgba(0,0,0,.3), 0 8px 20px rgba(0,0,0,.35);
+    --paper:#0e0f10; --surface:#17181a; --surface-2:#1e1f22;
+    --ink:#f5f5f3; --ink-muted:#b8b7b2; --ink-faint:#7a7975;
+    --line:#2c2c2f; --line-strong:#3c3c40;
+    --accent:#75fb90; --accent-strong:#75fb90; --accent-ink:#0e2016; --accent-soft:rgba(117,251,144,.22);
+    --shadow-card:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
   }
   :root[data-theme="light"]{
-    --paper:#ffffff; --surface:#ffffff; --surface-2:#f5f6f8;
-    --ink:#14162b; --ink-muted:#5c5f78; --ink-faint:#9698ad;
-    --line:#e3e4ea; --line-strong:#cfd1db;
-    --accent:#ff5722; --accent-ink:#ffffff; --accent-soft:rgba(255,87,34,.15);
-    --shadow-card:0 1px 2px rgba(20,22,43,.05), 0 8px 20px rgba(20,22,43,.06);
+    --paper:#ffffff; --surface:#ffffff; --surface-2:#f3f2ef;
+    --ink:#101012; --ink-muted:#3a3a3e; --ink-faint:#8b8a86;
+    --line:#dedcd8; --line-strong:#c7c5c0;
+    --accent:#75fb90; --accent-strong:#1e7a3d; --accent-ink:#0e2016; --accent-soft:rgba(117,251,144,.18);
+    --shadow-card:0 1px 2px rgba(16,16,18,.04), 0 8px 24px rgba(16,16,18,.07);
   }
 
   *{box-sizing:border-box}
@@ -101,11 +114,11 @@
     display:flex; align-items:center; justify-content:space-between; gap:24px;
   }
   .brand-title{display:flex; align-items:center; font-size:26px}
-  /* user: "wrzuć ten font [Stack Sans Notch] jednak do logo" — sam
-     stylizowany napis "nexus" jest logiem, jedna wspólna klasa użyta w
-     topbarze, stopce I na ekranie logowania (patrz #authGate), rozmiar
-     dobierany per-użycie inline. */
-  .brand-logo-text{font-family:'Stack Sans Notch',sans-serif; font-weight:500; color:var(--ink); line-height:1}
+  /* user: "W logo użyj fonta Urbanist 500" — sam stylizowany napis
+     "Maximus" jest logiem, jedna wspólna klasa użyta w topbarze, stopce
+     I na ekranie logowania (patrz #authGate), rozmiar dobierany
+     per-użycie inline. */
+  .brand-logo-text{font-family:'Urbanist',sans-serif; font-weight:500; color:var(--ink); line-height:1}
   .brand-picker{display:flex; align-items:center; gap:8px}
   .topbar-left{display:flex; align-items:center; gap:14px}
   /* user: "add component - site settings - wybór brandu | avatar/imie
@@ -151,7 +164,7 @@
   }
   .cs-select-option{padding:7px 10px; border-radius:5px; font-size:12.5px; color:var(--ink); cursor:pointer; white-space:nowrap}
   .cs-select-option:hover{background:var(--surface-2)}
-  .cs-select-option[aria-selected="true"]{background:var(--accent-soft); font-weight:600; color:var(--accent)}
+  .cs-select-option[aria-selected="true"]{background:var(--accent-soft); font-weight:600; color:var(--accent-strong)}
   /* Wariant z wyszukiwarką (patrz enhanceSelect opts.searchable) — używany
      na razie tylko w "Update an existing ready-made email", gdzie lista
      bywa długa. .cs-select-menu w tym wariancie jest zwykłym divem (nie
@@ -178,7 +191,7 @@
     cursor:pointer; white-space:nowrap; display:flex; align-items:center; justify-content:space-between; gap:10px;
   }
   .brand-select-option:hover{background:var(--surface-2)}
-  .brand-select-option[aria-selected="true"]{background:var(--accent-soft); font-weight:600; color:var(--accent)}
+  .brand-select-option[aria-selected="true"]{background:var(--accent-soft); font-weight:600; color:var(--accent-strong)}
   /* user: "fajnie jakbyś tu gdzieś nieklikalnie dodał e-mail konta" —
      statyczny nagłówek dropdownu, nie .brand-select-option (brak
      cursor:pointer/hover, nic się nie klika). */
@@ -192,7 +205,7 @@
      pozycji w dropdownie po prawej stronie ikonę ołówka" + "Add new" jako
      wydzielona pozycja na końcu listy. */
   .brand-select-edit-btn{flex:none}
-  .brand-select-add{border-top:1px solid var(--line); margin-top:4px; padding-top:10px; color:var(--accent); font-weight:600; justify-content:flex-start}
+  .brand-select-add{border-top:1px solid var(--line); margin-top:4px; padding-top:10px; color:var(--accent-strong); font-weight:600; justify-content:flex-start}
 
   /* ---------- shell ---------- */
   .shell{max-width:1400px; margin:0 auto; display:grid; grid-template-columns:236px 1fr 320px; gap:0; align-items:start}
@@ -208,7 +221,7 @@
   .cat-btn:hover{background:var(--surface-2); color:var(--ink)}
   /* user: "zamiast podświetlać cały wiersz, niech tylko napisy mają
      pomarańczowy kolor" — bez tła, sam label przechodzi na akcent. */
-  .cat-btn[aria-pressed="true"]{background:transparent; color:var(--accent); font-weight:600}
+  .cat-btn[aria-pressed="true"]{background:transparent; color:var(--accent-strong); font-weight:600}
   .cat-btn .n{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint)}
   .cat-btn[aria-pressed="true"] .n{color:var(--ink-muted)}
 
@@ -262,13 +275,13 @@
      nic innego więcej" — obramowanie/tło przycisku zostają identyczne jak
      w reszcie aplikacji, niezależnie od stanu ulubionych. */
   .card-favorite-btn{flex:none}
-  .card-favorite-btn.is-favorite svg{color:var(--accent)}
+  .card-favorite-btn.is-favorite svg{color:var(--accent-strong)}
   .card-head{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:9px 10px; border-bottom:1px solid var(--line)}
   .card-key{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   /* user: "dodatkowo zaokrąglij górne boki tego preview" — TYLKO górne rogi
      (dolne stykają się z card-body, nie z zewnętrzną, już zaokrągloną
      krawędzią .card). */
-  .card-preview{height:150px; flex:none; background:var(--surface-2); overflow:hidden; position:relative; border-radius:8px 8px 0 0}
+  .card-preview{height:150px; flex:none; background:var(--surface-2); overflow:hidden; position:relative; border-radius:20px 20px 0 0}
   /* user: "dół z kolei niech się wygasza kolorem #F5F6F8 (gradient)" —
      tylko na snapshotach gotowych maili (renderEmailThumb/renderEmailGrid),
      bo tam treść jest CELOWO ucinana na dole (długi mail w krótkim boxie). */
@@ -316,7 +329,7 @@
   .btn.ghost.auth-user-badge:hover{border-color:transparent; opacity:.7}
   .btn.small{padding:8px 12px; font-size:11.5px; border-radius:6px}
   .btn.added{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
-  .btn.ghost[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent); color:var(--ink)}
+  .btn.ghost[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent-strong); color:var(--ink)}
   .btn-preview{border:none; background:transparent; color:var(--ink-muted); font-size:11.5px; text-decoration:underline; padding:0}
 
   /* ---------- build list drawer ---------- */
@@ -359,7 +372,7 @@
   .icon-btn-field{width:26px; height:auto; align-self:stretch}
   .icon-btn:hover{border-color:var(--line-strong); color:var(--ink)}
   .icon-btn:disabled{opacity:.3; cursor:default}
-  .icon-btn.armed{border-color:var(--accent); color:var(--accent)}
+  .icon-btn.armed{border-color:var(--accent-strong); color:var(--accent-strong)}
   .export-btn{width:100%; padding:11px; border-radius:6px; font-size:13.5px; margin-top:4px}
   .export-btn:disabled{background:var(--surface-2); border-color:var(--line); color:var(--ink-faint); cursor:not-allowed}
   .drawer-hint{font-size:11.5px; color:var(--ink-faint); line-height:1.5}
@@ -610,7 +623,7 @@
      niebieskiego, bo sam POPUP kalendarza (w odróżnieniu od samego pola)
      jest renderowany przez system/przeglądarkę i poza tym nie da się go
      ostylować z poziomu CSS. */
-  .bf-field input[type="datetime-local"]{ accent-color:var(--accent); color-scheme:light }
+  .bf-field input[type="datetime-local"]{ accent-color:var(--accent-strong); color-scheme:light }
   .bf-color-swatch:focus-visible{ outline:2px solid var(--accent); outline-offset:1px }
   /* user: "miałeś zlikwidować WSZĘDZIE ten styl pogrubienia każdych
      inputów. ma być 1px i nie czarny tylko lekko ciemniejszy od obecnego"
@@ -740,7 +753,7 @@
      focus TA SAMA grubość, tylko kolor zmienia się na akcent (bez
      natywnego outline przeglądarki). */
   .inline-edit-input{flex:1; min-width:0; font-size:13px; color:var(--ink); padding:4px 6px; border:1px solid var(--ink-faint); border-radius:5px; outline:none}
-  .inline-edit-input:focus{border-color:var(--accent)}
+  .inline-edit-input:focus{border-color:var(--accent-strong)}
   .bf-responsive-field{position:relative}
   .bf-device-toggle{margin-bottom:22px; max-width:220px}
   .bf-field input:disabled, .bf-field select:disabled{opacity:.45; cursor:not-allowed}
@@ -781,7 +794,7 @@
      pustą dziurę, a przejście do realnej treści czyta się jako "doładowało
      się", nie jako "layout skoczył". Animacja wyłączona globalnie przez
      regułę prefers-reduced-motion powyżej. */
-  .mf-spinner{width:22px; height:22px; border:2.5px solid var(--line-strong); border-top-color:var(--accent); border-radius:50%; animation:mf-spin .7s linear infinite}
+  .mf-spinner{width:22px; height:22px; border:2.5px solid var(--line-strong); border-top-color:var(--accent-strong); border-radius:50%; animation:mf-spin .7s linear infinite}
   @keyframes mf-spin{to{transform:rotate(360deg)}}
   /* user: "po wciśnięciu dowolnego przycisku ... animacja ładowania do
      momentu aż faktycznie coś się nie wczyta" — spinner podmieniający
@@ -832,8 +845,8 @@
 <div class="topbar">
   <div class="topbar-inner">
     <div class="topbar-left">
-      <h1 class="brand-title" aria-label="nexus">
-        <span class="brand-logo-text" style="font-size:28px">nexus</span>
+      <h1 class="brand-title" aria-label="Maximus">
+        <span class="brand-logo-text" style="font-size:28px">Maximus</span>
       </h1>
     </div>
     <!-- user: "wybor brandu niech bedzie po lewej od imie/nazwisko...
@@ -898,7 +911,7 @@
   <!-- user: "w oknie logowania też by wypadało żebyś dał logo strony" —
      ten sam wordmark co w topbarze, widoczny przez cały czas (spinner i
      formularz), nie tylko po rozwiązaniu stanu logowania. -->
-  <div class="brand-logo-text" style="font-size:32px; margin-bottom:28px">nexus</div>
+  <div class="brand-logo-text" style="font-size:32px; margin-bottom:28px">Maximus</div>
   <div class="mf-spinner" id="authGateSpinner"></div>
   <div class="modal" id="authGateModal" style="max-width:420px; display:none">
     <div class="modal-head">
@@ -1149,8 +1162,8 @@
 <footer class="app-footer">
   <div class="app-footer-inner">
     <div class="app-footer-left">
-      <span class="brand-logo-text" style="font-size:16px">nexus</span>
-      <span class="app-footer-copy">&copy; <span id="footerYear"></span> <span style="font-weight:600">nexus</span> by RetentionQ Sp. z o.o. All rights reserved.<span class="app-footer-nip">NIP: 5273127096</span></span>
+      <span class="brand-logo-text" style="font-size:16px">Maximus</span>
+      <span class="app-footer-copy">&copy; <span id="footerYear"></span> <span style="font-weight:600">Maximus</span> by RetentionQ Sp. z o.o. All rights reserved.<span class="app-footer-nip">NIP: 5273127096</span></span>
     </div>
     <a class="app-footer-powered" href="https://www.linkedin.com/company/retentionq/posts/?feedView=all" target="_blank" rel="noopener noreferrer">
       Powered by
@@ -4338,7 +4351,7 @@ function spacerPreview(b, px){
    tylko "gniazdo" na gotowy, wygenerowany i wgrany plik.
    ================================================================ */
 COMPONENTS.push({
-  id:"countdown-gif-image", category:"countdown", source:"NEXUS",
+  id:"countdown-gif-image", category:"countdown", source:"MAXIMUS",
   label:"Countdown GIF", desc:"Displays a countdown GIF built with the Countdown GIF tool (topbar) — generate it there, host the file, then paste the URL here.",
   preview:function(b){ return frame(b,
     '<div style="display:flex;justify-content:center;gap:10px;font-family:'+b.fontHeading+';font-weight:700;font-size:20px;color:'+b.text+'">'+
@@ -9791,7 +9804,7 @@ function renderList(){
       body.appendChild(row);
       return;
     }
-    var edited = item.code ? ' title="content edited" style="color:var(--accent)"' : "";
+    var edited = item.code ? ' title="content edited" style="color:var(--accent-strong)"' : "";
     // Nazwa wariantu w nawiasie obok klucza komponentu — user: "przy nazwie
     // komponentu w Mail Stack w nawiasie ma się pojawić nazwa wariantu".
     // Bezpieczny fallback, gdy wariant, na który wskazuje item.variantId,
