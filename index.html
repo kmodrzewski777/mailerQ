@@ -1222,10 +1222,12 @@
         <div class="modal-preview-box" id="previewBox"></div>
       </div>
       <pre class="code" id="previewCodeBox" style="display:none"></pre>
-      <p class="modal-desc" id="previewDesc"></p>
       <div class="bf-actions" style="border-top:none; margin-top:0; padding-top:0; justify-content:space-between">
         <button class="btn ghost" id="previewDeleteBtn" style="display:none; color:#b42318; border-color:#b42318">Delete</button>
-        <button class="btn" id="previewAddBtn" style="margin-left:auto"></button>
+        <span style="display:flex; gap:8px; margin-left:auto">
+          <button class="btn ghost" id="previewFullPreviewBtn" type="button" style="display:none">Full preview</button>
+          <button class="btn" id="previewAddBtn"></button>
+        </span>
       </div>
     </div>
     <div class="modal-footer-bar" id="previewExportBar" style="display:none; gap:8px">
@@ -9278,6 +9280,22 @@ function requestDeleteReadyEmail(emailId){
     });
   });
 }
+// user: "dodaj mi funkcje Full preview, która otworzy maila w nowej karcie
+// i go wyrenderuje w pełni tak żebym mógl puścić jego wygląd do klienta
+// (zrobić sobie screena). ma być tylko header+content maila+footer, tło
+// całości masz brać z letterbox color" — compileEmailHtml (BEZ noChrome)
+// już dokładnie to robi: header+treść+stopka, tło body/.mj-canvas-bg
+// ustawione na b.outerBg (letterbox), patrz pageBg tam. Ten sam
+// fillTokensForPreview/simulateLiquidForPreview co mountMjmlIframe, żeby
+// podgląd wyglądał tak samo "prawdziwie" (bez gołych [[TOKENÓW]]/{{liquid}}),
+// tylko wyrenderowany jako CAŁA, samodzielna strona w nowej karcie zamiast
+// w iframe'ie — stąd Blob URL + window.open zamiast mountMjmlIframe.
+function openFullEmailInNewTab(bodyMjml, b, opts){
+  var html = compileEmailHtml(bodyMjml, b, opts);
+  html = simulateLiquidForPreview(fillTokensForPreview(html, b), b);
+  var blob = new Blob([html], { type:"text/html" });
+  window.open(URL.createObjectURL(blob), "_blank");
+}
 function openEmailPreview(emailId){
   var e = findEmail(emailId), b = brand();
   byId("previewTitle").textContent = e.label;
@@ -9300,9 +9318,10 @@ function openEmailPreview(emailId){
   }), b.componentGap);
   mountMjmlIframe("previewIframeWrap", bodyMjml, b, { headerVariant: state.headerVariant, footerVariant: state.footerVariant, darkPreview: previewTheme==="dark" });
   resetPreviewCodeToggle();
-  byId("previewDesc").textContent = e.desc + "  ·  " + e.note;
-  byId("previewDesc").style.display = "";
   byId("previewExportBar").style.display = "none";
+  var fullPreviewBtn = byId("previewFullPreviewBtn");
+  fullPreviewBtn.style.display = "";
+  fullPreviewBtn.onclick = function(){ openFullEmailInNewTab(bodyMjml, b, { headerVariant: state.headerVariant, footerVariant: state.footerVariant }); };
   var addBtn = byId("previewAddBtn");
   addBtn.style.display = "";
   addBtn.textContent = "Get";
@@ -9347,10 +9366,10 @@ function openMailPreview(){
   var bodyMjml = stitchComponentCodes(codes, b.componentGap);
   mountMjmlIframe("previewIframeWrap", bodyMjml, b, { editable:true, headerVariant: state.headerVariant, footerVariant: state.footerVariant, darkPreview: previewTheme==="dark" });
   resetPreviewCodeToggle();
-  byId("previewDesc").style.display = "none";
   var addBtn = byId("previewAddBtn");
   addBtn.style.display = "none";
   byId("previewDeleteBtn").style.display = "none";
+  byId("previewFullPreviewBtn").style.display = "none";
   previewExportCode = buildExportCode();
   byId("previewExportBar").style.display = "flex";
   byId("previewOverlay").classList.add("open");
