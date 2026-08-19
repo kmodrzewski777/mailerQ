@@ -12,12 +12,12 @@
 <meta name="twitter:image" content="https://kmodrzewski777.github.io/mailerQ/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- user: "Zastosuj [Ledgerix] Design System w naszej aplikacji... W logo
-     użyj fonta Urbanist 500" — jeden font wszędzie (logo + cała reszta
-     UI), tak jak w referencji; jedno zapytanie z pełnym zakresem wag
-     (400-900) ładuje CAŁY zmienny plik fontu, więc nie trzeba osobnych
-     linków na logo i na resztę tekstu. -->
-<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<!-- Urbanist — cała reszta UI (patrz --font-display/--font-body/--font-mono
+     niżej). user potem: "Jaki to font? [screenshot 'Maximus'] Chce logo
+     tym fontem" — Poppins, TYLKO na logo (patrz .brand-logo-text), reszta
+     interfejsu zostaje przy Urbanist. Jedno zapytanie ładuje obie rodziny
+     naraz. -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   /* Design tokens — z Ledgerix Design System (user: "Zastosuj ten Design
      System w naszej aplikacji"): near-black ink + warm-white paper, jeden
@@ -114,11 +114,13 @@
     display:flex; align-items:center; justify-content:space-between; gap:24px;
   }
   .brand-title{display:flex; align-items:center; font-size:26px}
-  /* user: "W logo użyj fonta Urbanist 500" — sam stylizowany napis
-     "Maximus" jest logiem, jedna wspólna klasa użyta w topbarze, stopce
-     I na ekranie logowania (patrz #authGate), rozmiar dobierany
-     per-użycie inline. */
-  .brand-logo-text{font-family:'Urbanist',sans-serif; font-weight:500; color:var(--ink); line-height:1}
+  /* user: "Jaki to font? [screenshot 'Maximus'] Chce logo tym fontem" —
+     Poppins Medium (500), rozpoznany po jednopiętrowym "a" i szerokich,
+     kolistych licznikach — nie pikselowe dopasowanie, odczyt wizualny.
+     Sam stylizowany napis "Maximus" jest logiem, jedna wspólna klasa
+     użyta w topbarze, stopce I na ekranie logowania (patrz #authGate),
+     rozmiar dobierany per-użycie inline. */
+  .brand-logo-text{font-family:'Poppins',sans-serif; font-weight:500; color:var(--ink); line-height:1}
   .brand-picker{display:flex; align-items:center; gap:8px}
   .topbar-left{display:flex; align-items:center; gap:14px}
   /* user: "add component - site settings - wybór brandu | avatar/imie
