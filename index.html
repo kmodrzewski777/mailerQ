@@ -12,67 +12,63 @@
 <meta name="twitter:image" content="https://kmodrzewski777.github.io/mailerQ/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- user: "Nie podoba mi sie ten font urbanist. zmien na google sans" —
-     Google Sans jest wewnętrznym fontem Google (Gmail/Search/Android),
-     NIE jest publicznie dostępny na Google Fonts ani do legalnego
-     osadzenia na stronie. Po wyjaśnieniu tego user wybrał "Product Sans /
-     Roboto" jako zamiennik — Product Sans ma DOKŁADNIE ten sam problem z
-     licencją co Google Sans (to bliźniacza rodzina, też wewnętrzna), więc
-     realnie ładujemy Roboto: jedyny z tej pary, który jest naprawdę
-     publicznym fontem Google (używany w Androidzie/Material Design).
-     Roboto TYLKO na resztę UI (--font-display/--font-body/--font-mono) —
-     Poppins na logo (patrz .brand-logo-text) zostaje bez zmian, to osobna
-     decyzja z poprzedniego promptu. Roboto ma DYSKRETNE wagi (nie pełny
-     zmienny zakres jak Urbanist) — 400/500/700/900 pokrywa to, czego
-     appka faktycznie używa. -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<!-- user: "Nie podoba mi sie ten Design. Wrzucam Ci nowy - przygotuj z
+     niego Design System i wprowadź na stronę" (referencja "Plan", CRM/
+     loan-deal workspace) — Plus Jakarta Sans zastępuje Roboto na resztę
+     UI (--font-display/--font-body/--font-mono). Poppins na logo (patrz
+     .brand-logo-text) zostaje NIETKNIĘTE — user go nie wspomniał tym
+     razem, to osobna, wcześniejsza decyzja. -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* Design tokens — z Ledgerix Design System (user: "Zastosuj ten Design
-     System w naszej aplikacji"): near-black ink + warm-white paper, jeden
-     miętowy akcent trzymany w rezerwie, Urbanist wszędzie, 24px promień
-     na kartach, gęsty spacing.
-     --accent-strong — DODATKOWY token, KTÓREGO NIE MA w referencji: sam
-     #75FB90 jako zwykły kolor TEKSTU/ikony/obramowania na jasnym tle ma
-     fatalny kontrast (jasna mięta na bieli) — w referencji akcent siedzi
-     WYŁĄCZNIE na tle (chip/badge/kwadrat), nigdy jako czysty tekst. Appka
-     już ma kilkanaście miejsc z color:var(--accent)/border-color:var(--accent)
-     (zaznaczona opcja w dropdownie, ulubiona gwiazdka, "uzbrojony" przycisk
-     usuwania itd.) — dla nich osobny, ciemniejszy odcień tej samej zieleni,
-     zgodny z WCAG AA na jasnym tle; w dark mode wraca do jasnej wersji,
-     bo tam TA sama jasna mięta ma świetny kontrast na ciemnym tle. */
+  /* Design tokens — z Plan Design System (user: "Nie podoba mi sie ten
+     Design [Ledgerix]. Wrzucam Ci nowy - przygotuj z niego Design System
+     i wprowadź na stronę"): near-black ink + chłodnoszare tło strony,
+     Plus Jakarta Sans wszędzie, 16px promień na panelach (mniejszy niż
+     poprzednie 24px — referencja "Plan" ma łagodniejszą skalę), gęsty
+     spacing.
+     Referencja ma TRZY osobne kolory semantyczne (niebieski=Mail,
+     zielony=Call/pozytyw, żółty=New/oczekiwanie) — appka ma dziś JEDEN
+     uniwersalny --accent używany do wielu różnych rzeczy naraz (zaznaczona
+     opcja, ulubiona gwiazdka, checked checkbox, "dodano", pasek postępu,
+     uzbrojony przycisk kasowania). Zamiast wprowadzać nieużywane jeszcze
+     tokeny blue/yellow bez żadnego realnego zastosowania w appce, --accent
+     mapuje na ZIELONY z referencji (Call/pozytyw/potwierdzenie) — to
+     najbliższe znaczeniowo do tego, jak --accent jest już używany tutaj
+     (afirmacja/wybór/sukces). --accent-strong (patrz poprzedni komentarz o
+     WCAG) przeliczony pod nowy odcień zieleni. */
   :root{
-    --paper:#ffffff; --surface:#ffffff; --surface-2:#f3f2ef;
-    --ink:#101012; --ink-muted:#3a3a3e; --ink-faint:#8b8a86;
-    --line:#dedcd8; --line-strong:#c7c5c0;
-    --accent:#75fb90; --accent-strong:#1e7a3d; --accent-ink:#0e2016; --accent-soft:rgba(117,251,144,.18);
-    --radius-card:24px; --radius-chip:999px;
-    --shadow-card:0 1px 2px rgba(16,16,18,.04), 0 8px 24px rgba(16,16,18,.07);
-    --font-display:'Roboto',Arial,sans-serif;
-    --font-body:'Roboto',Arial,sans-serif;
-    --font-mono:'Roboto',Arial,sans-serif;
+    --paper:#ffffff; --surface:#ffffff; --surface-2:#f7f7f8;
+    --ink:#111112; --ink-muted:#4b4b4f; --ink-faint:#8a8a8e;
+    --line:#e6e6e6; --line-strong:#d0d0d0;
+    --accent:#22c55e; --accent-strong:#15803d; --accent-ink:#0f2818; --accent-soft:rgba(34,197,94,.15);
+    --radius-card:16px; --radius-chip:999px;
+    --shadow-card:0 1px 2px rgba(17,17,18,.04), 0 6px 18px rgba(17,17,18,.06);
+    --font-display:'Plus Jakarta Sans',Arial,sans-serif;
+    --font-body:'Plus Jakarta Sans',Arial,sans-serif;
+    --font-mono:'Plus Jakarta Sans',Arial,sans-serif;
   }
   @media (prefers-color-scheme:dark){
     :root{
-      --paper:#0e0f10; --surface:#17181a; --surface-2:#1e1f22;
+      --paper:#0e0f10; --surface:#18191b; --surface-2:#202123;
       --ink:#f5f5f3; --ink-muted:#b8b7b2; --ink-faint:#7a7975;
       --line:#2c2c2f; --line-strong:#3c3c40;
-      --accent:#75fb90; --accent-strong:#75fb90; --accent-ink:#0e2016; --accent-soft:rgba(117,251,144,.22);
+      --accent:#22c55e; --accent-strong:#22c55e; --accent-ink:#0f2818; --accent-soft:rgba(34,197,94,.22);
       --shadow-card:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
     }
   }
   :root[data-theme="dark"]{
-    --paper:#0e0f10; --surface:#17181a; --surface-2:#1e1f22;
+    --paper:#0e0f10; --surface:#18191b; --surface-2:#202123;
     --ink:#f5f5f3; --ink-muted:#b8b7b2; --ink-faint:#7a7975;
     --line:#2c2c2f; --line-strong:#3c3c40;
-    --accent:#75fb90; --accent-strong:#75fb90; --accent-ink:#0e2016; --accent-soft:rgba(117,251,144,.22);
+    --accent:#22c55e; --accent-strong:#22c55e; --accent-ink:#0f2818; --accent-soft:rgba(34,197,94,.22);
     --shadow-card:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
   }
   :root[data-theme="light"]{
-    --paper:#ffffff; --surface:#ffffff; --surface-2:#f3f2ef;
-    --ink:#101012; --ink-muted:#3a3a3e; --ink-faint:#8b8a86;
-    --line:#dedcd8; --line-strong:#c7c5c0;
-    --accent:#75fb90; --accent-strong:#1e7a3d; --accent-ink:#0e2016; --accent-soft:rgba(117,251,144,.18);
-    --shadow-card:0 1px 2px rgba(16,16,18,.04), 0 8px 24px rgba(16,16,18,.07);
+    --paper:#ffffff; --surface:#ffffff; --surface-2:#f7f7f8;
+    --ink:#111112; --ink-muted:#4b4b4f; --ink-faint:#8a8a8e;
+    --line:#e6e6e6; --line-strong:#d0d0d0;
+    --accent:#22c55e; --accent-strong:#15803d; --accent-ink:#0f2818; --accent-soft:rgba(34,197,94,.15);
+    --shadow-card:0 1px 2px rgba(17,17,18,.04), 0 6px 18px rgba(17,17,18,.06);
   }
 
   *{box-sizing:border-box}
@@ -89,9 +85,9 @@
     background:var(--paper); color:var(--ink); font-family:var(--font-body);
     font-size:14px; line-height:1.5; min-height:100vh; overflow-x:hidden;
   }
-  /* font-weight:700, nie 600 — Roboto ma tylko dyskretne wagi
-     (100/300/400/500/700/900, nie pełny zmienny zakres jak Urbanist),
-     700 to najbliższa realna, natywna waga. */
+  /* font-weight:700 — w referencji "Plan" nagłówki są wyraźnie cięższe
+     niż zwykły bold tekstu; Plus Jakarta Sans ma pełny zakres 200-800,
+     więc 700 to prawdziwa, natywna waga (nie zaokrąglenie jak przy Roboto). */
   h1,h2,h3{font-family:var(--font-display); font-weight:700; line-height:1.2; letter-spacing:-0.02em; margin:0; text-wrap:balance}
   ::selection{background:var(--accent-soft)}
   /* Scrollbary wg designu strony — cieńsze niż domyślny pasek przeglądarki,
@@ -298,7 +294,7 @@
   /* user: "dodatkowo zaokrąglij górne boki tego preview" — TYLKO górne rogi
      (dolne stykają się z card-body, nie z zewnętrzną, już zaokrągloną
      krawędzią .card). */
-  .card-preview{height:150px; flex:none; background:var(--surface-2); overflow:hidden; position:relative; border-radius:20px 20px 0 0}
+  .card-preview{height:150px; flex:none; background:var(--surface-2); overflow:hidden; position:relative; border-radius:12px 12px 0 0}
   /* user: "dół z kolei niech się wygasza kolorem #F5F6F8 (gradient)" —
      tylko na snapshotach gotowych maili (renderEmailThumb/renderEmailGrid),
      bo tam treść jest CELOWO ucinana na dole (długi mail w krótkim boxie). */
