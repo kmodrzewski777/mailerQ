@@ -22,29 +22,29 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
 <style>
-  /* Design tokens — z referencji "BizLink" (user: "Przygotuj design 1:1
-     zgodny z obrazkami"): czysta czarno-biała paleta z jednym kremowym
-     tonem jako rzadkim akcentem (panel Brand w sidebarze, pasek filtra
-     CRM), General Sans wszędzie. Zielony --accent z poprzedniej wersji
-     zniknął jako kolor PIERWSZOPLANOWY — aktywne stany (nav, chipsy
-     filtrów) używają już dziś --ink, nie --accent (patrz .nav-item[aria-
-     current]/.fchip[aria-pressed] niżej — bez zmian). --accent zostaje
-     tylko jako WĄSKO-semantyczny token (wypełniona gwiazdka ulubionych,
-     "dodano" na przycisku, status "sent" w kalendarzu DM) — przeliczony na
-     stonowany bursztyn zamiast zieleni, bo referencja w ogóle nie ma
-     koloru, więc bursztyn jest neutralnym, niedominującym wyborem
-     funkcjonalnym, nie próbą naśladowania nieistniejącego w niej akcentu. */
+  /* Design tokens — user: "kolor akcentu strony ma być czarny. strona ma
+     być czarno-biała z szarymi dodatkami (mogą być jeszcze jaśniejsze).
+     usuń cienie wszystkie." Paleta bursztynowa/kremowa z poprzedniej wersji
+     odchodzi całkowicie: --accent-strong jest teraz praktycznie czarny
+     (gwiazdka ulubionych, "dodano" na przycisku, status "sent" w
+     kalendarzu DM), --accent to średni szary (wypełnienia/plomby),
+     --accent-soft to bardzo jasny neutralny szary. --surface-cream
+     (dawny pasek filtra/panel marki) też traci kolor — zostaje jako
+     token z nazwy, ale wartość to zwykły jasny szary jak --surface-2.
+     --shadow-card:none — cienie usunięte z całej apki (patrz też
+     pojedyncze box-shadow niżej w arkuszu, każdy wykasowany osobno). */
   :root{
     --paper:#ffffff; --surface:#ffffff; --surface-2:#f4f4f4;
-    --surface-cream:#f6f7ed;
+    --surface-cream:#f4f4f4;
     --ink:#1f1f1f; --ink-muted:#4b4b4f; --ink-faint:#8a8a8e;
     --line:#e6e6e6; --line-strong:#d0d0d0;
-    --accent:#c8952a; --accent-strong:#9c7220; --accent-ink:#3a2a0c; --accent-soft:rgba(200,149,42,.15);
+    --accent:#8a8a8a; --accent-strong:#232323; --accent-ink:#ffffff; --accent-soft:rgba(31,31,31,.08);
     /* user: "zweryfikuj design system... bordery też, ma być identycznie"
        — referencja ma zauważalnie bardziej zaokrąglone karty niż
        poprzednie 16px. */
     --radius-card:20px; --radius-chip:999px;
-    --shadow-card:0 1px 2px rgba(17,17,18,.04), 0 6px 18px rgba(17,17,18,.06);
+    --shadow-card:none;
+    --topbar-h:64px;
     --font-display:'General Sans',Arial,sans-serif;
     --font-body:'General Sans',Arial,sans-serif;
     --font-mono:'General Sans',Arial,sans-serif;
@@ -52,28 +52,28 @@
   @media (prefers-color-scheme:dark){
     :root{
       --paper:#0e0f10; --surface:#18191b; --surface-2:#202123;
-      --surface-cream:#232319;
+      --surface-cream:#202123;
       --ink:#f5f5f3; --ink-muted:#b8b7b2; --ink-faint:#7a7975;
       --line:#2c2c2f; --line-strong:#3c3c40;
-      --accent:#d9a53b; --accent-strong:#d9a53b; --accent-ink:#3a2a0c; --accent-soft:rgba(217,165,59,.22);
-      --shadow-card:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      --accent:#8a8a8a; --accent-strong:#f0f0ee; --accent-ink:#141414; --accent-soft:rgba(255,255,255,.12);
+      --shadow-card:none;
     }
   }
   :root[data-theme="dark"]{
     --paper:#0e0f10; --surface:#18191b; --surface-2:#202123;
-    --surface-cream:#232319;
+    --surface-cream:#202123;
     --ink:#f5f5f3; --ink-muted:#b8b7b2; --ink-faint:#7a7975;
     --line:#2c2c2f; --line-strong:#3c3c40;
-    --accent:#d9a53b; --accent-strong:#d9a53b; --accent-ink:#3a2a0c; --accent-soft:rgba(217,165,59,.22);
-    --shadow-card:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    --accent:#8a8a8a; --accent-strong:#f0f0ee; --accent-ink:#141414; --accent-soft:rgba(255,255,255,.12);
+    --shadow-card:none;
   }
   :root[data-theme="light"]{
     --paper:#ffffff; --surface:#ffffff; --surface-2:#f4f4f4;
-    --surface-cream:#f6f7ed;
+    --surface-cream:#f4f4f4;
     --ink:#1f1f1f; --ink-muted:#4b4b4f; --ink-faint:#8a8a8e;
     --line:#e6e6e6; --line-strong:#d0d0d0;
-    --accent:#c8952a; --accent-strong:#9c7220; --accent-ink:#3a2a0c; --accent-soft:rgba(200,149,42,.15);
-    --shadow-card:0 1px 2px rgba(17,17,18,.04), 0 6px 18px rgba(17,17,18,.06);
+    --accent:#8a8a8a; --accent-strong:#232323; --accent-ink:#ffffff; --accent-soft:rgba(31,31,31,.08);
+    --shadow-card:none;
   }
 
   *{box-sizing:border-box}
@@ -140,29 +140,29 @@
      dawny .shell{max-width:1400px; margin:0 auto}), żeby na szerokich
      ekranach było widać puste marginesy PO OBU STRONACH całej aplikacji,
      nie tylko wewnątrz jednej kolumny. */
-  .app{display:grid; grid-template-columns:var(--nav-w,248px) 1fr var(--stack-w,340px); min-height:100vh; align-items:start; max-width:1400px; margin:0 auto}
+  /* user: "widgety lecą po 2 na wiersz a powinny po 3" — nav/dock zwężone
+     do dawnych wartości .shell (236/320), żeby środkowa kolumna miała
+     dość miejsca na 3 karty w rzędzie przy realistycznej szerokości ekranu. */
+  /* user: "widgety lecą po 2 na wiersz a powinny po 3" — sprawdzone przy
+     1280px (typowy laptop, nie tylko 1920px): przy --stack-w:320px i
+     minmax(252px,1fr) 3 karty NIE mieściły się już przy realistycznej
+     szerokości okna, nie tylko na wąskich ekranach. --stack-w:290px +
+     card-grid minmax(205px,1fr) (patrz niżej) dają ~50px zapasu przy
+     1280px, nie tylko przy 1920px. */
+  .app{display:grid; grid-template-columns:var(--nav-w,236px) 1fr var(--stack-w,290px); min-height:calc(100vh - var(--topbar-h)); align-items:start; max-width:1400px; margin:0 auto}
   .app.nav-collapsed{--nav-w:68px}
-  .app.no-stack{grid-template-columns:var(--nav-w,248px) 1fr}
+  .app.no-stack{grid-template-columns:var(--nav-w,236px) 1fr}
   .app.no-stack .dock{display:none}
 
   .nav{
-    position:sticky; top:0; align-self:start; height:100vh; box-sizing:border-box;
+    position:sticky; top:var(--topbar-h); align-self:start; height:calc(100vh - var(--topbar-h)); box-sizing:border-box;
     background:var(--surface); border-right:1px solid var(--line);
-    display:flex; flex-direction:column; padding:16px 12px 12px;
+    display:flex; flex-direction:column; gap:2px; padding:16px 12px 12px; overflow-y:auto;
   }
-  /* Tylko destynacje + kategorie przewijają się — panel marki i profil
-     zostają PRZYPIĘTE u dołu (poza scrollem), inaczej dropdown pickera
-     marki (position:absolute) obcinałby się na krawędzi przewijanego
-     kontenera, gdy lista kategorii jest długa. */
-  .nav-scroll{flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:2px}
-  .nav-brand{display:flex; align-items:center; gap:10px; padding:4px 8px 18px; min-width:0}
-  .nav-brand .brand-logo-text{font-size:22px; white-space:nowrap; overflow:hidden}
-  .app.nav-collapsed .nav-brand .brand-logo-text,
   .app.nav-collapsed .nav-label,
   .app.nav-collapsed .nav-group-title,
   .app.nav-collapsed .nav-item .n,
-  .app.nav-collapsed .nav-cats,
-  .app.nav-collapsed .nav-brand-section{display:none}
+  .app.nav-collapsed .nav-cats{display:none}
   .app.nav-collapsed .nav-item{justify-content:center; padding-left:0; padding-right:0}
   .nav-group-title{
     font-size:10.5px; font-weight:500; letter-spacing:.09em; text-transform:uppercase;
@@ -181,13 +181,27 @@
     font-variant-numeric:tabular-nums; flex:none;
   }
   .nav-item:hover{background:var(--surface-2); color:var(--ink)}
-  .nav-item[aria-current="page"]{background:var(--ink); color:var(--paper)}
-  .nav-item[aria-current="page"] .n{color:rgba(255,255,255,.6)}
+  /* user: "niech wybrana kategoria się tak chamsko nie podświetla całą apką
+     tylko po prostu zmienia kolor fontu na czarny" — bez wypełnionego tła,
+     sam kolor tekstu (+ waga) niesie stan "aktywne", tak jak już działa
+     .nav-cat-btn[aria-pressed] niżej. */
+  .nav-item[aria-current="page"]{background:transparent; color:var(--ink)}
+  .nav-item[aria-current="page"] .n{color:var(--ink-faint)}
   /* Kategorie AKTYWNEJ sekcji, wcięte pod jej pozycją nav — user: "kategorie
      komponentów zostają na lewy sidebarze, tak jak było wcześniej". Tylko
      label na akcencie przy aktywnej, bez pełnego podświetlenia wiersza —
      ta sama zasada co dawne .cat-btn sprzed redesignu. */
-  .nav-cats{display:flex; flex-direction:column; gap:0; margin:2px 0 6px; padding-left:14px; border-left:1px solid var(--line); margin-left:23px}
+  /* user: "Dodaj tez jakas animacje rozwijania/zwijajania" — max-height
+     zamiast display:none, żeby przełączenie sekcji faktycznie rozwijało/
+     zwijało listę kategorii, nie tylko pokazywało/chowało ją skokowo. */
+  .nav-cats{
+    display:flex; flex-direction:column; gap:0; margin:2px 0 6px; padding-left:14px;
+    border-left:1px solid var(--line); margin-left:23px;
+    max-height:600px; opacity:1; overflow:hidden;
+    transition:max-height .22s ease, opacity .18s ease, margin .22s ease;
+  }
+  .nav-cats.is-collapsed{max-height:0; opacity:0; margin-top:0; margin-bottom:0}
+  @media (prefers-reduced-motion:reduce){ .nav-cats{transition:none} }
   .nav-cat-btn{
     display:flex; width:100%; align-items:center; justify-content:space-between; gap:8px;
     padding:6px 10px; border:none; background:transparent; color:var(--ink-muted); font:inherit;
@@ -196,16 +210,27 @@
   .nav-cat-btn:hover{background:var(--surface-2); color:var(--ink)}
   .nav-cat-btn[aria-pressed="true"]{color:var(--ink); font-weight:500}
   .nav-cat-btn .n{font-size:10.5px; color:var(--ink-faint); font-variant-numeric:tabular-nums; flex:none}
-  /* Sekcja marki — user: "Wybór brandu ma być po lewej stronie na
-     sidebarze, nad profilem użytkownika, w oddzielnej sekcji". Krem jako
-     jedyny akcent tła w apce poza tym paskiem — celowo rzadki. */
-  .nav-brand-section{
-    background:var(--surface-cream); border-radius:12px; padding:10px 10px 12px;
-    margin:10px 0 2px;
+
+  /* ============================================================
+     TOPBAR — user: "header ma być jak wczesniej czyli logo po lewej -
+     srodek pusto - prawa strona wybór brandu, dodaj komponent,
+     użytkownik, ustawienia" — globalny pasek NAD trzykolumnowym .app.
+     Brand picker/konto/Settings wracają tu z sidebaru (patrz
+     usunięte .nav-brand-section/.nav-foot wyżej); --topbar-h karmi
+     position:sticky top/height .nav, .dock i .page-head niżej, żeby
+     przypinały się POD paskiem, nie pod nim. */
+  .topbar{
+    position:sticky; top:0; z-index:40; background:var(--paper);
+    border-bottom:1px solid var(--line); height:var(--topbar-h); box-sizing:border-box;
   }
-  .nav-brand-section .nav-group-title{padding:2px 2px 8px; color:var(--ink-muted)}
-  .nav-brand-section .brand-select-btn{width:100%; min-width:0; background:var(--surface)}
-  .nav-foot{border-top:1px solid var(--line); padding-top:10px; margin-top:10px}
+  .topbar-inner{
+    max-width:1400px; height:100%; margin:0 auto; padding:0 24px; box-sizing:border-box;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+  }
+  .nav-brand{display:flex; align-items:center; gap:10px; min-width:0}
+  .nav-brand .brand-logo-text{font-size:22px; white-space:nowrap; overflow:hidden}
+  .topbar-right{display:flex; align-items:center; gap:10px; flex:none}
+  .topbar-right .brand-select-btn{min-width:150px}
 
   /* Pasek roboczy — sticky nagłówek STRONY. Niesie: gdzie jestem + ile
      tego jest + wyszukiwarka + akcja właściwa DLA TEJ strony. */
@@ -218,7 +243,7 @@
      JEGO ZAWARTOŚĆ (.page-head-inner) jest wyśrodkowana, inaczej dolna
      kreska urywałaby się w połowie szerokości na szerokich ekranach. */
   .page-head{
-    position:sticky; top:0; z-index:25; background:var(--paper);
+    position:sticky; top:var(--topbar-h); z-index:25; background:var(--paper);
     border-bottom:1px solid var(--line); padding:14px 24px;
   }
   .page-head-inner{display:flex; align-items:center; gap:14px; flex-wrap:wrap}
@@ -234,13 +259,15 @@
      razu; .page-head-actions zostaje TYLKO z wyszukiwarką + kontekstową
      akcją "Add" (picker marki i przełącznik Mail Stacka wyprowadzone stąd
      — patrz .nav-brand-section wyżej i zawsze-widoczna kolumna .dock). */
-  /* Pasek filtra CRM — jedyne, co dziś zostaje w .filterbar (kategorie
-     przeniosły się do .nav-cats w sidebarze). Krem — ta sama, rzadka
-     druga rola tego tonu co panel marki wyżej. */
+  /* user: "usun ten zielony pasek" — bez kremowego tła, płaski pasek jak
+     reszta strony; user: "wyszukiwarka pod nagłówkiem, a po prawej
+     Platform, tak jak było wcześniej" — .search-row to jeden wiersz:
+     wyszukiwarka flex:1 po lewej, filtr CRM (Platform) flex:none po prawej. */
   .filterbar{
-    padding:10px 24px; border-bottom:1px solid var(--line); background:var(--surface-cream);
+    padding:10px 24px; border-bottom:1px solid var(--line); background:var(--paper);
   }
-  .filterbar .crm-filter-row{flex-wrap:wrap}
+  .search-row{display:flex; align-items:center; gap:16px}
+  .filterbar .crm-filter-row{flex-wrap:wrap; flex:none}
   .fchip{
     border:1px solid var(--line); background:var(--surface); color:var(--ink-muted);
     border-radius:var(--radius-chip); padding:6px 12px; font-size:12.5px; font-weight:500;
@@ -255,10 +282,18 @@
      Na desktopie zwykłe sticky dziecko grida; na wąskim ekranie (patrz
      media query niżej) wraca do bycia off-canvas panelem, bo trzy
      kolumny fizycznie się nie mieszczą. */
+  /* user: "przycisk preview powinien byc od razu pod mail stacks... a nie
+     przyklejony do spodu ekranu" — poprzednio .dock-body{flex:1} w
+     height:100vh flex-columnie ZAWSZE dopychał .dock-foot do dołu
+     VIEWPORTU, niezależnie od tego, ile pozycji jest na liście. Teraz CAŁY
+     .dock jest jedynym kontenerem przewijanym (max-height zamiast sztywnego
+     height, overflow-y na .dock samym) — .dock-body płynie naturalną
+     wysokością, .dock-foot (Preview) ląduje OD RAZU pod ostatnią pozycją
+     listy, nagłówek zostaje wizualnie przypięty przez WŁASNE sticky. */
   .dock{
-    position:sticky; top:0; align-self:start; height:100vh; box-sizing:border-box; width:100%;
+    position:sticky; top:var(--topbar-h); align-self:start; max-height:calc(100vh - var(--topbar-h)); box-sizing:border-box; width:100%;
     background:var(--surface); border-left:1px solid var(--line);
-    display:flex; flex-direction:column; overscroll-behavior:contain;
+    display:flex; flex-direction:column; overflow-y:auto; overscroll-behavior:contain;
   }
   /* Na wąskim ekranie dock wraca do bycia overlay-em (patrz media query) i
      lądował NA pływającym przycisku Feedback — chowamy go, dopóki dok jest
@@ -270,9 +305,10 @@
   .dock-head{
     display:flex; align-items:center; gap:8px; padding:16px 18px;
     border-bottom:1px solid var(--line); flex:none;
+    position:sticky; top:0; z-index:2; background:var(--surface);
   }
   .dock-head h3{font-size:15px; font-weight:500; margin:0}
-  .dock-body{flex:1; overflow-y:auto; padding:14px 18px}
+  .dock-body{flex:none; padding:14px 18px}
   .dock-foot{padding:14px 18px; border-top:1px solid var(--line); flex:none}
   .dock-scrim{display:none}
   /* Licznik przy nagłówku Mail Stacka — dziś czysto informacyjny (kolumna
@@ -326,17 +362,16 @@
   @media (max-width:1000px){
     .app{grid-template-columns:1fr}
     .nav{
-      position:fixed; top:0; bottom:0; left:0; width:248px; z-index:50;
+      position:fixed; top:var(--topbar-h); bottom:0; left:0; width:248px; z-index:50;
+      height:auto;
       transform:translateX(-100%); transition:transform .22s cubic-bezier(.4,0,.2,1);
     }
     .app.nav-open .nav{transform:translateX(0)}
     .app.nav-collapsed{--nav-w:248px}
-    .app.nav-collapsed .nav-brand .brand-logo-text,
     .app.nav-collapsed .nav-label,
     .app.nav-collapsed .nav-group-title,
     .app.nav-collapsed .nav-item .n,
-    .app.nav-collapsed .nav-cats,
-    .app.nav-collapsed .nav-brand-section{display:revert}
+    .app.nav-collapsed .nav-cats{display:revert}
     .app.nav-collapsed .nav-item{justify-content:flex-start; padding-left:10px; padding-right:10px}
     .page-head{padding:12px 16px}
     .filterbar{padding:10px 16px}
@@ -344,8 +379,8 @@
     #dockToggle{display:inline-flex}
     .app.no-stack #dockToggle{display:none}
     .dock{
-      position:fixed; top:0; right:0; bottom:0; left:auto; width:340px; max-width:92vw; z-index:45;
-      box-shadow:-18px 0 40px rgba(0,0,0,.10);
+      position:fixed; top:var(--topbar-h); right:0; bottom:0; left:auto; width:340px; max-width:92vw; z-index:45;
+      max-height:none; border-left:1px solid var(--line-strong);
       transform:translateX(100%); transition:transform .22s cubic-bezier(.4,0,.2,1);
     }
     .dock.open{transform:translateX(0)}
@@ -473,7 +508,7 @@
   }
   .page-btn:hover{border-color:var(--line-strong); color:var(--ink)}
   .page-btn[aria-current="true"]{background:var(--ink); color:var(--paper); border-color:var(--ink); font-weight:500; cursor:default}
-  .card-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(252px,1fr)); gap:14px}
+  .card-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(205px,1fr)); gap:14px}
 
   .card{
     background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-card);
@@ -504,7 +539,7 @@
      maila mają pojawić się te 3 kropki"). */
   .card-name-row{display:flex; align-items:flex-start; justify-content:space-between; gap:6px}
   .card-label{font-weight:500; font-size:14.5px; line-height:1.3; margin:0; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
-  .card-desc{font-size:11.5px; line-height:1.45; color:var(--ink-muted); margin:4px 0 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+  .card-desc{font-size:12.5px; line-height:1.45; color:var(--ink-muted); margin:4px 0 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
   /* user: "nazwy CRM bez chipsów, same napisy, ale fontem 9.5px" — zastępuje
      dawny rząd osobnych pigułek (.card-crm-chip) jedną linią zwykłego
      tekstu, oddzieloną środkowymi kropkami. margin-top:auto przykleja ją
@@ -569,7 +604,7 @@
   .flow-meta-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px}
   .flow-meta-item{background:var(--surface-2); border-radius:10px; padding:10px 10px}
   .flow-meta-item .k{font-size:9.5px; font-weight:500; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint)}
-  .flow-meta-item .v{font-size:12px; font-weight:500; margin-top:3px; line-height:1.3}
+  .flow-meta-item .v{font-size:12.5px; font-weight:500; margin-top:3px; line-height:1.3}
   .flow-sec{margin-bottom:22px}
   @media (max-width:720px){
     .flow-detail-grid{grid-template-columns:1fr}
@@ -582,7 +617,7 @@
   .flow-stage{border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px}
   .flow-stage-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap}
   .flow-stage-name{font-size:14px; font-weight:500}
-  .flow-stage-timing{font-size:11.5px; font-weight:500; color:var(--ink-faint)}
+  .flow-stage-timing{font-size:12.5px; font-weight:500; color:var(--ink-faint)}
   .flow-stage-purpose{font-size:13px; font-weight:500; color:var(--ink); margin:8px 0 0}
   .flow-stage-detail{font-size:13px; line-height:1.6; color:var(--ink-muted); margin:5px 0 0}
   .flow-stage-chips{display:flex; gap:5px; margin-top:9px; flex-wrap:wrap}
@@ -604,7 +639,7 @@
   .dm-legend .lg{display:flex; align-items:center; gap:5px; font-weight:500}
   .dm-legend .sw{width:9px; height:9px; border-radius:3px; flex:none}
   .dm-toolbar-actions{display:flex; gap:8px; margin-left:auto}
-  .dm-owner-row{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink-muted); margin-bottom:14px}
+  .dm-owner-row{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-muted); margin-bottom:14px}
   .dm-owner-row .k{font-weight:500; color:var(--ink-faint)}
   /* 7 równych kolumn; minmax(0,1fr) — bez tego długie nazwy wysyłek
      rozpychają kolumnę i cała siatka przestaje być równa. */
@@ -615,15 +650,18 @@
   .dm-day.is-today .dm-daynum{background:var(--ink); color:var(--paper); border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center}
   .dm-daynum{font-size:11.5px; font-weight:500; color:var(--ink-muted); flex:none}
   .dm-day.is-other .dm-daynum{color:var(--ink-faint)}
-  .dm-ev{border:0; text-align:left; width:100%; border-radius:6px; padding:4px 6px; font-size:10.5px; font-weight:500; line-height:1.3; cursor:pointer; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:inherit}
+  /* user: "usuń cienie wszystkie" — pasek statusu po lewej krawędzi
+     (dawniej inset box-shadow) to teraz zwykły border-left, stąd
+     padding-left o 2px mniejszy niż reszta (border zajmuje tę różnicę). */
+  .dm-ev{border:0; border-left:2px solid transparent; text-align:left; width:100%; border-radius:6px; padding:4px 6px 4px 4px; font-size:10.5px; font-weight:500; line-height:1.3; cursor:pointer; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:inherit}
   .dm-ev .t{opacity:.75; font-weight:500; margin-right:3px}
   /* Statusy — kolor NIESIE znaczenie, więc każdy ma też własną etykietę w
      legendzie i w szczegółach; sam kolor nigdy nie jest jedynym nośnikiem. */
-  .dm-ev.s-todo{background:var(--surface-2); color:var(--ink-muted); box-shadow:inset 2px 0 0 var(--line-strong)}
-  .dm-ev.s-in-progress{background:#fef6e0; color:#8a5a00; box-shadow:inset 2px 0 0 #fbbf24}
-  .dm-ev.s-ready{background:#eaf2fe; color:#1d4ed8; box-shadow:inset 2px 0 0 #3b82f6}
-  .dm-ev.s-sent{background:var(--accent-soft); color:var(--accent-strong); box-shadow:inset 2px 0 0 var(--accent)}
-  .dm-ev.s-cancelled{background:transparent; color:var(--ink-faint); text-decoration:line-through; box-shadow:inset 2px 0 0 var(--line)}
+  .dm-ev.s-todo{background:var(--surface-2); color:var(--ink-muted); border-left-color:var(--line-strong)}
+  .dm-ev.s-in-progress{background:#fef6e0; color:#8a5a00; border-left-color:#fbbf24}
+  .dm-ev.s-ready{background:#eaf2fe; color:#1d4ed8; border-left-color:#3b82f6}
+  .dm-ev.s-sent{background:var(--accent-soft); color:var(--accent-strong); border-left-color:var(--accent)}
+  .dm-ev.s-cancelled{background:transparent; color:var(--ink-faint); text-decoration:line-through; border-left-color:var(--line)}
   .dm-empty{grid-column:1/-1; background:var(--surface); padding:26px; text-align:center; font-size:13px; color:var(--ink-faint)}
   .dm-detail-row{display:flex; gap:14px; padding:9px 0; border-bottom:1px solid var(--line)}
   .dm-detail-row:last-child{border-bottom:0}
@@ -636,7 +674,7 @@
     .dm-day{min-height:0}
     .dm-day.is-empty{display:none}
   }
-  .card-actions .btn{flex:1; padding:10px 4px; font-size:11.5px; text-align:center; white-space:nowrap}
+  .card-actions .btn{flex:1; padding:10px 4px; font-size:12.5px; text-align:center; white-space:nowrap}
   .btn{
     border:1px solid var(--ink); background:var(--ink); color:var(--surface);
     padding:10px 16px; border-radius:8px; font-size:12.5px; font-weight:500;
@@ -659,10 +697,10 @@
      kolejny przycisk-obwódka obok Edit/Add. */
   .btn.ghost.auth-user-badge{border-color:transparent; padding-left:4px; padding-right:8px}
   .btn.ghost.auth-user-badge:hover{border-color:transparent; opacity:.7}
-  .btn.small{padding:8px 12px; font-size:11.5px; border-radius:6px}
+  .btn.small{padding:8px 12px; font-size:12.5px; border-radius:6px}
   .btn.added{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
   .btn.ghost[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent-strong); color:var(--ink)}
-  .btn-preview{border:none; background:transparent; color:var(--ink-muted); font-size:11.5px; text-decoration:underline; padding:0}
+  .btn-preview{border:none; background:transparent; color:var(--ink-muted); font-size:12.5px; text-decoration:underline; padding:0}
 
   /* ---------- build list drawer ---------- */
   aside.drawer{position:sticky; top:69px; align-self:start; padding:20px 20px 40px; max-height:calc(100vh - 69px); overflow-y:auto; display:flex; flex-direction:column; gap:12px}
@@ -672,8 +710,8 @@
   #listBody{display:flex; flex-direction:column; gap:2px}
   .list-item{background:var(--surface); border:1px solid var(--line); border-radius:5px; padding:8px 9px; display:flex; align-items:center; gap:8px}
   .list-item.dragging{opacity:.4}
-  .list-item.drop-before{box-shadow:0 -2px 0 var(--accent)}
-  .list-item.drop-after{box-shadow:0 2px 0 var(--accent)}
+  .list-item.drop-before{border-top:2px solid var(--accent-strong)}
+  .list-item.drop-after{border-bottom:2px solid var(--accent-strong)}
   .li-handle{cursor:grab; color:var(--ink-faint); font-size:13px; line-height:1; flex:none; touch-action:none}
   .li-handle:active{cursor:grabbing}
   .list-item-broken{background:#fef3f2; border-color:#f3a89c}
@@ -701,13 +739,13 @@
      przy VARIANT są nieadekwatne rozmiarem do pozostałych pół". Sztywna
      height na .icon-btn blokowałaby align-items:stretch (domyślny na
      flex row), height:auto ją odblokowuje. */
-  .icon-btn-field{width:26px; height:auto; align-self:stretch}
+  .icon-btn-field{width:25px; height:auto; align-self:stretch}
   .icon-btn:hover{border-color:var(--line-strong); color:var(--ink)}
   .icon-btn:disabled{opacity:.3; cursor:default}
   .icon-btn.armed{border-color:var(--accent-strong); color:var(--accent-strong)}
   .export-btn{width:100%; padding:11px; border-radius:6px; font-size:13.5px; margin-top:4px}
   .export-btn:disabled{background:var(--surface-2); border-color:var(--line); color:var(--ink-faint); cursor:not-allowed}
-  .drawer-hint{font-size:11.5px; color:var(--ink-faint); line-height:1.5}
+  .drawer-hint{font-size:12.5px; color:var(--ink-faint); line-height:1.5}
 
   /* ---------- brand token strip ---------- */
   .token-strip{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:2px 0 18px; font-size:11.5px; color:var(--ink-muted)}
@@ -722,10 +760,14 @@
      skryptu, syncModalScrollLock) — user: "moge scrollować sobie majac
      otwarty popup". */
   body.modal-open{overflow:hidden}
-  .modal{background:var(--surface); border-radius:8px; max-width:720px; width:100%; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 12px 40px rgba(0,0,0,.25); overflow:hidden}
+  .modal{background:var(--surface); border:1px solid var(--line-strong); border-radius:8px; max-width:720px; width:100%; max-height:92vh; display:flex; flex-direction:column; overflow:hidden}
   .modal-head{display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--line)}
   .modal-head h3{font-size:16px}
-  .modal-close{width:29px; height:29px; border-radius:6px; border:1px solid var(--line); background:var(--surface); color:var(--ink-muted); font-size:14px; display:flex; align-items:center; justify-content:center}
+  /* user: "co z tego że dałeś im 18px skoro są osadzane w boxach o różnych
+     wielkościach" — .modal-close było 29x29 podczas gdy .icon-btn/
+     .card-menu-btn (ta sama ikona X wewnątrz) było 25x25. Jeden rozmiar
+     hit-boxa dla WSZYSTKICH przycisków-ikon w apce. */
+  .modal-close{width:25px; height:25px; border-radius:5px; border:1px solid var(--line); background:var(--surface); color:var(--ink-muted); display:flex; align-items:center; justify-content:center}
   .modal-body{padding:20px; overflow-y:auto}
   .modal-footer-bar{flex:none; padding:14px 20px; border-top:1px solid var(--line); background:var(--surface)}
   .modal-preview-box{background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:20px; margin-bottom:16px; display:flex; align-items:center; justify-content:center}
@@ -749,8 +791,8 @@
   .modal-preview-box.email-frame-mode{padding:20px; background:var(--surface-2)}
   .modal.mail-preview-modal{max-width:calc(660px + 88px)}
   .device-toggle{display:flex; gap:2px; background:var(--surface-2); border-radius:8px; padding:3px}
-  .device-btn{border:0; background:transparent; padding:6px 12px; font-size:12px; font-family:inherit; border-radius:6px; cursor:pointer; color:var(--ink-faint)}
-  .device-btn[aria-pressed="true"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.1)}
+  .device-btn{border:0; background:transparent; padding:6px 12px; font-size:12.5px; font-family:inherit; border-radius:6px; cursor:pointer; color:var(--ink-faint)}
+  .device-btn[aria-pressed="true"]{background:var(--surface); color:var(--ink); font-weight:500}
   /* Podgląd pojedynczego komponentu (editPreviewBox) — Mobile zwęża
      TYLKO to okienko, nie cały popup edytora (patrz syncEditDeviceToggleUI;
      #editModal już nie zmienia własnej szerokości). */
@@ -760,7 +802,7 @@
   .preview-chrome-row{display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:12px}
   .preview-chrome-left{display:flex; gap:16px; align-items:center}
   .preview-chrome-field{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-muted)}
-  .preview-chrome-field select{font-family:inherit; font-size:12px; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 8px}
+  .preview-chrome-field select{font-family:inherit; font-size:12.5px; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 8px}
 
   /* ---------- podgląd pełnego maila: rama (nagłówek klienta pocztowego +
      treść) jako JEDEN, scalony blok ---------- */
@@ -844,7 +886,7 @@
     position:fixed; right:22px; bottom:0; z-index:90;
     background:var(--ink); color:var(--paper); border:none; border-radius:8px 8px 0 0;
     padding:11px 18px; font-size:12.5px; font-weight:500; font-family:inherit; cursor:pointer;
-    box-shadow:0 -4px 16px rgba(0,0,0,.15); transition:opacity .12s ease;
+    transition:opacity .12s ease;
   }
   .feedback-fab:hover{opacity:.85}
   /* user: "ma nie wyskakiwać popup tylko wyjezdzac od dolu taki modal" —
@@ -853,8 +895,8 @@
   .feedback-panel{
     position:fixed; right:22px; bottom:0; z-index:95;
     width:380px; max-width:calc(100vw - 44px);
-    background:var(--surface); border:1px solid var(--line); border-bottom:none;
-    border-radius:10px 10px 0 0; box-shadow:0 -10px 34px rgba(0,0,0,.18);
+    background:var(--surface); border:1px solid var(--line-strong); border-bottom:none;
+    border-radius:10px 10px 0 0;
     display:flex; flex-direction:column; max-height:min(70vh,560px);
     transform:translateY(100%); transition:transform .25s ease;
   }
@@ -878,7 +920,7 @@
      komponentu, ustawienia CRM...) — wcześniej ta jedna etykieta była
      monospace i mniejsza niż WSZĘDZIE indziej w apce, mimo że pełni tę
      samą rolę (podpis pola). */
-  .edit-field label{font-size:11.5px; color:var(--ink-muted)}
+  .edit-field label{font-size:12.5px; color:var(--ink-muted)}
   .edit-field input, .edit-field textarea{
     border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:12.5px;
     background:var(--surface); color:var(--ink); font-family:inherit; resize:vertical;
@@ -896,7 +938,7 @@
   .fmt-btn[data-fmt="b"]{font-weight:500}
   .fmt-btn[data-fmt="i"]{font-style:italic}
   .fmt-btn[data-fmt="s"]{text-decoration:line-through}
-  .edit-empty-note{font-size:12px; color:var(--ink-faint); padding:10px}
+  .edit-empty-note{font-size:12.5px; color:var(--ink-faint); padding:10px}
   .edit-form-col{display:flex; flex-direction:column; gap:10px}
   /* position:sticky + top:0 — kolumna podglądu ma "podążać" za scrollem
      .modal-body (najbliższy przewijany przodek), gdy lewa kolumna
@@ -945,8 +987,8 @@
      ta zmiana nic nie psuje w rzędach z samymi jednowierszowymi polami. */
   .bf-row{display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start}
   .bf-field{display:flex; flex-direction:column; gap:4px; flex:1; min-width:120px}
-  .bf-field label{display:block; font-size:11.5px; color:var(--ink-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-  .field-label{display:block; font-size:11.5px; color:var(--ink-muted); margin-bottom:4px}
+  .bf-field label{display:block; font-size:12.5px; color:var(--ink-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .field-label{display:block; font-size:12.5px; color:var(--ink-muted); margin-bottom:4px}
   /* AI Support tymczasowo wyłączony — user: "Bez sensu to. zostaw opcję,
      ale... zablokuj input, przycisk 'Proceed' ma być zgaszony" (odrzucił
      wersję "skopiuj prompt do AI ręcznie" jako obejście ograniczenia CSP
@@ -1024,8 +1066,8 @@
   .bf-accordion[open] summary::before{transform:rotate(90deg)}
   .bf-accordion .bf-row{padding:4px 12px 12px}
   .bf-tabs{display:flex; gap:2px; background:var(--surface-2); border-radius:8px; padding:3px; margin-bottom:12px}
-  .bf-tab-btn{flex:1; border:0; background:none; padding:7px 10px; font-size:12px; font-family:inherit; color:var(--ink-muted); border-radius:6px; cursor:pointer}
-  .bf-tab-btn[aria-pressed="true"]{background:var(--surface); color:var(--ink); font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .bf-tab-btn{flex:1; border:0; background:none; padding:7px 10px; font-size:12.5px; font-family:inherit; color:var(--ink-muted); border-radius:6px; cursor:pointer}
+  .bf-tab-btn[aria-pressed="true"]{background:var(--surface); color:var(--ink); font-weight:500}
   /* "+ Add variant" — sama pigułka co reszta zakładek, ale wizualnie
      odróżniona (przerywana ramka), bo to akcja, nie stan wyboru. */
   .bf-tab-add{border:1px dashed var(--line-strong); color:var(--ink-faint)}
@@ -1075,7 +1117,7 @@
     background:var(--surface); color:var(--ink); font-family:inherit; width:100%; box-sizing:border-box;
   }
   .user-manage-name-input:focus{outline:none; border-color:var(--line-strong)}
-  .user-manage-email{font-size:12px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .user-manage-email{font-size:12.5px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .user-manage-count{font-family:var(--font-mono); font-size:12px; color:var(--ink-muted); text-align:center}
   /* Role <select> przechodzi przez enhanceSelect (patrz renderUsersManager)
      — te same custom-dropdown style co wszędzie indziej w apce (user:
@@ -1158,7 +1200,7 @@
     display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px 24px;
   }
   .app-footer-left{display:flex; align-items:center; flex-wrap:wrap; gap:12px 10px}
-  .app-footer-copy{font-size:12px; color:var(--ink-muted)}
+  .app-footer-copy{font-size:12.5px; color:var(--ink-muted)}
   .app-footer-copy .app-footer-nip{display:block; color:var(--ink-faint); font-size:10.5px; margin-top:2px}
   .app-footer-powered{display:flex; align-items:center; gap:7px; font-size:11px; color:var(--ink-faint); text-decoration:none}
   .app-footer-powered .rq-logo{height:14px; width:auto; display:block}
@@ -1167,21 +1209,47 @@
 </style>
 
 <a href="#workMain" class="skip-link">Skip to content</a>
+<!-- user: "header ma być jak wczesniej czyli logo po lewej- srodek pusto-
+     prawa strona wybór brandu, dodaj komponent, użytkownik, ustawienia" —
+     globalny topbar NAD trzykolumnowym .app (dawny wzorzec sprzed
+     redesignu, przywrócony na wyraźną prośbę). -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="nav-brand">
+      <span class="brand-logo-text" translate="no">Maximus</span>
+    </div>
+    <div class="topbar-right">
+      <div class="brand-select" id="brandSelectWrap">
+        <button type="button" class="brand-select-btn" id="brandSelectBtn" aria-haspopup="listbox" aria-expanded="false">
+          <span class="brand-picker-dot" id="brandPickerDot" aria-hidden="true"></span>
+          <span id="brandSelectLabel"></span>
+          <span class="brand-select-caret" aria-hidden="true"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-358.46 253.85-584.62 296-626.77l184 184 184-184 42.15 42.15L480-358.46Z"/></svg></span>
+        </button>
+        <ul class="brand-select-menu" id="brandSelectMenu" role="listbox" aria-label="Brand selection" style="display:none"></ul>
+      </div>
+      <button class="btn small" id="addComponentBtn" type="button">Add Component</button>
+      <div class="brand-select" id="authUserMenuWrap">
+        <button class="btn ghost auth-user-badge" id="authUserBtn" type="button" title="Account" aria-haspopup="menu" aria-expanded="false" style="display:none"></button>
+        <ul class="brand-select-menu brand-select-menu-right" id="authUserMenu" role="menu" aria-label="Account menu" style="display:none">
+          <li class="auth-user-menu-header" id="authUserMenuHeader"></li>
+          <li class="auth-user-menu-divider"></li>
+          <li class="brand-select-option" role="menuitem" id="authUserMenuEdit">Edit profile</li>
+          <li class="brand-select-option" role="menuitem" id="authUserMenuLogout" style="color:#b42318">Logout</li>
+        </ul>
+      </div>
+      <button class="icon-btn" type="button" id="crmSettingsTopbarBtn" title="Site settings">
+        <svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="m387.69-100-15.23-121.85q-16.07-5.38-32.96-15.07-16.88-9.7-30.19-20.77L196.46-210l-92.3-160 97.61-73.77q-1.38-8.92-1.96-17.92-.58-9-.58-17.93 0-8.53.58-17.34t1.96-19.27L104.16-590l92.3-159.23 112.46 47.31q14.47-11.46 30.89-20.96t32.27-15.27L387.69-860h184.62l15.23 122.23q18 6.54 32.57 15.27 14.58 8.73 29.43 20.58l114-47.31L855.84-590l-99.15 74.92q2.15 9.69 2.35 18.12.19 8.42.19 16.96 0 8.15-.39 16.58-.38 8.42-2.76 19.27L854.46-370l-92.31 160-112.61-48.08q-14.85 11.85-30.31 20.96-15.46 9.12-31.69 14.89L572.31-100H387.69ZM440-160h78.62L533-267.15q30.62-8 55.96-22.73 25.35-14.74 48.89-37.89L737.23-286l39.39-68-86.77-65.38q5-15.54 6.8-30.47 1.81-14.92 1.81-30.15 0-15.62-1.81-30.15-1.8-14.54-6.8-29.7L777.38-606 738-674l-100.54 42.38q-20.08-21.46-48.11-37.92-28.04-16.46-56.73-23.31L520-800h-79.38l-13.24 106.77q-30.61 7.23-56.53 22.15-25.93 14.93-49.47 38.46L222-674l-39.38 68L269-541.62q-5 14.24-7 29.62t-2 32.38q0 15.62 2 30.62 2 15 6.62 29.62l-86 65.38L222-286l99-42q22.77 23.38 48.69 38.31 25.93 14.92 57.31 22.92L440-160Zm40.46-200q49.92 0 84.96-35.04 35.04-35.04 35.04-84.96 0-49.92-35.04-84.96Q530.38-600 480.46-600q-50.54 0-85.27 35.04T360.46-480q0 49.92 34.73 84.96Q429.92-360 480.46-360Z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
 <div class="app" id="app">
   <!-- Nawigacja NAJWYŻSZEGO poziomu (destynacje) + kategorie AKTYWNEJ
        destynacji tuż pod nią (patrz .nav-cats/renderNavCats — user:
        "kategorie komponentów zostają na lewym sidebarze, tak jak było
-       wcześniej"). -->
+       wcześniej"). Marka/konto/Settings przeniesione do .topbar wyżej —
+       .nav niesie już tylko destynacje biblioteki. -->
   <nav class="nav" id="appNav" aria-label="Main">
-    <!-- Tylko ta część się przewija — panel marki i profil zostają
-         przypięte u dołu, poza scrollem (patrz komentarz przy .nav-scroll
-         w CSS: inaczej dropdown pickera marki obcinałby się na krawędzi
-         przewijanego kontenera). -->
-    <div class="nav-scroll">
-    <div class="nav-brand">
-      <span class="brand-logo-text" translate="no">Maximus</span>
-    </div>
-
     <div class="nav-group-title">Library</div>
     <button class="nav-item" type="button" data-nav="components">
       <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M659.08-460.77 461.54-658.31l197.54-197.53 197.53 197.53-197.53 197.54Zm-506.77-66.92v-280h280v280h-280Zm375.38 375.38v-280h280v280h-280Zm-375.38 0v-280h280v280h-280Zm60-435.38h160v-160h-160v160Zm447.77 43.38 113-113-113-113-113 113 113 113Zm-72.39 332h160v-160h-160v160Zm-375.38 0h160v-160h-160v160Z"/></svg>
@@ -1192,7 +1260,7 @@
       <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M172.31-180Q142-180 121-201q-21-21-21-51.31v-455.38Q100-738 121-759q21-21 51.31-21h615.38Q818-780 839-759q21 21 21 51.31v455.38Q860-222 839-201q-21 21-51.31 21H172.31ZM480-457.69 160-662.31v410q0 5.39 3.46 8.85t8.85 3.46h615.38q5.39 0 8.85-3.46t3.46-8.85v-410L480-457.69Zm0-62.31 313.85-200h-627.7L480-520Z"/></svg>
       <span class="nav-label">E-mails</span><span class="n" id="navCountEmails"></span>
     </button>
-    <div class="nav-cats" id="navCatsEmails" role="group" aria-label="E-mail categories"></div>
+    <div class="nav-cats is-collapsed" id="navCatsEmails" role="group" aria-label="E-mail categories"></div>
 
     <!-- user (najpierw): "obie jako pełnoprawne destynacje, nie podpunkty
          biblioteki" — potem, po zobaczeniu na żywo: "flow repo i dm
@@ -1202,54 +1270,17 @@
       <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M450-100v-174.23q0-55.23-16.23-84.54-16.23-29.31-45.77-55.69l42.77-42.77q12.77 11.77 25.5 27.35Q469-414.31 480-396.84q12.85-21.7 29.65-40.04 16.81-18.35 34.89-34.66 44.15-39.61 74.38-95.23 30.23-55.62 30.7-177.92l-73 73-42.77-42.16L680-860l146.15 146.15L784-671.69l-74.39-73.77q-.46 138.77-37.65 206.19-37.19 67.42-86.5 112.35-33.15 30.15-54.31 59.38Q510-338.31 510-274.23V-100h-60ZM259.15-634.15q-4.38-20.39-6.26-50.54-1.89-30.16-2.5-60.77L176-671.69l-42.15-42.16L280-860l146.15 146.15-42.77 42.16-73-72.39q-.38 27.16 1.81 52.39t5.35 43.54l-58.39 14Z"/></svg>
       <span class="nav-label">Flow Repository</span><span class="n" id="navCountFlows"></span>
     </button>
-    <div class="nav-cats" id="navCatsFlows" role="group" aria-label="Flow categories"></div>
+    <div class="nav-cats is-collapsed" id="navCatsFlows" role="group" aria-label="Flow categories"></div>
     <button class="nav-item" type="button" data-nav="schedule">
       <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M212.31-100Q182-100 161-121q-21-21-21-51.31v-535.38Q140-738 161-759q21-21 51.31-21h55.38v-84.61h61.54V-780h303.08v-84.61h60V-780h55.38Q778-780 799-759q21 21 21 51.31v535.38Q820-142 799-121q-21 21-51.31 21H212.31Zm0-60h535.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-375.38H200v375.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM200-607.69h560v-100q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H212.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v100Z"/></svg>
       <span class="nav-label">DM Schedule</span><span class="n" id="navCountSchedule"></span>
     </button>
-
-    <div class="nav-group-title">Design</div>
-    <button class="nav-item" type="button" data-nav="brandkit">
-      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M479.23-100q-77.77 0-146.92-29.96-69.16-29.96-120.77-81.58-51.62-51.61-81.58-120.96T100-480q0-79.15 30.77-148.5t83.58-120.65q52.8-51.31 123.54-81.08Q408.62-860 488.77-860q75 0 142.15 25.58 67.16 25.58 117.96 70.81 50.81 45.23 80.96 107.5Q860-593.85 860-521.08q0 103.85-61.73 162.46Q736.54-300 640-300h-72.46q-17.08 0-27.31 11.15Q530-277.69 530-262.46q0 18.54 15 38.54T560-178q0 39.61-21.92 58.81Q516.15-100 479.23-100Zm-184.31-364.31Q310-478.62 310-500q0-21.38-14.31-35.69Q281.38-550 260-550q-21.38 0-35.69 14.31Q210-521.38 210-500q0 21.38 14.31 35.69Q238.62-450 260-450q21.38 0 35.69-14.31Zm120-160Q430-638.62 430-660q0-21.38-14.31-35.69Q401.38-710 380-710q-21.38 0-35.69 14.31Q330-681.38 330-660q0 21.38 14.31 35.69Q358.62-610 380-610q21.38 0 35.69-14.31Zm200 0Q630-638.62 630-660q0-21.38-14.31-35.69Q601.38-710 580-710q-21.38 0-35.69 14.31Q530-681.38 530-660q0 21.38 14.31 35.69Q558.62-610 580-610q21.38 0 35.69-14.31Zm120 160Q750-478.62 750-500q0-21.38-14.31-35.69Q721.38-550 700-550q-21.38 0-35.69 14.31Q650-521.38 650-500q0 21.38 14.31 35.69Q678.62-450 700-450q21.38 0 35.69-14.31Z"/></svg>
-      <span class="nav-label">Brand Kit</span>
-    </button>
-    </div>
-    <!-- Kontekst klienta — user: "Wybór brandu ma być po lewej stronie na
-         sidebarze, nad profilem użytkownika, w oddzielnej sekcji". -->
-    <div class="nav-brand-section">
-      <div class="nav-group-title">Brand</div>
-      <div class="brand-select" id="brandSelectWrap">
-        <button type="button" class="brand-select-btn" id="brandSelectBtn" aria-haspopup="listbox" aria-expanded="false">
-          <span class="brand-picker-dot" id="brandPickerDot" aria-hidden="true"></span>
-          <span id="brandSelectLabel"></span>
-          <span class="brand-select-caret" aria-hidden="true"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-358.46 253.85-584.62 296-626.77l184 184 184-184 42.15 42.15L480-358.46Z"/></svg></span>
-        </button>
-        <ul class="brand-select-menu" id="brandSelectMenu" role="listbox" aria-label="Brand selection" style="display:none; bottom:100%; top:auto; margin-bottom:4px"></ul>
-      </div>
-    </div>
-    <div class="nav-foot">
-      <button class="nav-item" type="button" id="crmSettingsTopbarBtn" title="Site settings">
-        <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="m387.69-100-15.23-121.85q-16.07-5.38-32.96-15.07-16.88-9.7-30.19-20.77L196.46-210l-92.3-160 97.61-73.77q-1.38-8.92-1.96-17.92-.58-9-.58-17.93 0-8.53.58-17.34t1.96-19.27L104.16-590l92.3-159.23 112.46 47.31q14.47-11.46 30.89-20.96t32.27-15.27L387.69-860h184.62l15.23 122.23q18 6.54 32.57 15.27 14.58 8.73 29.43 20.58l114-47.31L855.84-590l-99.15 74.92q2.15 9.69 2.35 18.12.19 8.42.19 16.96 0 8.15-.39 16.58-.38 8.42-2.76 19.27L854.46-370l-92.31 160-112.61-48.08q-14.85 11.85-30.31 20.96-15.46 9.12-31.69 14.89L572.31-100H387.69ZM440-160h78.62L533-267.15q30.62-8 55.96-22.73 25.35-14.74 48.89-37.89L737.23-286l39.39-68-86.77-65.38q5-15.54 6.8-30.47 1.81-14.92 1.81-30.15 0-15.62-1.81-30.15-1.8-14.54-6.8-29.7L777.38-606 738-674l-100.54 42.38q-20.08-21.46-48.11-37.92-28.04-16.46-56.73-23.31L520-800h-79.38l-13.24 106.77q-30.61 7.23-56.53 22.15-25.93 14.93-49.47 38.46L222-674l-39.38 68L269-541.62q-5 14.24-7 29.62t-2 32.38q0 15.62 2 30.62 2 15 6.62 29.62l-86 65.38L222-286l99-42q22.77 23.38 48.69 38.31 25.93 14.92 57.31 22.92L440-160Zm40.46-200q49.92 0 84.96-35.04 35.04-35.04 35.04-84.96 0-49.92-35.04-84.96Q530.38-600 480.46-600q-50.54 0-85.27 35.04T360.46-480q0 49.92 34.73 84.96Q429.92-360 480.46-360Z"/></svg>
-        <span class="nav-label">Settings</span>
-      </button>
-      <!-- Konto — dropdown Edit profile / Logout (bez zmian funkcjonalnych,
-           przeniesiony z topbaru na dół nawigacji, gdzie konto zwykle żyje). -->
-      <div class="brand-select" id="authUserMenuWrap" style="width:100%">
-        <button class="nav-item auth-user-badge" id="authUserBtn" type="button" title="Account" aria-haspopup="menu" aria-expanded="false" style="display:none"></button>
-        <ul class="brand-select-menu" id="authUserMenu" role="menu" aria-label="Account menu" style="display:none; bottom:100%; top:auto; margin-bottom:6px">
-          <li class="auth-user-menu-header" id="authUserMenuHeader"></li>
-          <li class="auth-user-menu-divider"></li>
-          <li class="brand-select-option" role="menuitem" id="authUserMenuEdit">Edit profile</li>
-          <li class="brand-select-option" role="menuitem" id="authUserMenuLogout" style="color:#b42318">Logout</li>
-        </ul>
-      </div>
-    </div>
   </nav>
 
   <div class="work">
     <!-- Nagłówek STRONY: gdzie jestem, ile tego jest, czego szukam,
-         co mogę tu zrobić. Akcja "Add component" wróciła z globalnego
-         topbaru tutaj, bo dotyczy wyłącznie biblioteki komponentów. -->
+         co mogę tu zrobić. "Add Component" jest globalny w .topbar,
+         "Add Flow" zostaje tu jako akcja kontekstowa (tylko flows). -->
     <header class="page-head">
       <div class="page-head-inner">
       <button class="icon-btn nav-toggle" type="button" id="navToggle" aria-label="Toggle navigation" aria-expanded="true">
@@ -1260,20 +1291,10 @@
         <span class="page-count" id="gridCount"></span>
       </div>
       <div class="page-head-actions">
-        <!-- Wyszukiwarka nad listingiem, oddzielona od pozostałych akcji —
-             user: "Wyszukiwarka komponentów/maili ma być nad listingiem -
-             tak jak było wcześniej". Picker marki wyprowadzony stąd do
-             sidebaru (patrz .nav-brand-section), Mail Stack jest teraz
-             zawsze widoczną kolumną, więc przełącznik zniknął z desktopu
-             (zostaje tylko na wąskim ekranie — patrz media query). -->
-        <div class="search-input-wrap" style="max-width:260px">
-          <svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M781.69-136.92 530.46-388.16q-30 24.77-69 38.77-39 14-80.69 14-102.46 0-173.54-71.07-71.07-71.08-71.07-173.54t71.07-173.54q71.08-71.07 173.54-71.07t173.54 71.07q71.07 71.08 71.07 173.54 0 42.85-14.38 81.85-14.39 39-38.39 67.84l251.23 251.23-42.15 42.16ZM380.77-395.38q77.31 0 130.96-53.66 53.66-53.65 53.66-130.96t-53.66-130.96q-53.65-53.66-130.96-53.66t-130.96 53.66Q196.15-657.31 196.15-580t53.66 130.96q53.65 53.66 130.96 53.66Z"/></svg>
-          <input type="text" id="searchInput" class="search-input" placeholder="Search components…" aria-label="Search the library" autocomplete="off" spellcheck="false">
-        </div>
-        <button class="btn small" id="addComponentBtn" type="button">Add Component</button>
-        <!-- user: "dodaj tez mozliwosc dodawania kolejnych flows do
-             repository" — kontekstowa akcja strony, ten sam slot co Add
-             Component (tylko dla sekcji "flows", patrz syncSectionChrome). -->
+        <!-- "Add Component" przeniesiony do .topbar (globalny, zawsze
+             widoczny — user: "dodaj komponent" jako stała pozycja
+             topbaru). "Add Flow" zostaje tu — kontekstowa akcja WYŁĄCZNIE
+             dla sekcji "flows", patrz syncSectionChrome. -->
         <button class="btn small" id="addFlowRepoBtn" type="button" style="display:none">Add Flow</button>
         <button class="btn ghost small" id="dockToggle" type="button" aria-expanded="false" aria-controls="drawer">
           Mail Stack<span class="dock-pill" id="dockCount">0</span>
@@ -1282,8 +1303,16 @@
       </div>
     </header>
 
+    <!-- Wyszukiwarka POD nagłówkiem strony, Platform (filtr CRM) po prawej w
+         tym samym wierszu — user: "wyszukiwarka powinna być pod nagłówkiem
+         podstrony, a po prawej Platform, tak jak było wcześniej. i usun ten
+         zielony pasek" — wraca dawny .search-row (bez kremowego tła). -->
     <div class="filterbar" id="filterbar">
-      <div class="filterbar-inner">
+      <div class="filterbar-inner search-row">
+        <div class="search-input-wrap">
+          <svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M781.69-136.92 530.46-388.16q-30 24.77-69 38.77-39 14-80.69 14-102.46 0-173.54-71.07-71.07-71.08-71.07-173.54t71.07-173.54q71.08-71.07 173.54-71.07t173.54 71.07q71.07 71.08 71.07 173.54 0 42.85-14.38 81.85-14.39 39-38.39 67.84l251.23 251.23-42.15 42.16ZM380.77-395.38q77.31 0 130.96-53.66 53.66-53.65 53.66-130.96t-53.66-130.96q-53.65-53.66-130.96-53.66t-130.96 53.66Q196.15-657.31 196.15-580t53.66 130.96q53.65 53.66 130.96 53.66Z"/></svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search components…" aria-label="Search the library" autocomplete="off" spellcheck="false">
+        </div>
         <div class="crm-filter-row" id="crmFilterRow"></div>
       </div>
     </div>
@@ -2698,7 +2727,7 @@ var READY_EMAILS = [
     ] }
 ];
 function findEmail(id){ for(var i=0;i<READY_EMAILS.length;i++){ if(READY_EMAILS[i].id===id) return READY_EMAILS[i]; } return null; }
-function emailsByFlow(flow){ return READY_EMAILS.filter(function(e){ return e.flow===flow; }); }
+function emailsByFlow(flow){ return flow==="all" ? READY_EMAILS : READY_EMAILS.filter(function(e){ return e.flow===flow; }); }
 
 /* ================================================================
    MAŁE POMOCNIKI DO PODGLĄDU KART W SIATCE — preview(b) to celowo
@@ -6043,7 +6072,7 @@ var DM_ENTRIES = [];
 /* ================================================================
    STAN + RENDER
    ================================================================ */
-var state = { brand:"neutral", category:"all", section:"components", emailFlow:"welcome-doi", list:[] /* [{uid, componentId, overrides}] */,
+var state = { brand:"neutral", category:"all", section:"components", emailFlow:"all", list:[] /* [{uid, componentId, overrides}] */,
   // Flow Repository + harmonogram DM — "all" to ten sam sentinel co
   // state.category; dmMonth ("YYYY-MM") ustawiany na bieżący przy starcie
   // (patrz initDmMonth), to stan przeglądania, więc nie jest zapisywany.
@@ -9156,8 +9185,8 @@ function renderNavCats(){
   Object.keys(wraps).forEach(function(key){
     var wrap = wraps[key];
     if(!wrap) return;
-    if(key!==state.section){ wrap.style.display = "none"; wrap.innerHTML = ""; return; }
-    wrap.style.display = "";
+    if(key!==state.section){ wrap.classList.add("is-collapsed"); wrap.innerHTML = ""; return; }
+    wrap.classList.remove("is-collapsed");
     wrap.innerHTML = "";
     function catBtn(label, count, active, onClick){
       var b = document.createElement("button");
@@ -9180,6 +9209,11 @@ function renderNavCats(){
         });
       });
     } else if(key==="emails"){
+      // user: "w podkategorii E-mails brakuje All do ktorej od razu mam
+      // przechodzić" — ten sam wzorzec co Components/Flow Repository wyżej.
+      catBtn("All", emailsByFlow("all").length, state.emailFlow==="all", function(){
+        state.emailFlow="all"; state.page=1; renderAll();
+      });
       EMAIL_FLOWS.forEach(function(f){
         catBtn(f.label, emailsByFlow(f.id).length, state.emailFlow===f.id, function(){
           state.emailFlow=f.id; state.page=1; renderAll();
@@ -9910,8 +9944,9 @@ function syncSectionChrome(){
   } else {
     searchWrap.style.display = "none";
   }
-  // "Add component"/"Add Flow" to akcje WŁAŚCIWE DLA STRONY, nie globalne.
-  byId("addComponentBtn").style.display = meta.primary==="add" ? "" : "none";
+  // "Add Component" jest teraz globalnym przyciskiem w .topbar (user:
+  // "header... dodaj komponent" jako stała pozycja) — bez przełączania
+  // widoczności per sekcja. "Add Flow" zostaje kontekstowe.
   byId("addFlowRepoBtn").style.display = meta.primary==="add-flow" ? "" : "none";
   // Filtr CRM zawęża komponenty/maile po platformie — w Brand Kicie nie ma
   // czego zawężać.
@@ -12876,9 +12911,8 @@ function renderAuthUserBadge(){
   // kategoriami żyje w tym samym panelu Site Settings. openCrmSettings ma
   // dodatkowo twardą blokadę, gdyby coś to ominęło.
   var adminOnly = isAdminUser();
-  // Wprost "flex" (nie ""), bo .nav-item jest flexem — puste "" wyczyściłoby
-  // inline display i pozycja wróciłaby do domyślnego inline-block, rozjeżdżając
-  // ikonę z etykietą (dokładnie ta regresja zdarzyła się wcześniej w topbarze).
+  // Wprost "flex" (nie ""), bo .icon-btn jest flexem — puste "" wyczyściłoby
+  // inline display i ikona wróciłaby do domyślnego inline-block wyrównania.
   byId("crmSettingsTopbarBtn").style.display = adminOnly ? "flex" : "none";
 }
 /* Publiczny widok kalendarza — user: "Dać możliwość udostępniania
@@ -12915,7 +12949,12 @@ window.MQPublicCalendar = async function(token){
     byId("appNav").style.display = "none";
     byId("app").style.gridTemplateColumns = "1fr";
     byId("navToggle").style.display = "none";
-    byId("brandSelectWrap").closest(".brand-picker").style.display = "none";
+    byId("brandSelectWrap").style.display = "none";
+    // user: przeniesione do .topbar — publiczny widz nie ma prawa dotknąć
+    // ani jednego z nich, więc chowamy je tu tak samo jak brandSelectWrap.
+    byId("addComponentBtn").style.display = "none";
+    byId("authUserMenuWrap").style.display = "none";
+    byId("crmSettingsTopbarBtn").style.display = "none";
     byId("dmAddBtn").style.display = "none";
     byId("dmShareBtn").style.display = "none";
     byId("filterbar").style.display = "none";
