@@ -265,12 +265,20 @@
      user: "czemu cały hero banner jest sticky? wyłącz to" — position:
      static nadpisuje sticky odziedziczone z bazowego .page-head. */
   .page-head-hero-title{display:none}
+  /* user: "ledwo ją widać, zwiększ 3x" — przy contain obrazek skaluje się do
+     WYSOKOŚCI kontenera, dopóki nie wypełni całej JEGO SZEROKOŚCI (proporcja
+     1024x412). Przy 150px baner był ograniczony wysokością i obrazek
+     zajmował tylko wąski pasek po prawej. 340px to najmniejsza wysokość,
+     przy której na realistycznych szerokościach desktopu (od ~1000px w
+     górę) obrazek robi się ograniczony SZEROKOŚCIĄ zamiast wysokością —
+     czyli wypełnia CAŁĄ szerokość banera, największy możliwy rozmiar bez
+     kadrowania. */
   .page-head.is-hero{
     position:static;
     background-color:#050505;
     background-image:url('https://i.ibb.co/4q5ntBC/90a83028-0c53-41fb-b5cf-2a19ff5816f0.jpg');
     background-size:contain; background-position:right center; background-repeat:no-repeat;
-    min-height:150px; box-sizing:border-box; display:flex; align-items:center;
+    min-height:340px; box-sizing:border-box; display:flex; align-items:center;
   }
   .page-head.is-hero .page-head-inner{width:100%}
   .page-head.is-hero .page-head-titles{flex-direction:column; align-items:flex-start; gap:2px}
