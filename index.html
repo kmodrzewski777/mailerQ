@@ -205,7 +205,7 @@
   .nav-cat-btn{
     display:flex; width:100%; align-items:center; justify-content:space-between; gap:8px;
     padding:6px 10px; border:none; background:transparent; color:var(--ink-muted); font:inherit;
-    border-radius:6px; font-size:12.5px; text-align:left; cursor:pointer;
+    border-radius:6px; font-size:13.5px; text-align:left; cursor:pointer;
   }
   .nav-cat-btn:hover{background:var(--surface-2); color:var(--ink)}
   .nav-cat-btn[aria-pressed="true"]{color:var(--ink); font-weight:500}
@@ -249,9 +249,15 @@
   .page-head-inner{display:flex; align-items:center; gap:14px; flex-wrap:wrap}
   .page-head-titles{display:flex; align-items:baseline; gap:10px; min-width:0}
   .page-head h2{font-size:22px; font-weight:500; letter-spacing:-.015em; margin:0; white-space:nowrap}
-  .page-head .page-count{font-size:12.5px; color:var(--ink-faint); font-variant-numeric:tabular-nums; white-space:nowrap}
+  .page-head .page-count{font-size:13.5px; color:var(--ink-faint); font-variant-numeric:tabular-nums; white-space:nowrap}
   .page-head-actions{display:flex; align-items:center; gap:8px; margin-left:auto}
-  .nav-toggle{flex:none}
+  /* user: "usuń tą ikonę do chowania sidebara" — na desktopie sidebar nie
+     ma już czego chować (4 pozycje), ale ten sam przycisk otwiera/zamyka
+     sidebar na wąskim ekranie (patrz media query niżej) — tam zostaje.
+     Podwójny selektor (.icon-btn.nav-toggle) celowo — sama .nav-toggle ma
+     tę samą specyficzność co .icon-btn{display:flex} (jedna klasa), które
+     jest zadeklarowane PÓŹNIEJ w arkuszu i wygrywałoby przez kolejność. */
+  .icon-btn.nav-toggle{flex:none; display:none}
   .page-body{padding:20px 24px 64px; flex:1}
 
   /* Wyszukiwarka nad listingiem (user: "tak jak było wcześniej") — sama
@@ -270,7 +276,7 @@
   .filterbar .crm-filter-row{flex-wrap:wrap; flex:none}
   .fchip{
     border:1px solid var(--line); background:var(--surface); color:var(--ink-muted);
-    border-radius:var(--radius-chip); padding:6px 12px; font-size:12.5px; font-weight:500;
+    border-radius:var(--radius-chip); padding:6px 12px; font-size:13.5px; font-weight:500;
     white-space:nowrap; cursor:pointer; font-family:inherit; flex:none;
     transition:background .15s ease, color .15s ease, border-color .15s ease;
   }
@@ -290,8 +296,18 @@
      height, overflow-y na .dock samym) — .dock-body płynie naturalną
      wysokością, .dock-foot (Preview) ląduje OD RAZU pod ostatnią pozycją
      listy, nagłówek zostaje wizualnie przypięty przez WŁASNE sticky. */
+  /* user: "nie ucinaj tak tej kreski tylko doprowadź ją do końca strony" —
+     bez min-height .dock (display:flex, tylko max-height) kurczył się do
+     wysokości TREŚCI, więc przy krótkiej liście border-left kończył się
+     dużo wyżej niż dół strony. min-height==max-height rezerwuje pełną
+     wysokość kolumny — .dock-foot i tak zostaje TUŻ pod listą (flex bez
+     justify-content pakuje dzieci od góry), nadmiar miejsca ląduje jako
+     pusta przestrzeń POD stopką, nie odsuwa jej — Preview nie wraca do
+     bycia przyklejonym do dołu ekranu. */
   .dock{
-    position:sticky; top:var(--topbar-h); align-self:start; max-height:calc(100vh - var(--topbar-h)); box-sizing:border-box; width:100%;
+    position:sticky; top:var(--topbar-h); align-self:start;
+    min-height:calc(100vh - var(--topbar-h)); max-height:calc(100vh - var(--topbar-h));
+    box-sizing:border-box; width:100%;
     background:var(--surface); border-left:1px solid var(--line);
     display:flex; flex-direction:column; overflow-y:auto; overscroll-behavior:contain;
   }
@@ -302,14 +318,16 @@
   body.dock-open .feedback-fab{display:none}
   /* jw. — sticky pasek akcji Brand Kitu siedzi na dole ekranu. */
   body.brandkit-open .feedback-fab{display:none}
+  /* user: usuń kreski pod "Mail Stack" i nad "Preview" — panel zostaje bez
+     wewnętrznych podziałów, tylko zewnętrzny border-left .dock. */
   .dock-head{
     display:flex; align-items:center; gap:8px; padding:16px 18px;
-    border-bottom:1px solid var(--line); flex:none;
+    flex:none;
     position:sticky; top:0; z-index:2; background:var(--surface);
   }
   .dock-head h3{font-size:15px; font-weight:500; margin:0}
   .dock-body{flex:none; padding:14px 18px}
-  .dock-foot{padding:14px 18px; border-top:1px solid var(--line); flex:none}
+  .dock-foot{padding:14px 18px; flex:none}
   .dock-scrim{display:none}
   /* Licznik przy nagłówku Mail Stacka — dziś czysto informacyjny (kolumna
      jest zawsze widoczna, licznik nie musi już "zapowiadać" zawartości
@@ -376,6 +394,7 @@
     .page-head{padding:12px 16px}
     .filterbar{padding:10px 16px}
     .page-body{padding:16px 16px 80px}
+    .icon-btn.nav-toggle{display:inline-flex}
     #dockToggle{display:inline-flex}
     .app.no-stack #dockToggle{display:none}
     .dock{
@@ -408,7 +427,7 @@
   .brand-select{position:relative}
   .brand-select-btn{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
-    border:1px solid var(--line); border-radius:6px; padding:7px 10px; font-size:12.5px; font-weight:500;
+    border:1px solid var(--line); border-radius:6px; padding:7px 10px; font-size:13.5px; font-weight:500;
     background:var(--surface); color:var(--ink); font-family:inherit; min-width:160px; cursor:pointer;
   }
   .brand-select-btn:hover{border-color:var(--line-strong)}
@@ -419,7 +438,7 @@
   .cs-native-hidden{position:absolute; inset:0; width:100%; height:100%; opacity:0; pointer-events:none}
   .cs-select-btn{
     width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px;
-    border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:12.5px;
+    border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:13.5px;
     font-family:inherit; background:var(--surface); color:var(--ink); cursor:pointer;
   }
   .cs-select-btn:hover{border-color:var(--line-strong)}
@@ -435,7 +454,7 @@
     background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow-card);
     padding:4px; margin:0; list-style:none; max-height:260px; overflow-y:auto;
   }
-  .cs-select-option{padding:7px 10px; border-radius:5px; font-size:12.5px; color:var(--ink); cursor:pointer; white-space:nowrap}
+  .cs-select-option{padding:7px 10px; border-radius:5px; font-size:13.5px; color:var(--ink); cursor:pointer; white-space:nowrap}
   .cs-select-option:hover{background:var(--surface-2)}
   .cs-select-option[aria-selected="true"]{background:var(--accent-soft); font-weight:500; color:var(--accent-strong)}
   /* Wariant z wyszukiwarką (patrz enhanceSelect opts.searchable) — używany
@@ -445,11 +464,11 @@
      opcji siedzi osobno w zagnieżdżonym .cs-select-menu-list. */
   .cs-select-search{
     display:block; width:100%; box-sizing:border-box; margin-bottom:4px;
-    border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:12.5px;
+    border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:13.5px;
     font-family:inherit; background:var(--surface); color:var(--ink);
   }
   .cs-select-menu-list{list-style:none; margin:0; padding:0; max-height:220px; overflow-y:auto}
-  .cs-select-empty{padding:7px 10px; font-size:12.5px; color:var(--ink-faint)}
+  .cs-select-empty{padding:7px 10px; font-size:13.5px; color:var(--ink-faint)}
   .brand-select-menu{
     position:absolute; top:calc(100% + 4px); left:0; min-width:100%; z-index:50;
     background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow-card);
@@ -460,7 +479,7 @@
      prawej krawędzi przycisku zamiast lewej. */
   .brand-select-menu-right{left:auto; right:0; min-width:160px; white-space:nowrap}
   .brand-select-option{
-    padding:5px 5px 5px 10px; border-radius:5px; font-size:12.5px; font-weight:500; color:var(--ink);
+    padding:5px 5px 5px 10px; border-radius:5px; font-size:13.5px; font-weight:500; color:var(--ink);
     cursor:pointer; white-space:nowrap; display:flex; align-items:center; justify-content:space-between; gap:10px;
   }
   .brand-select-option:hover{background:var(--surface-2)}
@@ -504,7 +523,7 @@
   .pagination{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:28px}
   .page-btn{
     min-width:32px; height:32px; padding:0 8px; border:1px solid var(--line); border-radius:6px;
-    background:var(--surface); color:var(--ink-muted); font-size:12.5px; font-family:inherit; cursor:pointer;
+    background:var(--surface); color:var(--ink-muted); font-size:13.5px; font-family:inherit; cursor:pointer;
   }
   .page-btn:hover{border-color:var(--line-strong); color:var(--ink)}
   .page-btn[aria-current="true"]{background:var(--ink); color:var(--paper); border-color:var(--ink); font-weight:500; cursor:default}
@@ -539,7 +558,7 @@
      maila mają pojawić się te 3 kropki"). */
   .card-name-row{display:flex; align-items:flex-start; justify-content:space-between; gap:6px}
   .card-label{font-weight:500; font-size:14.5px; line-height:1.3; margin:0; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
-  .card-desc{font-size:12.5px; line-height:1.45; color:var(--ink-muted); margin:4px 0 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+  .card-desc{font-size:13.5px; line-height:1.45; color:var(--ink-muted); margin:4px 0 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
   /* user: "nazwy CRM bez chipsów, same napisy, ale fontem 9.5px" — zastępuje
      dawny rząd osobnych pigułek (.card-crm-chip) jedną linią zwykłego
      tekstu, oddzieloną środkowymi kropkami. margin-top:auto przykleja ją
@@ -570,7 +589,7 @@
     padding:4px; margin:0; list-style:none;
   }
   .card-menu-item{
-    padding:7px 10px; border-radius:5px; font-size:12.5px; font-weight:500; color:var(--ink);
+    padding:7px 10px; border-radius:5px; font-size:13.5px; font-weight:500; color:var(--ink);
     cursor:pointer; white-space:nowrap;
   }
   .card-menu-item:hover{background:var(--surface-2)}
@@ -585,7 +604,7 @@
   .flow-card-top{padding:16px 16px 0}
   .flow-card-cat{font-size:11px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint)}
   .flow-card-title{font-weight:500; font-size:15px; line-height:1.3; margin:6px 0 0}
-  .flow-card-desc{font-size:12.5px; color:var(--ink-muted); line-height:1.5; margin:8px 0 0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden}
+  .flow-card-desc{font-size:13.5px; color:var(--ink-muted); line-height:1.5; margin:8px 0 0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden}
   .flow-card-meta{display:flex; flex-wrap:wrap; gap:6px; padding:14px 16px 0}
   .flow-chip{display:inline-flex; align-items:center; gap:4px; border:1px solid var(--line); border-radius:var(--radius-chip); padding:3px 9px; font-size:10.5px; font-weight:500; color:var(--ink-muted); background:var(--surface)}
   .flow-card-foot{margin-top:auto; padding:14px 16px 16px; display:flex; gap:6px}
@@ -604,7 +623,7 @@
   .flow-meta-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px}
   .flow-meta-item{background:var(--surface-2); border-radius:10px; padding:10px 10px}
   .flow-meta-item .k{font-size:9.5px; font-weight:500; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint)}
-  .flow-meta-item .v{font-size:12.5px; font-weight:500; margin-top:3px; line-height:1.3}
+  .flow-meta-item .v{font-size:13.5px; font-weight:500; margin-top:3px; line-height:1.3}
   .flow-sec{margin-bottom:22px}
   @media (max-width:720px){
     .flow-detail-grid{grid-template-columns:1fr}
@@ -617,7 +636,7 @@
   .flow-stage{border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px}
   .flow-stage-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap}
   .flow-stage-name{font-size:14px; font-weight:500}
-  .flow-stage-timing{font-size:12.5px; font-weight:500; color:var(--ink-faint)}
+  .flow-stage-timing{font-size:13.5px; font-weight:500; color:var(--ink-faint)}
   .flow-stage-purpose{font-size:13px; font-weight:500; color:var(--ink); margin:8px 0 0}
   .flow-stage-detail{font-size:13px; line-height:1.6; color:var(--ink-muted); margin:5px 0 0}
   .flow-stage-chips{display:flex; gap:5px; margin-top:9px; flex-wrap:wrap}
@@ -639,7 +658,7 @@
   .dm-legend .lg{display:flex; align-items:center; gap:5px; font-weight:500}
   .dm-legend .sw{width:9px; height:9px; border-radius:3px; flex:none}
   .dm-toolbar-actions{display:flex; gap:8px; margin-left:auto}
-  .dm-owner-row{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-muted); margin-bottom:14px}
+  .dm-owner-row{display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ink-muted); margin-bottom:14px}
   .dm-owner-row .k{font-weight:500; color:var(--ink-faint)}
   /* 7 równych kolumn; minmax(0,1fr) — bez tego długie nazwy wysyłek
      rozpychają kolumnę i cała siatka przestaje być równa. */
@@ -674,10 +693,10 @@
     .dm-day{min-height:0}
     .dm-day.is-empty{display:none}
   }
-  .card-actions .btn{flex:1; padding:10px 4px; font-size:12.5px; text-align:center; white-space:nowrap}
+  .card-actions .btn{flex:1; padding:10px 4px; font-size:13.5px; text-align:center; white-space:nowrap}
   .btn{
     border:1px solid var(--ink); background:var(--ink); color:var(--surface);
-    padding:10px 16px; border-radius:8px; font-size:12.5px; font-weight:500;
+    padding:10px 16px; border-radius:8px; font-size:13.5px; font-weight:500;
     /* line-height:1 — user: "wyrównaj przyciski, czasami część z nich ma
        różne wysokości, ogarnij to wszędzie". Bez jawnego line-height każdy
        .btn liczy wysokość z ODZIEDZICZONEGO line-height body (metryka
@@ -697,16 +716,16 @@
      kolejny przycisk-obwódka obok Edit/Add. */
   .btn.ghost.auth-user-badge{border-color:transparent; padding-left:4px; padding-right:8px}
   .btn.ghost.auth-user-badge:hover{border-color:transparent; opacity:.7}
-  .btn.small{padding:8px 12px; font-size:12.5px; border-radius:6px}
+  .btn.small{padding:8px 12px; font-size:13.5px; border-radius:6px}
   .btn.added{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
   .btn.ghost[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent-strong); color:var(--ink)}
-  .btn-preview{border:none; background:transparent; color:var(--ink-muted); font-size:12.5px; text-decoration:underline; padding:0}
+  .btn-preview{border:none; background:transparent; color:var(--ink-muted); font-size:13.5px; text-decoration:underline; padding:0}
 
   /* ---------- build list drawer ---------- */
   aside.drawer{position:sticky; top:69px; align-self:start; padding:20px 20px 40px; max-height:calc(100vh - 69px); overflow-y:auto; display:flex; flex-direction:column; gap:12px}
   .drawer-title{font-size:15px; display:flex; align-items:center; justify-content:space-between}
   .drawer-count{font-family:var(--font-mono); font-size:11px; color:var(--ink-muted); font-weight:400}
-  .drawer-empty{font-size:12.5px; color:var(--ink-faint); border:1px dashed var(--line-strong); border-radius:6px; padding:16px; text-align:center}
+  .drawer-empty{font-size:13.5px; color:var(--ink-faint); border:1px dashed var(--line-strong); border-radius:6px; padding:16px; text-align:center}
   #listBody{display:flex; flex-direction:column; gap:2px}
   .list-item{background:var(--surface); border:1px solid var(--line); border-radius:5px; padding:8px 9px; display:flex; align-items:center; gap:8px}
   .list-item.dragging{opacity:.4}
@@ -721,7 +740,7 @@
      jeden wiersz: label (pogrubiony, 11px) + wariant. .li-key/mono zostaje
      w CSS TYLKO dla gałęzi "brakujący komponent" (patrz renderList). */
   .li-key-wrap{flex:1; overflow:hidden}
-  .li-label{font-size:11px; font-weight:500; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .li-label{font-size:12.5px; font-weight:500; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .list-item .li-key{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   /* user: "wariant mial byc lzejszym font weight lacznie z nawiasem" —
      bez jawnego font-weight dziedziczyło pogrubienie z rodzica .li-label
@@ -745,7 +764,7 @@
   .icon-btn.armed{border-color:var(--accent-strong); color:var(--accent-strong)}
   .export-btn{width:100%; padding:11px; border-radius:6px; font-size:13.5px; margin-top:4px}
   .export-btn:disabled{background:var(--surface-2); border-color:var(--line); color:var(--ink-faint); cursor:not-allowed}
-  .drawer-hint{font-size:12.5px; color:var(--ink-faint); line-height:1.5}
+  .drawer-hint{font-size:13.5px; color:var(--ink-faint); line-height:1.5}
 
   /* ---------- brand token strip ---------- */
   .token-strip{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:2px 0 18px; font-size:11.5px; color:var(--ink-muted)}
@@ -791,7 +810,7 @@
   .modal-preview-box.email-frame-mode{padding:20px; background:var(--surface-2)}
   .modal.mail-preview-modal{max-width:calc(660px + 88px)}
   .device-toggle{display:flex; gap:2px; background:var(--surface-2); border-radius:8px; padding:3px}
-  .device-btn{border:0; background:transparent; padding:6px 12px; font-size:12.5px; font-family:inherit; border-radius:6px; cursor:pointer; color:var(--ink-faint)}
+  .device-btn{border:0; background:transparent; padding:6px 12px; font-size:13.5px; font-family:inherit; border-radius:6px; cursor:pointer; color:var(--ink-faint)}
   .device-btn[aria-pressed="true"]{background:var(--surface); color:var(--ink); font-weight:500}
   /* Podgląd pojedynczego komponentu (editPreviewBox) — Mobile zwęża
      TYLKO to okienko, nie cały popup edytora (patrz syncEditDeviceToggleUI;
@@ -802,7 +821,7 @@
   .preview-chrome-row{display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:12px}
   .preview-chrome-left{display:flex; gap:16px; align-items:center}
   .preview-chrome-field{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-muted)}
-  .preview-chrome-field select{font-family:inherit; font-size:12.5px; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 8px}
+  .preview-chrome-field select{font-family:inherit; font-size:13.5px; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 8px}
 
   /* ---------- podgląd pełnego maila: rama (nagłówek klienta pocztowego +
      treść) jako JEDEN, scalony blok ---------- */
@@ -867,7 +886,7 @@
   .toast{
     position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(8px);
     background:var(--ink); color:var(--paper); padding:9px 16px; border-radius:var(--radius-chip);
-    font-size:12.5px; font-weight:500; opacity:0; pointer-events:none; transition:opacity .18s ease, transform .18s ease;
+    font-size:13.5px; font-weight:500; opacity:0; pointer-events:none; transition:opacity .18s ease, transform .18s ease;
     z-index:200;
   }
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
@@ -885,7 +904,7 @@
   .feedback-fab{
     position:fixed; right:22px; bottom:0; z-index:90;
     background:var(--ink); color:var(--paper); border:none; border-radius:8px 8px 0 0;
-    padding:11px 18px; font-size:12.5px; font-weight:500; font-family:inherit; cursor:pointer;
+    padding:11px 18px; font-size:13.5px; font-weight:500; font-family:inherit; cursor:pointer;
     transition:opacity .12s ease;
   }
   .feedback-fab:hover{opacity:.85}
@@ -920,9 +939,9 @@
      komponentu, ustawienia CRM...) — wcześniej ta jedna etykieta była
      monospace i mniejsza niż WSZĘDZIE indziej w apce, mimo że pełni tę
      samą rolę (podpis pola). */
-  .edit-field label{font-size:12.5px; color:var(--ink-muted)}
+  .edit-field label{font-size:13.5px; color:var(--ink-muted)}
   .edit-field input, .edit-field textarea{
-    border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:12.5px;
+    border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:13.5px;
     background:var(--surface); color:var(--ink); font-family:inherit; resize:vertical;
   }
   /* Pasek pogrubienie/kursywa/przekreślenie nad polem frazy — user: "chcę
@@ -938,7 +957,7 @@
   .fmt-btn[data-fmt="b"]{font-weight:500}
   .fmt-btn[data-fmt="i"]{font-style:italic}
   .fmt-btn[data-fmt="s"]{text-decoration:line-through}
-  .edit-empty-note{font-size:12.5px; color:var(--ink-faint); padding:10px}
+  .edit-empty-note{font-size:13.5px; color:var(--ink-faint); padding:10px}
   .edit-form-col{display:flex; flex-direction:column; gap:10px}
   /* position:sticky + top:0 — kolumna podglądu ma "podążać" za scrollem
      .modal-body (najbliższy przewijany przodek), gdy lewa kolumna
@@ -987,8 +1006,8 @@
      ta zmiana nic nie psuje w rzędach z samymi jednowierszowymi polami. */
   .bf-row{display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start}
   .bf-field{display:flex; flex-direction:column; gap:4px; flex:1; min-width:120px}
-  .bf-field label{display:block; font-size:12.5px; color:var(--ink-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-  .field-label{display:block; font-size:12.5px; color:var(--ink-muted); margin-bottom:4px}
+  .bf-field label{display:block; font-size:13.5px; color:var(--ink-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .field-label{display:block; font-size:13.5px; color:var(--ink-muted); margin-bottom:4px}
   /* AI Support tymczasowo wyłączony — user: "Bez sensu to. zostaw opcję,
      ale... zablokuj input, przycisk 'Proceed' ma być zgaszony" (odrzucił
      wersję "skopiuj prompt do AI ręcznie" jako obejście ograniczenia CSP
@@ -996,7 +1015,7 @@
      nieaktywna, dopóki nie będzie realnej ścieżki wywołania AI. */
   textarea.code:disabled{opacity:.55; cursor:not-allowed; resize:none}
   .bf-field input[type="text"], .bf-field input[type="number"], .bf-field input[type="datetime-local"], .bf-field input[type="email"], .bf-field input[type="password"], .bf-field select{
-    border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:12.5px;
+    border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:13.5px;
     background:var(--surface); color:var(--ink); font-family:inherit; width:100%; box-sizing:border-box;
   }
   /* accent-color: przeglądarki chromowe (Chrome/Edge) faktycznie używają
@@ -1025,7 +1044,7 @@
   .bf-color-field input[type="color"]{width:30px; height:26px; border:1px solid var(--line); border-radius:4px; padding:0; background:none; flex:none}
   .bf-color-field input[type="color"]:focus{outline:1px solid var(--line-strong); outline-offset:1px}
   .bf-color-field input[type="text"]{flex:1; min-width:0}
-  .bf-checkbox{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-muted)}
+  .bf-checkbox{display:flex; align-items:center; gap:6px; font-size:13.5px; color:var(--ink-muted)}
   /* Natywny checkbox (system-owy niebieski haczyk, patrz screenshot usera)
      odstawał od reszty ostylowanych kontrolek (custom selecty, swatch'e
      kolorów, przełączniki) — user: "zmień styl checkboxów na takie
@@ -1060,13 +1079,13 @@
   .bf-accordion + .bf-accordion{border-top:0; border-radius:0}
   .bf-accordion:first-of-type{border-radius:5px 5px 0 0}
   .bf-accordion:last-of-type{border-radius:0 0 5px 5px}
-  .bf-accordion summary{cursor:pointer; padding:9px 12px; font-size:12.5px; font-weight:500; color:var(--ink); list-style:none; display:flex; align-items:center; gap:8px}
+  .bf-accordion summary{cursor:pointer; padding:9px 12px; font-size:13.5px; font-weight:500; color:var(--ink); list-style:none; display:flex; align-items:center; gap:8px}
   .bf-accordion summary::-webkit-details-marker{display:none}
   .bf-accordion summary::before{content:"▸"; font-size:10px; color:var(--ink-faint); transition:transform .15s}
   .bf-accordion[open] summary::before{transform:rotate(90deg)}
   .bf-accordion .bf-row{padding:4px 12px 12px}
   .bf-tabs{display:flex; gap:2px; background:var(--surface-2); border-radius:8px; padding:3px; margin-bottom:12px}
-  .bf-tab-btn{flex:1; border:0; background:none; padding:7px 10px; font-size:12.5px; font-family:inherit; color:var(--ink-muted); border-radius:6px; cursor:pointer}
+  .bf-tab-btn{flex:1; border:0; background:none; padding:7px 10px; font-size:13.5px; font-family:inherit; color:var(--ink-muted); border-radius:6px; cursor:pointer}
   .bf-tab-btn[aria-pressed="true"]{background:var(--surface); color:var(--ink); font-weight:500}
   /* "+ Add variant" — sama pigułka co reszta zakładek, ale wizualnie
      odróżniona (przerywana ramka), bo to akcja, nie stan wyboru. */
@@ -1088,7 +1107,7 @@
      mniejszy override cichcem wygrywał z nowym bazowym rozmiarem). */
   .cat-manage-actions{display:flex; gap:5px; flex:none}
   .cat-manage-confirm{width:100%; margin-top:10px; padding:12px; background:var(--surface-2); border-radius:6px}
-  .cat-manage-confirm p{margin:0 0 10px; font-size:12.5px; color:var(--ink-muted)}
+  .cat-manage-confirm p{margin:0 0 10px; font-size:13.5px; color:var(--ink-muted)}
   .cat-manage-industries{flex-basis:100%; display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:2px}
   /* user: "nowa podstronę na której admin widzi użytkowników... imię,
      nazwisko, e-mail, avatary... ile komponentów dodali, ile gotowych
@@ -1113,11 +1132,11 @@
      border/radius/padding/tło), żeby wyglądały jak KAŻDE inne pole w
      apce, nie jak osobna, zapomniana wysepka. */
   .user-manage-name-input{
-    border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:12.5px;
+    border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:13.5px;
     background:var(--surface); color:var(--ink); font-family:inherit; width:100%; box-sizing:border-box;
   }
   .user-manage-name-input:focus{outline:none; border-color:var(--line-strong)}
-  .user-manage-email{font-size:12.5px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .user-manage-email{font-size:13.5px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .user-manage-count{font-family:var(--font-mono); font-size:12px; color:var(--ink-muted); text-align:center}
   /* Role <select> przechodzi przez enhanceSelect (patrz renderUsersManager)
      — te same custom-dropdown style co wszędzie indziej w apce (user:
@@ -1200,7 +1219,7 @@
     display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px 24px;
   }
   .app-footer-left{display:flex; align-items:center; flex-wrap:wrap; gap:12px 10px}
-  .app-footer-copy{font-size:12.5px; color:var(--ink-muted)}
+  .app-footer-copy{font-size:13.5px; color:var(--ink-muted)}
   .app-footer-copy .app-footer-nip{display:block; color:var(--ink-faint); font-size:10.5px; margin-top:2px}
   .app-footer-powered{display:flex; align-items:center; gap:7px; font-size:11px; color:var(--ink-faint); text-decoration:none}
   .app-footer-powered .rq-logo{height:14px; width:auto; display:block}
@@ -1250,7 +1269,8 @@
        wcześniej"). Marka/konto/Settings przeniesione do .topbar wyżej —
        .nav niesie już tylko destynacje biblioteki. -->
   <nav class="nav" id="appNav" aria-label="Main">
-    <div class="nav-group-title">Library</div>
+    <!-- user: "LIBRARY w sidebarze usuń" — jedna grupa nie potrzebuje już
+         własnego nagłówka, .nav ma tylko te 4 destynacje. -->
     <button class="nav-item" type="button" data-nav="components">
       <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M659.08-460.77 461.54-658.31l197.54-197.53 197.53 197.53-197.53 197.54Zm-506.77-66.92v-280h280v280h-280Zm375.38 375.38v-280h280v280h-280Zm-375.38 0v-280h280v280h-280Zm60-435.38h160v-160h-160v160Zm447.77 43.38 113-113-113-113-113 113 113 113Zm-72.39 332h160v-160h-160v160Zm-375.38 0h160v-160h-160v160Z"/></svg>
       <span class="nav-label">Components</span><span class="n" id="navCountComponents"></span>
@@ -1383,7 +1403,7 @@
       <p id="authError" style="color:#b42318; font-size:12.5px; margin:10px 0 0; display:none"></p>
       <div class="bf-actions" style="justify-content:space-between; align-items:center">
         <button type="button" class="btn-preview" id="authModeToggle">Need an account? Register</button>
-        <button type="button" class="btn" id="authSubmitBtn" disabled>Loading…</button>
+        <button type="button" class="btn small" id="authSubmitBtn" disabled>Loading…</button>
       </div>
     </div>
   </div>
@@ -1428,8 +1448,8 @@
       <p id="profileError" style="color:#b42318; font-size:12.5px; margin:0; display:none"></p>
     </div>
     <div class="modal-footer-bar" style="display:flex; justify-content:flex-end; gap:8px">
-      <button class="btn ghost" type="button" id="profileFormCancel">Cancel</button>
-      <button class="btn" type="button" id="profileFormSave">Save changes</button>
+      <button class="btn ghost small" type="button" id="profileFormCancel">Cancel</button>
+      <button class="btn small" type="button" id="profileFormSave">Save changes</button>
     </div>
   </div>
 </div>
@@ -1443,8 +1463,8 @@
     <div class="modal-body">
       <textarea class="code" id="backupExportTextarea" readonly spellcheck="false" style="height:360px; width:100%"></textarea>
       <div class="bf-actions">
-        <button class="btn ghost" type="button" id="backupExportCloseBtn">Close</button>
-        <button class="btn" type="button" id="backupExportCopyBtn">Copy</button>
+        <button class="btn ghost small" type="button" id="backupExportCloseBtn">Close</button>
+        <button class="btn small" type="button" id="backupExportCopyBtn">Copy</button>
       </div>
     </div>
   </div>
@@ -1478,7 +1498,7 @@
           </div>
         </div>
         <div class="bf-actions">
-          <button class="btn" type="button" id="crmSettingsSaveBtn">Save</button>
+          <button class="btn small" type="button" id="crmSettingsSaveBtn">Save</button>
         </div>
       </div>
       <div class="settings-tab-panel" data-settings-tab="categories" style="display:none">
@@ -1522,8 +1542,8 @@
         <div class="bf-group">
           <p class="bf-group-title">Backup</p>
           <div style="display:flex; gap:8px">
-            <button class="btn ghost" type="button" id="backupExportBtn">Copy backup</button>
-            <button class="btn ghost" type="button" id="backupImportBtn">Import backup</button>
+            <button class="btn ghost small" type="button" id="backupExportBtn">Copy backup</button>
+            <button class="btn ghost small" type="button" id="backupImportBtn">Import backup</button>
             <input type="file" id="backupImportInput" accept="application/json,.json" style="display:none">
           </div>
         </div>
@@ -1577,7 +1597,7 @@
   <div class="dock-head">
     <h3>Mail Stack</h3>
     <span class="drawer-count" id="listCount">(0)</span>
-    <span style="display:flex; align-items:center; gap:6px; margin-left:auto">
+    <span class="li-actions" style="margin-left:auto">
       <button class="icon-btn" id="refreshAllBtn" type="button" style="display:none" title="Syncs every item with the latest catalog version. Filled-in content stays." aria-label="Refresh whole list from catalog"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg></button>
       <button class="icon-btn" id="clearListBtn" type="button" disabled title="Clear Mail Stack" aria-label="Clear Mail Stack"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M292.31-140q-29.92 0-51.12-21.19Q220-182.39 220-212.31V-720h-40v-60h180v-35.38h240V-780h180v60h-40v507.69Q740-182 719-161q-21 21-51.31 21H292.31ZM680-720H280v507.69q0 5.39 3.46 8.85t8.85 3.46h375.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46V-720ZM376.16-280h59.99v-360h-59.99v360Zm147.69 0h59.99v-360h-59.99v360ZM280-720v520-520Z"/></svg></button>
       <button class="icon-btn" id="saveEmailBtn" type="button" disabled title="Save as e-mail" aria-label="Save as e-mail"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M820-671.54v459.23Q820-182 799-161q-21 21-51.31 21H212.31Q182-140 161-161q-21-21-21-51.31v-535.38Q140-778 161-799q21-21 51.31-21h459.23L820-671.54ZM760-646 646-760H212.31q-5.39 0-8.85 3.46t-3.46 8.85v535.38q0 5.39 3.46 8.85t8.85 3.46h535.38q5.39 0 8.85-3.46t3.46-8.85V-646ZM550.77-298.46Q580-327.69 580-369.23q0-41.54-29.23-70.77-29.23-29.23-70.77-29.23-41.54 0-70.77 29.23Q380-410.77 380-369.23q0 41.54 29.23 70.77 29.23 29.23 70.77 29.23 41.54 0 70.77-29.23ZM255.39-564.62h328.45v-139.99H255.39v139.99ZM200-646v446-560 114Z"/></svg></button>
@@ -1677,17 +1697,17 @@
       </div>
       <pre class="code" id="previewCodeBox" style="display:none"></pre>
       <div class="bf-actions" style="border-top:none; margin-top:0; padding-top:0; justify-content:space-between">
-        <button class="btn ghost" id="previewDeleteBtn" style="display:none; color:#b42318; border-color:#b42318">Delete</button>
+        <button class="btn ghost small" id="previewDeleteBtn" style="display:none; color:#b42318; border-color:#b42318">Delete</button>
         <span style="display:flex; gap:8px; margin-left:auto">
-          <button class="btn ghost" id="previewFullPreviewBtn" type="button" style="display:none">Full preview</button>
-          <button class="btn" id="previewAddBtn"></button>
+          <button class="btn ghost small" id="previewFullPreviewBtn" type="button" style="display:none">Full preview</button>
+          <button class="btn small" id="previewAddBtn"></button>
         </span>
       </div>
     </div>
     <div class="modal-footer-bar" id="previewExportBar" style="display:none; gap:8px">
-      <button class="btn ghost" id="previewCodeToggleBtn" style="flex:1">Preview code</button>
-      <button class="btn ghost" id="previewStackFullPreviewBtn" type="button" style="flex:1">Full preview</button>
-      <button class="btn" id="copyBtn" style="flex:1">Compile</button>
+      <button class="btn ghost small" id="previewCodeToggleBtn" style="flex:1">Preview code</button>
+      <button class="btn ghost small" id="previewStackFullPreviewBtn" type="button" style="flex:1">Full preview</button>
+      <button class="btn small" id="copyBtn" style="flex:1">Compile</button>
     </div>
   </div>
 </div>
@@ -1701,8 +1721,8 @@
     <div class="modal-body">
       <form id="saveEmailForm" class="brand-form"></form>
       <div class="bf-actions">
-        <button class="btn ghost" type="button" id="saveEmailFormCancel">Cancel</button>
-        <button class="btn" type="button" id="saveEmailFormSave">Save</button>
+        <button class="btn ghost small" type="button" id="saveEmailFormCancel">Cancel</button>
+        <button class="btn small" type="button" id="saveEmailFormSave">Save</button>
       </div>
     </div>
   </div>
@@ -1742,8 +1762,8 @@
       </div>
     </div>
     <div class="modal-footer-bar" style="gap:8px">
-      <button class="btn ghost" id="flowCopyMdBtn" type="button" style="flex:1">Copy .md</button>
-      <button class="btn" id="flowDownloadMdBtn" type="button" style="flex:1">Download .md</button>
+      <button class="btn ghost small" id="flowCopyMdBtn" type="button" style="flex:1">Copy .md</button>
+      <button class="btn small" id="flowDownloadMdBtn" type="button" style="flex:1">Download .md</button>
     </div>
   </div>
 </div>
@@ -1762,8 +1782,8 @@
       <form id="flowForm" class="brand-form"></form>
     </div>
     <div class="modal-footer-bar" style="gap:8px">
-      <button class="btn ghost" type="button" id="flowFormCancel" style="flex:1">Cancel</button>
-      <button class="btn" type="button" id="flowFormSave" style="flex:1">Save flow</button>
+      <button class="btn ghost small" type="button" id="flowFormCancel" style="flex:1">Cancel</button>
+      <button class="btn small" type="button" id="flowFormSave" style="flex:1">Save flow</button>
     </div>
   </div>
 </div>
@@ -1780,10 +1800,10 @@
     <div class="modal-body">
       <form id="dmForm" class="brand-form"></form>
       <div class="bf-actions" style="justify-content:space-between">
-        <button class="btn ghost" type="button" id="dmFormDelete" style="display:none; color:#b42318; border-color:#b42318">Delete</button>
+        <button class="btn ghost small" type="button" id="dmFormDelete" style="display:none; color:#b42318; border-color:#b42318">Delete</button>
         <span style="display:flex; gap:8px; margin-left:auto">
-          <button class="btn ghost" type="button" id="dmFormCancel">Cancel</button>
-          <button class="btn" type="button" id="dmFormSave">Save</button>
+          <button class="btn ghost small" type="button" id="dmFormCancel">Cancel</button>
+          <button class="btn small" type="button" id="dmFormSave">Save</button>
         </span>
       </div>
     </div>
@@ -1802,7 +1822,7 @@
     <div class="modal-body">
       <div id="dmDetailBody"></div>
       <div class="bf-actions" id="dmDetailActions" style="justify-content:flex-end">
-        <button class="btn ghost" type="button" id="dmDetailEdit">Edit</button>
+        <button class="btn ghost small" type="button" id="dmDetailEdit">Edit</button>
       </div>
     </div>
   </div>
@@ -1822,8 +1842,8 @@
         <textarea class="code" id="componentCodeInput" spellcheck="false" style="height:260px; width:100%"></textarea>
       </div>
       <div class="bf-actions">
-        <button class="btn ghost" type="button" id="componentFormCancel">Cancel</button>
-        <button class="btn" type="button" id="componentFormSave">Save</button>
+        <button class="btn ghost small" type="button" id="componentFormCancel">Cancel</button>
+        <button class="btn small" type="button" id="componentFormSave">Save</button>
       </div>
     </div>
   </div>
@@ -1871,7 +1891,7 @@
             </p>
             <textarea id="editAiPrompt" class="code" style="height:64px; width:100%" spellcheck="false" disabled>This feature isn't available yet.</textarea>
             <div class="bf-actions" style="justify-content:flex-end; border-top:none; padding-top:10px; margin-top:0">
-              <button class="btn" type="button" id="editAiProceedBtn" disabled>Proceed</button>
+              <button class="btn small" type="button" id="editAiProceedBtn" disabled>Proceed</button>
             </div>
           </div>
         </div>
@@ -1895,11 +1915,11 @@
         </div>
       </div>
       <div class="bf-actions" style="justify-content:space-between">
-        <button class="btn ghost" type="button" id="editDeleteBtn" style="color:#b42318; border-color:#b42318">Delete</button>
+        <button class="btn ghost small" type="button" id="editDeleteBtn" style="color:#b42318; border-color:#b42318">Delete</button>
         <div style="display:flex; gap:8px">
-          <button class="btn ghost" type="button" id="editSaveAsBtn">Save as</button>
-          <button class="btn ghost" type="button" id="editSaveOnlyBtn" disabled>Save</button>
-          <button class="btn" type="button" id="editSaveBtn">Add to list</button>
+          <button class="btn ghost small" type="button" id="editSaveAsBtn">Save as</button>
+          <button class="btn ghost small" type="button" id="editSaveOnlyBtn" disabled>Save</button>
+          <button class="btn small" type="button" id="editSaveBtn">Add to list</button>
         </div>
       </div>
     </div>
@@ -1932,10 +1952,10 @@
   </div>
   <div class="bk-actionbar">
     <div id="brandFormFooterDefault" style="display:flex; flex:1; justify-content:flex-end; gap:8px; align-items:center">
-      <button class="btn ghost" type="button" id="brandFormDelete" style="display:none; margin-right:auto; color:#b42318; border-color:#b42318">Delete Brand</button>
-      <button class="btn ghost" type="button" id="brandFormCancel">Discard Changes</button>
-      <button class="btn ghost" type="button" id="brandFormSaveAsNew">Save as New</button>
-      <button class="btn" type="button" id="brandFormSave">Save Brand</button>
+      <button class="btn ghost small" type="button" id="brandFormDelete" style="display:none; margin-right:auto; color:#b42318; border-color:#b42318">Delete Brand</button>
+      <button class="btn ghost small" type="button" id="brandFormCancel">Discard Changes</button>
+      <button class="btn ghost small" type="button" id="brandFormSaveAsNew">Save as New</button>
+      <button class="btn small" type="button" id="brandFormSave">Save Brand</button>
     </div>
     <div id="brandFormFooterPrompt" style="display:none; flex:1; align-items:center; gap:8px">
       <input type="text" id="brandFormSaveAsNewInput" class="inline-edit-input" placeholder="New brand name…" style="flex:1" autocomplete="off">
@@ -2042,7 +2062,7 @@
           <div class="bf-preview-box">
             <div style="display:flex; justify-content:center; overflow:auto"><canvas id="cdPreview"></canvas></div>
             <span class="mono" id="cdDims" style="font-size:11px; color:var(--ink-faint); text-align:center">—</span>
-            <button class="btn" id="cdGenBtn" type="button">Generate GIF</button>
+            <button class="btn small" id="cdGenBtn" type="button">Generate GIF</button>
             <div id="cdBarWrap" style="height:4px; background:var(--surface-2); border-radius:2px; overflow:hidden; display:none"><i id="cdBar" style="display:block; height:100%; width:0%; background:var(--accent)"></i></div>
             <span id="cdStatus" style="font-size:11.5px; color:var(--ink-muted); text-align:center"></span>
             <div id="cdOut" style="display:none">
@@ -2080,7 +2100,7 @@
       <textarea id="feedbackText" class="feedback-textarea"></textarea>
     </div>
     <div class="bf-actions">
-      <button class="btn" type="button" id="feedbackSubmitBtn">Send</button>
+      <button class="btn small" type="button" id="feedbackSubmitBtn">Send</button>
     </div>
   </div>
 </div>
