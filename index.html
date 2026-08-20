@@ -40,7 +40,10 @@
     --ink:#1f1f1f; --ink-muted:#4b4b4f; --ink-faint:#8a8a8e;
     --line:#e6e6e6; --line-strong:#d0d0d0;
     --accent:#c8952a; --accent-strong:#9c7220; --accent-ink:#3a2a0c; --accent-soft:rgba(200,149,42,.15);
-    --radius-card:16px; --radius-chip:999px;
+    /* user: "zweryfikuj design system... bordery też, ma być identycznie"
+       — referencja ma zauważalnie bardziej zaokrąglone karty niż
+       poprzednie 16px. */
+    --radius-card:20px; --radius-chip:999px;
     --shadow-card:0 1px 2px rgba(17,17,18,.04), 0 6px 18px rgba(17,17,18,.06);
     --font-display:'General Sans',Arial,sans-serif;
     --font-body:'General Sans',Arial,sans-serif;
@@ -196,17 +199,32 @@
   /* Pasek roboczy — sticky nagłówek STRONY. Niesie: gdzie jestem + ile
      tego jest + wyszukiwarka + akcja właściwa DLA TEJ strony. */
   .work{min-width:0; display:flex; flex-direction:column; min-height:100vh}
+  /* user: "zamknij content strony w boxie, nie chce zeby to bylo na caly
+     ekran - interesuje mnie tak jak bylo wcześniej" — ten sam max-width
+     centrujący co dawny .shell (usunięty jako martwy CSS w Fazie 0, ale
+     ta konkretna liczba wracała tu z powodu). Pasek TŁA (background/
+     border-bottom) zostaje full-bleed przez całą kolumnę .work — tylko
+     JEGO ZAWARTOŚĆ (.page-head-inner) jest wyśrodkowana, inaczej dolna
+     kreska urywałaby się w połowie szerokości na szerokich ekranach. */
   .page-head{
     position:sticky; top:0; z-index:25; background:var(--paper);
     border-bottom:1px solid var(--line); padding:14px 24px;
+  }
+  .page-head-inner{
+    max-width:1400px; margin:0 auto;
     display:flex; align-items:center; gap:14px; flex-wrap:wrap;
   }
   .page-head-titles{display:flex; align-items:baseline; gap:10px; min-width:0}
-  .page-head h2{font-size:19px; font-weight:700; letter-spacing:-.01em; margin:0; white-space:nowrap}
+  .page-head h2{font-size:22px; font-weight:700; letter-spacing:-.015em; margin:0; white-space:nowrap}
   .page-head .page-count{font-size:12.5px; color:var(--ink-faint); font-variant-numeric:tabular-nums; white-space:nowrap}
   .page-head-actions{display:flex; align-items:center; gap:8px; margin-left:auto}
   .nav-toggle{flex:none}
   .page-body{padding:20px 24px 64px; flex:1}
+  /* #workMain (.page-body) niesie też WSZYSTKIE overlaye/modale jako swoje
+     dzieci — position:fixed i tak je wyjmuje z normalnego flow, więc
+     zamiast owijać całą tę ogromną gałąź w nowy div (ryzykowne), max-width
+     dostają wprost te konkretne, faktycznie-blokowe kontenery treści. */
+  #cardGrid, #gridPagination, #brandKitPage, #dmWrap{max-width:1400px; margin-left:auto; margin-right:auto}
 
   /* Wyszukiwarka nad listingiem (user: "tak jak było wcześniej") — sama
      search-input-wrap żyje już w .page-head-actions, więc to spełnia od
@@ -219,6 +237,7 @@
   .filterbar{
     padding:10px 24px; border-bottom:1px solid var(--line); background:var(--surface-cream);
   }
+  .filterbar-inner{max-width:1400px; margin:0 auto}
   .filterbar .crm-filter-row{flex-wrap:wrap}
   .fchip{
     border:1px solid var(--line); background:var(--surface); color:var(--ink-muted);
@@ -482,7 +501,7 @@
      linii (user: "po prawej stronie na linii nazwy komponentu/gotowego
      maila mają pojawić się te 3 kropki"). */
   .card-name-row{display:flex; align-items:flex-start; justify-content:space-between; gap:6px}
-  .card-label{font-weight:600; font-size:13.5px; line-height:1.3; margin:0; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+  .card-label{font-weight:700; font-size:14.5px; line-height:1.3; margin:0; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
   .card-desc{font-size:11.5px; line-height:1.45; color:var(--ink-muted); margin:4px 0 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
   /* user: "nazwy CRM bez chipsów, same napisy, ale fontem 9.5px" — zastępuje
      dawny rząd osobnych pigułek (.card-crm-chip) jedną linią zwykłego
@@ -497,7 +516,14 @@
      bezwzględnie pozycjonowana lista + zamykanie klikiem poza nią), tylko
      mniejszy i przyklejony do prawej krawędzi wiersza nazwy. */
   .card-menu-wrap{position:relative; flex:none}
-  .card-menu-btn{width:25px; height:25px}
+  /* user: "porównaj design system... 1:1 jak na obrazku" — w referencji
+     3-kropki to goła ikona, bez kwadratowego obrysu .icon-btn. Podwójny
+     selektor (.icon-btn.card-menu-btn) celowo — sama .card-menu-btn ma tę
+     samą specyficzność co .icon-btn (jedna klasa), więc kolejność w
+     arkuszu decydowałaby, kto wygra; tu wygrywa zawsze, niezależnie od
+     kolejności. */
+  .icon-btn.card-menu-btn{width:25px; height:25px; border:none; background:transparent; color:var(--ink-faint)}
+  .icon-btn.card-menu-btn:hover{background:var(--surface-2); color:var(--ink)}
   .card-menu{
     position:absolute; top:calc(100% + 4px); right:0; z-index:20; min-width:130px;
     background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow-card);
@@ -1163,10 +1189,10 @@
     </button>
     <div class="nav-cats" id="navCatsEmails" role="group" aria-label="E-mail categories"></div>
 
-    <!-- user: "Ma być rozwinięta o gotowe Flowsy. Oddzielna kategoria." +
-         "harmonogram wysyłek... To ma być również oddzielna kategoria." —
-         obie jako pełnoprawne destynacje, nie podpunkty biblioteki. -->
-    <div class="nav-group-title">Automation</div>
+    <!-- user (najpierw): "obie jako pełnoprawne destynacje, nie podpunkty
+         biblioteki" — potem, po zobaczeniu na żywo: "flow repo i dm
+         schedule też są w library a nie automation" — więc bez osobnego
+         nagłówka grupy, ale WCIĄŻ osobne, pełnoprawne pozycje nav. -->
     <button class="nav-item" type="button" data-nav="flows">
       <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M450-100v-174.23q0-55.23-16.23-84.54-16.23-29.31-45.77-55.69l42.77-42.77q12.77 11.77 25.5 27.35Q469-414.31 480-396.84q12.85-21.7 29.65-40.04 16.81-18.35 34.89-34.66 44.15-39.61 74.38-95.23 30.23-55.62 30.7-177.92l-73 73-42.77-42.16L680-860l146.15 146.15L784-671.69l-74.39-73.77q-.46 138.77-37.65 206.19-37.19 67.42-86.5 112.35-33.15 30.15-54.31 59.38Q510-338.31 510-274.23V-100h-60ZM259.15-634.15q-4.38-20.39-6.26-50.54-1.89-30.16-2.5-60.77L176-671.69l-42.15-42.16L280-860l146.15 146.15-42.77 42.16-73-72.39q-.38 27.16 1.81 52.39t5.35 43.54l-58.39 14Z"/></svg>
       <span class="nav-label">Flow Repository</span><span class="n" id="navCountFlows"></span>
@@ -1220,6 +1246,7 @@
          co mogę tu zrobić. Akcja "Add component" wróciła z globalnego
          topbaru tutaj, bo dotyczy wyłącznie biblioteki komponentów. -->
     <header class="page-head">
+      <div class="page-head-inner">
       <button class="icon-btn nav-toggle" type="button" id="navToggle" aria-label="Toggle navigation" aria-expanded="true">
         <svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M140-254.62v-59.99h680v59.99H140ZM140-450v-60h680v60H140Zm0-195.39v-59.99h680v59.99H140Z"/></svg>
       </button>
@@ -1247,10 +1274,13 @@
           Mail Stack<span class="dock-pill" id="dockCount">0</span>
         </button>
       </div>
+      </div>
     </header>
 
     <div class="filterbar" id="filterbar">
-      <div class="crm-filter-row" id="crmFilterRow"></div>
+      <div class="filterbar-inner">
+        <div class="crm-filter-row" id="crmFilterRow"></div>
+      </div>
     </div>
 
     <main class="page-body" id="workMain">
@@ -1501,14 +1531,15 @@
       </div>
     </main>
   </div>
-</div>
 
-<!-- Mail Stack — dok wysuwany z prawej, zamiast stałej trzeciej kolumny.
-     Zachowane WSZYSTKIE dotychczasowe id (drawer/listBody/previewMailBtn/
-     saveEmailBtn/clearListBtn/refreshAllBtn), żeby cała logika listy
-     działała bez zmian. -->
-<div class="dock-scrim" id="dockScrim"></div>
-<aside class="dock" id="drawer" aria-label="Mail Stack" aria-hidden="true">
+  <!-- Mail Stack — TRZECIE dziecko .app, żeby faktycznie było trzecią
+       kolumną grida (user: "coś tu sie rozjebalo" — wcześniej ten element
+       był SIBLINGIEM .app, nie jej dzieckiem, więc grid-template-columns
+       rezerwował miejsce na kolumnę, której nikt nie wypełniał, a .dock
+       leciał jako zwykły blok na całą szerokość STRONY pod spodem, nie
+       obok gridu). Zachowane WSZYSTKIE dotychczasowe id (drawer/listBody/
+       previewMailBtn/saveEmailBtn/clearListBtn/refreshAllBtn). -->
+  <aside class="dock" id="drawer" aria-label="Mail Stack" aria-hidden="true">
   <div class="dock-head">
     <h3>Mail Stack</h3>
     <span class="drawer-count" id="listCount">(0)</span>
@@ -1523,7 +1554,11 @@
   <div class="dock-foot">
     <button class="btn export-btn" id="previewMailBtn" style="width:100%" disabled>Preview</button>
   </div>
-</aside>
+  </aside>
+</div>
+<!-- Scrim tła — TYLKO wąski ekran (patrz media query), position:fixed więc
+     nieważne, że siedzi poza .app. -->
+<div class="dock-scrim" id="dockScrim"></div>
 
 <footer class="app-footer">
   <div class="app-footer-inner">
