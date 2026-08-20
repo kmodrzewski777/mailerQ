@@ -129,7 +129,18 @@
      zwykłym, sticky dzieckiem grida, NIE dokiem na żądanie. Kolumna
      znika (.app.no-stack) tam, gdzie budowanie maila nie ma sensu
      (Brand Kit / Flow Repository / DM Schedule — patrz meta.stack). */
-  .app{display:grid; grid-template-columns:var(--nav-w,248px) 1fr var(--stack-w,340px); min-height:100vh; align-items:start}
+  /* user (drugi raz, ze zrzutem ekranu obrysowanym na czerwono): "nadal nie
+     zamknales strony w boxie. Jest na całą szerokość strony... tak jak
+     bylo wcześniej" — poprzednia próba capowała TYLKO treść WEWNĄTRZ
+     środkowej kolumny (page-head-inner/filterbar-inner/#cardGrid), ale sam
+     .app (nav+work+dock) i tak rozciągał się na 100% szerokości okna, więc
+     na typowym 1920px ekranie środkowa kolumna (1920-248-340=1332px) była
+     i tak WĘŻSZA niż limit 1400px — ograniczenie nigdy się nie
+     uruchamiało. Właściwe miejsce na max-width to CAŁY .app (dokładnie jak
+     dawny .shell{max-width:1400px; margin:0 auto}), żeby na szerokich
+     ekranach było widać puste marginesy PO OBU STRONACH całej aplikacji,
+     nie tylko wewnątrz jednej kolumny. */
+  .app{display:grid; grid-template-columns:var(--nav-w,248px) 1fr var(--stack-w,340px); min-height:100vh; align-items:start; max-width:1400px; margin:0 auto}
   .app.nav-collapsed{--nav-w:68px}
   .app.no-stack{grid-template-columns:var(--nav-w,248px) 1fr}
   .app.no-stack .dock{display:none}
@@ -210,21 +221,13 @@
     position:sticky; top:0; z-index:25; background:var(--paper);
     border-bottom:1px solid var(--line); padding:14px 24px;
   }
-  .page-head-inner{
-    max-width:1400px; margin:0 auto;
-    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
-  }
+  .page-head-inner{display:flex; align-items:center; gap:14px; flex-wrap:wrap}
   .page-head-titles{display:flex; align-items:baseline; gap:10px; min-width:0}
   .page-head h2{font-size:22px; font-weight:500; letter-spacing:-.015em; margin:0; white-space:nowrap}
   .page-head .page-count{font-size:12.5px; color:var(--ink-faint); font-variant-numeric:tabular-nums; white-space:nowrap}
   .page-head-actions{display:flex; align-items:center; gap:8px; margin-left:auto}
   .nav-toggle{flex:none}
   .page-body{padding:20px 24px 64px; flex:1}
-  /* #workMain (.page-body) niesie też WSZYSTKIE overlaye/modale jako swoje
-     dzieci — position:fixed i tak je wyjmuje z normalnego flow, więc
-     zamiast owijać całą tę ogromną gałąź w nowy div (ryzykowne), max-width
-     dostają wprost te konkretne, faktycznie-blokowe kontenery treści. */
-  #cardGrid, #gridPagination, #brandKitPage, #dmWrap{max-width:1400px; margin-left:auto; margin-right:auto}
 
   /* Wyszukiwarka nad listingiem (user: "tak jak było wcześniej") — sama
      search-input-wrap żyje już w .page-head-actions, więc to spełnia od
@@ -237,7 +240,6 @@
   .filterbar{
     padding:10px 24px; border-bottom:1px solid var(--line); background:var(--surface-cream);
   }
-  .filterbar-inner{max-width:1400px; margin:0 auto}
   .filterbar .crm-filter-row{flex-wrap:wrap}
   .fchip{
     border:1px solid var(--line); background:var(--surface); color:var(--ink-muted);
