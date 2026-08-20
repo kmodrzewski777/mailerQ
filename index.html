@@ -497,6 +497,79 @@
   .card-compat-box{margin-top:auto; display:flex; flex-wrap:wrap; gap:4px}
   .card-crm-chip{display:inline-block; padding:3px 8px; border:1px solid var(--line); border-radius:999px; font-size:10.5px; color:var(--ink-muted); background:var(--surface); white-space:nowrap}
   .card-actions{display:flex; gap:6px; padding:0 12px 12px}
+
+  /* ---------- Flow Repository ---------- */
+  /* Karta flow NIE ma podglądu graficznego (flow to opis kampanii, nie
+     renderowalny MJML) — zamiast miniatury niesie metadane, po których
+     realnie się wybiera: branża, kanały, liczba etapów. */
+  .flow-card{display:flex; flex-direction:column; gap:0}
+  .flow-card-top{padding:16px 16px 0}
+  .flow-card-cat{font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint)}
+  .flow-card-title{font-weight:700; font-size:15px; line-height:1.3; margin:6px 0 0}
+  .flow-card-desc{font-size:12.5px; color:var(--ink-muted); line-height:1.5; margin:8px 0 0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden}
+  .flow-card-meta{display:flex; flex-wrap:wrap; gap:6px; padding:14px 16px 0}
+  .flow-chip{display:inline-flex; align-items:center; gap:4px; border:1px solid var(--line); border-radius:var(--radius-chip); padding:3px 9px; font-size:10.5px; font-weight:600; color:var(--ink-muted); background:var(--surface)}
+  .flow-card-foot{margin-top:auto; padding:14px 16px 16px; display:flex; gap:6px}
+  .flow-card-foot .btn{flex:1}
+
+  /* Szczegóły flow */
+  .flow-meta-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:20px}
+  .flow-meta-item{background:var(--surface-2); border-radius:10px; padding:10px 12px}
+  .flow-meta-item .k{font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-faint)}
+  .flow-meta-item .v{font-size:13px; font-weight:600; margin-top:3px; line-height:1.35}
+  .flow-sec{margin-bottom:22px}
+  .flow-sec > h4{font-size:12px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 10px}
+  .flow-sec p{font-size:13.5px; line-height:1.6; color:var(--ink-muted); margin:0}
+  .flow-list{margin:0; padding-left:18px; font-size:13.5px; line-height:1.65; color:var(--ink-muted)}
+  .flow-list li{margin-bottom:5px}
+  .flow-stage{border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px}
+  .flow-stage-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap}
+  .flow-stage-name{font-size:14px; font-weight:700}
+  .flow-stage-timing{font-size:11.5px; font-weight:600; color:var(--ink-faint)}
+  .flow-stage-purpose{font-size:13px; font-weight:600; color:var(--ink); margin:8px 0 0}
+  .flow-stage-detail{font-size:13px; line-height:1.6; color:var(--ink-muted); margin:5px 0 0}
+  .flow-stage-chips{display:flex; gap:5px; margin-top:9px; flex-wrap:wrap}
+
+  /* ---------- Harmonogram DM (kalendarz) ---------- */
+  .dm-toolbar{display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:14px}
+  .dm-monthnav{display:flex; align-items:center; gap:8px}
+  .dm-monthlabel{font-size:16px; font-weight:700; min-width:150px; text-align:center}
+  .dm-legend{display:flex; gap:12px; flex-wrap:wrap; font-size:11.5px; color:var(--ink-muted)}
+  .dm-legend .lg{display:flex; align-items:center; gap:5px; font-weight:600}
+  .dm-legend .sw{width:9px; height:9px; border-radius:3px; flex:none}
+  .dm-toolbar-actions{display:flex; gap:8px; margin-left:auto}
+  .dm-owner-row{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink-muted); margin-bottom:14px}
+  .dm-owner-row .k{font-weight:600; color:var(--ink-faint)}
+  /* 7 równych kolumn; minmax(0,1fr) — bez tego długie nazwy wysyłek
+     rozpychają kolumnę i cała siatka przestaje być równa. */
+  .dm-grid{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden}
+  .dm-dow{background:var(--surface-2); padding:8px 10px; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); text-align:center}
+  .dm-day{background:var(--surface); min-height:104px; padding:7px 8px; display:flex; flex-direction:column; gap:4px}
+  .dm-day.is-other{background:var(--surface-2)}
+  .dm-day.is-today .dm-daynum{background:var(--ink); color:var(--paper); border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center}
+  .dm-daynum{font-size:11.5px; font-weight:700; color:var(--ink-muted); flex:none}
+  .dm-day.is-other .dm-daynum{color:var(--ink-faint)}
+  .dm-ev{border:0; text-align:left; width:100%; border-radius:6px; padding:4px 6px; font-size:10.5px; font-weight:600; line-height:1.3; cursor:pointer; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:inherit}
+  .dm-ev .t{opacity:.75; font-weight:700; margin-right:3px}
+  /* Statusy — kolor NIESIE znaczenie, więc każdy ma też własną etykietę w
+     legendzie i w szczegółach; sam kolor nigdy nie jest jedynym nośnikiem. */
+  .dm-ev.s-todo{background:var(--surface-2); color:var(--ink-muted); box-shadow:inset 2px 0 0 var(--line-strong)}
+  .dm-ev.s-in-progress{background:#fef6e0; color:#8a5a00; box-shadow:inset 2px 0 0 #fbbf24}
+  .dm-ev.s-ready{background:#eaf2fe; color:#1d4ed8; box-shadow:inset 2px 0 0 #3b82f6}
+  .dm-ev.s-sent{background:var(--accent-soft); color:var(--accent-strong); box-shadow:inset 2px 0 0 var(--accent)}
+  .dm-ev.s-cancelled{background:transparent; color:var(--ink-faint); text-decoration:line-through; box-shadow:inset 2px 0 0 var(--line)}
+  .dm-empty{grid-column:1/-1; background:var(--surface); padding:26px; text-align:center; font-size:13px; color:var(--ink-faint)}
+  .dm-detail-row{display:flex; gap:14px; padding:9px 0; border-bottom:1px solid var(--line)}
+  .dm-detail-row:last-child{border-bottom:0}
+  .dm-detail-row .k{flex:none; width:120px; font-size:11.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-faint); padding-top:2px}
+  .dm-detail-row .v{font-size:13.5px; line-height:1.5; word-break:break-word}
+  .dm-status-pill{display:inline-block; border-radius:var(--radius-chip); padding:3px 10px; font-size:11.5px; font-weight:700}
+  @media (max-width:900px){
+    .dm-grid{grid-template-columns:1fr; }
+    .dm-dow{display:none}
+    .dm-day{min-height:0}
+    .dm-day.is-empty{display:none}
+  }
   .card-actions .btn{flex:1; padding:10px 4px; font-size:11.5px; text-align:center; white-space:nowrap}
   .btn{
     border:1px solid var(--ink); background:var(--ink); color:var(--surface);
@@ -1062,6 +1135,19 @@
       <span class="nav-label">Ready-made emails</span><span class="n" id="navCountEmails"></span>
     </button>
 
+    <!-- user: "Ma być rozwinięta o gotowe Flowsy. Oddzielna kategoria." +
+         "harmonogram wysyłek... To ma być również oddzielna kategoria." —
+         obie jako pełnoprawne destynacje, nie podpunkty biblioteki. -->
+    <div class="nav-group-title">Automation</div>
+    <button class="nav-item" type="button" data-nav="flows">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="16" width="7" height="5" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/><path d="M6.5 8v8M17.5 16v-3a2 2 0 0 0-2-2H6.5"/></svg>
+      <span class="nav-label">Flow Repository</span><span class="n" id="navCountFlows"></span>
+    </button>
+    <button class="nav-item" type="button" data-nav="schedule">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      <span class="nav-label">DM Schedule</span><span class="n" id="navCountSchedule"></span>
+    </button>
+
     <div class="nav-group-title">Design</div>
     <button class="nav-item" type="button" data-nav="brandkit">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg>
@@ -1363,6 +1449,24 @@
       <!-- Brand Kit jako STRONA, nie modal (patrz komentarz przy .app) —
            workspace na 100+ pól nie mieści się sensownie w oknie dialogowym. -->
       <div id="brandKitPage" style="display:none"></div>
+      <!-- Harmonogram DM — osobny widok zamiast siatki kart. -->
+      <div id="dmWrap" style="display:none">
+        <div class="dm-toolbar">
+          <div class="dm-monthnav">
+            <button class="icon-btn" type="button" id="dmPrevMonth" aria-label="Previous month"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg></button>
+            <span class="dm-monthlabel" id="dmMonthLabel"></span>
+            <button class="icon-btn" type="button" id="dmNextMonth" aria-label="Next month"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg></button>
+            <button class="btn ghost small" type="button" id="dmTodayBtn">Today</button>
+          </div>
+          <div class="dm-legend" id="dmLegend"></div>
+          <div class="dm-toolbar-actions">
+            <button class="btn ghost small" type="button" id="dmShareBtn">Share View</button>
+            <button class="btn small" type="button" id="dmAddBtn">Add Send</button>
+          </div>
+        </div>
+        <div class="dm-owner-row" id="dmOwnerRow"></div>
+        <div class="dm-grid" id="dmGrid"></div>
+      </div>
     </main>
   </div>
 </div>
@@ -1495,6 +1599,69 @@
       <div class="bf-actions">
         <button class="btn ghost" type="button" id="saveEmailFormCancel">Cancel</button>
         <button class="btn" type="button" id="saveEmailFormSave">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Szczegóły flow — user: "Otwierając wskazane Flow mam mieć pełen obraz
+     co w nim jest, do czego służy, co robi, po co jest, jaka kategoria,
+     jaka branża, etc." + "Pobierając mam mieć możliwość otrzymania pliku
+     .md z kompletnym rozpisem dla dowolnego agenta LLM w CRMie". -->
+<div class="overlay" id="flowOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:880px">
+    <div class="modal-head">
+      <h3 id="flowTitle"></h3>
+      <span style="display:flex; align-items:center; gap:4px">
+        <button class="icon-btn" id="flowShareBtn" type="button" title="Copy link to this flow" aria-label="Copy link to this flow"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M720-80q-50 0-85-35t-35-85q0-7 1-14.5t3-13.5L322-392q-17 15-38 23.5t-44 8.5q-50 0-85-35t-35-85q0-50 35-85t85-35q23 0 44 8.5t38 23.5l282-164q-2-6-3-13.5t-1-14.5q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-23 0-44-8.5T638-672L356-508q2 6 3 13.5t1 14.5q0 7-1 14.5t-3 13.5l282 164q17-15 38-23.5t44-8.5q50 0 85 35t35 85q0 50-35 85t-85 35Zm0-640q17 0 28.5-11.5T760-760q0-17-11.5-28.5T720-800q-17 0-28.5 11.5T680-760q0 17 11.5 28.5T720-720ZM240-440q17 0 28.5-11.5T280-480q0-17-11.5-28.5T240-520q-17 0-28.5 11.5T200-480q0 17 11.5 28.5T240-440Zm480 280q17 0 28.5-11.5T760-200q0-17-11.5-28.5T720-240q-17 0-28.5 11.5T680-200q0 17 11.5 28.5T720-160Zm0-600ZM240-480Zm480 280Z"/></svg></button>
+        <button class="modal-close" id="flowClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+      </span>
+    </div>
+    <div class="modal-body">
+      <div id="flowBody"></div>
+    </div>
+    <div class="modal-footer-bar" style="gap:8px">
+      <button class="btn ghost" id="flowCopyMdBtn" type="button" style="flex:1">Copy .md</button>
+      <button class="btn" id="flowDownloadMdBtn" type="button" style="flex:1">Download .md</button>
+    </div>
+  </div>
+</div>
+
+<!-- Wpis harmonogramu DM — pola wg promptu usera (klient, typ, nazwa,
+     data+godzina, odpowiedzialny, status, link do kampanii) + kanał,
+     segment i temat z researchu branżowych szablonów. -->
+<div class="overlay" id="dmFormOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-head">
+      <h3 id="dmFormTitle">Add send</h3>
+      <button class="modal-close" id="dmFormClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <form id="dmForm" class="brand-form"></form>
+      <div class="bf-actions" style="justify-content:space-between">
+        <button class="btn ghost" type="button" id="dmFormDelete" style="display:none; color:#b42318; border-color:#b42318">Delete</button>
+        <span style="display:flex; gap:8px; margin-left:auto">
+          <button class="btn ghost" type="button" id="dmFormCancel">Cancel</button>
+          <button class="btn" type="button" id="dmFormSave">Save</button>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Szczegóły pojedynczej wysyłki — user: "w pozycje można sobie kliknąć
+     i wyświetlić jej szczegóły". Osobny, tylko-do-odczytu widok, bo w
+     trybie publicznym (udostępniony link) nie wolno edytować. -->
+<div class="overlay" id="dmDetailOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head">
+      <h3 id="dmDetailTitle"></h3>
+      <button class="modal-close" id="dmDetailClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div id="dmDetailBody"></div>
+      <div class="bf-actions" id="dmDetailActions" style="justify-content:flex-end">
+        <button class="btn ghost" type="button" id="dmDetailEdit">Edit</button>
       </div>
     </div>
   </div>
@@ -5625,9 +5792,146 @@ COMPONENTS.push({
 });
 
 /* ================================================================
+   FLOW REPOSITORY — user: "stwórz Flow Repository. Ma to być miejsce do
+   przechowywania i dzielenia się gotowymi Flows do wykorzystania w
+   dowolnym CRM... Otwierając wskazane Flow mam mieć pełen obraz co w nim
+   jest, do czego służy, co robi, po co jest, jaka kategoria, jaka branża".
+
+   Flow to CAŁA kampania MA (wiele powiązanych automatyzacji + broadcasty),
+   a NIE pojedynczy mail — dlatego to osobna sekcja, nie kolejna kategoria
+   w READY_EMAILS. Model jest CELOWO opisowy (proza + listy), nie
+   wykonywalny: flow ma się dać odtworzyć w DOWOLNYM CRM-ie (Klaviyo,
+   Customer.io, ManagoAI), więc nie zapisujemy tu struktur specyficznych
+   dla jednej platformy, tylko wyzwalacze/warunki/timing opisane w
+   sposób, który człowiek ALBO agent LLM przełoży na konkretne narzędzie
+   (patrz buildFlowMarkdown — eksport .md pod agenta w CRM-ie).
+   ================================================================ */
+var FLOW_CATEGORIES = [
+  { id:"promo", label:"Promo campaign" },
+  { id:"lifecycle", label:"Lifecycle" },
+  { id:"retention", label:"Retention" },
+  { id:"reactivation", label:"Reactivation" },
+  { id:"onboarding", label:"Onboarding" },
+  { id:"conversion", label:"Conversion" },
+  { id:"loyalty", label:"Loyalty & referral" }
+];
+var FLOW_CHANNEL_LABELS = { email:"E-mail", sms:"SMS", push:"Push", inapp:"In-app", web:"Web" };
+var FLOWS = [];
+
+/* Seed #1 — realna kampania Foodify "Zluzuj Gary" (user wprost: "wrzucam
+   Ci przykładowe flow kampanii z Foodify. Możesz ją też użyć jako
+   pierwsze Flow do pobrania"). Treść odwzorowana z dostarczonego PDF-a
+   z projektem komunikacji; linki do konkretnych kampanii w Customer.io
+   ZOSTAWIONE świadomie — to część wartości tego wpisu dla zespołu, a
+   dla kogoś z zewnątrz i tak są nieklikalne (inny workspace). */
+FLOWS.push({
+  id:"foodify-zluzuj-gary",
+  category:"promo",
+  industry:"Food delivery / meal subscription",
+  label:"Zluzuj Gary — meal-bank promo campaign",
+  desc:"A full multi-channel promo campaign built around a \"virtual fridge\": every 30 PLN spent earns one free meal the customer can collect later. Covers broadcasts, every automated campaign that needs a promo overlay, and the new trigger-based notifications.",
+  goal:"Increase order frequency and average order value during the campaign window by converting spend into a bankable, visible reward the customer has to come back to collect.",
+  audience:"All active and lapsed customers; separate branches for event leads and for one-day-order testers.",
+  duration:"Campaign runs 29 April – 15 August (or until the 100-meal-per-person cap is reached). Banked meals stay collectable until 15 September.",
+  channels:["email","sms","push"],
+  crmPlatforms:["customerio"],
+  kpis:["Order frequency during campaign","Average order value","Meal-bank redemption rate","Repeat-order rate after first bank credit"],
+  mechanics:[
+    "Every 30 PLN spent on food earns 1 extra meal in the virtual fridge.",
+    "Maximum 100 banked meals per person.",
+    "Delivery cost does not count toward the earning threshold.",
+    "Meals are credited automatically once the order is paid.",
+    "Cancelling an order mid-campaign is not possible.",
+    "Store-credit (FoodiKarta) spend lowers the earning base — 60 PLN order paid with 10 PLN credit counts as 50 PLN, so 1 meal, not 2.",
+    "Banked meals are slots, not specific dishes — the available menu changes over time.",
+    "The fridge does not cover delivery: collecting only banked meals still incurs a delivery charge.",
+    "Using the promo code disables cashback — this must appear in every marketing message tied to the campaign."
+  ],
+  rules:[
+    "While the campaign is live, the standard \"use your cashback\" box is replaced everywhere by the promo-code box.",
+    "Every channel carries the overlay: e-mail gets a code box + CTA + headline mention + preheader mention, SMS gets one extra dynamic sentence, push gets one extra dynamic sentence.",
+    "Overlays are built as permanent blocks that switch on dynamically while the campaign is active — not as one-off copies of each message.",
+    "A customer entering the abandoned-cart campaign drops out of the newsletter-signup campaign, and vice versa.",
+    "Onboarding only fires for orders longer than one day; single-day orders go to the one-day retention campaign instead."
+  ],
+  stages:[
+    { name:"Broadcasts", timing:"Every ~5 days (e-mail), weekly (SMS), plus push", channel:"email, sms, push",
+      purpose:"Keep the promo top-of-mind with useful content rather than pure promotion.",
+      detail:"Each broadcast pairs an interesting piece of content, a tip, and a promo reminder. Concepts are grounded in a concrete customer situation with an explicit calculation of what they gain — e.g. \"order 5 days and the weekend is free: a 5-day plan at 72.70 PLN/day = 363.50 PLN → 12 free meals banked, enough to cover the weekend without a break in the diet.\" Every message carries the code box plus the cashback-exclusion note." },
+    { name:"Newsletter signup", timing:"On subscribe", channel:"email",
+      purpose:"Redirect nurturing traffic into the promo.",
+      detail:"Nurturing/consideration campaigns are switched off; the mails from them that used to convert move into the signup campaign, each with a promo box explaining this beats the standard sign-up incentive." },
+    { name:"Abandoned cart", timing:"Extended: daily for 4–5 days, then hand off to broadcasts", channel:"email, push",
+      purpose:"Convert the cart while the reward is quantified.",
+      detail:"Subject line becomes \"Finish your order and get X free meals\" with X computed from cart value. Push gets a matching \"You'll earn X meals\" line. After the sequence the customer moves to broadcasts." },
+    { name:"Retention — plan ending", timing:"2–3 days before the plan ends, then daily follow-ups", channel:"email",
+      purpose:"Renew before the diet lapses.",
+      detail:"Renewal reminder with a dynamic line: \"extend for this amount and you'll bank X free meals.\" If the customer already has banked meals: \"you already have meals waiting — add them to your order.\" If not, the standard promo mechanics box." },
+    { name:"Reactivation — 2 days idle", timing:"2 days without an order", channel:"email",
+      purpose:"Catch the short lapse.",
+      detail:"Cashback box swapped for a banked-meals message; a new campaign built to also fit future promo actions." },
+    { name:"Reactivation — 7–35 days idle", timing:"Weekly", channel:"email",
+      purpose:"Win back with whichever incentive the customer actually holds.",
+      detail:"Dynamic content with two branches. Has banked meals: \"your fridge is waiting\" plus how many are left to collect. No banked meals: continue the cashback-based message. Alternative variant offers both routes side by side." },
+    { name:"Event leads", timing:"On event capture", channel:"email",
+      purpose:"Convert event traffic without confusing two offers.",
+      detail:"Event mechanic is a separate day-rate offer with its own discount code and minimum order. If they abandon the cart, communicate ONLY the event offer — no promo mentions. If they buy, a re-order mail fires at the end of the diet day and from then on the promo message applies." },
+    { name:"Onboarding", timing:"After first qualifying order", channel:"email, push, in-app",
+      purpose:"Introduce the ecosystem only when it's worth introducing.",
+      detail:"Fires only for orders longer than one day. App onboarding covers welcome, marketing consents, address, payment methods, assistant and family group." },
+    { name:"Meal-bank notifications", timing:"Event-triggered", channel:"push, email, sms",
+      purpose:"Make the invisible balance visible.",
+      detail:"Triggers: meals credited after an order; meals redeemed with remaining balance; reminder of unclaimed meals with the collection deadline; e-mail showing what can currently be taken from the fridge; SMS with the current balance." }
+  ],
+  notes:"Ported from the original campaign brief. Owner assignments and internal CRM links from the source document were left out of the public description — they are team-specific and would not transfer to another account.",
+  source:"Foodify"
+});
+
+/* ================================================================
+   HARMONOGRAM DIRECT MARKETINGU — user: "harmonogram wysyłek Direct
+   Marketingowych. Obecnie korzystamy z ClickUpa. Nie chcemy tam wpuszczać
+   klientów, ale wypadałoby żeby mieli wgląd do tego co kiedy wychodzi".
+
+   Pola dobrane wg tego, o co user poprosił wprost (klient, typ wysyłki,
+   nazwa, data+godzina, osoba odpowiedzialna za wdrożenie, status, link do
+   ustawionej kampanii) ORAZ wg researchu branżowych szablonów kalendarzy
+   e-mail/DM, gdzie powtarzają się jeszcze: kanał, segment/audience i
+   temat wiadomości — stąd te trzy dodatkowo.
+   ================================================================ */
+var DM_STATUSES = [
+  { id:"todo", label:"To do", tone:"neutral" },
+  { id:"in-progress", label:"In progress", tone:"warn" },
+  { id:"ready", label:"Ready", tone:"info" },
+  { id:"sent", label:"Sent", tone:"good" },
+  { id:"cancelled", label:"Cancelled", tone:"off" }
+];
+var DM_CHANNELS = [
+  { id:"email", label:"E-mail" },
+  { id:"sms", label:"SMS" },
+  { id:"push", label:"Push" },
+  { id:"inapp", label:"In-app" },
+  { id:"web", label:"Web push" }
+];
+var DM_TYPES = [
+  { id:"newsletter", label:"Newsletter" },
+  { id:"promo", label:"Promo / sale" },
+  { id:"product", label:"Product announcement" },
+  { id:"lifecycle", label:"Lifecycle / automation" },
+  { id:"transactional", label:"Transactional" },
+  { id:"winback", label:"Win-back" },
+  { id:"survey", label:"Survey / NPS" }
+];
+var DM_ENTRIES = [];
+
+/* ================================================================
    STAN + RENDER
    ================================================================ */
 var state = { brand:"neutral", category:"all", section:"components", emailFlow:"welcome-doi", list:[] /* [{uid, componentId, overrides}] */,
+  // Flow Repository + harmonogram DM — "all" to ten sam sentinel co
+  // state.category; dmMonth ("YYYY-MM") ustawiany na bieżący przy starcie
+  // (patrz initDmMonth), to stan przeglądania, więc nie jest zapisywany.
+  flowCategory:"all",
+  dmMonth:"",
   // Który z 3 wariantów headera/stopki marki (patrz BRANDS[key].header2Code
   // itd.) ma wejść do skompilowanego maila — wybierane w oknie Podgląd
   // (patrz previewHeaderVariantSelect/previewFooterVariantSelect), globalnie
@@ -5696,6 +6000,29 @@ function avatarHtml(profile, size){
 // chwili stworzenia (brak osobnej, wspólnej dla wszystkich bazy profili do
 // odpytania na żywo — poza zakresem tej rundy).
 var MQ_CURRENT_USER = null;
+// Katalog WSZYSTKICH użytkowników (users/{uid}) — potrzebny poza panelem
+// admina odkąd harmonogram DM pozwala wskazać osobę odpowiedzialną za
+// wysyłkę Z LISTY realnych profili (user: "kto jest odpowiedzialny za jej
+// wdrożenie" + "wskazując na profil który jest już w maximusie stworzony").
+// Wypełniany raz przy starcie (patrz MQBoot); gdy się nie uda — zostaje
+// pustą tablicą, a formularz spada na samego zalogowanego użytkownika.
+var MQ_USER_DIRECTORY = [];
+// Publiczny, tylko-do-odczytu widok kalendarza (patrz ?dmshare=...) —
+// user: "Dać możliwość udostępniania kalendarza dla innych osób jakimś
+// publicznym linkiem". W tym trybie chowamy wszystko, czego klient nie ma
+// prawa dotknąć (dodawanie/edycja/usuwanie).
+var DM_PUBLIC_MODE = false;
+/* Kopiowanie do schowka — ten sam wzorzec co przyciski Share/Compile
+   (navigator.clipboard z awaryjnym execCommand, patrz fallbackCopy). */
+function copyText(txt, okMsg){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt)
+      .then(function(){ showToast(okMsg); })
+      .catch(function(){ fallbackCopy(txt, okMsg); });
+  } else {
+    fallbackCopy(txt, okMsg);
+  }
+}
 function currentUserStamp(){
   if(!MQ_CURRENT_USER) return null;
   return { uid: MQ_CURRENT_USER.uid, displayName: MQ_CURRENT_USER.displayName||null, photoURL: MQ_CURRENT_USER.photoURL||null, email: MQ_CURRENT_USER.email };
@@ -5887,7 +6214,13 @@ function buildBackupPayload(){
     favoriteComponents: state.favoriteComponents,
     favoriteEmails: state.favoriteEmails,
     deletedBuiltinComponentIds: DELETED_BUILTIN_COMPONENT_IDS,
-    deletedBuiltinEmailIds: DELETED_BUILTIN_EMAIL_IDS
+    deletedBuiltinEmailIds: DELETED_BUILTIN_EMAIL_IDS,
+    // Flow Repository + harmonogram DM — jedno i drugie to WSPÓLNE dane
+    // zespołu (patrz MQ_SHARED_KEYS), nie prywatny stan: flow mają służyć
+    // do dzielenia się ("miejsce do przechowywania i dzielenia się gotowymi
+    // Flows"), a harmonogram jest jeden dla całej agencji.
+    customFlows: FLOWS.filter(function(f){ return f.custom; }),
+    dmEntries: DM_ENTRIES
   };
 }
 // user: "Jeśli coś usunę to ma permamentnie znikać" — komponenty i gotowe
@@ -5974,6 +6307,14 @@ function applyBackupPayload(payload){
   if(payload.industries) INDUSTRIES = payload.industries;
   if(payload.favoriteComponents) state.favoriteComponents = payload.favoriteComponents;
   if(payload.favoriteEmails) state.favoriteEmails = payload.favoriteEmails;
+  if(payload.customFlows){
+    payload.customFlows.forEach(function(cf){
+      if(!findFlow(cf.id)) FLOWS.push(Object.assign({}, cf, { custom:true }));
+    });
+  }
+  // Harmonogram podmieniany w CAŁOŚCI (nie scalany per-wpis) — to jedna,
+  // wspólna tablica, a nie katalog z wbudowanym seedem jak komponenty.
+  if(payload.dmEntries) DM_ENTRIES = payload.dmEntries;
 }
 var mqSaveTimer = null;
 // user: "każdy widzi swoje. Nie ma tak, że ja się zaloguję i widzę cudzą
@@ -5986,7 +6327,7 @@ var mqSaveTimer = null;
 // WSZYSTKO razem (bez podziału) — to czysto lokalna kopia zapasowa
 // przeglądarki, nie ma tu ryzyka konfliktu między osobami.
 var MQ_PRIVATE_KEYS = ["buildList","currentBrand","headerVariant","footerVariant","favoriteComponents","favoriteEmails"];
-var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds"];
+var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds","customFlows","dmEntries"];
 function splitBackupPayload(full){
   var priv = {}, shared = {};
   MQ_PRIVATE_KEYS.forEach(function(k){ priv[k] = full[k]; });
@@ -8656,6 +8997,8 @@ function renderPrimaryNav(){
   // więc przy pierwszym renderze pokazywał 0.)
   byId("navCountComponents").textContent = COMPONENTS.length;
   byId("navCountEmails").textContent = READY_EMAILS.length;
+  byId("navCountFlows").textContent = FLOWS.length;
+  byId("navCountSchedule").textContent = DM_ENTRIES.length;
   nav.querySelectorAll("[data-nav]").forEach(function(btn){
     var target = btn.getAttribute("data-nav");
     var active = state.section===target;
@@ -8668,6 +9011,9 @@ function goToSection(section){
   // Brand Kit potrzebuje wczytania draftu aktualnej marki, nie samego
   // przełączenia flagi — openBrandForm robi jedno i drugie.
   if(section==="brandkit"){ closeNavOnMobile(); openBrandForm("edit", state.brand); return; }
+  // Kalendarz musi mieć ustawiony miesiąc ZANIM renderAll go narysuje —
+  // pusty state.dmMonth wysypałby renderDmCalendar na split("-").
+  if(section==="schedule") initDmMonth();
   state.section = section;
   state.page = 1;
   // Wejście do sekcji zeruje wyszukiwanie — fraza wpisana dla komponentów
@@ -8685,8 +9031,9 @@ function renderFilterBar(){
   var bar = byId("filterbar");
   if(!wrap || !bar) return;
   wrap.innerHTML = "";
-  // Brand Kit to formularz, nie listing — nie ma czego filtrować.
-  if(state.section==="brandkit"){ bar.style.display = "none"; return; }
+  // Brand Kit to formularz, a harmonogram ma własny pasek narzędzi
+  // (miesiąc/legenda) — w obu nie ma czego filtrować chipsami kategorii.
+  if(state.section==="brandkit" || state.section==="schedule"){ bar.style.display = "none"; return; }
   bar.style.display = "";
 
   function chip(label, count, active, onClick){
@@ -8716,25 +9063,468 @@ function renderFilterBar(){
         state.emailFlow=f.id; state.page=1; renderAll();
       });
     });
+  } else if(state.section==="flows"){
+    chip("All", FLOWS.length, state.flowCategory==="all", function(){
+      state.flowCategory="all"; state.page=1; renderAll();
+    });
+    FLOW_CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).forEach(function(c){
+      var n = flowsByCategory(c.id).length;
+      // Kategoria bez ani jednego flow się nie pokazuje — inaczej pasek od
+      // razu niesie 7 pustych chipsów przy jednym zaseedowanym wpisie.
+      if(n===0 && state.flowCategory!==c.id) return;
+      chip(c.label, n, state.flowCategory===c.id, function(){
+        state.flowCategory=c.id; state.page=1; renderAll();
+      });
+    });
   }
 }
 /* Zwijanie/rozwijanie nawigacji. Na wąskim ekranie to overlay (przesuwa
    się nad treścią), na szerokim — kolumna zwężana do samych ikon. */
+/* ================================================================
+   FLOW REPOSITORY — nawigacja, listing, szczegóły, eksport .md
+   ================================================================ */
+function findFlow(id){ for(var i=0;i<FLOWS.length;i++){ if(FLOWS[i].id===id) return FLOWS[i]; } return null; }
+function flowsByCategory(cat){ return cat==="all" ? FLOWS.slice() : FLOWS.filter(function(f){ return f.category===cat; }); }
+function flowCategoryLabel(id){
+  var c = FLOW_CATEGORIES.filter(function(x){ return x.id===id; })[0];
+  return c ? c.label : id;
+}
+function renderFlowGrid(){
+  var q = state.searchQuery;
+  var fullList = flowsByCategory(state.flowCategory).filter(function(f){
+    return matchesSearch([f.label, f.id, f.desc, f.industry, f.goal], q);
+  });
+  var page = paginateList(fullList);
+  byId("gridTitle").textContent = state.flowCategory==="all" ? "All flows" : flowCategoryLabel(state.flowCategory);
+  byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " flow" : " flows");
+  var grid = byId("cardGrid"); grid.innerHTML = "";
+  if(fullList.length===0){
+    grid.innerHTML = '<p class="drawer-empty" style="grid-column:1/-1; padding:36px">No flows here yet.</p>';
+    renderPagination(1);
+    return;
+  }
+  page.items.forEach(function(f){
+    var el = document.createElement("div"); el.className = "card flow-card";
+    var chips = (f.channels||[]).map(function(ch){
+      return '<span class="flow-chip">'+esc(FLOW_CHANNEL_LABELS[ch]||ch)+'</span>';
+    }).join("");
+    el.innerHTML =
+      '<div class="card-head"><span class="card-key mono">'+esc(flowCategoryLabel(f.category))+'</span>'+
+        '<span class="flow-chip">'+esc((f.stages||[]).length)+' stages</span>'+
+      '</div>'+
+      '<div class="flow-card-top">'+
+        '<p class="flow-card-cat">'+esc(f.industry||"")+'</p>'+
+        '<p class="flow-card-title">'+esc(f.label)+'</p>'+
+        '<p class="flow-card-desc">'+esc(f.desc||"")+'</p>'+
+      '</div>'+
+      '<div class="flow-card-meta">'+chips+'</div>'+
+      '<div class="flow-card-foot">'+
+        '<button class="btn ghost small" data-flow-open="'+esc(f.id)+'">Open</button>'+
+        '<button class="btn small" data-flow-md="'+esc(f.id)+'">Get .md</button>'+
+      '</div>';
+    grid.appendChild(el);
+  });
+  grid.querySelectorAll("[data-flow-open]").forEach(function(btn){
+    btn.addEventListener("click", function(){ openFlowDetail(btn.getAttribute("data-flow-open")); });
+  });
+  grid.querySelectorAll("[data-flow-md]").forEach(function(btn){
+    btn.addEventListener("click", function(){ downloadFlowMarkdown(btn.getAttribute("data-flow-md")); });
+  });
+  renderPagination(page.totalPages);
+}
+/* Pełny opis flow — user: "mam mieć pełen obraz co w nim jest, do czego
+   służy, co robi, po co jest, jaka kategoria, jaka branża, etc." */
+var flowOpenId = null;
+function openFlowDetail(flowId){
+  var f = findFlow(flowId);
+  if(!f) return;
+  flowOpenId = flowId;
+  byId("flowTitle").textContent = f.label;
+  var meta = [
+    ["Category", flowCategoryLabel(f.category)],
+    ["Industry", f.industry],
+    ["Channels", (f.channels||[]).map(function(c){ return FLOW_CHANNEL_LABELS[c]||c; }).join(", ")],
+    ["Stages", String((f.stages||[]).length)],
+    ["Duration", f.duration],
+    ["Built for", (f.crmPlatforms||[]).map(function(k){ return CRM_PLATFORM_LABELS[k]||k; }).join(", ") || "Any CRM"]
+  ].filter(function(p){ return p[1]; });
+  function sec(title, inner){ return inner ? '<div class="flow-sec"><h4>'+esc(title)+'</h4>'+inner+'</div>' : ""; }
+  function list(arr){
+    if(!arr || !arr.length) return "";
+    return '<ul class="flow-list">'+arr.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join("")+'</ul>';
+  }
+  var stagesHtml = (f.stages||[]).map(function(s){
+    var chips = String(s.channel||"").split(",").map(function(c){ return c.trim(); }).filter(Boolean)
+      .map(function(c){ return '<span class="flow-chip">'+esc(c)+'</span>'; }).join("");
+    return '<div class="flow-stage">'+
+      '<div class="flow-stage-head"><span class="flow-stage-name">'+esc(s.name)+'</span>'+
+        (s.timing ? '<span class="flow-stage-timing">'+esc(s.timing)+'</span>' : "")+'</div>'+
+      (s.purpose ? '<p class="flow-stage-purpose">'+esc(s.purpose)+'</p>' : "")+
+      (s.detail ? '<p class="flow-stage-detail">'+esc(s.detail)+'</p>' : "")+
+      (chips ? '<div class="flow-stage-chips">'+chips+'</div>' : "")+
+    '</div>';
+  }).join("");
+  byId("flowBody").innerHTML =
+    '<div class="flow-meta-grid">'+
+      meta.map(function(p){ return '<div class="flow-meta-item"><div class="k">'+esc(p[0])+'</div><div class="v">'+esc(p[1])+'</div></div>'; }).join("")+
+    '</div>'+
+    sec("What it does", f.desc ? '<p>'+esc(f.desc)+'</p>' : "")+
+    sec("Goal", f.goal ? '<p>'+esc(f.goal)+'</p>' : "")+
+    sec("Audience", f.audience ? '<p>'+esc(f.audience)+'</p>' : "")+
+    sec("Mechanics", list(f.mechanics))+
+    sec("Rules that apply across the whole flow", list(f.rules))+
+    sec("Stages", stagesHtml)+
+    sec("Success metrics", list(f.kpis))+
+    sec("Notes", f.notes ? '<p>'+esc(f.notes)+'</p>' : "");
+  byId("flowOverlay").classList.add("open");
+  urlOpenFlowId = flowId; syncUrlFromState();
+}
+function closeFlowOverlay(){ byId("flowOverlay").classList.remove("open"); urlOpenFlowId = null; syncUrlFromState(); }
+/* Eksport .md — user: "mam mieć możliwość otrzymania pliku .md z
+   kompletnym rozpisem dla dowolnego agenta LLM w CRMie aby ten na
+   podstawie treści stworzył takową kampanię odwzorowaną 1:1 zgodnie z
+   opisem". Stąd plik zaczyna się od JAWNEJ instrukcji dla agenta (co ma
+   zrobić i czego NIE zakładać), a dopiero potem leci opis — sam dump
+   danych bez tego bywa czytany jako "podsumuj to", nie "zbuduj to". */
+function buildFlowMarkdown(f){
+  var L = [];
+  function h(n, t){ L.push("#".repeat(n)+" "+t); L.push(""); }
+  function p(t){ if(t){ L.push(t); L.push(""); } }
+  function ul(arr){ if(arr && arr.length){ arr.forEach(function(x){ L.push("- "+x); }); L.push(""); } }
+
+  h(1, f.label);
+  p("> **Instructions for the implementing agent.** This document describes one complete marketing-automation flow. Rebuild it 1:1 in the target CRM. Everything below is the specification — do not summarise it back, and do not invent steps that are not written here. Where a value depends on the account (segment names, product feeds, sender identities, exact copy), stop and ask rather than guessing. The flow is written CRM-agnostically: map each trigger, delay and condition onto whatever the target platform calls those primitives.");
+  L.push("---"); L.push("");
+
+  h(2, "At a glance");
+  var rows = [
+    ["Category", flowCategoryLabel(f.category)],
+    ["Industry", f.industry],
+    ["Channels", (f.channels||[]).map(function(c){ return FLOW_CHANNEL_LABELS[c]||c; }).join(", ")],
+    ["Duration", f.duration],
+    ["Originally built in", (f.crmPlatforms||[]).map(function(k){ return CRM_PLATFORM_LABELS[k]||k; }).join(", ") || "Any CRM"],
+    ["Number of stages", String((f.stages||[]).length)]
+  ].filter(function(r){ return r[1]; });
+  L.push("| Field | Value |"); L.push("| --- | --- |");
+  rows.forEach(function(r){ L.push("| "+r[0]+" | "+r[1]+" |"); });
+  L.push("");
+
+  h(2, "What this flow does"); p(f.desc);
+  h(2, "Goal"); p(f.goal);
+  if(f.audience){ h(2, "Audience"); p(f.audience); }
+  if(f.mechanics && f.mechanics.length){ h(2, "Mechanics"); p("The offer logic the whole flow depends on. These rules must hold in every message."); ul(f.mechanics); }
+  if(f.rules && f.rules.length){ h(2, "Global rules"); p("These apply across every stage below — apply them as shared, conditionally-enabled blocks rather than duplicating them into each message."); ul(f.rules); }
+
+  if(f.stages && f.stages.length){
+    h(2, "Stages");
+    p("Build each stage as its own campaign/journey in the target CRM unless noted otherwise.");
+    f.stages.forEach(function(s, i){
+      h(3, (i+1)+". "+s.name);
+      var sr = [["Trigger / timing", s.timing], ["Channel", s.channel], ["Purpose", s.purpose]].filter(function(r){ return r[1]; });
+      if(sr.length){
+        L.push("| Field | Value |"); L.push("| --- | --- |");
+        sr.forEach(function(r){ L.push("| "+r[0]+" | "+r[1]+" |"); });
+        L.push("");
+      }
+      p(s.detail);
+    });
+  }
+
+  if(f.kpis && f.kpis.length){ h(2, "How to measure it"); ul(f.kpis); }
+  if(f.notes){ h(2, "Notes"); p(f.notes); }
+
+  h(2, "Implementation checklist");
+  ul([
+    "Confirm which audience/segment each stage should target in this account.",
+    "Confirm the exclusion rules between stages so a contact cannot sit in two competing stages at once.",
+    "Build the shared blocks first (the global rules above), then reference them from each message.",
+    "Set the campaign window and any caps described under Mechanics.",
+    "Verify every channel listed above is actually enabled and warmed in this account before switching the flow on."
+  ]);
+  L.push("---"); L.push("");
+  L.push("_Exported from Maximus Flow Repository"+(f.source ? " · original: "+f.source : "")+"._");
+  return L.join("\n");
+}
+function flowMdFilename(f){
+  return String(f.id||"flow").replace(/[^a-z0-9-_]+/gi,"-").toLowerCase()+".md";
+}
+function downloadFlowMarkdown(flowId){
+  var f = findFlow(flowId);
+  if(!f) return;
+  var md = buildFlowMarkdown(f);
+  var blob = new Blob([md], { type:"text/markdown;charset=utf-8" });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url; a.download = flowMdFilename(f);
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  showToast("Downloaded "+flowMdFilename(f));
+}
+
+/* ================================================================
+   HARMONOGRAM DM — kalendarz miesięczny
+   ================================================================ */
+// user: "Widzę tam również informacje kto jest odpowiedzialny za układanie
+// harmonogramu - wskazując na profil który jest już w maximusie stworzony:
+// to jest Przemek p.sulecki@retentionq.com". Wskazanie po ADRESIE (nie po
+// uid) — profil jest w katalogu users, ale uid nie jest znany z góry;
+// renderDmOwnerRow dociąga z katalogu imię/avatar, jeśli już wczytany.
+var DM_SCHEDULE_OWNER_EMAIL = "p.sulecki@retentionq.com";
+function dmStatus(id){ return DM_STATUSES.filter(function(s){ return s.id===id; })[0] || DM_STATUSES[0]; }
+function dmChannelLabel(id){ var c = DM_CHANNELS.filter(function(x){ return x.id===id; })[0]; return c ? c.label : id; }
+function dmTypeLabel(id){ var t = DM_TYPES.filter(function(x){ return x.id===id; })[0]; return t ? t.label : id; }
+function findDmEntry(id){ for(var i=0;i<DM_ENTRIES.length;i++){ if(DM_ENTRIES[i].id===id) return DM_ENTRIES[i]; } return null; }
+function pad2(n){ return (n<10?"0":"")+n; }
+function monthKey(d){ return d.getFullYear()+"-"+pad2(d.getMonth()+1); }
+function initDmMonth(){ if(!state.dmMonth) state.dmMonth = monthKey(new Date()); }
+function shiftDmMonth(delta){
+  var parts = state.dmMonth.split("-");
+  var d = new Date(+parts[0], +parts[1]-1+delta, 1);
+  state.dmMonth = monthKey(d);
+  renderDmCalendar();
+}
+function dmMonthLabel(key){
+  var parts = key.split("-");
+  var d = new Date(+parts[0], +parts[1]-1, 1);
+  return d.toLocaleDateString("en-GB", { month:"long", year:"numeric" });
+}
+function dmEntriesForDate(dateStr){
+  return DM_ENTRIES.filter(function(e){ return e.date===dateStr; })
+    .slice().sort(function(a,b){ return String(a.time||"").localeCompare(String(b.time||"")); });
+}
+function renderDmOwnerRow(){
+  var row = byId("dmOwnerRow");
+  if(!row) return;
+  // Profil szukany w katalogu users (patrz MQUsers.list) — gdy katalog nie
+  // jest jeszcze wczytany albo tej osoby w nim nie ma, pokazujemy sam
+  // e-mail, zamiast udawać, że znamy imię.
+  var found = (MQ_USER_DIRECTORY||[]).filter(function(u){
+    return u.email && u.email.toLowerCase()===DM_SCHEDULE_OWNER_EMAIL;
+  })[0];
+  var who = found ? (found.displayName || found.email) : DM_SCHEDULE_OWNER_EMAIL;
+  var av = found ? avatarHtml(found, 18) : "";
+  row.innerHTML = '<span class="k">Schedule owner:</span>'+av+'<span>'+esc(who)+'</span>';
+}
+function renderDmLegend(){
+  var el = byId("dmLegend");
+  if(!el) return;
+  el.innerHTML = DM_STATUSES.map(function(s){
+    var n = DM_ENTRIES.filter(function(e){ return e.status===s.id && String(e.date||"").indexOf(state.dmMonth)===0; }).length;
+    return '<span class="lg"><span class="sw dm-ev s-'+esc(s.id)+'" style="padding:0"></span>'+esc(s.label)+' ('+n+')</span>';
+  }).join("");
+}
+function renderDmCalendar(){
+  initDmMonth();
+  var grid = byId("dmGrid");
+  if(!grid) return;
+  byId("dmMonthLabel").textContent = dmMonthLabel(state.dmMonth);
+  byId("gridTitle").textContent = "DM schedule";
+  byId("gridCount").textContent = DM_ENTRIES.length + (DM_ENTRIES.length===1 ? " send" : " sends");
+  renderDmOwnerRow();
+  renderDmLegend();
+
+  var parts = state.dmMonth.split("-");
+  var year = +parts[0], month = +parts[1]-1;
+  var first = new Date(year, month, 1);
+  // Poniedziałek jako pierwszy dzień tygodnia (getDay(): 0=niedziela).
+  var lead = (first.getDay()+6)%7;
+  var daysInMonth = new Date(year, month+1, 0).getDate();
+  var todayStr = (function(){ var t=new Date(); return t.getFullYear()+"-"+pad2(t.getMonth()+1)+"-"+pad2(t.getDate()); })();
+
+  var html = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(function(d){
+    return '<div class="dm-dow">'+d+'</div>';
+  }).join("");
+  // Wiodące puste komórki — .is-empty, żeby na wąskim ekranie (jedna
+  // kolumna) w ogóle zniknęły zamiast produkować pustą przestrzeń.
+  for(var i=0;i<lead;i++) html += '<div class="dm-day is-other is-empty"></div>';
+  for(var day=1; day<=daysInMonth; day++){
+    var dateStr = year+"-"+pad2(month+1)+"-"+pad2(day);
+    var items = dmEntriesForDate(dateStr);
+    var evs = items.map(function(e){
+      var t = e.time ? '<span class="t">'+esc(e.time)+'</span>' : "";
+      var who = e.client ? esc(e.client)+" · " : "";
+      return '<button type="button" class="dm-ev s-'+esc(e.status||"todo")+'" data-dm-open="'+esc(e.id)+'" title="'+esc((e.client?e.client+" · ":"")+(e.name||""))+'">'+t+who+esc(e.name||"(untitled)")+'</button>';
+    }).join("");
+    html += '<div class="dm-day'+(dateStr===todayStr?" is-today":"")+'" data-dm-day="'+dateStr+'">'+
+      '<span class="dm-daynum">'+day+'</span>'+evs+'</div>';
+  }
+  var trail = (7 - ((lead+daysInMonth)%7)) % 7;
+  for(var j=0;j<trail;j++) html += '<div class="dm-day is-other is-empty"></div>';
+  grid.innerHTML = html;
+
+  grid.querySelectorAll("[data-dm-open]").forEach(function(btn){
+    btn.addEventListener("click", function(ev){ ev.stopPropagation(); openDmDetail(btn.getAttribute("data-dm-open")); });
+  });
+  // Klik w pusty obszar dnia = dodaj wysyłkę na TEN dzień (tylko dla
+  // zalogowanych — w trybie publicznym kalendarz jest tylko do odczytu).
+  if(!DM_PUBLIC_MODE){
+    grid.querySelectorAll("[data-dm-day]").forEach(function(cell){
+      cell.addEventListener("click", function(){ openDmForm(null, cell.getAttribute("data-dm-day")); });
+    });
+  }
+}
+/* Formularz wysyłki */
+var DM_FIELDS = [
+  {key:"client", label:"Client", type:"text", placeholder:"e.g. Foodify"},
+  {key:"name", label:"Send name", type:"text", placeholder:"e.g. Black Friday teaser"},
+  {key:"type", label:"Type", type:"select", options:null},
+  {key:"channel", label:"Channel", type:"select", options:null},
+  {key:"date", label:"Date", type:"date"},
+  {key:"time", label:"Time", type:"time"},
+  {key:"status", label:"Status", type:"select", options:null},
+  {key:"owner", label:"Responsible for sending", type:"select", options:null},
+  {key:"segment", label:"Audience / segment", type:"text", placeholder:"e.g. Active buyers, 90d"},
+  {key:"subject", label:"Subject line", type:"text", placeholder:"optional"},
+  {key:"campaignUrl", label:"Link to the set-up campaign", type:"text", placeholder:"https://…"}
+];
+var dmForm = { draft:null, editingId:null };
+function dmOwnerOptions(){
+  // Lista osób z katalogu users — user chce wskazywać REALNE profile z
+  // Maximusa, nie wpisywać nazwisk z ręki. Gdy katalog jeszcze nie wczytany,
+  // zostaje sam bieżący user, żeby formularz nie był pusty.
+  var opts = [["",""]];
+  var dir = (MQ_USER_DIRECTORY||[]).filter(function(u){ return !u.disabled; });
+  if(dir.length){
+    dir.forEach(function(u){ opts.push([u.email, u.displayName || u.email]); });
+  } else if(MQ_CURRENT_USER){
+    opts.push([MQ_CURRENT_USER.email, MQ_CURRENT_USER.displayName || MQ_CURRENT_USER.email]);
+  }
+  return opts;
+}
+function freshDmDraft(dateStr){
+  return { client:"", name:"", type:DM_TYPES[0].id, channel:DM_CHANNELS[0].id,
+    date: dateStr || (new Date()).toISOString().slice(0,10), time:"10:00",
+    status:"todo", owner:(MQ_CURRENT_USER? MQ_CURRENT_USER.email : ""), segment:"", subject:"", campaignUrl:"" };
+}
+function renderDmFormFields(){
+  var form = byId("dmForm"); var d = dmForm.draft;
+  form.innerHTML = '<div class="bf-group"><div class="bf-row">' + DM_FIELDS.map(function(f){
+    var val = d[f.key];
+    var wide = (f.key==="name"||f.key==="campaignUrl"||f.key==="subject"||f.key==="segment");
+    var html = '<div class="bf-field" style="'+(wide?"flex-basis:100%":"")+'"><label for="dmf-'+f.key+'">'+esc(f.label)+'</label>';
+    if(f.type==="select"){
+      var opts = f.key==="type" ? DM_TYPES.map(function(t){ return [t.id,t.label]; })
+        : f.key==="channel" ? DM_CHANNELS.map(function(c){ return [c.id,c.label]; })
+        : f.key==="status" ? DM_STATUSES.map(function(s){ return [s.id,s.label]; })
+        : dmOwnerOptions();
+      html += '<select id="dmf-'+f.key+'" data-dmf="'+f.key+'">'+
+        opts.map(function(o){ return '<option value="'+esc(o[0])+'"'+(val===o[0]?' selected':'')+'>'+esc(o[1])+'</option>'; }).join("")+
+      '</select>';
+    } else {
+      html += '<input type="'+f.type+'" id="dmf-'+f.key+'" value="'+esc(val||"")+'" placeholder="'+esc(f.placeholder||"")+'" data-dmf="'+f.key+'">';
+    }
+    return html+'</div>';
+  }).join("") + '</div></div>';
+  form.querySelectorAll("[data-dmf]").forEach(function(el){
+    el.addEventListener("input", function(){ dmForm.draft[el.getAttribute("data-dmf")] = el.value; });
+  });
+  enhanceAllSelects(form);
+}
+function openDmForm(entryId, dateStr){
+  if(DM_PUBLIC_MODE) return;
+  var existing = entryId ? findDmEntry(entryId) : null;
+  dmForm.editingId = existing ? existing.id : null;
+  dmForm.draft = existing ? Object.assign({}, existing) : freshDmDraft(dateStr);
+  byId("dmFormTitle").textContent = existing ? "Edit send" : "Add send";
+  byId("dmFormDelete").style.display = existing ? "" : "none";
+  dmDeleteArmed = false;
+  byId("dmFormDelete").textContent = "Delete";
+  renderDmFormFields();
+  byId("dmFormOverlay").classList.add("open");
+}
+function closeDmForm(){ byId("dmFormOverlay").classList.remove("open"); }
+function saveDmEntry(){
+  var d = dmForm.draft;
+  if(!(d.name||"").trim()){ showToast("Enter a send name"); byId("dmf-name").focus(); return; }
+  if(!d.date){ showToast("Pick a date"); byId("dmf-date").focus(); return; }
+  var btn = byId("dmFormSave");
+  if(dmForm.editingId){
+    var e = findDmEntry(dmForm.editingId);
+    if(e) Object.assign(e, d);
+  } else {
+    DM_ENTRIES.push(Object.assign({ id:"dm-"+Date.now()+"-"+Math.random().toString(36).slice(2,7), createdBy: currentUserStamp() }, d));
+  }
+  // Kalendarz skacze na miesiąc zapisanej wysyłki — inaczej po dodaniu
+  // czegoś na inny miesiąc user widzi "nic się nie stało".
+  state.dmMonth = String(d.date).slice(0,7);
+  return withBtnLoading(btn, function(){
+    return saveToStorage().then(function(){
+      closeDmForm(); renderAll();
+      showToast(dmForm.editingId ? "Send updated" : "Send added");
+    });
+  });
+}
+var dmDeleteArmed = false;
+function requestDeleteDmEntry(){
+  var btn = byId("dmFormDelete");
+  if(!dmForm.editingId) return;
+  if(!dmDeleteArmed){
+    dmDeleteArmed = true;
+    btn.textContent = "Are you sure? Click again";
+    setTimeout(function(){ dmDeleteArmed = false; if(btn) btn.textContent = "Delete"; }, 4000);
+    return;
+  }
+  DM_ENTRIES = DM_ENTRIES.filter(function(e){ return e.id!==dmForm.editingId; });
+  dmDeleteArmed = false;
+  return withBtnLoading(btn, function(){
+    return saveToStorage().then(function(){
+      closeDmForm(); renderAll();
+      showToast("Send deleted");
+    });
+  });
+}
+/* Szczegóły wysyłki (klik w pozycję kalendarza) */
+var dmDetailId = null;
+function openDmDetail(entryId){
+  var e = findDmEntry(entryId);
+  if(!e) return;
+  dmDetailId = entryId;
+  var st = dmStatus(e.status);
+  byId("dmDetailTitle").textContent = e.name || "(untitled)";
+  function row(k, v){ return v ? '<div class="dm-detail-row"><span class="k">'+esc(k)+'</span><span class="v">'+v+'</span></div>' : ""; }
+  var ownerName = (function(){
+    var u = (MQ_USER_DIRECTORY||[]).filter(function(x){ return x.email===e.owner; })[0];
+    return u ? (u.displayName || u.email) : e.owner;
+  })();
+  byId("dmDetailBody").innerHTML =
+    row("Status", '<span class="dm-status-pill dm-ev s-'+esc(e.status||"todo")+'" style="cursor:default">'+esc(st.label)+'</span>')+
+    row("Client", esc(e.client))+
+    row("Type", esc(dmTypeLabel(e.type)))+
+    row("Channel", esc(dmChannelLabel(e.channel)))+
+    row("When", esc(e.date)+(e.time ? " · "+esc(e.time) : ""))+
+    row("Responsible", esc(ownerName))+
+    row("Audience", esc(e.segment))+
+    row("Subject", esc(e.subject))+
+    row("Campaign", e.campaignUrl ? '<a href="'+esc(e.campaignUrl)+'" target="_blank" rel="noopener noreferrer">'+esc(e.campaignUrl)+'</a>' : "");
+  // W trybie publicznym (udostępniony link) nie ma czego edytować.
+  byId("dmDetailActions").style.display = DM_PUBLIC_MODE ? "none" : "";
+  byId("dmDetailOverlay").classList.add("open");
+}
+function closeDmDetail(){ byId("dmDetailOverlay").classList.remove("open"); dmDetailId = null; }
+
 /* Co ma sens w danej sekcji. Wcześniej apka pokazywała ten sam chrome
    wszędzie (wyszukiwarka, filtr CRM, Mail Stack) niezależnie od tego, czy
    miał tam jakiekolwiek zastosowanie. */
 var SECTION_META = {
   components: { title:"Components", search:"Search components…", primary:"add", stack:true },
   emails:     { title:"Ready-made emails", search:"Search emails…", primary:null, stack:true },
+  flows:      { title:"Flow Repository", search:"Search flows…", primary:null, stack:false },
+  schedule:   { title:"DM Schedule", search:null, primary:null, stack:false },
   brandkit:   { title:"Brand Kit", search:null, primary:null, stack:false }
 };
 function syncSectionChrome(){
   var meta = SECTION_META[state.section] || SECTION_META.components;
   var isBrandKit = state.section==="brandkit";
+  var isSchedule = state.section==="schedule";
+  var isFlows = state.section==="flows";
+  // Siatka kart obsługuje komponenty, maile I flow — chowamy ją tylko tam,
+  // gdzie strona ma zupełnie inną formę (formularz albo kalendarz).
+  var noGrid = isBrandKit || isSchedule;
 
-  byId("cardGrid").style.display = isBrandKit ? "none" : "";
-  byId("gridPagination").style.display = isBrandKit ? "none" : "";
+  byId("cardGrid").style.display = noGrid ? "none" : "";
+  byId("gridPagination").style.display = noGrid ? "none" : "";
   byId("brandKitPage").style.display = isBrandKit ? "" : "none";
+  byId("dmWrap").style.display = isSchedule ? "" : "none";
   // renderGrid() nie biegnie dla Brand Kitu (to nie listing), więc nagłówek
   // strony trzeba ustawić TU — inaczej zostawał tytuł poprzedniej sekcji.
   if(isBrandKit){
@@ -8961,6 +9751,8 @@ function renderGrid(){
   // gałęzi komponentów i NADPISYWAŁA nagłówek strony ustawiony wcześniej
   // przez syncSectionChrome (tytuł zostawał "Components" na Brand Kicie).
   if(state.section==="brandkit") return;
+  if(state.section==="schedule"){ renderDmCalendar(); return; }
+  if(state.section==="flows"){ renderFlowGrid(); return; }
   if(state.section==="emails"){ renderEmailGrid(); return; }
   var b = brand();
   var q = state.searchQuery;
@@ -9888,6 +10680,75 @@ function openMailPreview(){
 }
 byId("refreshAllBtn").addEventListener("click", refreshAllFromCatalog);
 byId("previewMailBtn").addEventListener("click", openMailPreview);
+
+/* ---- Flow Repository ---- */
+byId("flowClose").addEventListener("click", closeFlowOverlay);
+bindOverlayBackdropClose("flowOverlay", closeFlowOverlay);
+byId("flowDownloadMdBtn").addEventListener("click", function(){ if(flowOpenId) downloadFlowMarkdown(flowOpenId); });
+byId("flowCopyMdBtn").addEventListener("click", function(){
+  var f = flowOpenId && findFlow(flowOpenId);
+  if(!f) return;
+  copyText(buildFlowMarkdown(f), "Markdown copied — paste it to your CRM's AI agent");
+});
+byId("flowShareBtn").addEventListener("click", function(){
+  if(flowOpenId) copyShareUrl({ section:"flows", flowid: flowOpenId });
+});
+
+/* ---- Harmonogram DM ---- */
+byId("dmPrevMonth").addEventListener("click", function(){ shiftDmMonth(-1); syncUrlFromState(); });
+byId("dmNextMonth").addEventListener("click", function(){ shiftDmMonth(1); syncUrlFromState(); });
+byId("dmTodayBtn").addEventListener("click", function(){ state.dmMonth = monthKey(new Date()); renderDmCalendar(); syncUrlFromState(); });
+byId("dmAddBtn").addEventListener("click", function(){ openDmForm(null, null); });
+byId("dmFormClose").addEventListener("click", closeDmForm);
+byId("dmFormCancel").addEventListener("click", closeDmForm);
+byId("dmFormSave").addEventListener("click", saveDmEntry);
+byId("dmFormDelete").addEventListener("click", requestDeleteDmEntry);
+bindOverlayBackdropClose("dmFormOverlay", closeDmForm);
+byId("dmDetailClose").addEventListener("click", closeDmDetail);
+bindOverlayBackdropClose("dmDetailOverlay", closeDmDetail);
+byId("dmDetailEdit").addEventListener("click", function(){
+  var id = dmDetailId;
+  closeDmDetail();
+  if(id) openDmForm(id, null);
+});
+/* Publiczny link — user: "Dać możliwość udostępniania kalendarza dla innych
+   osób jakimś publicznym linkiem gdzie jest widoczny ten kalendarz z
+   pozycjami- w pozycje można sobie kliknąć i wyświetlić jej szczegóły".
+
+   Kalendarz trafia do OSOBNEGO dokumentu (publicCalendars/{token}),
+   czytelnego bez logowania — świadomie NIE otwieramy publicznie
+   sharedLibrary/config, bo tam siedzi cała reszta biblioteki (Brand Kity,
+   komponenty), której klient nie ma prawa widzieć. Token jest losowy i
+   nieodgadywalny, ale to link typu "kto ma, ten widzi" — bez haseł. */
+function dmPublishPublic(){
+  if(!window.MQStore || !window.MQStore.publishCalendar){
+    showToast("Sharing needs the database connection — try again in a moment", "error");
+    return;
+  }
+  var btn = byId("dmShareBtn");
+  var token = "";
+  try{ token = localStorage.getItem("mq_dm_share_token") || ""; }catch(e){}
+  if(!token){
+    token = "cal-"+Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,10);
+    try{ localStorage.setItem("mq_dm_share_token", token); }catch(e){}
+  }
+  return withBtnLoading(btn, function(){
+    return window.MQStore.publishCalendar(token, {
+      entries: DM_ENTRIES,
+      // Nazwy osób jadą RAZEM ze snapshotem — publiczny widz nie ma dostępu
+      // do katalogu users, więc bez tego zobaczyłby same adresy e-mail.
+      people: (MQ_USER_DIRECTORY||[]).map(function(u){ return { email:u.email, displayName:u.displayName||u.email }; }),
+      ownerEmail: DM_SCHEDULE_OWNER_EMAIL,
+      updatedAt: Date.now()
+    }).then(function(){
+      copyText(location.origin+location.pathname+"?dmshare="+encodeURIComponent(token),
+        "Public link copied — anyone with it can view the schedule");
+    }).catch(function(){
+      showToast("Couldn't publish the calendar — check the console", "error");
+    });
+  });
+}
+byId("dmShareBtn").addEventListener("click", dmPublishPublic);
 /* Przełącznik podgląd <-> kod w tym samym oknie — zamiast dwóch osobnych
    okien (Preview / Export), jedno okno z dwoma widokami tej samej treści.
    Stan resetuje się przy KAŻDYM otwarciu (patrz resetPreviewCodeToggle w
@@ -10331,11 +11192,20 @@ function syncGoogleFontLink(b){
 // przy każdej zmianie kategorii/otwarciu edytora.
 var urlOpenComponentId = null;
 var urlOpenEmailId = null;
+var urlOpenFlowId = null;
 function syncUrlFromState(){
+  // Publiczny link do kalendarza NIE może się sam przepisać na zwykły URL
+  // appki — inaczej pierwszy render skasowałby ?dmshare= z paska adresu i
+  // odświeżenie strony wyrzuciłoby klienta na ekran logowania.
+  if(DM_PUBLIC_MODE) return;
   var params = new URLSearchParams();
   params.set("section", state.section);
   if(state.section==="emails"){
     if(state.emailFlow) params.set("flow", state.emailFlow);
+  } else if(state.section==="flows"){
+    params.set("flowcat", state.flowCategory||"all");
+  } else if(state.section==="schedule"){
+    if(state.dmMonth) params.set("month", state.dmMonth);
   } else {
     params.set("category", state.category||"all");
   }
@@ -10343,6 +11213,7 @@ function syncUrlFromState(){
   if(state.searchQuery) params.set("search", state.searchQuery);
   if(urlOpenComponentId) params.set("component", urlOpenComponentId);
   if(urlOpenEmailId) params.set("email", urlOpenEmailId);
+  if(urlOpenFlowId) params.set("flowid", urlOpenFlowId);
   var qs = params.toString();
   history.replaceState(null, "", location.pathname + (qs ? "?"+qs : ""));
 }
@@ -10359,6 +11230,7 @@ function restoreStateFromUrl(){
   var search = params.get("search");
   var componentId = params.get("component");
   var emailId = params.get("email");
+  var flowId = params.get("flowid");
   var changed = false;
   if(section==="emails"){
     state.section = "emails"; changed = true;
@@ -10372,11 +11244,21 @@ function restoreStateFromUrl(){
     // osobno w state.brand, nie w URL-u).
     openBrandForm("edit", state.brand);
     changed = false;
+  } else if(section==="flows"){
+    state.section = "flows"; changed = true;
+    var flowCat = params.get("flowcat");
+    if(flowCat && (flowCat==="all" || FLOW_CATEGORIES.some(function(c){ return c.id===flowCat; }))) state.flowCategory = flowCat;
+  } else if(section==="schedule"){
+    state.section = "schedule"; changed = true;
+    var month = params.get("month");
+    if(month && /^\d{4}-\d{2}$/.test(month)) state.dmMonth = month;
+    initDmMonth();
   }
   if(search){ state.searchQuery = search; byId("searchInput").value = search; changed = true; }
   if(changed) renderAll();
   if(componentId && findComp(componentId)) openComponentEditor(componentId, null);
   else if(emailId && findEmail(emailId)) openEmailPreview(emailId);
+  else if(flowId && findFlow(flowId)) openFlowDetail(flowId);
 }
 function renderAll(){
   renderSwatches(); renderPrimaryNav(); renderFilterBar(); renderCrmFilterRow();
@@ -11469,6 +12351,16 @@ window.MQBoot = async function(user){
   restoreStateFromUrl();
   if(!remoteErrored && !sharedExisted) saveToStorage(); // zasiewa wspólną bibliotekę TYLKO gdy jeszcze nie istniała
   if(remoteErrored) showToast("Couldn't reach the database — showing your last local copy", "error");
+  // Katalog użytkowników — potrzebny do wskazania osoby odpowiedzialnej za
+  // wysyłkę w harmonogramie DM. Ładowany PO renderAll (nie blokuje wejścia
+  // do apki) i cicho pomijany, gdy się nie uda: formularz spada wtedy na
+  // samego zalogowanego użytkownika, zamiast się wysypać.
+  if(window.MQUsers && window.MQUsers.listAll){
+    window.MQUsers.listAll().then(function(list){
+      MQ_USER_DIRECTORY = list || [];
+      if(state.section==="schedule") renderDmCalendar();
+    }).catch(function(){});
+  }
 };
 function renderAuthUserBadge(){
   var btn = byId("authUserBtn");
@@ -11500,6 +12392,62 @@ function renderAuthUserBadge(){
   // ikonę z etykietą (dokładnie ta regresja zdarzyła się wcześniej w topbarze).
   byId("crmSettingsTopbarBtn").style.display = adminOnly ? "flex" : "none";
 }
+/* Publiczny widok kalendarza — user: "Dać możliwość udostępniania
+   kalendarza dla innych osób jakimś publicznym linkiem gdzie jest widoczny
+   ten kalendarz z pozycjami- w pozycje można sobie kliknąć i wyświetlić jej
+   szczegóły".
+
+   Wołane przez moduł Firebase ZAMIAST bramki logowania, gdy w URL-u jest
+   ?dmshare=TOKEN. Renderujemy WYŁĄCZNIE harmonogram: nawigacja, przełącznik
+   marki i wszystkie akcje edycyjne znikają — klient dostaje kalendarz i
+   szczegóły pozycji, nic więcej. */
+window.MQPublicCalendar = async function(token){
+  DM_PUBLIC_MODE = true;
+  var gate = byId("authGate");
+  try{
+    var data = window.MQStore && window.MQStore.loadPublicCalendar
+      ? await window.MQStore.loadPublicCalendar(token) : null;
+    if(!data){
+      byId("authGateSpinner").style.display = "none";
+      byId("authGateModal").style.display = "";
+      byId("authGateModal").innerHTML =
+        '<div class="modal-body"><p class="drawer-empty" style="padding:20px">'+
+        'This calendar link is no longer available. Ask whoever shared it for a new one.'+
+        '</p></div>';
+      return;
+    }
+    DM_ENTRIES = data.entries || [];
+    MQ_USER_DIRECTORY = data.people || [];
+    if(data.ownerEmail) DM_SCHEDULE_OWNER_EMAIL = data.ownerEmail;
+    state.section = "schedule";
+    initDmMonth();
+    gate.style.display = "none";
+    // Chowamy wszystko, czego publiczny widz nie ma prawa dotknąć.
+    byId("appNav").style.display = "none";
+    byId("app").style.gridTemplateColumns = "1fr";
+    byId("navToggle").style.display = "none";
+    byId("brandSelectWrap").closest(".brand-picker").style.display = "none";
+    byId("dmAddBtn").style.display = "none";
+    byId("dmShareBtn").style.display = "none";
+    byId("filterbar").style.display = "none";
+    var fb = document.querySelector(".feedback-fab"); if(fb) fb.style.display = "none";
+    byId("gridTitle").textContent = "DM Schedule";
+    byId("gridCount").textContent = DM_ENTRIES.length + (DM_ENTRIES.length===1 ? " send" : " sends");
+    byId("cardGrid").style.display = "none";
+    byId("gridPagination").style.display = "none";
+    byId("dmWrap").style.display = "";
+    byId("searchInput").closest(".search-input-wrap").style.display = "none";
+    byId("dockToggle").style.display = "none";
+    renderDmCalendar();
+  }catch(e){
+    byId("authGateSpinner").style.display = "none";
+    byId("authGateModal").style.display = "";
+    byId("authGateModal").innerHTML =
+      '<div class="modal-body"><p class="drawer-empty" style="padding:20px">'+
+      'Couldn’t load this calendar. Check your connection and reload.'+
+      '</p></div>';
+  }
+};
 window.MQShowGate = showAuthGate;
 // Awaryjnie: gdyby moduł Firebase w ogóle się nie załadował (np.
 // ad-block/firewall blokujący gstatic.com, brak sieci) — inaczej user
@@ -11716,16 +12664,39 @@ window.MQStore = {
     };
   },
   saveShared(payload){ return saveDoc(SHARED_DOC, payload); },
-  savePrivate(payload){ return saveDoc(privateDocRef, payload); }
+  savePrivate(payload){ return saveDoc(privateDocRef, payload); },
+  /* Publiczny snapshot harmonogramu — OSOBNA kolekcja, czytelna bez
+     logowania (patrz reguły Firestore w dokumentacji projektu).
+     Świadomie NIE otwieramy publicznie sharedLibrary/config: tam siedzą
+     Brand Kity i cała biblioteka komponentów, których klient nie ma prawa
+     widzieć. Tu ląduje WYŁĄCZNIE to, co ma być na kalendarzu. */
+  publishCalendar(token, payload){
+    const clean = JSON.parse(JSON.stringify(payload));
+    return setDoc(doc(db, "publicCalendars", token), { payload: clean, updatedAt: Date.now() });
+  },
+  /* Odczyt publicznego kalendarza — wołany PRZED zalogowaniem (patrz
+     ?dmshare= w klasycznym skrypcie), więc nie może zakładać auth. */
+  async loadPublicCalendar(token){
+    const snap = await getDoc(doc(db, "publicCalendars", token));
+    return snap.exists() ? snap.data().payload : null;
+  }
 };
 
-onAuthStateChanged(auth, function(user){
-  if(user){
-    privateDocRef = doc(db, "workspaces", user.uid);
-    window.MQBoot(user);
-  } else {
-    privateDocRef = null;
-    window.MQShowGate();
-  }
-});
+/* ?dmshare=TOKEN — publiczny, tylko-do-odczytu kalendarz dla klienta.
+   Rozstrzygane PRZED onAuthStateChanged, bo ten link ma działać BEZ konta;
+   gdyby poszedł normalną ścieżką, klient zobaczyłby ekran logowania. */
+const dmShareToken = new URLSearchParams(location.search).get("dmshare");
+if(dmShareToken){
+  window.MQPublicCalendar(dmShareToken);
+} else {
+  onAuthStateChanged(auth, function(user){
+    if(user){
+      privateDocRef = doc(db, "workspaces", user.uid);
+      window.MQBoot(user);
+    } else {
+      privateDocRef = null;
+      window.MQShowGate();
+    }
+  });
+}
 </script>
