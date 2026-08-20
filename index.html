@@ -253,20 +253,30 @@
   .page-head-actions{display:flex; align-items:center; gap:8px; margin-left:auto}
   /* Hero-baner na Components (user: obraz + "Component" + żywy licznik,
      zastępujący zwykły nagłówek WYŁĄCZNIE tam — patrz .is-hero toggle w
-     syncSectionChrome). Pusta, ciemna przestrzeń po LEWEJ stronie grafiki
-     to celowa kompozycja pod tekst — dlatego position:right, nie center,
-     żeby na szerokich ekranach nie ucinało akurat tej pustej przestrzeni. */
+     syncSectionChrome).
+     user: "ten obiekt na grafice jest za bardzo przybliżony" — cover
+     skalował obraz TAK, żeby wypełnił cały baner, co przy niskim
+     min-height i szerokim kontenerze przycinało większość kadru. contain
+     pokazuje CAŁY obrazek bez przycinania/zoomu, position:right go
+     przykleja do prawej krawędzi (celowa pusta przestrzeń po lewej pod
+     tekst), a background-color dopełnia resztę tym samym niemal-czarnym
+     tonem co sam obrazek — bez tego lewa strona byłaby przezroczysta
+     (widać by było biały .paper pod spodem zamiast płynnego przejścia).
+     user: "czemu cały hero banner jest sticky? wyłącz to" — position:
+     static nadpisuje sticky odziedziczone z bazowego .page-head. */
   .page-head-hero-title{display:none}
   .page-head.is-hero{
+    position:static;
+    background-color:#050505;
     background-image:url('https://i.ibb.co/4q5ntBC/90a83028-0c53-41fb-b5cf-2a19ff5816f0.jpg');
-    background-size:cover; background-position:right center; background-repeat:no-repeat;
+    background-size:contain; background-position:right center; background-repeat:no-repeat;
     min-height:150px; box-sizing:border-box; display:flex; align-items:center;
   }
   .page-head.is-hero .page-head-inner{width:100%}
   .page-head.is-hero .page-head-titles{flex-direction:column; align-items:flex-start; gap:2px}
   .page-head.is-hero #gridTitle{display:none}
   .page-head.is-hero .page-head-hero-title{
-    display:block; color:#ffffff; font-size:32px; font-weight:600; letter-spacing:-.02em;
+    display:block; color:#ffffff; font-size:32px; font-weight:500; letter-spacing:-.02em;
   }
   .page-head.is-hero .page-count{
     color:rgba(255,255,255,.62); font-size:13.5px; text-transform:capitalize;
