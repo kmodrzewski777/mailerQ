@@ -112,6 +112,186 @@
      radiusu/cienia na CAŁYM barze); TYLKO .topbar-inner dostaje max-width
      (ten sam 1400px co .shell), żeby treść była wyrównana z contentem
      pod spodem, bez wizualnego "boxa" wokół samego paska. */
+  /* ============================================================
+     APP SHELL (redesign) — user: "Zaprojektuj całkowicie od nowa...
+     Zaproponuj totalnie inny układ wszystkiego".
+
+     Poprzedni układ: sticky topbar + grid 236px/1fr/320px, gdzie LEWA
+     kolumna była dwiema płaskimi listami kategorii, a PRAWA na stałe
+     zabierała 320px na Mail Stack. Problem nie był wizualny tylko
+     strukturalny — nie było nawigacji NAJWYŻSZEGO poziomu (klik w
+     kategorię po cichu przełączał tryb całej apki), a Brand Kit, czyli
+     workspace na 100+ pól, żył w modalu.
+
+     Nowy układ: stała kolumna nawigacji (destynacje, nie filtry) +
+     obszar roboczy z własnym, sticky nagłówkiem strony. Kategorie
+     schodzą PIĘTRO NIŻEJ, do nagłówka strony, więc przestają
+     konkurować z nawigacją. Mail Stack przestaje być trzecią kolumną i
+     staje się dokiem otwieranym na żądanie (patrz .dock).
+     ============================================================ */
+  .app{display:grid; grid-template-columns:var(--nav-w,248px) 1fr; min-height:100vh; align-items:start}
+  .app.nav-collapsed{--nav-w:68px}
+
+  .nav{
+    position:sticky; top:0; align-self:start; height:100vh; box-sizing:border-box;
+    background:var(--surface); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; gap:2px; padding:16px 12px 12px;
+  }
+  .nav-brand{display:flex; align-items:center; gap:10px; padding:4px 8px 18px; min-width:0}
+  .nav-brand .brand-logo-text{font-size:22px; white-space:nowrap; overflow:hidden}
+  .app.nav-collapsed .nav-brand .brand-logo-text,
+  .app.nav-collapsed .nav-label,
+  .app.nav-collapsed .nav-group-title,
+  .app.nav-collapsed .nav-item .n{display:none}
+  .app.nav-collapsed .nav-item{justify-content:center; padding-left:0; padding-right:0}
+  .nav-group-title{
+    font-size:10.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--ink-faint); padding:16px 10px 6px;
+  }
+  .nav-item{
+    display:flex; align-items:center; gap:10px; width:100%; box-sizing:border-box;
+    padding:9px 10px; border:0; border-radius:9px; background:transparent;
+    font:inherit; font-size:13.5px; font-weight:600; color:var(--ink-muted);
+    text-align:left; cursor:pointer; transition:background .15s ease, color .15s ease;
+  }
+  .nav-item svg{width:18px; height:18px; flex:none}
+  .nav-item .nav-label{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .nav-item .n{
+    font-size:11px; font-weight:700; color:var(--ink-faint);
+    font-variant-numeric:tabular-nums; flex:none;
+  }
+  .nav-item:hover{background:var(--surface-2); color:var(--ink)}
+  .nav-item[aria-current="page"]{background:var(--ink); color:var(--paper)}
+  .nav-item[aria-current="page"] .n{color:rgba(255,255,255,.6)}
+  .nav-spacer{flex:1}
+  .nav-foot{border-top:1px solid var(--line); padding-top:10px; margin-top:10px}
+
+  /* Pasek roboczy — sticky nagłówek STRONY (nie globalny topbar).
+     Niesie: gdzie jestem + ile tego jest + wyszukiwarka o jasnym zakresie
+     + akcja właściwa DLA TEJ strony. */
+  .work{min-width:0; display:flex; flex-direction:column; min-height:100vh}
+  .page-head{
+    position:sticky; top:0; z-index:25; background:var(--paper);
+    border-bottom:1px solid var(--line); padding:14px 24px;
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  }
+  .page-head-titles{display:flex; align-items:baseline; gap:10px; min-width:0}
+  .page-head h2{font-size:19px; font-weight:700; letter-spacing:-.01em; margin:0; white-space:nowrap}
+  .page-head .page-count{font-size:12.5px; color:var(--ink-faint); font-variant-numeric:tabular-nums; white-space:nowrap}
+  .page-head-actions{display:flex; align-items:center; gap:8px; margin-left:auto}
+  .nav-toggle{flex:none}
+  .page-body{padding:20px 24px 64px; flex:1}
+
+  /* Pasek filtrów — kategorie zeszły TU z lewej kolumny.
+     Dwa rzędy, nie jeden: kategorie potrafią być długie i przewijają się
+     poziomo, więc filtr platformy CRM postawiony obok nich w tym samym
+     wierszu po prostu na nie nachodził. */
+  .filterbar{
+    display:flex; flex-direction:column; align-items:stretch; gap:10px;
+    padding:12px 24px; border-bottom:1px solid var(--line); background:var(--paper);
+  }
+  .filterbar-scroll{
+    display:flex; gap:6px; overflow-x:auto; min-width:0; padding-bottom:2px;
+    /* Pasek przewijania kategorii nie ma własnego, widocznego toru —
+       chowamy go, bo to krótka lista chipsów, nie długa treść. */
+    scrollbar-width:none;
+  }
+  .filterbar-scroll::-webkit-scrollbar{display:none}
+  .filterbar .crm-filter-row{flex-wrap:wrap}
+  .fchip{
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-muted);
+    border-radius:var(--radius-chip); padding:6px 12px; font-size:12.5px; font-weight:600;
+    white-space:nowrap; cursor:pointer; font-family:inherit; flex:none;
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .fchip:hover{border-color:var(--line-strong); color:var(--ink)}
+  .fchip[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:var(--paper)}
+  .fchip .n{opacity:.55; margin-left:5px; font-variant-numeric:tabular-nums}
+
+  /* Mail Stack jako dok — nie trzecia kolumna na stałe. */
+  .dock{
+    position:fixed; top:0; right:0; bottom:0; width:340px; max-width:92vw; z-index:45;
+    background:var(--surface); border-left:1px solid var(--line);
+    box-shadow:-18px 0 40px rgba(0,0,0,.10);
+    display:flex; flex-direction:column;
+    transform:translateX(100%); transition:transform .22s cubic-bezier(.4,0,.2,1);
+    overscroll-behavior:contain;
+  }
+  .dock.open{transform:translateX(0)}
+  /* Przycisk Feedback jest fixed z z-index:90 i lądował NA przycisku
+     Preview w otwartym doku — chowamy go, dopóki dok jest otwarty. */
+  body.dock-open .feedback-fab{display:none}
+  /* jw. — sticky pasek akcji Brand Kitu też siedzi na dole ekranu. */
+  body.brandkit-open .feedback-fab{display:none}
+  .dock-head{
+    display:flex; align-items:center; gap:8px; padding:16px 18px;
+    border-bottom:1px solid var(--line); flex:none;
+  }
+  .dock-head h3{font-size:15px; font-weight:700; margin:0}
+  .dock-body{flex:1; overflow-y:auto; padding:14px 18px}
+  .dock-foot{padding:14px 18px; border-top:1px solid var(--line); flex:none}
+  .dock-scrim{
+    position:fixed; inset:0; z-index:44; background:rgba(17,17,18,.28);
+    opacity:0; pointer-events:none; transition:opacity .22s ease;
+  }
+  .dock-scrim.open{opacity:1; pointer-events:auto}
+  /* Licznik na przycisku doku — informacja "masz tam coś" bez otwierania. */
+  .dock-pill{
+    display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px;
+    padding:0 5px; border-radius:var(--radius-chip); background:var(--accent); color:var(--accent-ink);
+    font-size:10.5px; font-weight:800; font-variant-numeric:tabular-nums; margin-left:6px;
+  }
+
+  /* Brand Kit jako strona */
+  .bk-head{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px}
+  .bk-head h3{font-size:22px; font-weight:700; letter-spacing:-.01em; margin:0}
+  .bk-sub{font-size:13px; color:var(--ink-muted); margin:4px 0 0}
+  /* Pasek akcji przyklejony do DOŁU OKNA (nie do dołu treści) — user
+     wcześniej: "ten pasek w brand kit ma być sticky- zawsze widoczny".
+     W modalu robił to .modal-footer-bar; na stronie to samo osiąga
+     position:sticky; bottom:0. */
+  .bk-actionbar{
+    position:sticky; bottom:0; z-index:5; display:flex; gap:8px;
+    background:var(--paper); border-top:1px solid var(--line);
+    padding:14px 0; margin-top:24px;
+  }
+  /* Skip link — pierwszy Tab na stronie przeskakuje nawigację i ląduje
+     w treści (wcześniej trzeba było przeklikać całą listę kategorii). */
+  .skip-link{
+    position:absolute; left:12px; top:-60px; z-index:100;
+    background:var(--ink); color:var(--paper); padding:10px 16px;
+    border-radius:8px; font-size:13px; font-weight:600; text-decoration:none;
+    transition:top .15s ease;
+  }
+  .skip-link:focus{top:12px}
+  @media (prefers-reduced-motion:reduce){ .skip-link{transition:none} }
+
+  @media (prefers-reduced-motion:reduce){
+    .dock{transition:none}
+    .dock-scrim{transition:none}
+    .nav-item{transition:none}
+    .fchip{transition:none}
+  }
+
+  @media (max-width:1000px){
+    .app{grid-template-columns:1fr}
+    .nav{
+      position:fixed; top:0; bottom:0; left:0; width:248px; z-index:50;
+      transform:translateX(-100%); transition:transform .22s cubic-bezier(.4,0,.2,1);
+    }
+    .app.nav-open .nav{transform:translateX(0)}
+    .app.nav-collapsed{--nav-w:248px}
+    .app.nav-collapsed .nav-brand .brand-logo-text,
+    .app.nav-collapsed .nav-label,
+    .app.nav-collapsed .nav-group-title,
+    .app.nav-collapsed .nav-item .n{display:revert}
+    .app.nav-collapsed .nav-item{justify-content:flex-start; padding-left:10px; padding-right:10px}
+    .page-head{padding:12px 16px}
+    .filterbar{padding:10px 16px}
+    .page-body{padding:16px 16px 80px}
+  }
+  @media (prefers-reduced-motion:reduce){ .nav{transition:none} }
+
   .topbar{
     position:sticky; top:0; z-index:30; background:var(--paper);
     border-bottom:1px solid var(--line); padding:14px 0;
@@ -593,9 +773,17 @@
      zakładki widocznie zmniejszałoby popup. */
   #editModeBody{min-height:220px}
   .btn:disabled{opacity:.4; cursor:not-allowed; pointer-events:none}
-  .brand-form-layout{display:grid; grid-template-columns:1fr 260px; gap:20px; align-items:start}
+  .brand-form-layout{display:grid; grid-template-columns:1fr 300px; gap:24px; align-items:start}
   .brand-form-layout.cd-layout{grid-template-columns:1fr 450px}
+  @media (max-width:900px){ .brand-form-layout{grid-template-columns:1fr} }
   @media (max-width:720px){ .brand-form-layout, .brand-form-layout.cd-layout{grid-template-columns:1fr} }
+  /* Podgląd na żywo MUSI być przyklejony — formularz ma ~118 pól, więc bez
+     tego znikał po pierwszym przewinięciu i cała idea "widzę efekt zmiany
+     od razu" przestawała działać. top = wysokość sticky nagłówka strony.
+     Wymaga align-items:start na gridzie (jest wyżej) — domyślne stretch
+     rozciągnęłoby kolumnę na całą wysokość i sticky nie miałoby zakresu. */
+  .brand-form-preview{position:sticky; top:78px; align-self:start}
+  @media (max-width:900px){ .brand-form-preview{position:static} }
   .brand-form{display:flex; flex-direction:column; gap:18px}
   .bf-group{border:1px solid var(--line); border-radius:6px; padding:12px 14px}
   .bf-group-title{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 10px}
@@ -855,43 +1043,42 @@
   @media (max-width:520px){ .app-footer-inner{justify-content:flex-start} }
 </style>
 
-<div class="topbar">
-  <div class="topbar-inner">
-    <div class="topbar-left">
-      <h1 class="brand-title" aria-label="Maximus">
-        <span class="brand-logo-text" style="font-size:28px">Maximus</span>
-      </h1>
+<a href="#workMain" class="skip-link">Skip to content</a>
+<div class="app" id="app">
+  <!-- Nawigacja NAJWYŻSZEGO poziomu: destynacje, nie filtry. Kategorie
+       zjechały do .filterbar w nagłówku strony. -->
+  <nav class="nav" id="appNav" aria-label="Main">
+    <div class="nav-brand">
+      <span class="brand-logo-text" translate="no">Maximus</span>
     </div>
-    <!-- user: "wybor brandu niech bedzie po lewej od imie/nazwisko...
-         kolejnosc: add component - site settings - wybór brandu |
-         avatar/imie nazwisko a logo po lewej" — picker marki przeniesiony
-         ze środka topbaru (patrz stary komentarz o "Brand na środku",
-         nieaktualny) do klastra po prawej, między Settings a avatarem. -->
-    <div class="topbar-right">
-      <button class="btn small" id="addComponentBtn" type="button">Add component</button>
-      <button class="btn ghost small" id="crmSettingsTopbarBtn" type="button" title="Site settings" aria-label="Site settings" style="display:inline-flex; align-items:center">
-        <svg width="16" height="16" viewBox="0 -960 960 960" fill="currentColor"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg>
-        <span style="margin-left:6px">Settings</span>
+
+    <div class="nav-group-title">Library</div>
+    <button class="nav-item" type="button" data-nav="components">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span class="nav-label">Components</span><span class="n" id="navCountComponents"></span>
+    </button>
+    <button class="nav-item" type="button" data-nav="emails">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+      <span class="nav-label">Ready-made emails</span><span class="n" id="navCountEmails"></span>
+    </button>
+
+    <div class="nav-group-title">Design</div>
+    <button class="nav-item" type="button" data-nav="brandkit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg>
+      <span class="nav-label">Brand Kit</span>
+    </button>
+
+    <div class="nav-spacer"></div>
+    <div class="nav-foot">
+      <button class="nav-item" type="button" id="crmSettingsTopbarBtn" title="Site settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        <span class="nav-label">Settings</span>
       </button>
-      <div class="brand-picker">
-        <span class="brand-picker-dot" id="brandPickerDot"></span>
-        <div class="brand-select" id="brandSelectWrap">
-          <button type="button" class="brand-select-btn" id="brandSelectBtn" aria-haspopup="listbox" aria-expanded="false">
-            <span id="brandSelectLabel"></span>
-            <span class="brand-select-caret" aria-hidden="true"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"/></svg></span>
-          </button>
-          <ul class="brand-select-menu" id="brandSelectMenu" role="listbox" aria-label="Brand selection" style="display:none"></ul>
-        </div>
-      </div>
-      <span class="topbar-right-divider" aria-hidden="true"></span>
-      <!-- user: "kliknięcie w to ma wywołać dropdown chmurkę z opcjami
-           Edit profile / Logout" — ten sam widget co brand-select
-           (position:relative + .brand-select-menu), tylko rozwija się w
-           lewo od prawej krawędzi (brand-select-menu-right), bo badge
-           siedzi na samej krawędzi ekranu. -->
-      <div class="brand-select" id="authUserMenuWrap">
-        <button class="btn ghost small auth-user-badge" id="authUserBtn" type="button" title="Account" aria-haspopup="menu" aria-expanded="false" style="display:none"></button>
-        <ul class="brand-select-menu brand-select-menu-right" id="authUserMenu" role="menu" aria-label="Account menu" style="display:none">
+      <!-- Konto — dropdown Edit profile / Logout (bez zmian funkcjonalnych,
+           przeniesiony z topbaru na dół nawigacji, gdzie konto zwykle żyje). -->
+      <div class="brand-select" id="authUserMenuWrap" style="width:100%">
+        <button class="nav-item auth-user-badge" id="authUserBtn" type="button" title="Account" aria-haspopup="menu" aria-expanded="false" style="display:none"></button>
+        <ul class="brand-select-menu" id="authUserMenu" role="menu" aria-label="Account menu" style="display:none; bottom:100%; top:auto; margin-bottom:6px">
           <li class="auth-user-menu-header" id="authUserMenuHeader"></li>
           <li class="auth-user-menu-divider"></li>
           <li class="brand-select-option" role="menuitem" id="authUserMenuEdit">Edit profile</li>
@@ -899,8 +1086,56 @@
         </ul>
       </div>
     </div>
-  </div>
-</div>
+  </nav>
+
+  <div class="work">
+    <!-- Nagłówek STRONY: gdzie jestem, ile tego jest, czego szukam,
+         co mogę tu zrobić. Akcja "Add component" wróciła z globalnego
+         topbaru tutaj, bo dotyczy wyłącznie biblioteki komponentów. -->
+    <header class="page-head">
+      <button class="icon-btn nav-toggle" type="button" id="navToggle" aria-label="Toggle navigation" aria-expanded="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <div class="page-head-titles">
+        <h2 id="gridTitle">All components</h2>
+        <span class="page-count" id="gridCount"></span>
+      </div>
+      <div class="page-head-actions">
+        <div class="search-input-wrap" style="max-width:260px">
+          <svg width="15" height="15" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search components…" aria-label="Search the library" autocomplete="off" spellcheck="false">
+        </div>
+        <!-- Kontekst klienta — to, w czyim Brand Kicie pracujesz. Zostaje
+             globalny (dotyczy każdej sekcji), ale wizualnie jest teraz
+             kontrolką kontekstu, nie jednym z pięciu równorzędnych guzików. -->
+        <div class="brand-picker">
+          <div class="brand-select" id="brandSelectWrap">
+            <!-- Kropka koloru marki siedzi TERAZ W przycisku, nie obok niego
+                 — jako samodzielny element wisiała w powietrzu między
+                 wyszukiwarką a selectem i nic nie znaczyła. -->
+            <button type="button" class="brand-select-btn" id="brandSelectBtn" aria-haspopup="listbox" aria-expanded="false">
+              <span class="brand-picker-dot" id="brandPickerDot" aria-hidden="true"></span>
+              <span id="brandSelectLabel"></span>
+              <span class="brand-select-caret" aria-hidden="true"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"/></svg></span>
+            </button>
+            <ul class="brand-select-menu brand-select-menu-right" id="brandSelectMenu" role="listbox" aria-label="Brand selection" style="display:none"></ul>
+          </div>
+        </div>
+        <button class="btn small" id="addComponentBtn" type="button">Add Component</button>
+        <!-- Mail Stack — dok, nie stała kolumna. Licznik mówi ile w środku,
+             więc nie trzeba go otwierać żeby to wiedzieć. -->
+        <button class="btn ghost small" id="dockToggle" type="button" aria-expanded="false" aria-controls="drawer">
+          Mail Stack<span class="dock-pill" id="dockCount">0</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="filterbar" id="filterbar">
+      <div class="filterbar-scroll" id="filterChips" role="group" aria-label="Filter by category"></div>
+      <div class="crm-filter-row" id="crmFilterRow"></div>
+    </div>
+
+    <main class="page-body" id="workMain">
 
 <!-- Blokada dostępu — user: "Stwórz mi panel logowania i rejestracji
      kont", "ma być automatyczny", wiele osób z osobnymi kontami. Nie jest
@@ -1123,57 +1358,36 @@
   </div>
 </div>
 
-<div class="cat-chips" id="catChips"></div>
-<div class="cat-chips" id="flowChips"></div>
-
-<div class="shell">
-  <nav class="rail" id="rail" aria-label="Categories and ready-made emails">
-    <div class="rail-title-row">
-      <p class="rail-title">Categories</p>
-      <button type="button" class="icon-btn" id="railCategoriesEditBtn" title="Edit categories" aria-label="Edit categories"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg></button>
-    </div>
-    <div id="railList"></div>
-    <div class="rail-title-row" style="margin-top:22px">
-      <p class="rail-title">E-mails</p>
-      <button type="button" class="icon-btn" id="railFlowsEditBtn" title="Edit categories" aria-label="Edit categories"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg></button>
-    </div>
-    <div id="railFlowList"></div>
-  </nav>
-
-  <main class="grid-wrap">
-    <!-- user: "tu jest za duży ścisk. zamień te sekcje miejscami. najpierw
-         nagłówek potem search i daj więcej oddechu" — nagłówek sekcji
-         teraz nad wyszukiwarką, nie pod nią. -->
-    <div class="grid-heading">
-      <h2 id="gridTitle">All components</h2>
-      <span class="grid-count" id="gridCount"></span>
-    </div>
-    <div class="search-row">
-      <div class="search-input-wrap">
-        <svg width="15" height="15" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>
-        <input type="text" id="searchInput" class="search-input" placeholder="Search…" aria-label="Search components and ready-made emails">
-      </div>
-      <div class="crm-filter-row" id="crmFilterRow"></div>
-    </div>
-    <div class="card-grid" id="cardGrid"></div>
-    <div class="pagination" id="gridPagination"></div>
-  </main>
-
-  <aside class="drawer" id="drawer">
-    <div class="drawer-handle" id="drawerHandle">
-      <h3 class="drawer-title" style="justify-content:flex-start; gap:8px">Mail stack <span class="drawer-count" id="listCount">(0)</span>
-        <button class="icon-btn" id="refreshAllBtn" type="button" style="display:none" title="Syncs every item with the latest catalog version. Filled-in content stays." aria-label="Refresh whole list from catalog"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg></button>
-        <span style="display:flex; align-items:center; gap:6px; margin-left:auto">
-          <button class="icon-btn" id="clearListBtn" type="button" disabled title="Clear Mail Stack" aria-label="Clear Mail Stack"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg></button>
-          <button class="icon-btn" id="saveEmailBtn" type="button" disabled title="Save as ready-made email" aria-label="Save as ready-made email"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M840-680v480q0 33-23.5 56.5T760-120H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h480l160 160Zm-80 34L646-760H200v560h560v-446ZM480-240q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM240-560h360v-160H240v160Zm-40-34v-206 560-354Z"/></svg></button>
-        </span>
-      </h3>
-    </div>
-    <div class="drawer-grab"></div>
-    <div id="listBody"></div>
-    <button class="btn export-btn" id="previewMailBtn" disabled>Preview</button>
-  </aside>
+      <div class="card-grid" id="cardGrid"></div>
+      <div class="pagination" id="gridPagination"></div>
+      <!-- Brand Kit jako STRONA, nie modal (patrz komentarz przy .app) —
+           workspace na 100+ pól nie mieści się sensownie w oknie dialogowym. -->
+      <div id="brandKitPage" style="display:none"></div>
+    </main>
+  </div>
 </div>
+
+<!-- Mail Stack — dok wysuwany z prawej, zamiast stałej trzeciej kolumny.
+     Zachowane WSZYSTKIE dotychczasowe id (drawer/listBody/previewMailBtn/
+     saveEmailBtn/clearListBtn/refreshAllBtn), żeby cała logika listy
+     działała bez zmian. -->
+<div class="dock-scrim" id="dockScrim"></div>
+<aside class="dock" id="drawer" aria-label="Mail Stack" aria-hidden="true">
+  <div class="dock-head">
+    <h3>Mail Stack</h3>
+    <span class="drawer-count" id="listCount">(0)</span>
+    <span style="display:flex; align-items:center; gap:6px; margin-left:auto">
+      <button class="icon-btn" id="refreshAllBtn" type="button" style="display:none" title="Syncs every item with the latest catalog version. Filled-in content stays." aria-label="Refresh whole list from catalog"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg></button>
+      <button class="icon-btn" id="clearListBtn" type="button" disabled title="Clear Mail Stack" aria-label="Clear Mail Stack"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg></button>
+      <button class="icon-btn" id="saveEmailBtn" type="button" disabled title="Save as ready-made email" aria-label="Save as ready-made email"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M840-680v480q0 33-23.5 56.5T760-120H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h480l160 160Zm-80 34L646-760H200v560h560v-446ZM480-240q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM240-560h360v-160H240v160Zm-40-34v-206 560-354Z"/></svg></button>
+      <button class="modal-close" id="dockClose" type="button" aria-label="Close Mail Stack"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+    </span>
+  </div>
+  <div class="dock-body" id="listBody"></div>
+  <div class="dock-foot">
+    <button class="btn export-btn" id="previewMailBtn" style="width:100%" disabled>Preview</button>
+  </div>
+</aside>
 
 <footer class="app-footer">
   <div class="app-footer-inner">
@@ -1382,46 +1596,44 @@
   </div>
 </div>
 
-<div class="overlay" id="brandFormOverlay" role="dialog" aria-modal="true">
-  <div class="modal" style="max-width:900px">
-    <div class="modal-head">
-      <h3 id="brandFormTitle">New brand</h3>
-      <button class="modal-close" id="brandFormClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+<!-- Brand Kit — dawniej modal na 900px, w którym trzeba było przewijać
+     ~150 pól w 9 grupach. Teraz pełna strona (patrz #brandKitPage w .work):
+     formularz w lewej kolumnie, PRZYKLEJONY podgląd na żywo w prawej,
+     sticky pasek akcji na dole ekranu. Wszystkie id zachowane, więc cała
+     logika (renderBrandFormFields/updateBrandFormPreview/zapis) działa bez
+     zmian — zmienił się wyłącznie kontener. -->
+<template id="brandKitTemplate">
+  <div class="bk-head">
+    <div>
+      <h3 id="brandFormTitle">Brand Kit</h3>
+      <p class="bk-sub" id="brandFormSubtitle"></p>
     </div>
-    <div class="modal-body">
-      <div class="bf-device-toggle device-toggle" id="brandFormDeviceToggle" role="tablist">
-        <button type="button" class="bf-tab-btn" data-bf-device="desktop" aria-pressed="true">Desktop</button>
-        <button type="button" class="bf-tab-btn" data-bf-device="mobile" aria-pressed="false">Mobile</button>
-      </div>
-      <div class="brand-form-layout">
-        <form id="brandForm" class="brand-form"></form>
-        <div class="brand-form-preview">
-          <p class="bf-preview-label">Live preview</p>
-          <div class="bf-preview-box" id="brandFormPreview"></div>
-        </div>
-      </div>
-    </div>
-    <!-- Poza .modal-body (który się przewija) — user: "ten pasek w brand
-         kit ma być sticky- zawsze widoczny". Ten sam wzorzec co
-         #previewExportBar (.modal-footer-bar jest flex:none siblingiem
-         przewijalnego .modal-body wewnątrz .modal{display:flex;
-         flex-direction:column}), więc przyciski akcji zawsze zostają na
-         dole okna, niezależnie od tego, jak długo przewinięto formularz. -->
-    <div class="modal-footer-bar" style="display:flex; justify-content:flex-end; gap:8px">
-      <div id="brandFormFooterDefault" style="display:flex; flex:1; justify-content:flex-end; gap:8px">
-        <button class="btn ghost" type="button" id="brandFormDelete" style="display:none; margin-right:auto; color:#b42318; border-color:#b42318">Delete brand</button>
-        <button class="btn ghost" type="button" id="brandFormCancel">Cancel</button>
-        <button class="btn ghost" type="button" id="brandFormSaveAsNew">Save as new brand</button>
-        <button class="btn" type="button" id="brandFormSave">Save brand</button>
-      </div>
-      <div id="brandFormFooterPrompt" style="display:none; flex:1; align-items:center; gap:8px">
-        <input type="text" id="brandFormSaveAsNewInput" class="inline-edit-input" placeholder="New brand name" style="flex:1">
-        <button type="button" class="icon-btn icon-btn-field" id="brandFormSaveAsNewConfirm" title="Save" aria-label="Save"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg></button>
-        <button type="button" class="icon-btn icon-btn-field" id="brandFormSaveAsNewCancel" title="Cancel" aria-label="Cancel"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
-      </div>
+    <div class="bf-device-toggle device-toggle" id="brandFormDeviceToggle" role="tablist">
+      <button type="button" class="bf-tab-btn" data-bf-device="desktop" aria-pressed="true">Desktop</button>
+      <button type="button" class="bf-tab-btn" data-bf-device="mobile" aria-pressed="false">Mobile</button>
     </div>
   </div>
-</div>
+  <div class="brand-form-layout">
+    <form id="brandForm" class="brand-form"></form>
+    <div class="brand-form-preview">
+      <p class="bf-preview-label">Live preview</p>
+      <div class="bf-preview-box" id="brandFormPreview"></div>
+    </div>
+  </div>
+  <div class="bk-actionbar">
+    <div id="brandFormFooterDefault" style="display:flex; flex:1; justify-content:flex-end; gap:8px; align-items:center">
+      <button class="btn ghost" type="button" id="brandFormDelete" style="display:none; margin-right:auto; color:#b42318; border-color:#b42318">Delete Brand</button>
+      <button class="btn ghost" type="button" id="brandFormCancel">Discard Changes</button>
+      <button class="btn ghost" type="button" id="brandFormSaveAsNew">Save as New</button>
+      <button class="btn" type="button" id="brandFormSave">Save Brand</button>
+    </div>
+    <div id="brandFormFooterPrompt" style="display:none; flex:1; align-items:center; gap:8px">
+      <input type="text" id="brandFormSaveAsNewInput" class="inline-edit-input" placeholder="New brand name…" style="flex:1" autocomplete="off">
+      <button type="button" class="icon-btn icon-btn-field" id="brandFormSaveAsNewConfirm" title="Save" aria-label="Save"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg></button>
+      <button type="button" class="icon-btn icon-btn-field" id="brandFormSaveAsNewCancel" title="Cancel" aria-label="Cancel"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+    </div>
+  </div>
+</template>
 
 <div class="overlay" id="countdownOverlay" role="dialog" aria-modal="true">
   <div class="modal" style="max-width:1140px">
@@ -7253,27 +7465,66 @@ function uniqueBrandKey(base){
 
 var brandForm = { mode:"new", editingKey:null, draft:null, device:"desktop" };
 
+/* Brand Kit żyje teraz NA STRONIE, nie w modalu — patrz #brandKitTemplate.
+   Szablon wstrzykujemy do #brandKitPage przy pierwszym wejściu (a nie na
+   starcie), żeby id-ki z szablonu nie istniały w DOM-ie zanim strona jest
+   realnie potrzebna, i żeby podpięcie listenerów działo się dokładnie raz. */
+var brandKitMounted = false;
+function mountBrandKitPage(){
+  if(brandKitMounted) return;
+  var page = byId("brandKitPage");
+  page.appendChild(byId("brandKitTemplate").content.cloneNode(true));
+  brandKitMounted = true;
+  // Przełącznik Desktop/Mobile — poza <form>, więc PRZETRWA przebudowę
+  // renderBrandFormFields(). Podpinany tu, bo dopiero teraz istnieje.
+  byId("brandFormDeviceToggle").querySelectorAll("[data-bf-device]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      brandForm.device = btn.getAttribute("data-bf-device");
+      byId("brandFormDeviceToggle").querySelectorAll("[data-bf-device]").forEach(function(b2){
+        b2.setAttribute("aria-pressed", b2===btn?"true":"false");
+      });
+      renderBrandFormFields();
+    });
+  });
+  bindBrandFormActions();
+}
 function openBrandForm(mode, sourceKey){
+  mountBrandKitPage();
   brandForm.device = "desktop";
   if(mode==="new"){
     brandForm.mode = "new"; brandForm.editingKey = null; brandForm.draft = defaultBrandDraft();
     byId("brandFormTitle").textContent = "New Brand Kit";
+    byId("brandFormSubtitle").textContent = "Define the design system a client's emails compile against.";
   } else if(mode==="edit"){
     var cur = BRANDS[sourceKey];
     brandForm.mode = "edit"; brandForm.editingKey = sourceKey;
     brandForm.draft = Object.assign({}, cur, { accent2: cur.accent2 || "", logoUrl: cur.logoUrl || null });
-    byId("brandFormTitle").textContent = "Brand Kit — " + cur.name;
+    byId("brandFormTitle").textContent = cur.name;
+    byId("brandFormSubtitle").textContent = "Every component and email compiles against these values.";
   }
+  // Przełącznik urządzenia wraca na Desktop przy każdym wejściu — inaczej
+  // po wcześniejszej wizycie w trybie Mobile formularz otwierał się z
+  // ukrytą większością pól, co wyglądało jak "Brand Kit się zepsuł".
+  byId("brandFormDeviceToggle").querySelectorAll("[data-bf-device]").forEach(function(b2){
+    b2.setAttribute("aria-pressed", b2.getAttribute("data-bf-device")==="desktop" ? "true" : "false");
+  });
   renderBrandFormFields();
   updateBrandFormPreview();
   var delBtn = byId("brandFormDelete");
   delBtn.style.display = (mode==="edit" && BRANDS[sourceKey] && BRANDS[sourceKey].custom) ? "" : "none";
-  delBtn.textContent = "Delete brand"; deleteArmed = false;
+  delBtn.textContent = "Delete Brand"; deleteArmed = false;
   byId("brandFormFooterPrompt").style.display = "none";
   byId("brandFormFooterDefault").style.display = "flex";
-  byId("brandFormOverlay").classList.add("open");
+  state.section = "brandkit";
+  renderAll();
 }
-function closeBrandForm(){ byId("brandFormOverlay").classList.remove("open"); }
+/* "Zamknięcie" Brand Kitu = wyjście ze strony, nie zamknięcie okna.
+   Wracamy do biblioteki komponentów — jedynej sekcji, która na pewno
+   istnieje niezależnie od stanu danych. */
+function closeBrandForm(){
+  if(state.section!=="brandkit") return;
+  goToSection("components");
+}
 
 function bfInputId(key){ return "bf-"+key; }
 
@@ -7657,40 +7908,31 @@ function brandFormConfirmSaveAsNew(){
   if(!newName){ showToast("Enter a name for the new brand"); return; }
   saveBrandForm(true, newName);
 }
-byId("brandFormClose").addEventListener("click", closeBrandForm);
-byId("brandFormCancel").addEventListener("click", closeBrandForm);
-byId("brandFormSave").addEventListener("click", function(){ saveBrandForm(false); });
-byId("brandFormSaveAsNew").addEventListener("click", function(){
-  var input = byId("brandFormSaveAsNewInput");
-  input.value = (brandForm.draft.name||"") + " copy";
-  byId("brandFormFooterDefault").style.display = "none";
-  byId("brandFormFooterPrompt").style.display = "flex";
-  input.focus();
-  input.select();
-});
-byId("brandFormSaveAsNewCancel").addEventListener("click", brandFormCancelSaveAsNewPrompt);
-byId("brandFormSaveAsNewConfirm").addEventListener("click", brandFormConfirmSaveAsNew);
-byId("brandFormSaveAsNewInput").addEventListener("keydown", function(e){
-  if(e.key==="Enter"){ e.preventDefault(); brandFormConfirmSaveAsNew(); }
-  if(e.key==="Escape"){ e.preventDefault(); brandFormCancelSaveAsNewPrompt(); }
-});
-byId("brandFormDelete").addEventListener("click", requestDeleteBrandFromForm);
-bindOverlayBackdropClose("brandFormOverlay", closeBrandForm);
-/* Przełącznik Desktop/Mobile — poza <form>, więc PRZETRWA co przebudowę
-   renderBrandFormFields() (nie trzeba go ponownie podpinać przy każdym
-   renderze). Zmienia tylko KONTEKST edycji (brandForm.device), nigdy nie
-   duplikuje pól w widoku — patrz bfFieldHtml. */
-byId("brandFormDeviceToggle").querySelectorAll("[data-bf-device]").forEach(function(btn){
-  btn.addEventListener("click", function(){
-    brandForm.device = btn.getAttribute("data-bf-device");
-    byId("brandFormDeviceToggle").querySelectorAll("[data-bf-device]").forEach(function(b2){
-      b2.setAttribute("aria-pressed", b2===btn?"true":"false");
-    });
-    renderBrandFormFields();
+/* Podpinane dopiero po wstrzyknięciu szablonu strony Brand Kit (patrz
+   mountBrandKitPage) — te elementy nie istnieją w DOM-ie przy starcie. */
+function bindBrandFormActions(){
+  byId("brandFormCancel").addEventListener("click", closeBrandForm);
+  byId("brandFormSave").addEventListener("click", function(){ saveBrandForm(false); });
+  byId("brandFormSaveAsNew").addEventListener("click", function(){
+    var input = byId("brandFormSaveAsNewInput");
+    input.value = (brandForm.draft.name||"") + " copy";
+    byId("brandFormFooterDefault").style.display = "none";
+    byId("brandFormFooterPrompt").style.display = "flex";
+    input.focus();
+    input.select();
   });
-});
+  byId("brandFormSaveAsNewCancel").addEventListener("click", brandFormCancelSaveAsNewPrompt);
+  byId("brandFormSaveAsNewConfirm").addEventListener("click", brandFormConfirmSaveAsNew);
+  byId("brandFormSaveAsNewInput").addEventListener("keydown", function(e){
+    if(e.key==="Enter"){ e.preventDefault(); brandFormConfirmSaveAsNew(); }
+    if(e.key==="Escape"){ e.preventDefault(); brandFormCancelSaveAsNewPrompt(); }
+  });
+  byId("brandFormDelete").addEventListener("click", requestDeleteBrandFromForm);
+}
 document.addEventListener("keydown", function(e){
-  if(e.key==="Escape"){ closeBrandForm(); closeEditor(); closeBrandSelectMenu(); closeCrmSettings(); }
+  // Escape NIE wychodzi już z Brand Kitu — to teraz strona, a nie modal;
+  // wyjście klawiszem kasowałoby niezapisane zmiany bez ostrzeżenia.
+  if(e.key==="Escape"){ closeEditor(); closeBrandSelectMenu(); closeCrmSettings(); }
 });
 
 /* Generyczny "upgrade" KAŻDEGO natywnego <select> na ten sam, w pełni
@@ -8020,8 +8262,32 @@ function openCrmSettings(initialTab){
 }
 function closeCrmSettings(){ byId("crmSettingsOverlay").classList.remove("open"); }
 byId("crmSettingsTopbarBtn").addEventListener("click", function(){ openCrmSettings(); });
-byId("railCategoriesEditBtn").addEventListener("click", function(){ openCrmSettings("categories"); });
-byId("railFlowsEditBtn").addEventListener("click", function(){ openCrmSettings("categories"); });
+
+/* ---- nawigacja + dok (redesign) ---- */
+byId("appNav").querySelectorAll("[data-nav]").forEach(function(btn){
+  btn.addEventListener("click", function(){ goToSection(btn.getAttribute("data-nav")); });
+});
+byId("navToggle").addEventListener("click", toggleNav);
+byId("dockToggle").addEventListener("click", toggleDock);
+byId("dockClose").addEventListener("click", closeDock);
+byId("dockScrim").addEventListener("click", closeDock);
+// Escape zamyka dok — ta sama konwencja co modale.
+document.addEventListener("keydown", function(e){
+  if(e.key==="Escape" && byId("drawer").classList.contains("open")){
+    // Modal ma pierwszeństwo: jeśli jakiś jest otwarty, Escape należy do niego.
+    if(!document.querySelector(".overlay.open")) closeDock();
+  }
+});
+// Zwinięcie nawigacji jest preferencją użytkownika — pamiętane między
+// sesjami, ale tylko na szerokim ekranie (na wąskim to overlay).
+(function restoreNavState(){
+  try{
+    if(localStorage.getItem("mq_nav_collapsed")==="1" && !isNarrow()){
+      byId("app").classList.add("nav-collapsed");
+      byId("navToggle").setAttribute("aria-expanded","false");
+    }
+  }catch(e){}
+})();
 byId("crmSettingsClose").addEventListener("click", closeCrmSettings);
 byId("crmSettingsSaveBtn").addEventListener("click", function(){
   var b = brand();
@@ -8372,61 +8638,166 @@ byId("addIndustryBtn").addEventListener("click", function(){
   showToast("Industry added");
 });
 
-function renderCategoryNav(){
-  var railList = byId("railList"); railList.innerHTML = "";
-  var chips = byId("catChips"); chips.innerHTML = "";
-  var allCount = compsByCategory("all").length;
+/* ================================================================
+   NAWIGACJA (redesign)
 
-  function makeRail(id,label,count,active){
-    var b = document.createElement("button"); b.className="cat-btn"; b.type="button";
-    b.setAttribute("aria-pressed", active?"true":"false");
-    b.innerHTML = '<span>'+esc(label)+'</span><span class="n">'+count+'</span>';
-    b.addEventListener("click", function(){ state.section="components"; state.category=id; renderAll(); });
-    return b;
-  }
-  function makeChip(id,label,active){
-    var b = document.createElement("button"); b.className="cat-chip"; b.type="button";
-    b.setAttribute("aria-pressed", active?"true":"false"); b.textContent = label;
-    b.addEventListener("click", function(){ state.section="components"; state.category=id; renderAll(); });
-    return b;
-  }
-
-  railList.appendChild(makeRail("all","All",allCount,state.section==="components"&&state.category==="all"));
-  chips.appendChild(makeChip("all","All",state.section==="components"&&state.category==="all"));
-  // user: "kolumna z Categories ma się sortować alfabetycznie" — sortowana
-  // KOPIA (slice), więc kolejność w CATEGORIES samej (menedżer kategorii,
-  // dropdown przy tworzeniu komponentu) zostaje nietknięta.
-  CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).forEach(function(c){
-    var n = compsByCategory(c.id).length;
-    railList.appendChild(makeRail(c.id,c.label,n,state.section==="components"&&state.category===c.id));
-    chips.appendChild(makeChip(c.id,c.label,state.section==="components"&&state.category===c.id));
+   Poprzednio: dwie płaskie listy w lewej kolumnie, gdzie klik w KATEGORIĘ
+   po cichu przełączał też SEKCJĘ całej apki — nie było widać, w jakim
+   trybie się jest. Teraz to dwa osobne poziomy:
+   - renderPrimaryNav  → gdzie jestem (Components / Emails / Brand Kit)
+   - renderFilterBar   → czym zawężam TO, co widzę (kategoria/flow)
+   ================================================================ */
+function renderPrimaryNav(){
+  var nav = byId("appNav");
+  // CAŁY rozmiar biblioteki, nie wynik bieżących filtrów — licznik przy
+  // destynacji ma mówić "ile tam w ogóle jest", a nie zmieniać się przy
+  // każdym kliknięciu filtra CRM. (Dodatkowo compsByCategory zależy od
+  // state.crmFilter, który renderCrmFilterRow ustawia PÓŹNIEJ w renderAll,
+  // więc przy pierwszym renderze pokazywał 0.)
+  byId("navCountComponents").textContent = COMPONENTS.length;
+  byId("navCountEmails").textContent = READY_EMAILS.length;
+  nav.querySelectorAll("[data-nav]").forEach(function(btn){
+    var target = btn.getAttribute("data-nav");
+    var active = state.section===target;
+    // aria-current="page", nie aria-pressed — to nawigacja, nie przełącznik.
+    if(active) btn.setAttribute("aria-current","page");
+    else btn.removeAttribute("aria-current");
   });
 }
+function goToSection(section){
+  // Brand Kit potrzebuje wczytania draftu aktualnej marki, nie samego
+  // przełączenia flagi — openBrandForm robi jedno i drugie.
+  if(section==="brandkit"){ closeNavOnMobile(); openBrandForm("edit", state.brand); return; }
+  state.section = section;
+  state.page = 1;
+  // Wejście do sekcji zeruje wyszukiwanie — fraza wpisana dla komponentów
+  // nie ma sensu w gotowych mailach i tylko sugerowała "pusto tu".
+  state.searchQuery = "";
+  var si = byId("searchInput"); if(si) si.value = "";
+  closeNavOnMobile();
+  renderAll();
+}
+/* Pasek filtrów w nagłówku strony — kategorie komponentów ALBO kategorie
+   gotowych maili, zależnie od sekcji. Jeden komponent UI zamiast dwóch
+   równoległych list + dwóch rzędów chipsów jak wcześniej. */
+function renderFilterBar(){
+  var wrap = byId("filterChips");
+  var bar = byId("filterbar");
+  if(!wrap || !bar) return;
+  wrap.innerHTML = "";
+  // Brand Kit to formularz, nie listing — nie ma czego filtrować.
+  if(state.section==="brandkit"){ bar.style.display = "none"; return; }
+  bar.style.display = "";
 
-function renderFlowNav(){
-  var railList = byId("railFlowList"); railList.innerHTML = "";
-  var chips = byId("flowChips"); chips.innerHTML = "";
-
-  function makeRail(id,label,count,active){
-    var b = document.createElement("button"); b.className="cat-btn"; b.type="button";
+  function chip(label, count, active, onClick){
+    var b = document.createElement("button");
+    b.className = "fchip"; b.type = "button";
     b.setAttribute("aria-pressed", active?"true":"false");
-    b.innerHTML = '<span>'+esc(label)+'</span><span class="n">'+count+'</span>';
-    b.addEventListener("click", function(){ state.section="emails"; state.emailFlow=id; renderAll(); });
-    return b;
-  }
-  function makeChip(id,label,active){
-    var b = document.createElement("button"); b.className="cat-chip"; b.type="button";
-    b.setAttribute("aria-pressed", active?"true":"false"); b.textContent = label;
-    b.addEventListener("click", function(){ state.section="emails"; state.emailFlow=id; renderAll(); });
-    return b;
+    b.innerHTML = esc(label)+(count!=null ? '<span class="n">'+count+'</span>' : "");
+    b.addEventListener("click", onClick);
+    wrap.appendChild(b);
   }
 
-  EMAIL_FLOWS.forEach(function(f){
-    var n = emailsByFlow(f.id).length;
-    var active = state.section==="emails" && state.emailFlow===f.id;
-    railList.appendChild(makeRail(f.id,f.label,n,active));
-    chips.appendChild(makeChip(f.id,f.label,active));
-  });
+  if(state.section==="components"){
+    chip("All", compsByCategory("all").length, state.category==="all", function(){
+      state.category="all"; state.page=1; renderAll();
+    });
+    // user: "kolumna z Categories ma się sortować alfabetycznie" — sortowana
+    // KOPIA (slice), więc kolejność w CATEGORIES samej (menedżer kategorii,
+    // dropdown przy tworzeniu komponentu) zostaje nietknięta.
+    CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).forEach(function(c){
+      chip(c.label, compsByCategory(c.id).length, state.category===c.id, function(){
+        state.category=c.id; state.page=1; renderAll();
+      });
+    });
+  } else if(state.section==="emails"){
+    EMAIL_FLOWS.forEach(function(f){
+      chip(f.label, emailsByFlow(f.id).length, state.emailFlow===f.id, function(){
+        state.emailFlow=f.id; state.page=1; renderAll();
+      });
+    });
+  }
+}
+/* Zwijanie/rozwijanie nawigacji. Na wąskim ekranie to overlay (przesuwa
+   się nad treścią), na szerokim — kolumna zwężana do samych ikon. */
+/* Co ma sens w danej sekcji. Wcześniej apka pokazywała ten sam chrome
+   wszędzie (wyszukiwarka, filtr CRM, Mail Stack) niezależnie od tego, czy
+   miał tam jakiekolwiek zastosowanie. */
+var SECTION_META = {
+  components: { title:"Components", search:"Search components…", primary:"add", stack:true },
+  emails:     { title:"Ready-made emails", search:"Search emails…", primary:null, stack:true },
+  brandkit:   { title:"Brand Kit", search:null, primary:null, stack:false }
+};
+function syncSectionChrome(){
+  var meta = SECTION_META[state.section] || SECTION_META.components;
+  var isBrandKit = state.section==="brandkit";
+
+  byId("cardGrid").style.display = isBrandKit ? "none" : "";
+  byId("gridPagination").style.display = isBrandKit ? "none" : "";
+  byId("brandKitPage").style.display = isBrandKit ? "" : "none";
+  // renderGrid() nie biegnie dla Brand Kitu (to nie listing), więc nagłówek
+  // strony trzeba ustawić TU — inaczej zostawał tytuł poprzedniej sekcji.
+  if(isBrandKit){
+    byId("gridTitle").textContent = meta.title;
+    byId("gridCount").textContent = "";
+  }
+  // Sticky pasek akcji Brand Kitu siedzi na dole ekranu i kolidował z
+  // pływającym przyciskiem Feedback — chowamy go na tej stronie.
+  document.body.classList.toggle("brandkit-open", isBrandKit);
+
+  // Wyszukiwarka: chowana tam, gdzie nie ma listingu, a placeholder MÓWI
+  // czego szuka — wcześniej jedno "Search…" dla dwóch różnych zbiorów.
+  var searchWrap = byId("searchInput").closest(".search-input-wrap");
+  if(meta.search){
+    searchWrap.style.display = "";
+    byId("searchInput").placeholder = meta.search;
+  } else {
+    searchWrap.style.display = "none";
+  }
+  // "Add component" to akcja biblioteki komponentów, nie globalna.
+  byId("addComponentBtn").style.display = meta.primary==="add" ? "" : "none";
+  // Filtr CRM zawęża komponenty/maile po platformie — w Brand Kicie nie ma
+  // czego zawężać.
+  byId("crmFilterRow").style.display = isBrandKit ? "none" : "";
+  // Mail Stack dotyczy budowania maila — w Brand Kicie jest bez sensu.
+  byId("dockToggle").style.display = meta.stack ? "" : "none";
+  if(!meta.stack) closeDock();
+}
+/* ---- Mail Stack dock ---- */
+function openDock(){
+  byId("drawer").classList.add("open");
+  byId("drawer").setAttribute("aria-hidden","false");
+  byId("dockScrim").classList.add("open");
+  byId("dockToggle").setAttribute("aria-expanded","true");
+  document.body.classList.add("modal-open");
+  document.body.classList.add("dock-open");
+}
+function closeDock(){
+  byId("drawer").classList.remove("open");
+  byId("drawer").setAttribute("aria-hidden","true");
+  byId("dockScrim").classList.remove("open");
+  byId("dockToggle").setAttribute("aria-expanded","false");
+  document.body.classList.remove("dock-open");
+  // Blokada scrolla zdejmowana tylko gdy NIC innego jej nie trzyma
+  // (patrz syncModalScrollLock — otwarty modal ma swoją).
+  if(!document.querySelector(".overlay.open")) document.body.classList.remove("modal-open");
+}
+function toggleDock(){
+  if(byId("drawer").classList.contains("open")) closeDock(); else openDock();
+}
+function isNarrow(){ return window.matchMedia("(max-width:1000px)").matches; }
+function closeNavOnMobile(){ if(isNarrow()) byId("app").classList.remove("nav-open"); }
+function toggleNav(){
+  var app = byId("app");
+  var btn = byId("navToggle");
+  if(isNarrow()){
+    var open = app.classList.toggle("nav-open");
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  } else {
+    var collapsed = app.classList.toggle("nav-collapsed");
+    btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    try{ localStorage.setItem("mq_nav_collapsed", collapsed ? "1" : "0"); }catch(e){}
+  }
 }
 
 /* Karty w siatce renderują TERAZ prawdziwy, skompilowany kod (nie ręczny
@@ -8586,13 +8957,19 @@ function compatBoxHtml(keys){
   return '<div class="card-compat-box">'+chips+'</div>';
 }
 function renderGrid(){
+  // Brand Kit nie jest listingiem — bez tego wyjścia funkcja spadała do
+  // gałęzi komponentów i NADPISYWAŁA nagłówek strony ustawiony wcześniej
+  // przez syncSectionChrome (tytuł zostawał "Components" na Brand Kicie).
+  if(state.section==="brandkit") return;
   if(state.section==="emails"){ renderEmailGrid(); return; }
   var b = brand();
   var q = state.searchQuery;
   var fullList = compsByCategory(state.category).filter(function(c){ return matchesSearch([c.label, c.id, c.desc], q); });
   fullList = fullList.slice().sort(favoriteFirstComparator(isCompFavorite));
   var page = paginateList(fullList);
-  byId("gridTitle").textContent = state.category==="all" ? "All components" : CATEGORIES.filter(function(c){return c.id===state.category;})[0].label;
+  // jw. — kategoria jest widoczna jako zaznaczony chip, nagłówek zostaje
+  // stabilny i mówi tylko, w jakiej sekcji jesteś.
+  byId("gridTitle").textContent = "Components";
   byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " component" : " components");
   var grid = byId("cardGrid"); grid.innerHTML = "";
   page.items.forEach(function(c){
@@ -8686,7 +9063,9 @@ function renderEmailGrid(){
   var fullList = emailsByFlow(state.emailFlow).filter(function(e){ return matchesSearch([e.label, e.id, e.desc], q) && emailVisibleForCrmFilter(e); });
   fullList = fullList.slice().sort(favoriteFirstComparator(isEmailFavorite));
   var page = paginateList(fullList);
-  byId("gridTitle").textContent = "E-mails — " + (flow ? flow.label : "");
+  // Sam tytuł sekcji — aktywną kategorię niesie już zaznaczony chip w
+  // pasku filtrów, więc doklejanie jej do nagłówka było powtórzeniem.
+  byId("gridTitle").textContent = "Ready-made emails";
   byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " e-mail" : " e-mails");
   var grid = byId("cardGrid"); grid.innerHTML = "";
   page.items.forEach(function(e){
@@ -9793,6 +10172,13 @@ function renderList(){
   var b = brand();
   var body = byId("listBody");
   byId("listCount").textContent = "("+state.list.length+")";
+  // Licznik na przycisku doku — po redesignie Mail Stack jest zamknięty
+  // domyślnie, więc to jedyna informacja "masz tam N rzeczy" bez otwierania.
+  var dockCount = byId("dockCount");
+  if(dockCount){
+    dockCount.textContent = state.list.length;
+    dockCount.style.display = state.list.length ? "" : "none";
+  }
   byId("previewMailBtn").disabled = state.list.length===0;
   byId("saveEmailBtn").disabled = state.list.length===0;
   byId("clearListBtn").disabled = state.list.length===0;
@@ -9980,6 +10366,12 @@ function restoreStateFromUrl(){
   } else if(section==="components"){
     state.section = "components"; changed = true;
     if(category && (category==="all" || CATEGORIES.some(function(c){ return c.id===category; }))){ state.category = category; }
+  } else if(section==="brandkit"){
+    // Brand Kit jest teraz stroną, więc ma własny, dzielony adres —
+    // otwieramy go na AKTUALNIE wybranej marce (klucz marki i tak jedzie
+    // osobno w state.brand, nie w URL-u).
+    openBrandForm("edit", state.brand);
+    changed = false;
   }
   if(search){ state.searchQuery = search; byId("searchInput").value = search; changed = true; }
   if(changed) renderAll();
@@ -9987,7 +10379,8 @@ function restoreStateFromUrl(){
   else if(emailId && findEmail(emailId)) openEmailPreview(emailId);
 }
 function renderAll(){
-  renderSwatches(); renderCategoryNav(); renderFlowNav(); renderCrmFilterRow(); renderGrid(); renderList();
+  renderSwatches(); renderPrimaryNav(); renderFilterBar(); renderCrmFilterRow();
+  syncSectionChrome(); renderGrid(); renderList();
   syncGoogleFontLink(brand());
   syncUrlFromState();
 }
@@ -10162,10 +10555,10 @@ byId("copyBtn").addEventListener("click", function(){
   }
 });
 
-/* ---------- drawer mobile toggle ---------- */
-byId("drawerHandle").addEventListener("click", function(){
-  if(window.innerWidth<=980){ byId("drawer").classList.toggle("open"); }
-});
+/* Dawny "drawer mobile toggle" zniknął razem z trzecią kolumną — Mail
+   Stack jest teraz dokiem otwieranym tym samym przyciskiem (#dockToggle)
+   na każdej szerokości ekranu, więc nie ma już dwóch różnych zachowań
+   zależnych od window.innerWidth. */
 
 /* ---------- kopia zapasowa (export = pokazanie JSON-a do ręcznego
    skopiowania, import = wczytanie pliku) ----------
@@ -10783,8 +11176,13 @@ function skeletonCardHtml(){
   '</div>';
 }
 function renderSkeletonPlaceholders(){
-  byId("railList").innerHTML = skeletonRailRowsHtml(["70%","55%","80%","60%","72%"]);
-  byId("railFlowList").innerHTML = skeletonRailRowsHtml(["65%","82%","58%"]);
+  // Rail z listami kategorii zniknął w redesignie — jego szkielet zastąpiony
+  // szkieletem PASKA FILTRÓW, bo to on wypełnia się realnymi danymi
+  // (patrz renderFilterBar). Nawigacja po lewej jest statyczna, więc nie
+  // potrzebuje szkieletu w ogóle.
+  byId("filterChips").innerHTML = ["64px","88px","72px","96px","70px"].map(function(w){
+    return '<div class="skeleton-block" style="height:30px;width:'+w+';border-radius:999px"></div>';
+  }).join("");
   byId("cardGrid").innerHTML = new Array(8).fill(0).map(skeletonCardHtml).join("");
   byId("listBody").innerHTML = '<div class="skeleton-block skeleton-list-row"></div><div class="skeleton-block skeleton-list-row"></div>';
 }
@@ -11091,18 +11489,16 @@ function renderAuthUserBadge(){
   // statyczny nagłówek dropdownu.
   byId("authUserMenuHeader").innerHTML = esc(MQ_CURRENT_USER.email);
   // user: "Site Settings ma być dostępne wyłącznie dla Admina. Membersy
-  // mają nie widzieć tego przycisku w headerze" — chowa WSZYSTKIE wejścia
-  // (guzik w topbarze + oba ołówki w railu), nie tylko ten jeden przycisk;
-  // openCrmSettings ma dodatkowo twardą blokadę, gdyby coś to ominęło.
+  // mają nie widzieć tego przycisku w headerze". Po redesignie jest już
+  // TYLKO jedno wejście (pozycja Settings na dole nawigacji) — dawne dwa
+  // ołówki przy listach kategorii zniknęły razem z railem, a zarządzanie
+  // kategoriami żyje w tym samym panelu Site Settings. openCrmSettings ma
+  // dodatkowo twardą blokadę, gdyby coś to ominęło.
   var adminOnly = isAdminUser();
-  // user: "napisz Settings poleciał w dół" — regresja z powyższego: ""
-  // CZYŚCI inline display:inline-flex wpisany w HTML (patrz ten button),
-  // przycisk wraca do domyślnego inline-block i ikona+tekst wypadają z
-  // flex-owego centrowania na zwykły baseline inline. Trzeba wprost
-  // przywrócić "inline-flex", nie tylko "cokolwiek nie jest none".
-  byId("crmSettingsTopbarBtn").style.display = adminOnly ? "inline-flex" : "none";
-  byId("railCategoriesEditBtn").style.display = adminOnly ? "" : "none";
-  byId("railFlowsEditBtn").style.display = adminOnly ? "" : "none";
+  // Wprost "flex" (nie ""), bo .nav-item jest flexem — puste "" wyczyściłoby
+  // inline display i pozycja wróciłaby do domyślnego inline-block, rozjeżdżając
+  // ikonę z etykietą (dokładnie ta regresja zdarzyła się wcześniej w topbarze).
+  byId("crmSettingsTopbarBtn").style.display = adminOnly ? "flex" : "none";
 }
 window.MQShowGate = showAuthGate;
 // Awaryjnie: gdyby moduł Firebase w ogóle się nie załadował (np.
