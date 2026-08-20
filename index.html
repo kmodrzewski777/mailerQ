@@ -251,6 +251,28 @@
   .page-head h2{font-size:22px; font-weight:500; letter-spacing:-.015em; margin:0; white-space:nowrap}
   .page-head .page-count{font-size:13.5px; color:var(--ink-faint); font-variant-numeric:tabular-nums; white-space:nowrap}
   .page-head-actions{display:flex; align-items:center; gap:8px; margin-left:auto}
+  /* Hero-baner na Components (user: obraz + "Component" + żywy licznik,
+     zastępujący zwykły nagłówek WYŁĄCZNIE tam — patrz .is-hero toggle w
+     syncSectionChrome). Pusta, ciemna przestrzeń po LEWEJ stronie grafiki
+     to celowa kompozycja pod tekst — dlatego position:right, nie center,
+     żeby na szerokich ekranach nie ucinało akurat tej pustej przestrzeni. */
+  .page-head-hero-title{display:none}
+  .page-head.is-hero{
+    background-image:url('https://i.ibb.co/4q5ntBC/90a83028-0c53-41fb-b5cf-2a19ff5816f0.jpg');
+    background-size:cover; background-position:right center; background-repeat:no-repeat;
+    min-height:150px; box-sizing:border-box; display:flex; align-items:center;
+  }
+  .page-head.is-hero .page-head-inner{width:100%}
+  .page-head.is-hero .page-head-titles{flex-direction:column; align-items:flex-start; gap:2px}
+  .page-head.is-hero #gridTitle{display:none}
+  .page-head.is-hero .page-head-hero-title{
+    display:block; color:#ffffff; font-size:32px; font-weight:600; letter-spacing:-.02em;
+  }
+  .page-head.is-hero .page-count{
+    color:rgba(255,255,255,.62); font-size:13.5px; text-transform:capitalize;
+  }
+  .page-head.is-hero .icon-btn.nav-toggle{background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.25); color:#fff}
+  .page-head.is-hero .icon-btn.nav-toggle:hover{border-color:rgba(255,255,255,.4)}
   /* user: "usuń tą ikonę do chowania sidebara" — na desktopie sidebar nie
      ma już czego chować (4 pozycje), ale ten sam przycisk otwiera/zamyka
      sidebar na wąskim ekranie (patrz media query niżej) — tam zostaje.
@@ -1307,12 +1329,21 @@
     <!-- Nagłówek STRONY: gdzie jestem, ile tego jest, czego szukam,
          co mogę tu zrobić. "Add Component" jest globalny w .topbar,
          "Add Flow" zostaje tu jako akcja kontekstowa (tylko flows). -->
-    <header class="page-head">
+    <header class="page-head" id="pageHead">
       <div class="page-head-inner">
       <button class="icon-btn nav-toggle" type="button" id="navToggle" aria-label="Toggle navigation" aria-expanded="true">
         <svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M140-254.62v-59.99h680v59.99H140ZM140-450v-60h680v60H140Zm0-195.39v-59.99h680v59.99H140Z"/></svg>
       </button>
       <div class="page-head-titles">
+        <!-- user: "Wrzuć ten obraz w zaznaczone miejsce... Component...
+             po lewej wycentrowanie pionowo, pod nim mniejszy tekst szarym
+             XXX Components" — baner zastępuje wizualnie zwykły nagłówek
+             WYŁĄCZNIE na sekcji Components (patrz .page-head.is-hero,
+             toggle w syncSectionChrome). Statyczny napis "Component" (nie
+             zależy od aktywnej kategorii — inaczej niż #gridTitle), licznik
+             pod spodem to wciąż TEN SAM #gridCount (żywy, aktualizowany
+             normalnie przez renderGrid) — tylko capitalize przez CSS. -->
+        <h2 class="page-head-hero-title">Component</h2>
         <h2 id="gridTitle">All components</h2>
         <span class="page-count" id="gridCount"></span>
       </div>
@@ -9946,6 +9977,9 @@ function syncSectionChrome(){
   // Siatka kart obsługuje komponenty, maile I flow — chowamy ją tylko tam,
   // gdzie strona ma zupełnie inną formę (formularz albo kalendarz).
   var noGrid = isBrandKit || isSchedule;
+  // user: hero-baner z grafiką + "Component" + żywym licznikiem, tylko na
+  // Components (nie na E-mails/Flow Repository/DM Schedule).
+  byId("pageHead").classList.toggle("is-hero", state.section==="components");
 
   byId("cardGrid").style.display = noGrid ? "none" : "";
   byId("gridPagination").style.display = noGrid ? "none" : "";
