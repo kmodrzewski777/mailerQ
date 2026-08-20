@@ -12,62 +12,64 @@
 <meta name="twitter:image" content="https://kmodrzewski777.github.io/mailerQ/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- user: "Nie podoba mi sie ten Design. Wrzucam Ci nowy - przygotuj z
-     niego Design System i wprowadź na stronę" (referencja "Plan", CRM/
-     loan-deal workspace) — Plus Jakarta Sans zastępuje Roboto na resztę
-     UI (--font-display/--font-body/--font-mono). Poppins na logo (patrz
-     .brand-logo-text) zostaje NIETKNIĘTE — user go nie wspomniał tym
-     razem, to osobna, wcześniejsza decyzja. -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://api.fontshare.com">
+<!-- user: przesłał referencyjny design ("BizLink" CRM dashboard) i poprosił
+     o odwzorowanie 1:1 — General Sans jako font, paleta czarno-biało-
+     -kremowa. General Sans NIE jest na Google Fonts (rozprowadzany przez
+     Fontshare), stąd osobny link poniżej; Poppins zostaje wyłącznie na
+     logo (.brand-logo-text — user go tym razem nie wspomniał, to osobna,
+     wcześniejsza decyzja). -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
 <style>
-  /* Design tokens — z Plan Design System (user: "Nie podoba mi sie ten
-     Design [Ledgerix]. Wrzucam Ci nowy - przygotuj z niego Design System
-     i wprowadź na stronę"): near-black ink + chłodnoszare tło strony,
-     Plus Jakarta Sans wszędzie, 16px promień na panelach (mniejszy niż
-     poprzednie 24px — referencja "Plan" ma łagodniejszą skalę), gęsty
-     spacing.
-     Referencja ma TRZY osobne kolory semantyczne (niebieski=Mail,
-     zielony=Call/pozytyw, żółty=New/oczekiwanie) — appka ma dziś JEDEN
-     uniwersalny --accent używany do wielu różnych rzeczy naraz (zaznaczona
-     opcja, ulubiona gwiazdka, checked checkbox, "dodano", pasek postępu,
-     uzbrojony przycisk kasowania). Zamiast wprowadzać nieużywane jeszcze
-     tokeny blue/yellow bez żadnego realnego zastosowania w appce, --accent
-     mapuje na ZIELONY z referencji (Call/pozytyw/potwierdzenie) — to
-     najbliższe znaczeniowo do tego, jak --accent jest już używany tutaj
-     (afirmacja/wybór/sukces). --accent-strong (patrz poprzedni komentarz o
-     WCAG) przeliczony pod nowy odcień zieleni. */
+  /* Design tokens — z referencji "BizLink" (user: "Przygotuj design 1:1
+     zgodny z obrazkami"): czysta czarno-biała paleta z jednym kremowym
+     tonem jako rzadkim akcentem (panel Brand w sidebarze, pasek filtra
+     CRM), General Sans wszędzie. Zielony --accent z poprzedniej wersji
+     zniknął jako kolor PIERWSZOPLANOWY — aktywne stany (nav, chipsy
+     filtrów) używają już dziś --ink, nie --accent (patrz .nav-item[aria-
+     current]/.fchip[aria-pressed] niżej — bez zmian). --accent zostaje
+     tylko jako WĄSKO-semantyczny token (wypełniona gwiazdka ulubionych,
+     "dodano" na przycisku, status "sent" w kalendarzu DM) — przeliczony na
+     stonowany bursztyn zamiast zieleni, bo referencja w ogóle nie ma
+     koloru, więc bursztyn jest neutralnym, niedominującym wyborem
+     funkcjonalnym, nie próbą naśladowania nieistniejącego w niej akcentu. */
   :root{
-    --paper:#ffffff; --surface:#ffffff; --surface-2:#f7f7f8;
-    --ink:#111112; --ink-muted:#4b4b4f; --ink-faint:#8a8a8e;
+    --paper:#ffffff; --surface:#ffffff; --surface-2:#f4f4f4;
+    --surface-cream:#f6f7ed;
+    --ink:#1f1f1f; --ink-muted:#4b4b4f; --ink-faint:#8a8a8e;
     --line:#e6e6e6; --line-strong:#d0d0d0;
-    --accent:#22c55e; --accent-strong:#15803d; --accent-ink:#0f2818; --accent-soft:rgba(34,197,94,.15);
+    --accent:#c8952a; --accent-strong:#9c7220; --accent-ink:#3a2a0c; --accent-soft:rgba(200,149,42,.15);
     --radius-card:16px; --radius-chip:999px;
     --shadow-card:0 1px 2px rgba(17,17,18,.04), 0 6px 18px rgba(17,17,18,.06);
-    --font-display:'Plus Jakarta Sans',Arial,sans-serif;
-    --font-body:'Plus Jakarta Sans',Arial,sans-serif;
-    --font-mono:'Plus Jakarta Sans',Arial,sans-serif;
+    --font-display:'General Sans',Arial,sans-serif;
+    --font-body:'General Sans',Arial,sans-serif;
+    --font-mono:'General Sans',Arial,sans-serif;
   }
   @media (prefers-color-scheme:dark){
     :root{
       --paper:#0e0f10; --surface:#18191b; --surface-2:#202123;
+      --surface-cream:#232319;
       --ink:#f5f5f3; --ink-muted:#b8b7b2; --ink-faint:#7a7975;
       --line:#2c2c2f; --line-strong:#3c3c40;
-      --accent:#22c55e; --accent-strong:#22c55e; --accent-ink:#0f2818; --accent-soft:rgba(34,197,94,.22);
+      --accent:#d9a53b; --accent-strong:#d9a53b; --accent-ink:#3a2a0c; --accent-soft:rgba(217,165,59,.22);
       --shadow-card:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
     }
   }
   :root[data-theme="dark"]{
     --paper:#0e0f10; --surface:#18191b; --surface-2:#202123;
+    --surface-cream:#232319;
     --ink:#f5f5f3; --ink-muted:#b8b7b2; --ink-faint:#7a7975;
     --line:#2c2c2f; --line-strong:#3c3c40;
-    --accent:#22c55e; --accent-strong:#22c55e; --accent-ink:#0f2818; --accent-soft:rgba(34,197,94,.22);
+    --accent:#d9a53b; --accent-strong:#d9a53b; --accent-ink:#3a2a0c; --accent-soft:rgba(217,165,59,.22);
     --shadow-card:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
   }
   :root[data-theme="light"]{
-    --paper:#ffffff; --surface:#ffffff; --surface-2:#f7f7f8;
-    --ink:#111112; --ink-muted:#4b4b4f; --ink-faint:#8a8a8e;
+    --paper:#ffffff; --surface:#ffffff; --surface-2:#f4f4f4;
+    --surface-cream:#f6f7ed;
+    --ink:#1f1f1f; --ink-muted:#4b4b4f; --ink-faint:#8a8a8e;
     --line:#e6e6e6; --line-strong:#d0d0d0;
-    --accent:#22c55e; --accent-strong:#15803d; --accent-ink:#0f2818; --accent-soft:rgba(34,197,94,.15);
+    --accent:#c8952a; --accent-strong:#9c7220; --accent-ink:#3a2a0c; --accent-soft:rgba(200,149,42,.15);
     --shadow-card:0 1px 2px rgba(17,17,18,.04), 0 6px 18px rgba(17,17,18,.06);
   }
 
@@ -113,36 +115,40 @@
      (ten sam 1400px co .shell), żeby treść była wyrównana z contentem
      pod spodem, bez wizualnego "boxa" wokół samego paska. */
   /* ============================================================
-     APP SHELL (redesign) — user: "Zaprojektuj całkowicie od nowa...
-     Zaproponuj totalnie inny układ wszystkiego".
+     APP SHELL — user (po odrzuceniu poprzedniej wersji redesignu):
+     kategorie z powrotem na sidebarze, Mail Stack ma być ZAWSZE
+     widoczny (jak w architekturze SPRZED redesignu — dawny .shell,
+     grid 236px/1fr/320px), picker marki w sidebarze nad profilem,
+     wyszukiwarka nad listingiem.
 
-     Poprzedni układ: sticky topbar + grid 236px/1fr/320px, gdzie LEWA
-     kolumna była dwiema płaskimi listami kategorii, a PRAWA na stałe
-     zabierała 320px na Mail Stack. Problem nie był wizualny tylko
-     strukturalny — nie było nawigacji NAJWYŻSZEGO poziomu (klik w
-     kategorię po cichu przełączał tryb całej apki), a Brand Kit, czyli
-     workspace na 100+ pól, żył w modalu.
-
-     Nowy układ: stała kolumna nawigacji (destynacje, nie filtry) +
-     obszar roboczy z własnym, sticky nagłówkiem strony. Kategorie
-     schodzą PIĘTRO NIŻEJ, do nagłówka strony, więc przestają
-     konkurować z nawigacją. Mail Stack przestaje być trzecią kolumną i
-     staje się dokiem otwieranym na żądanie (patrz .dock).
-     ============================================================ */
-  .app{display:grid; grid-template-columns:var(--nav-w,248px) 1fr; min-height:100vh; align-items:start}
+     Stąd 3 kolumny: nawigacja (destynacje + kategorie AKTYWNEJ sekcji +
+     Brand + profil) | obszar roboczy | Mail Stack — Mail Stack jest
+     zwykłym, sticky dzieckiem grida, NIE dokiem na żądanie. Kolumna
+     znika (.app.no-stack) tam, gdzie budowanie maila nie ma sensu
+     (Brand Kit / Flow Repository / DM Schedule — patrz meta.stack). */
+  .app{display:grid; grid-template-columns:var(--nav-w,248px) 1fr var(--stack-w,340px); min-height:100vh; align-items:start}
   .app.nav-collapsed{--nav-w:68px}
+  .app.no-stack{grid-template-columns:var(--nav-w,248px) 1fr}
+  .app.no-stack .dock{display:none}
 
   .nav{
     position:sticky; top:0; align-self:start; height:100vh; box-sizing:border-box;
     background:var(--surface); border-right:1px solid var(--line);
-    display:flex; flex-direction:column; gap:2px; padding:16px 12px 12px;
+    display:flex; flex-direction:column; padding:16px 12px 12px;
   }
+  /* Tylko destynacje + kategorie przewijają się — panel marki i profil
+     zostają PRZYPIĘTE u dołu (poza scrollem), inaczej dropdown pickera
+     marki (position:absolute) obcinałby się na krawędzi przewijanego
+     kontenera, gdy lista kategorii jest długa. */
+  .nav-scroll{flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:2px}
   .nav-brand{display:flex; align-items:center; gap:10px; padding:4px 8px 18px; min-width:0}
   .nav-brand .brand-logo-text{font-size:22px; white-space:nowrap; overflow:hidden}
   .app.nav-collapsed .nav-brand .brand-logo-text,
   .app.nav-collapsed .nav-label,
   .app.nav-collapsed .nav-group-title,
-  .app.nav-collapsed .nav-item .n{display:none}
+  .app.nav-collapsed .nav-item .n,
+  .app.nav-collapsed .nav-cats,
+  .app.nav-collapsed .nav-brand-section{display:none}
   .app.nav-collapsed .nav-item{justify-content:center; padding-left:0; padding-right:0}
   .nav-group-title{
     font-size:10.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
@@ -163,12 +169,32 @@
   .nav-item:hover{background:var(--surface-2); color:var(--ink)}
   .nav-item[aria-current="page"]{background:var(--ink); color:var(--paper)}
   .nav-item[aria-current="page"] .n{color:rgba(255,255,255,.6)}
-  .nav-spacer{flex:1}
+  /* Kategorie AKTYWNEJ sekcji, wcięte pod jej pozycją nav — user: "kategorie
+     komponentów zostają na lewy sidebarze, tak jak było wcześniej". Tylko
+     label na akcencie przy aktywnej, bez pełnego podświetlenia wiersza —
+     ta sama zasada co dawne .cat-btn sprzed redesignu. */
+  .nav-cats{display:flex; flex-direction:column; gap:0; margin:2px 0 6px; padding-left:14px; border-left:1px solid var(--line); margin-left:23px}
+  .nav-cat-btn{
+    display:flex; width:100%; align-items:center; justify-content:space-between; gap:8px;
+    padding:6px 10px; border:none; background:transparent; color:var(--ink-muted); font:inherit;
+    border-radius:6px; font-size:12.5px; text-align:left; cursor:pointer;
+  }
+  .nav-cat-btn:hover{background:var(--surface-2); color:var(--ink)}
+  .nav-cat-btn[aria-pressed="true"]{color:var(--ink); font-weight:700}
+  .nav-cat-btn .n{font-size:10.5px; color:var(--ink-faint); font-variant-numeric:tabular-nums; flex:none}
+  /* Sekcja marki — user: "Wybór brandu ma być po lewej stronie na
+     sidebarze, nad profilem użytkownika, w oddzielnej sekcji". Krem jako
+     jedyny akcent tła w apce poza tym paskiem — celowo rzadki. */
+  .nav-brand-section{
+    background:var(--surface-cream); border-radius:12px; padding:10px 10px 12px;
+    margin:10px 0 2px;
+  }
+  .nav-brand-section .nav-group-title{padding:2px 2px 8px; color:var(--ink-muted)}
+  .nav-brand-section .brand-select-btn{width:100%; min-width:0; background:var(--surface)}
   .nav-foot{border-top:1px solid var(--line); padding-top:10px; margin-top:10px}
 
-  /* Pasek roboczy — sticky nagłówek STRONY (nie globalny topbar).
-     Niesie: gdzie jestem + ile tego jest + wyszukiwarka o jasnym zakresie
-     + akcja właściwa DLA TEJ strony. */
+  /* Pasek roboczy — sticky nagłówek STRONY. Niesie: gdzie jestem + ile
+     tego jest + wyszukiwarka + akcja właściwa DLA TEJ strony. */
   .work{min-width:0; display:flex; flex-direction:column; min-height:100vh}
   .page-head{
     position:sticky; top:0; z-index:25; background:var(--paper);
@@ -182,21 +208,17 @@
   .nav-toggle{flex:none}
   .page-body{padding:20px 24px 64px; flex:1}
 
-  /* Pasek filtrów — kategorie zeszły TU z lewej kolumny.
-     Dwa rzędy, nie jeden: kategorie potrafią być długie i przewijają się
-     poziomo, więc filtr platformy CRM postawiony obok nich w tym samym
-     wierszu po prostu na nie nachodził. */
+  /* Wyszukiwarka nad listingiem (user: "tak jak było wcześniej") — sama
+     search-input-wrap żyje już w .page-head-actions, więc to spełnia od
+     razu; .page-head-actions zostaje TYLKO z wyszukiwarką + kontekstową
+     akcją "Add" (picker marki i przełącznik Mail Stacka wyprowadzone stąd
+     — patrz .nav-brand-section wyżej i zawsze-widoczna kolumna .dock). */
+  /* Pasek filtra CRM — jedyne, co dziś zostaje w .filterbar (kategorie
+     przeniosły się do .nav-cats w sidebarze). Krem — ta sama, rzadka
+     druga rola tego tonu co panel marki wyżej. */
   .filterbar{
-    display:flex; flex-direction:column; align-items:stretch; gap:10px;
-    padding:12px 24px; border-bottom:1px solid var(--line); background:var(--paper);
+    padding:10px 24px; border-bottom:1px solid var(--line); background:var(--surface-cream);
   }
-  .filterbar-scroll{
-    display:flex; gap:6px; overflow-x:auto; min-width:0; padding-bottom:2px;
-    /* Pasek przewijania kategorii nie ma własnego, widocznego toru —
-       chowamy go, bo to krótka lista chipsów, nie długa treść. */
-    scrollbar-width:none;
-  }
-  .filterbar-scroll::-webkit-scrollbar{display:none}
   .filterbar .crm-filter-row{flex-wrap:wrap}
   .fchip{
     border:1px solid var(--line); background:var(--surface); color:var(--ink-muted);
@@ -208,20 +230,21 @@
   .fchip[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:var(--paper)}
   .fchip .n{opacity:.55; margin-left:5px; font-variant-numeric:tabular-nums}
 
-  /* Mail Stack jako dok — nie trzecia kolumna na stałe. */
+  /* Mail Stack — ZAWSZE widoczna trzecia kolumna (nie dok na żądanie).
+     Na desktopie zwykłe sticky dziecko grida; na wąskim ekranie (patrz
+     media query niżej) wraca do bycia off-canvas panelem, bo trzy
+     kolumny fizycznie się nie mieszczą. */
   .dock{
-    position:fixed; top:0; right:0; bottom:0; width:340px; max-width:92vw; z-index:45;
+    position:sticky; top:0; align-self:start; height:100vh; box-sizing:border-box; width:100%;
     background:var(--surface); border-left:1px solid var(--line);
-    box-shadow:-18px 0 40px rgba(0,0,0,.10);
-    display:flex; flex-direction:column;
-    transform:translateX(100%); transition:transform .22s cubic-bezier(.4,0,.2,1);
-    overscroll-behavior:contain;
+    display:flex; flex-direction:column; overscroll-behavior:contain;
   }
-  .dock.open{transform:translateX(0)}
-  /* Przycisk Feedback jest fixed z z-index:90 i lądował NA przycisku
-     Preview w otwartym doku — chowamy go, dopóki dok jest otwarty. */
+  /* Na wąskim ekranie dock wraca do bycia overlay-em (patrz media query) i
+     lądował NA pływającym przycisku Feedback — chowamy go, dopóki dok jest
+     otwarty. Na desktopie ta klasa i tak się nie pojawia (#dockToggle jest
+     tam ukryty), więc reguła jest neutralna. */
   body.dock-open .feedback-fab{display:none}
-  /* jw. — sticky pasek akcji Brand Kitu też siedzi na dole ekranu. */
+  /* jw. — sticky pasek akcji Brand Kitu siedzi na dole ekranu. */
   body.brandkit-open .feedback-fab{display:none}
   .dock-head{
     display:flex; align-items:center; gap:8px; padding:16px 18px;
@@ -230,17 +253,19 @@
   .dock-head h3{font-size:15px; font-weight:700; margin:0}
   .dock-body{flex:1; overflow-y:auto; padding:14px 18px}
   .dock-foot{padding:14px 18px; border-top:1px solid var(--line); flex:none}
-  .dock-scrim{
-    position:fixed; inset:0; z-index:44; background:rgba(17,17,18,.28);
-    opacity:0; pointer-events:none; transition:opacity .22s ease;
-  }
-  .dock-scrim.open{opacity:1; pointer-events:auto}
-  /* Licznik na przycisku doku — informacja "masz tam coś" bez otwierania. */
+  .dock-scrim{display:none}
+  /* Licznik przy nagłówku Mail Stacka — dziś czysto informacyjny (kolumna
+     jest zawsze widoczna, licznik nie musi już "zapowiadać" zawartości
+     zamkniętego panelu). */
   .dock-pill{
     display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px;
     padding:0 5px; border-radius:var(--radius-chip); background:var(--accent); color:var(--accent-ink);
     font-size:10.5px; font-weight:800; font-variant-numeric:tabular-nums; margin-left:6px;
   }
+  /* Przełącznik Mail Stacka istnieje TYLKO na wąskim ekranie (patrz media
+     query) — na desktopie kolumna jest zawsze widoczna, nic nie trzeba
+     przełączać. */
+  #dockToggle{display:none}
 
   /* Brand Kit jako strona */
   .bk-head{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px}
@@ -273,6 +298,10 @@
     .fchip{transition:none}
   }
 
+  /* Poniżej 1000px trzy kolumny fizycznie się nie mieszczą — nawigacja
+     I Mail Stack wracają do bycia off-canvas panelami (dokładnie tak jak
+     to działało przed przywróceniem stałej kolumny), sterowane osobnymi
+     przełącznikami (#navToggle / #dockToggle, ten drugi widoczny TYLKO tu). */
   @media (max-width:1000px){
     .app{grid-template-columns:1fr}
     .nav{
@@ -284,23 +313,29 @@
     .app.nav-collapsed .nav-brand .brand-logo-text,
     .app.nav-collapsed .nav-label,
     .app.nav-collapsed .nav-group-title,
-    .app.nav-collapsed .nav-item .n{display:revert}
+    .app.nav-collapsed .nav-item .n,
+    .app.nav-collapsed .nav-cats,
+    .app.nav-collapsed .nav-brand-section{display:revert}
     .app.nav-collapsed .nav-item{justify-content:flex-start; padding-left:10px; padding-right:10px}
     .page-head{padding:12px 16px}
     .filterbar{padding:10px 16px}
     .page-body{padding:16px 16px 80px}
+    #dockToggle{display:inline-flex}
+    .app.no-stack #dockToggle{display:none}
+    .dock{
+      position:fixed; top:0; right:0; bottom:0; left:auto; width:340px; max-width:92vw; z-index:45;
+      box-shadow:-18px 0 40px rgba(0,0,0,.10);
+      transform:translateX(100%); transition:transform .22s cubic-bezier(.4,0,.2,1);
+    }
+    .dock.open{transform:translateX(0)}
+    .dock-scrim{
+      display:block; position:fixed; inset:0; z-index:44; background:rgba(17,17,18,.28);
+      opacity:0; pointer-events:none; transition:opacity .22s ease;
+    }
+    .dock-scrim.open{opacity:1; pointer-events:auto}
   }
   @media (prefers-reduced-motion:reduce){ .nav{transition:none} }
 
-  .topbar{
-    position:sticky; top:0; z-index:30; background:var(--paper);
-    border-bottom:1px solid var(--line); padding:14px 0;
-  }
-  .topbar-inner{
-    max-width:1400px; margin:0 auto; padding:0 28px; box-sizing:border-box;
-    display:flex; align-items:center; justify-content:space-between; gap:24px;
-  }
-  .brand-title{display:flex; align-items:center; font-size:26px}
   /* user: "Jaki to font? [screenshot 'Maximus'] Chce logo tym fontem" —
      Poppins Medium (500), rozpoznany po jednopiętrowym "a" i szerokich,
      kolistych licznikach — nie pikselowe dopasowanie, odczyt wizualny.
@@ -309,13 +344,6 @@
      rozmiar dobierany per-użycie inline. */
   .brand-logo-text{font-family:'Poppins',sans-serif; font-weight:500; color:var(--ink); line-height:1}
   .brand-picker{display:flex; align-items:center; gap:8px}
-  .topbar-left{display:flex; align-items:center; gap:14px}
-  /* user: "add component - site settings - wybór brandu | avatar/imie
-     nazwisko a logo po lewej" — picker marki przeniesiony tu z dawnej
-     środkowej kolumny (patrz HTML), ta sama kreska co wcześniej dzieli
-     go teraz od avatara zamiast od Add component. */
-  .topbar-right{display:flex; align-items:center; gap:14px}
-  .topbar-right-divider{width:1px; height:22px; background:var(--line-strong); flex:none}
   .brand-picker-dot{width:14px; height:14px; border-radius:50%; border:1px solid rgba(0,0,0,.12); flex:none}
   /* Natywny <select> nie da się realnie ostylować (lista opcji/podświetlenie
      to renderowanie systemu operacyjnego, poza zasięgiem CSS) — dlatego
@@ -396,32 +424,6 @@
   .brand-select-edit-btn{flex:none}
   .brand-select-add{border-top:1px solid var(--line); margin-top:4px; padding-top:10px; color:var(--accent-strong); font-weight:600; justify-content:flex-start}
 
-  /* ---------- shell ---------- */
-  .shell{max-width:1400px; margin:0 auto; display:grid; grid-template-columns:236px 1fr 320px; gap:0; align-items:start}
-  .rail{position:sticky; top:69px; align-self:start; padding:20px 20px 40px; max-height:calc(100vh - 69px); overflow-y:auto}
-  .rail-title{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 10px; padding:0 10px}
-  .rail-title-row{display:flex; align-items:center; justify-content:space-between; padding:0 10px 10px}
-  .rail-title-row .rail-title{margin:0; padding:0}
-  .cat-btn{
-    display:flex; width:100%; align-items:center; justify-content:space-between; gap:8px;
-    padding:7px 10px; border:none; background:transparent; color:var(--ink-muted);
-    border-radius:5px; font-size:13px; text-align:left; margin-bottom:1px;
-  }
-  .cat-btn:hover{background:var(--surface-2); color:var(--ink)}
-  /* user: "zamiast podświetlać cały wiersz, niech tylko napisy mają
-     pomarańczowy kolor" — bez tła, sam label przechodzi na akcent. */
-  .cat-btn[aria-pressed="true"]{background:transparent; color:var(--accent-strong); font-weight:600}
-  .cat-btn .n{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint)}
-  .cat-btn[aria-pressed="true"] .n{color:var(--ink-muted)}
-
-  .cat-chips{display:none}
-
-  main.grid-wrap{padding:20px 20px 60px; border-left:1px solid var(--line); border-right:1px solid var(--line); min-height:calc(100vh - 69px)}
-  .grid-heading{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; gap:12px; flex-wrap:wrap}
-  /* Search + Platform filter w jednej linii — user: "search bar ma byc w
-     jednej linii z platformami. po lewej search bar, po prawej Platforms".
-     Search rośnie (flex:1), filtr trzyma się prawej krawędzi (flex:none). */
-  .search-row{display:flex; align-items:center; gap:16px; margin-bottom:26px}
   .crm-filter-row{display:flex; align-items:center; gap:14px; flex:none}
   .crm-filter-row .bf-checkbox{color:var(--ink-muted); font-size:13px}
   /* Checkbox platformy obsługiwanej przez aktywną markę — zablokowany do
@@ -450,53 +452,64 @@
   }
   .page-btn:hover{border-color:var(--line-strong); color:var(--ink)}
   .page-btn[aria-current="true"]{background:var(--ink); color:var(--paper); border-color:var(--ink); font-weight:600; cursor:default}
-  .grid-heading h2{font-size:19px}
-  .grid-count{font-family:var(--font-mono); font-size:11.5px; color:var(--ink-faint)}
   .card-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(252px,1fr)); gap:14px}
 
   .card{
     background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-card);
     box-shadow:var(--shadow-card); display:flex; flex-direction:column; overflow:hidden;
   }
-  /* Gwiazdka ulubionych — teraz zwykły .icon-btn w normalnym flow karty
-     (card-head, prawa strona), NIE position:absolute — user: "Fatalnie
-     wygląda ten top bar... ikona gwiazdki ma być w kwadracie tak jak każdy
-     inny button z ikoną (ten sam styl)". Bazowy kwadratowy wygląd/rozmiar
-     bierze wprost z .icon-btn (ta sama klasa co wszędzie indziej); tu
-     dokładany jest TYLKO kolor SAMEJ gwiazdki po zaznaczeniu (na <svg>,
-     nie na przycisku) — user: "pomarańczowym kolorem ma być TYLKO gwiazdka,
-     nic innego więcej" — obramowanie/tło przycisku zostają identyczne jak
-     w reszcie aplikacji, niezależnie od stanu ulubionych. */
+  /* Gwiazdka ulubionych — dziś żyje wyłącznie w nagłówkach modali (edytor
+     komponentu / podgląd maila), nie na samej karcie — user: "Przycisk
+     dodawania do ulubionych przenieś obok [X]". Klasa zostaje generyczna
+     (.icon-btn + ten modyfikator), bo to nadal ten sam .icon-btn co
+     wszędzie indziej — tylko SAMA gwiazdka (svg) zmienia kolor po
+     zaznaczeniu, nie tło/obramowanie przycisku. */
   .card-favorite-btn{flex:none}
   .card-favorite-btn.is-favorite svg{color:var(--accent-strong)}
-  .card-head{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:9px 10px; border-bottom:1px solid var(--line)}
-  .card-key{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-  /* user: "dodatkowo zaokrąglij górne boki tego preview" — TYLKO górne rogi
-     (dolne stykają się z card-body, nie z zewnętrzną, już zaokrągloną
-     krawędzią .card). */
-  .card-preview{height:150px; flex:none; background:var(--surface-2); overflow:hidden; position:relative; border-radius:12px 12px 0 0}
+  /* user: "informacje o ilości komponentów/kategorii (nad obrazkiem
+     preview) wywal - w konsekwencji preview ma być pierwszym elementem od
+     krawędzi widgeta" — .card-head (dawny pasek z licznikiem+gwiazdką)
+     zniknął; .card-preview jest teraz pierwszym dzieckiem .card, więc
+     dostaje WSZYSTKIE cztery rogi zaokrąglone na górze (były 12px, bo
+     nested pod card-head — teraz to sama krawędź karty, promień = --radius-card). */
+  .card-preview{height:150px; flex:none; background:var(--surface-2); overflow:hidden; position:relative; border-radius:var(--radius-card) var(--radius-card) 0 0}
   /* user: "dół z kolei niech się wygasza kolorem #F5F6F8 (gradient)" —
      tylko na snapshotach gotowych maili (renderEmailThumb/renderEmailGrid),
      bo tam treść jest CELOWO ucinana na dole (długi mail w krótkim boxie). */
   .card-preview-fade{position:absolute; left:0; right:0; bottom:0; height:40px; background:linear-gradient(to bottom, transparent, var(--surface-2)); pointer-events:none}
   .card-body{padding:12px 12px 10px; flex:1; display:flex; flex-direction:column; min-height:0}
-  .card-label{font-weight:600; font-size:13.5px; line-height:1.3; margin:0 0 3px; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
-  /* user: "oddal troche twórce od nazwy" — margin-bottom oddziela avatar+imię
-     od tytułu pod spodem (wcześniej stykały się bez odstępu). */
-  .card-created-by{display:flex; align-items:center; gap:5px; margin:6px 0 8px; font-size:10px; color:var(--ink-faint)}
-  /* user: "chujowo wygladaja te badge... Zlikwiduj to... dodaj sekcje z
-     górnym lekkim obrysem: compatible with: wymieniasz te crmy" — potem
-     "w miejscu opisu wrzuć inner boxa z Compatibile with" (najpierw tylko
-     karty maili, potem "karty komponentów zrób tak samo") — potem user:
-     "compatibile with usun, zostaw tylko nazwy CRM ale kazdy CRM ma być w
-     osobnym chipsie": etykieta znika, boks z tłem/obramowaniem zamienia się
-     w rząd osobnych chipsów (patrz .card-crm-chip), więc sam kontener nie
-     ma już własnego tła/obramowania — je noszą teraz pojedyncze chipsy.
-     margin-top:auto przykleja rząd zawsze do dołu card-body (nad
-     przyciskami), niezależnie od długości tytułu nad nim. */
-  .card-compat-box{margin-top:auto; display:flex; flex-wrap:wrap; gap:4px}
-  .card-crm-chip{display:inline-block; padding:3px 8px; border:1px solid var(--line); border-radius:999px; font-size:10.5px; color:var(--ink-muted); background:var(--surface); white-space:nowrap}
+  /* Wiersz nazwy — etykieta po lewej, menu 3-kropek po prawej, W TEJ SAMEJ
+     linii (user: "po prawej stronie na linii nazwy komponentu/gotowego
+     maila mają pojawić się te 3 kropki"). */
+  .card-name-row{display:flex; align-items:flex-start; justify-content:space-between; gap:6px}
+  .card-label{font-weight:600; font-size:13.5px; line-height:1.3; margin:0; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+  .card-desc{font-size:11.5px; line-height:1.45; color:var(--ink-muted); margin:4px 0 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+  /* user: "nazwy CRM bez chipsów, same napisy, ale fontem 9.5px" — zastępuje
+     dawny rząd osobnych pigułek (.card-crm-chip) jedną linią zwykłego
+     tekstu, oddzieloną środkowymi kropkami. margin-top:auto przykleja ją
+     zawsze do dołu card-body, niezależnie od długości opisu nad nią. */
+  .card-compat-text{margin-top:auto; padding-top:8px; font-size:9.5px; color:var(--ink-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .card-actions{display:flex; gap:6px; padding:0 12px 12px}
+
+  /* Menu 3-kropek — nowy, generyczny wzorzec overflow-menu na kartach
+     (komponent/e-mail/flow), zamiast osobnych ikon (ołówek/kosz) na
+     widgecie. Ten sam dropdown-recipe co .brand-select-menu (przycisk +
+     bezwzględnie pozycjonowana lista + zamykanie klikiem poza nią), tylko
+     mniejszy i przyklejony do prawej krawędzi wiersza nazwy. */
+  .card-menu-wrap{position:relative; flex:none}
+  .card-menu-btn{width:25px; height:25px}
+  .card-menu{
+    position:absolute; top:calc(100% + 4px); right:0; z-index:20; min-width:130px;
+    background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow-card);
+    padding:4px; margin:0; list-style:none;
+  }
+  .card-menu-item{
+    padding:7px 10px; border-radius:5px; font-size:12.5px; font-weight:500; color:var(--ink);
+    cursor:pointer; white-space:nowrap;
+  }
+  .card-menu-item:hover{background:var(--surface-2)}
+  .card-menu-item.danger{color:#b42318}
+  .card-menu-item.danger:hover{background:#fef3f2}
 
   /* ---------- Flow Repository ---------- */
   /* Karta flow NIE ma podglądu graficznego (flow to opis kampanii, nie
@@ -513,11 +526,24 @@
   .flow-card-foot .btn{flex:1}
 
   /* Szczegóły flow */
-  .flow-meta-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:20px}
-  .flow-meta-item{background:var(--surface-2); border-radius:10px; padding:10px 12px}
-  .flow-meta-item .k{font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-faint)}
-  .flow-meta-item .v{font-size:13px; font-weight:600; margin-top:3px; line-height:1.35}
+  /* Dwie kolumny w podglądzie flow — user: "te główne informacje... maja
+     być po prawej stronie jako sticky". Prawa (.flow-detail-side) zostaje
+     przypięta do góry WEWNĄTRZ jedynego scrollującego rodzica (.modal-body
+     — position:sticky liczy się względem najbliższego scrollującego
+     przodka, nie potrzeba osobnego kontenera scrolla). */
+  .flow-detail-grid{display:grid; grid-template-columns:1fr 340px; gap:28px; align-items:start}
+  .flow-detail-side{position:sticky; top:0}
+  /* 6 pól, 3 w wierszu — user: "jest akurat 6 elementow wiec po 3 w
+     wierszu" (Category/Industry/Channels/Stages/Duration/Built for). */
+  .flow-meta-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px}
+  .flow-meta-item{background:var(--surface-2); border-radius:10px; padding:10px 10px}
+  .flow-meta-item .k{font-size:9.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint)}
+  .flow-meta-item .v{font-size:12px; font-weight:600; margin-top:3px; line-height:1.3}
   .flow-sec{margin-bottom:22px}
+  @media (max-width:720px){
+    .flow-detail-grid{grid-template-columns:1fr}
+    .flow-detail-side{position:static}
+  }
   .flow-sec > h4{font-size:12px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 10px}
   .flow-sec p{font-size:13.5px; line-height:1.6; color:var(--ink-muted); margin:0}
   .flow-list{margin:0; padding-left:18px; font-size:13.5px; line-height:1.65; color:var(--ink-muted)}
@@ -529,6 +555,15 @@
   .flow-stage-purpose{font-size:13px; font-weight:600; color:var(--ink); margin:8px 0 0}
   .flow-stage-detail{font-size:13px; line-height:1.6; color:var(--ink-muted); margin:5px 0 0}
   .flow-stage-chips{display:flex; gap:5px; margin-top:9px; flex-wrap:wrap}
+
+  /* Edytor etapów w Add/Edit flow — repeatable rows, ten sam duch co
+     add/remove wariantów w edytorze komponentu, tylko pola edytowalne
+     wprost (bez osobnego kroku "dodaj"). */
+  .flow-stage-edit{border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:10px; position:relative}
+  .flow-stage-edit .bf-row{margin-bottom:8px}
+  .flow-stage-edit .bf-row:last-child{margin-bottom:0}
+  .flow-stage-edit-remove{position:absolute; top:10px; right:10px}
+  .flow-stage-add-btn{width:100%}
 
   /* ---------- Harmonogram DM (kalendarz) ---------- */
   .dm-toolbar{display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:14px}
@@ -1042,22 +1077,6 @@
   .mp-badge{display:inline-block; font-size:8.5px; font-weight:700; text-transform:uppercase; padding:2px 6px; border-radius:3px}
   .mp-mono{font-family:var(--font-mono)}
 
-  /* responsive */
-  @media (max-width:980px){
-    .shell{grid-template-columns:1fr}
-    .rail{display:none}
-    .cat-chips{display:flex; gap:6px; overflow-x:auto; padding:12px 16px; border-bottom:1px solid var(--line); position:sticky; top:69px; background:var(--paper); z-index:20}
-    #flowChips{top:calc(69px + 47px); z-index:19}
-    .cat-chip{flex:none; padding:6px 12px; border-radius:var(--radius-chip); border:1px solid var(--line); background:var(--surface); font-size:12px; color:var(--ink-muted); white-space:nowrap}
-    .cat-chip[aria-pressed="true"]{background:var(--ink); color:var(--paper); border-color:var(--ink)}
-    main.grid-wrap{border:none}
-    aside.drawer{position:fixed; left:0; right:0; bottom:0; top:auto; max-height:70vh; background:var(--surface); border-top:1px solid var(--line); border-radius:14px 14px 0 0; box-shadow:0 -8px 30px rgba(0,0,0,.15); transform:translateY(calc(100% - 54px)); transition:transform .25s ease; z-index:40}
-    aside.drawer.open{transform:translateY(0)}
-    .drawer-handle{display:flex; align-items:center; justify-content:space-between; cursor:pointer}
-    .drawer-grab{width:36px; height:4px; background:var(--line-strong); border-radius:2px; margin:0 auto 10px}
-  }
-  @media (min-width:981px){ .drawer-grab,.drawer-handle-label{display:none} }
-
   @media (prefers-reduced-motion:reduce){
     *{transition:none !important; animation:none !important}
   }
@@ -1118,46 +1137,68 @@
 
 <a href="#workMain" class="skip-link">Skip to content</a>
 <div class="app" id="app">
-  <!-- Nawigacja NAJWYŻSZEGO poziomu: destynacje, nie filtry. Kategorie
-       zjechały do .filterbar w nagłówku strony. -->
+  <!-- Nawigacja NAJWYŻSZEGO poziomu (destynacje) + kategorie AKTYWNEJ
+       destynacji tuż pod nią (patrz .nav-cats/renderNavCats — user:
+       "kategorie komponentów zostają na lewym sidebarze, tak jak było
+       wcześniej"). -->
   <nav class="nav" id="appNav" aria-label="Main">
+    <!-- Tylko ta część się przewija — panel marki i profil zostają
+         przypięte u dołu, poza scrollem (patrz komentarz przy .nav-scroll
+         w CSS: inaczej dropdown pickera marki obcinałby się na krawędzi
+         przewijanego kontenera). -->
+    <div class="nav-scroll">
     <div class="nav-brand">
       <span class="brand-logo-text" translate="no">Maximus</span>
     </div>
 
     <div class="nav-group-title">Library</div>
     <button class="nav-item" type="button" data-nav="components">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M659.08-460.77 461.54-658.31l197.54-197.53 197.53 197.53-197.53 197.54Zm-506.77-66.92v-280h280v280h-280Zm375.38 375.38v-280h280v280h-280Zm-375.38 0v-280h280v280h-280Zm60-435.38h160v-160h-160v160Zm447.77 43.38 113-113-113-113-113 113 113 113Zm-72.39 332h160v-160h-160v160Zm-375.38 0h160v-160h-160v160Z"/></svg>
       <span class="nav-label">Components</span><span class="n" id="navCountComponents"></span>
     </button>
+    <div class="nav-cats" id="navCatsComponents" role="group" aria-label="Component categories"></div>
     <button class="nav-item" type="button" data-nav="emails">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-      <span class="nav-label">Ready-made emails</span><span class="n" id="navCountEmails"></span>
+      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M172.31-180Q142-180 121-201q-21-21-21-51.31v-455.38Q100-738 121-759q21-21 51.31-21h615.38Q818-780 839-759q21 21 21 51.31v455.38Q860-222 839-201q-21 21-51.31 21H172.31ZM480-457.69 160-662.31v410q0 5.39 3.46 8.85t8.85 3.46h615.38q5.39 0 8.85-3.46t3.46-8.85v-410L480-457.69Zm0-62.31 313.85-200h-627.7L480-520Z"/></svg>
+      <span class="nav-label">E-mails</span><span class="n" id="navCountEmails"></span>
     </button>
+    <div class="nav-cats" id="navCatsEmails" role="group" aria-label="E-mail categories"></div>
 
     <!-- user: "Ma być rozwinięta o gotowe Flowsy. Oddzielna kategoria." +
          "harmonogram wysyłek... To ma być również oddzielna kategoria." —
          obie jako pełnoprawne destynacje, nie podpunkty biblioteki. -->
     <div class="nav-group-title">Automation</div>
     <button class="nav-item" type="button" data-nav="flows">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="16" width="7" height="5" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/><path d="M6.5 8v8M17.5 16v-3a2 2 0 0 0-2-2H6.5"/></svg>
+      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M450-100v-174.23q0-55.23-16.23-84.54-16.23-29.31-45.77-55.69l42.77-42.77q12.77 11.77 25.5 27.35Q469-414.31 480-396.84q12.85-21.7 29.65-40.04 16.81-18.35 34.89-34.66 44.15-39.61 74.38-95.23 30.23-55.62 30.7-177.92l-73 73-42.77-42.16L680-860l146.15 146.15L784-671.69l-74.39-73.77q-.46 138.77-37.65 206.19-37.19 67.42-86.5 112.35-33.15 30.15-54.31 59.38Q510-338.31 510-274.23V-100h-60ZM259.15-634.15q-4.38-20.39-6.26-50.54-1.89-30.16-2.5-60.77L176-671.69l-42.15-42.16L280-860l146.15 146.15-42.77 42.16-73-72.39q-.38 27.16 1.81 52.39t5.35 43.54l-58.39 14Z"/></svg>
       <span class="nav-label">Flow Repository</span><span class="n" id="navCountFlows"></span>
     </button>
+    <div class="nav-cats" id="navCatsFlows" role="group" aria-label="Flow categories"></div>
     <button class="nav-item" type="button" data-nav="schedule">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M212.31-100Q182-100 161-121q-21-21-21-51.31v-535.38Q140-738 161-759q21-21 51.31-21h55.38v-84.61h61.54V-780h303.08v-84.61h60V-780h55.38Q778-780 799-759q21 21 21 51.31v535.38Q820-142 799-121q-21 21-51.31 21H212.31Zm0-60h535.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-375.38H200v375.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM200-607.69h560v-100q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H212.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v100Z"/></svg>
       <span class="nav-label">DM Schedule</span><span class="n" id="navCountSchedule"></span>
     </button>
 
     <div class="nav-group-title">Design</div>
     <button class="nav-item" type="button" data-nav="brandkit">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg>
+      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M479.23-100q-77.77 0-146.92-29.96-69.16-29.96-120.77-81.58-51.62-51.61-81.58-120.96T100-480q0-79.15 30.77-148.5t83.58-120.65q52.8-51.31 123.54-81.08Q408.62-860 488.77-860q75 0 142.15 25.58 67.16 25.58 117.96 70.81 50.81 45.23 80.96 107.5Q860-593.85 860-521.08q0 103.85-61.73 162.46Q736.54-300 640-300h-72.46q-17.08 0-27.31 11.15Q530-277.69 530-262.46q0 18.54 15 38.54T560-178q0 39.61-21.92 58.81Q516.15-100 479.23-100Zm-184.31-364.31Q310-478.62 310-500q0-21.38-14.31-35.69Q281.38-550 260-550q-21.38 0-35.69 14.31Q210-521.38 210-500q0 21.38 14.31 35.69Q238.62-450 260-450q21.38 0 35.69-14.31Zm120-160Q430-638.62 430-660q0-21.38-14.31-35.69Q401.38-710 380-710q-21.38 0-35.69 14.31Q330-681.38 330-660q0 21.38 14.31 35.69Q358.62-610 380-610q21.38 0 35.69-14.31Zm200 0Q630-638.62 630-660q0-21.38-14.31-35.69Q601.38-710 580-710q-21.38 0-35.69 14.31Q530-681.38 530-660q0 21.38 14.31 35.69Q558.62-610 580-610q21.38 0 35.69-14.31Zm120 160Q750-478.62 750-500q0-21.38-14.31-35.69Q721.38-550 700-550q-21.38 0-35.69 14.31Q650-521.38 650-500q0 21.38 14.31 35.69Q678.62-450 700-450q21.38 0 35.69-14.31Z"/></svg>
       <span class="nav-label">Brand Kit</span>
     </button>
-
-    <div class="nav-spacer"></div>
+    </div>
+    <!-- Kontekst klienta — user: "Wybór brandu ma być po lewej stronie na
+         sidebarze, nad profilem użytkownika, w oddzielnej sekcji". -->
+    <div class="nav-brand-section">
+      <div class="nav-group-title">Brand</div>
+      <div class="brand-select" id="brandSelectWrap">
+        <button type="button" class="brand-select-btn" id="brandSelectBtn" aria-haspopup="listbox" aria-expanded="false">
+          <span class="brand-picker-dot" id="brandPickerDot" aria-hidden="true"></span>
+          <span id="brandSelectLabel"></span>
+          <span class="brand-select-caret" aria-hidden="true"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-358.46 253.85-584.62 296-626.77l184 184 184-184 42.15 42.15L480-358.46Z"/></svg></span>
+        </button>
+        <ul class="brand-select-menu" id="brandSelectMenu" role="listbox" aria-label="Brand selection" style="display:none; bottom:100%; top:auto; margin-bottom:4px"></ul>
+      </div>
+    </div>
     <div class="nav-foot">
       <button class="nav-item" type="button" id="crmSettingsTopbarBtn" title="Site settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="m387.69-100-15.23-121.85q-16.07-5.38-32.96-15.07-16.88-9.7-30.19-20.77L196.46-210l-92.3-160 97.61-73.77q-1.38-8.92-1.96-17.92-.58-9-.58-17.93 0-8.53.58-17.34t1.96-19.27L104.16-590l92.3-159.23 112.46 47.31q14.47-11.46 30.89-20.96t32.27-15.27L387.69-860h184.62l15.23 122.23q18 6.54 32.57 15.27 14.58 8.73 29.43 20.58l114-47.31L855.84-590l-99.15 74.92q2.15 9.69 2.35 18.12.19 8.42.19 16.96 0 8.15-.39 16.58-.38 8.42-2.76 19.27L854.46-370l-92.31 160-112.61-48.08q-14.85 11.85-30.31 20.96-15.46 9.12-31.69 14.89L572.31-100H387.69ZM440-160h78.62L533-267.15q30.62-8 55.96-22.73 25.35-14.74 48.89-37.89L737.23-286l39.39-68-86.77-65.38q5-15.54 6.8-30.47 1.81-14.92 1.81-30.15 0-15.62-1.81-30.15-1.8-14.54-6.8-29.7L777.38-606 738-674l-100.54 42.38q-20.08-21.46-48.11-37.92-28.04-16.46-56.73-23.31L520-800h-79.38l-13.24 106.77q-30.61 7.23-56.53 22.15-25.93 14.93-49.47 38.46L222-674l-39.38 68L269-541.62q-5 14.24-7 29.62t-2 32.38q0 15.62 2 30.62 2 15 6.62 29.62l-86 65.38L222-286l99-42q22.77 23.38 48.69 38.31 25.93 14.92 57.31 22.92L440-160Zm40.46-200q49.92 0 84.96-35.04 35.04-35.04 35.04-84.96 0-49.92-35.04-84.96Q530.38-600 480.46-600q-50.54 0-85.27 35.04T360.46-480q0 49.92 34.73 84.96Q429.92-360 480.46-360Z"/></svg>
         <span class="nav-label">Settings</span>
       </button>
       <!-- Konto — dropdown Edit profile / Logout (bez zmian funkcjonalnych,
@@ -1180,36 +1221,28 @@
          topbaru tutaj, bo dotyczy wyłącznie biblioteki komponentów. -->
     <header class="page-head">
       <button class="icon-btn nav-toggle" type="button" id="navToggle" aria-label="Toggle navigation" aria-expanded="true">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        <svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M140-254.62v-59.99h680v59.99H140ZM140-450v-60h680v60H140Zm0-195.39v-59.99h680v59.99H140Z"/></svg>
       </button>
       <div class="page-head-titles">
         <h2 id="gridTitle">All components</h2>
         <span class="page-count" id="gridCount"></span>
       </div>
       <div class="page-head-actions">
+        <!-- Wyszukiwarka nad listingiem, oddzielona od pozostałych akcji —
+             user: "Wyszukiwarka komponentów/maili ma być nad listingiem -
+             tak jak było wcześniej". Picker marki wyprowadzony stąd do
+             sidebaru (patrz .nav-brand-section), Mail Stack jest teraz
+             zawsze widoczną kolumną, więc przełącznik zniknął z desktopu
+             (zostaje tylko na wąskim ekranie — patrz media query). -->
         <div class="search-input-wrap" style="max-width:260px">
-          <svg width="15" height="15" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>
+          <svg width="15" height="15" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M781.69-136.92 530.46-388.16q-30 24.77-69 38.77-39 14-80.69 14-102.46 0-173.54-71.07-71.07-71.08-71.07-173.54t71.07-173.54q71.08-71.07 173.54-71.07t173.54 71.07q71.07 71.08 71.07 173.54 0 42.85-14.38 81.85-14.39 39-38.39 67.84l251.23 251.23-42.15 42.16ZM380.77-395.38q77.31 0 130.96-53.66 53.66-53.65 53.66-130.96t-53.66-130.96q-53.65-53.66-130.96-53.66t-130.96 53.66Q196.15-657.31 196.15-580t53.66 130.96q53.65 53.66 130.96 53.66Z"/></svg>
           <input type="text" id="searchInput" class="search-input" placeholder="Search components…" aria-label="Search the library" autocomplete="off" spellcheck="false">
         </div>
-        <!-- Kontekst klienta — to, w czyim Brand Kicie pracujesz. Zostaje
-             globalny (dotyczy każdej sekcji), ale wizualnie jest teraz
-             kontrolką kontekstu, nie jednym z pięciu równorzędnych guzików. -->
-        <div class="brand-picker">
-          <div class="brand-select" id="brandSelectWrap">
-            <!-- Kropka koloru marki siedzi TERAZ W przycisku, nie obok niego
-                 — jako samodzielny element wisiała w powietrzu między
-                 wyszukiwarką a selectem i nic nie znaczyła. -->
-            <button type="button" class="brand-select-btn" id="brandSelectBtn" aria-haspopup="listbox" aria-expanded="false">
-              <span class="brand-picker-dot" id="brandPickerDot" aria-hidden="true"></span>
-              <span id="brandSelectLabel"></span>
-              <span class="brand-select-caret" aria-hidden="true"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"/></svg></span>
-            </button>
-            <ul class="brand-select-menu brand-select-menu-right" id="brandSelectMenu" role="listbox" aria-label="Brand selection" style="display:none"></ul>
-          </div>
-        </div>
         <button class="btn small" id="addComponentBtn" type="button">Add Component</button>
-        <!-- Mail Stack — dok, nie stała kolumna. Licznik mówi ile w środku,
-             więc nie trzeba go otwierać żeby to wiedzieć. -->
+        <!-- user: "dodaj tez mozliwosc dodawania kolejnych flows do
+             repository" — kontekstowa akcja strony, ten sam slot co Add
+             Component (tylko dla sekcji "flows", patrz syncSectionChrome). -->
+        <button class="btn small" id="addFlowRepoBtn" type="button" style="display:none">Add Flow</button>
         <button class="btn ghost small" id="dockToggle" type="button" aria-expanded="false" aria-controls="drawer">
           Mail Stack<span class="dock-pill" id="dockCount">0</span>
         </button>
@@ -1217,7 +1250,6 @@
     </header>
 
     <div class="filterbar" id="filterbar">
-      <div class="filterbar-scroll" id="filterChips" role="group" aria-label="Filter by category"></div>
       <div class="crm-filter-row" id="crmFilterRow"></div>
     </div>
 
@@ -1301,7 +1333,7 @@
   <div class="modal" style="max-width:420px">
     <div class="modal-head">
       <h3>Edit profile</h3>
-      <button class="modal-close" id="profileFormClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+      <button class="modal-close" id="profileFormClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="bf-field" style="margin-bottom:12px">
@@ -1342,7 +1374,7 @@
   <div class="modal" style="max-width:640px">
     <div class="modal-head">
       <h3>Backup</h3>
-      <button class="modal-close" id="backupExportClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+      <button class="modal-close" id="backupExportClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <textarea class="code" id="backupExportTextarea" readonly spellcheck="false" style="height:360px; width:100%"></textarea>
@@ -1358,7 +1390,7 @@
   <div class="modal" id="crmSettingsModal" style="max-width:640px">
     <div class="modal-head">
       <h3>Site settings</h3>
-      <button class="modal-close" id="crmSettingsClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+      <button class="modal-close" id="crmSettingsClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="bf-tabs" role="tablist">
@@ -1453,9 +1485,9 @@
       <div id="dmWrap" style="display:none">
         <div class="dm-toolbar">
           <div class="dm-monthnav">
-            <button class="icon-btn" type="button" id="dmPrevMonth" aria-label="Previous month"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg></button>
+            <button class="icon-btn" type="button" id="dmPrevMonth" aria-label="Previous month"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M560-253.85 333.85-480 560-706.15 602.15-664l-184 184 184 184L560-253.85Z"/></svg></button>
             <span class="dm-monthlabel" id="dmMonthLabel"></span>
-            <button class="icon-btn" type="button" id="dmNextMonth" aria-label="Next month"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg></button>
+            <button class="icon-btn" type="button" id="dmNextMonth" aria-label="Next month"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="m517.85-480-184-184L376-706.15 602.15-480 376-253.85 333.85-296l184-184Z"/></svg></button>
             <button class="btn ghost small" type="button" id="dmTodayBtn">Today</button>
           </div>
           <div class="dm-legend" id="dmLegend"></div>
@@ -1482,9 +1514,9 @@
     <span class="drawer-count" id="listCount">(0)</span>
     <span style="display:flex; align-items:center; gap:6px; margin-left:auto">
       <button class="icon-btn" id="refreshAllBtn" type="button" style="display:none" title="Syncs every item with the latest catalog version. Filled-in content stays." aria-label="Refresh whole list from catalog"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg></button>
-      <button class="icon-btn" id="clearListBtn" type="button" disabled title="Clear Mail Stack" aria-label="Clear Mail Stack"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg></button>
-      <button class="icon-btn" id="saveEmailBtn" type="button" disabled title="Save as ready-made email" aria-label="Save as ready-made email"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M840-680v480q0 33-23.5 56.5T760-120H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h480l160 160Zm-80 34L646-760H200v560h560v-446ZM480-240q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM240-560h360v-160H240v160Zm-40-34v-206 560-354Z"/></svg></button>
-      <button class="modal-close" id="dockClose" type="button" aria-label="Close Mail Stack"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+      <button class="icon-btn" id="clearListBtn" type="button" disabled title="Clear Mail Stack" aria-label="Clear Mail Stack"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M292.31-140q-29.92 0-51.12-21.19Q220-182.39 220-212.31V-720h-40v-60h180v-35.38h240V-780h180v60h-40v507.69Q740-182 719-161q-21 21-51.31 21H292.31ZM680-720H280v507.69q0 5.39 3.46 8.85t8.85 3.46h375.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46V-720ZM376.16-280h59.99v-360h-59.99v360Zm147.69 0h59.99v-360h-59.99v360ZM280-720v520-520Z"/></svg></button>
+      <button class="icon-btn" id="saveEmailBtn" type="button" disabled title="Save as e-mail" aria-label="Save as e-mail"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M820-671.54v459.23Q820-182 799-161q-21 21-51.31 21H212.31Q182-140 161-161q-21-21-21-51.31v-535.38Q140-778 161-799q21-21 51.31-21h459.23L820-671.54ZM760-646 646-760H212.31q-5.39 0-8.85 3.46t-3.46 8.85v535.38q0 5.39 3.46 8.85t8.85 3.46h535.38q5.39 0 8.85-3.46t3.46-8.85V-646ZM550.77-298.46Q580-327.69 580-369.23q0-41.54-29.23-70.77-29.23-29.23-70.77-29.23-41.54 0-70.77 29.23Q380-410.77 380-369.23q0 41.54 29.23 70.77 29.23 29.23 70.77 29.23 41.54 0 70.77-29.23ZM255.39-564.62h328.45v-139.99H255.39v139.99ZM200-646v446-560 114Z"/></svg></button>
+      <button class="modal-close" id="dockClose" type="button" aria-label="Close Mail Stack"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
     </span>
   </div>
   <div class="dock-body" id="listBody"></div>
@@ -1522,13 +1554,16 @@
   <div class="modal" id="previewModal">
     <div class="modal-head">
       <h3 id="previewTitle"></h3>
-      <!-- user: "w gotowych mailach dodaj też button... Share ktory
-           skopiuje URLe do tego konkretnego popupu" — ukryty domyślnie,
-           bo podgląd całej listy budowy (openMailPreview) nie ma swojego
-           id do udostępnienia (patrz openEmailPreview/openMailPreview). -->
+      <!-- user: "przycisk ołówka przenieś z widgetu do popupu przy [X]...
+           przycisk share'owania usuń" + "Przycisk dodawania do ulubionych
+           przenieś obok [X] w popupie przy ołówku" — pencil (→ edit
+           metadata) i gwiazdka ulubionych, oba ukryte domyślnie, bo podgląd
+           całej listy budowy (openMailPreview) nie ma swojego id ani
+           konceptu "ulubione" (patrz openEmailPreview/openMailPreview). -->
       <span style="display:flex; align-items:center; gap:4px">
-        <button class="icon-btn" id="previewShareBtn" type="button" title="Copy link to this email" aria-label="Copy link to this email" style="display:none"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M720-80q-50 0-85-35t-35-85q0-7 1-14.5t3-13.5L322-392q-17 15-38 23.5t-44 8.5q-50 0-85-35t-35-85q0-50 35-85t85-35q23 0 44 8.5t38 23.5l282-164q-2-6-3-13.5t-1-14.5q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-23 0-44-8.5T638-672L356-508q2 6 3 13.5t1 14.5q0 7-1 14.5t-3 13.5l282 164q17-15 38-23.5t44-8.5q50 0 85 35t35 85q0 50-35 85t-85 35Zm0-640q17 0 28.5-11.5T760-760q0-17-11.5-28.5T720-800q-17 0-28.5 11.5T680-760q0 17 11.5 28.5T720-720ZM240-440q17 0 28.5-11.5T280-480q0-17-11.5-28.5T240-520q-17 0-28.5 11.5T200-480q0 17 11.5 28.5T240-440Zm480 280q17 0 28.5-11.5T760-200q0-17-11.5-28.5T720-240q-17 0-28.5 11.5T680-200q0 17 11.5 28.5T720-160Zm0-600ZM240-480Zm480 280Z"/></svg></button>
-        <button class="modal-close" id="previewClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+        <button class="icon-btn" id="previewEditBtn" type="button" title="Edit" aria-label="Edit" style="display:none"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M200-200h50.46l409.46-409.46-50.46-50.46L200-250.46V-200Zm-60 60v-135.38l527.62-527.39q9.07-8.24 20.03-12.73 10.97-4.5 23-4.5t23.3 4.27q11.28 4.27 19.97 13.58l48.85 49.46q9.31 8.69 13.27 20 3.96 11.31 3.96 22.62 0 12.07-4.12 23.03-4.12 10.97-13.11 20.04L275.38-140H140Zm620.38-570.15-50.23-50.23 50.23 50.23Zm-126.13 75.9-24.79-25.67 50.46 50.46-25.67-24.79Z"/></svg></button>
+        <button type="button" class="icon-btn card-favorite-btn" id="previewFavBtn" aria-label="Add to favorites" title="Add to favorites" style="display:none"></button>
+        <button class="modal-close" id="previewClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
       </span>
     </div>
     <div class="modal-body">
@@ -1563,7 +1598,7 @@
             </div>
             <div class="inbox-chrome-right">
               <span class="inbox-chrome-date" id="inboxDate"></span>
-              <span class="inbox-chrome-icon" title="Star"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="m354-287 126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143ZM233-120l65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Zm247-350Z"/></svg></span>
+              <span class="inbox-chrome-icon" title="Star"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="m354-287 126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143Zm-91 125.46 57.31-246.77-191.46-165.92 252.61-21.92L480-828.84l98.54 232.69 252.61 21.92-191.46 165.92L697-161.54 480-292.46 263-161.54ZM480-470Z"/></svg></span>
               <span class="inbox-chrome-icon" title="Reply"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M760-200v-160q0-50-35-85t-85-35H273l144 144-57 56-240-240 240-240 57 56-144 144h367q83 0 141.5 58.5T840-360v160h-80Z"/></svg></span>
               <span class="inbox-chrome-icon" title="More"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/></svg></span>
             </div>
@@ -1591,8 +1626,8 @@
 <div class="overlay" id="saveEmailFormOverlay" role="dialog" aria-modal="true">
   <div class="modal" style="max-width:640px">
     <div class="modal-head">
-      <h3 id="saveEmailFormTitle">Save as ready-made email</h3>
-      <button class="modal-close" id="saveEmailFormClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+      <h3 id="saveEmailFormTitle">Save as e-mail</h3>
+      <button class="modal-close" id="saveEmailFormClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <form id="saveEmailForm" class="brand-form"></form>
@@ -1609,20 +1644,57 @@
      jaka branża, etc." + "Pobierając mam mieć możliwość otrzymania pliku
      .md z kompletnym rozpisem dla dowolnego agenta LLM w CRMie". -->
 <div class="overlay" id="flowOverlay" role="dialog" aria-modal="true">
-  <div class="modal" style="max-width:880px">
+  <div class="modal" style="max-width:1040px">
     <div class="modal-head">
       <h3 id="flowTitle"></h3>
       <span style="display:flex; align-items:center; gap:4px">
         <button class="icon-btn" id="flowShareBtn" type="button" title="Copy link to this flow" aria-label="Copy link to this flow"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M720-80q-50 0-85-35t-35-85q0-7 1-14.5t3-13.5L322-392q-17 15-38 23.5t-44 8.5q-50 0-85-35t-35-85q0-50 35-85t85-35q23 0 44 8.5t38 23.5l282-164q-2-6-3-13.5t-1-14.5q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-23 0-44-8.5T638-672L356-508q2 6 3 13.5t1 14.5q0 7-1 14.5t-3 13.5l282 164q17-15 38-23.5t44-8.5q50 0 85 35t35 85q0 50-35 85t-85 35Zm0-640q17 0 28.5-11.5T760-760q0-17-11.5-28.5T720-800q-17 0-28.5 11.5T680-760q0 17 11.5 28.5T720-720ZM240-440q17 0 28.5-11.5T280-480q0-17-11.5-28.5T240-520q-17 0-28.5 11.5T200-480q0 17 11.5 28.5T240-440Zm480 280q17 0 28.5-11.5T760-200q0-17-11.5-28.5T720-240q-17 0-28.5 11.5T680-200q0 17 11.5 28.5T720-160Zm0-600ZM240-480Zm480 280Z"/></svg></button>
-        <button class="modal-close" id="flowClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+        <!-- Menu 3-kropek (Edit/Delete), ten sam wzorzec co na kartach —
+             user: "3 kropki... kliknięcie ma otworzyć dymek z opcjami Edit,
+             Delete", id ustawiany przy każdym otwarciu (patrz openFlowDetail). -->
+        <div class="card-menu-wrap" id="flowDetailMenuWrap" data-card-menu-kind="flow" data-card-menu-id="">
+          <button type="button" class="icon-btn card-menu-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More options"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-189.23q-24.75 0-42.37-17.63Q420-224.48 420-249.23q0-24.75 17.63-42.38 17.62-17.62 42.37-17.62 24.75 0 42.37 17.62Q540-273.98 540-249.23q0 24.75-17.63 42.37-17.62 17.63-42.37 17.63ZM480-420q-24.75 0-42.37-17.63Q420-455.25 420-480q0-24.75 17.63-42.37Q455.25-540 480-540q24.75 0 42.37 17.63Q540-504.75 540-480q0 24.75-17.63 42.37Q504.75-420 480-420Zm0-230.77q-24.75 0-42.37-17.62Q420-686.02 420-710.77q0-24.75 17.63-42.37 17.62-17.63 42.37-17.63 24.75 0 42.37 17.63Q540-735.52 540-710.77q0 24.75-17.63 42.38-17.62 17.62-42.37 17.62Z"/></svg></button>
+          <ul class="card-menu" role="menu" style="display:none">
+            <li class="card-menu-item" role="menuitem" data-card-menu-edit>Edit</li>
+            <li class="card-menu-item danger" role="menuitem" data-card-menu-delete>Delete</li>
+          </ul>
+        </div>
+        <button class="modal-close" id="flowClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
       </span>
     </div>
     <div class="modal-body">
-      <div id="flowBody"></div>
+      <!-- Sticky panel po prawej — user: "te główne informacje typu
+           category, industry, chanels, etc maja byc po prawej stronie jako
+           sticky jest akurat 6 elementow wiec po 3 w wierszu". Lewa
+           (proza) przewija się normalnie; prawa zostaje przypięta u góry. -->
+      <div class="flow-detail-grid">
+        <div class="flow-detail-main" id="flowBody"></div>
+        <aside class="flow-detail-side" id="flowMetaPanel"></aside>
+      </div>
     </div>
     <div class="modal-footer-bar" style="gap:8px">
       <button class="btn ghost" id="flowCopyMdBtn" type="button" style="flex:1">Copy .md</button>
       <button class="btn" id="flowDownloadMdBtn" type="button" style="flex:1">Download .md</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Flow — user: "dodaj tez mozliwosc dodawania kolejnych flows
+     do repository" + edycja wszystkich pól sticky panelu przez 3-kropki.
+     Jeden formularz dla obu trybów (flowForm.editId null = nowy flow),
+     ten sam wzorzec co openComponentForm/openSaveEmailForm. -->
+<div class="overlay" id="flowFormOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-head">
+      <h3 id="flowFormTitle">Add flow</h3>
+      <button class="modal-close" id="flowFormClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <form id="flowForm" class="brand-form"></form>
+    </div>
+    <div class="modal-footer-bar" style="gap:8px">
+      <button class="btn ghost" type="button" id="flowFormCancel" style="flex:1">Cancel</button>
+      <button class="btn" type="button" id="flowFormSave" style="flex:1">Save flow</button>
     </div>
   </div>
 </div>
@@ -1634,7 +1706,7 @@
   <div class="modal" style="max-width:720px">
     <div class="modal-head">
       <h3 id="dmFormTitle">Add send</h3>
-      <button class="modal-close" id="dmFormClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+      <button class="modal-close" id="dmFormClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <form id="dmForm" class="brand-form"></form>
@@ -1656,7 +1728,7 @@
   <div class="modal" style="max-width:560px">
     <div class="modal-head">
       <h3 id="dmDetailTitle"></h3>
-      <button class="modal-close" id="dmDetailClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+      <button class="modal-close" id="dmDetailClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <div id="dmDetailBody"></div>
@@ -1671,7 +1743,7 @@
   <div class="modal" style="max-width:820px">
     <div class="modal-head">
       <h3 id="componentFormTitle">New component</h3>
-      <button class="modal-close" id="componentFormClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+      <button class="modal-close" id="componentFormClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <p class="modal-desc" id="componentFormDesc"></p>
@@ -1692,11 +1764,13 @@
   <div class="modal" id="editModal" style="max-width:1100px">
     <div class="modal-head">
       <h3 id="editTitle">Edit component</h3>
-      <!-- user: "przy [X] dodaj button Share ktory skopiuje URLe do tego
-           konkretnego popupu" -->
+      <!-- user: "przycisk share'owania usuń" + "Przycisk dodawania do
+           ulubionych przenieś obok [X] w popupie przy ołówku" — pencil nie
+           jest tu potrzebny (Open na karcie JUŻ jest tym edytorem), więc
+           zostaje sama gwiazdka. -->
       <span style="display:flex; align-items:center; gap:4px">
-        <button class="icon-btn" id="editShareBtn" type="button" title="Copy link to this component" aria-label="Copy link to this component"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M720-80q-50 0-85-35t-35-85q0-7 1-14.5t3-13.5L322-392q-17 15-38 23.5t-44 8.5q-50 0-85-35t-35-85q0-50 35-85t85-35q23 0 44 8.5t38 23.5l282-164q-2-6-3-13.5t-1-14.5q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-23 0-44-8.5T638-672L356-508q2 6 3 13.5t1 14.5q0 7-1 14.5t-3 13.5l282 164q17-15 38-23.5t44-8.5q50 0 85 35t35 85q0 50-35 85t-85 35Zm0-640q17 0 28.5-11.5T760-760q0-17-11.5-28.5T720-800q-17 0-28.5 11.5T680-760q0 17 11.5 28.5T720-720ZM240-440q17 0 28.5-11.5T280-480q0-17-11.5-28.5T240-520q-17 0-28.5 11.5T200-480q0 17 11.5 28.5T240-440Zm480 280q17 0 28.5-11.5T760-200q0-17-11.5-28.5T720-240q-17 0-28.5 11.5T680-200q0 17 11.5 28.5T720-160Zm0-600ZM240-480Zm480 280Z"/></svg></button>
-        <button class="modal-close" id="editClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+        <button type="button" class="icon-btn card-favorite-btn" id="editFavBtn" aria-label="Add to favorites" title="Add to favorites"></button>
+        <button class="modal-close" id="editClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
       </span>
     </div>
     <div class="modal-body">
@@ -1723,7 +1797,7 @@
           </div>
           <div class="bf-group" id="editAiSupportGroup" style="margin-top:16px">
             <p class="bf-group-title" id="editAiSupportTitle" style="display:flex; align-items:center; gap:5px">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--accent)" aria-hidden="true"><path d="m19 9-1.25-2.75L15 5l2.75-1.25L19 1l1.25 2.75L23 5l-2.75 1.25Zm0 14-1.25-2.75L15 19l2.75-1.25L19 15l1.25 2.75L23 19l-2.75 1.25ZM9 20l-2.5-5.5L1 12l5.5-2.5L9 4l2.5 5.5L17 12l-5.5 2.5Zm0-4.85L10 13l2.15-1L10 11 9 8.85 8 11l-2.15 1L8 13ZM9 12Z"></path></svg>
+              <svg width="16" height="16" viewBox="0 -960 960 960" fill="var(--accent)" aria-hidden="true"><path d="M740-616.16 697.69-710l-93.84-42.31 93.84-42.3L740-888.46l42.31 93.85 93.84 42.3L782.31-710 740-616.16Zm0 544.62-42.31-93.85-93.84-42.3L697.69-250 740-343.84 782.31-250l93.84 42.31-93.84 42.3L740-71.54ZM355.38-208.47l-84.61-186.92L83.85-480l186.92-84.61 84.61-186.92L440-564.61 626.92-480 440-395.39l-84.62 186.92Z"></path></svg>
               AI Support
             </p>
             <textarea id="editAiPrompt" class="code" style="height:64px; width:100%" spellcheck="false" disabled>This feature isn't available yet.</textarea>
@@ -1806,7 +1880,7 @@
   <div class="modal" style="max-width:1140px">
     <div class="modal-head">
       <h3>Countdown GIF</h3>
-      <button class="modal-close" id="countdownClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+      <button class="modal-close" id="countdownClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="brand-form-layout cd-layout">
@@ -1929,7 +2003,7 @@
 <div class="feedback-panel" id="feedbackPanel" role="dialog" aria-modal="false" aria-label="Send feedback">
   <div class="modal-head">
     <h3>Send feedback</h3>
-    <button class="modal-close" id="feedbackClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+    <button class="modal-close" id="feedbackClose" aria-label="Close"><svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
   </div>
   <div class="modal-body">
     <div class="bf-field">
@@ -5827,7 +5901,10 @@ var FLOWS = [];
 FLOWS.push({
   id:"foodify-zluzuj-gary",
   category:"promo",
-  industry:"Food delivery / meal subscription",
+  // user: "Industry ma brać z settingsów przecież" — flows odwołują się
+  // teraz do id z INDUSTRIES (patrz flowIndustryLabel), nie do wolnego
+  // tekstu. Ten seed najbliżej pasuje do "catering" (branża spożywcza).
+  industry:"catering",
   label:"Zluzuj Gary — meal-bank promo campaign",
   desc:"A full multi-channel promo campaign built around a \"virtual fridge\": every 30 PLN spent earns one free meal the customer can collect later. Covers broadcasts, every automated campaign that needs a promo overlay, and the new trigger-based notifications.",
   goal:"Increase order frequency and average order value during the campaign window by converting spend into a bankable, visible reward the customer has to come back to collect.",
@@ -6215,6 +6292,7 @@ function buildBackupPayload(){
     favoriteEmails: state.favoriteEmails,
     deletedBuiltinComponentIds: DELETED_BUILTIN_COMPONENT_IDS,
     deletedBuiltinEmailIds: DELETED_BUILTIN_EMAIL_IDS,
+    deletedBuiltinFlowIds: DELETED_BUILTIN_FLOW_IDS,
     // Flow Repository + harmonogram DM — jedno i drugie to WSPÓLNE dane
     // zespołu (patrz MQ_SHARED_KEYS), nie prywatny stan: flow mają służyć
     // do dzielenia się ("miejsce do przechowywania i dzielenia się gotowymi
@@ -6236,6 +6314,7 @@ function buildBackupPayload(){
 // odtworzeniu z literałów.
 var DELETED_BUILTIN_COMPONENT_IDS = [];
 var DELETED_BUILTIN_EMAIL_IDS = [];
+var DELETED_BUILTIN_FLOW_IDS = [];
 function applyBackupPayload(payload){
   if(payload.brands) BRANDS = payload.brands;
   if(payload.brandOrder) BRAND_ORDER = payload.brandOrder;
@@ -6246,6 +6325,10 @@ function applyBackupPayload(payload){
   if(payload.deletedBuiltinEmailIds){
     DELETED_BUILTIN_EMAIL_IDS = payload.deletedBuiltinEmailIds;
     READY_EMAILS = READY_EMAILS.filter(function(e){ return DELETED_BUILTIN_EMAIL_IDS.indexOf(e.id)===-1; });
+  }
+  if(payload.deletedBuiltinFlowIds){
+    DELETED_BUILTIN_FLOW_IDS = payload.deletedBuiltinFlowIds;
+    FLOWS = FLOWS.filter(function(f){ return DELETED_BUILTIN_FLOW_IDS.indexOf(f.id)===-1; });
   }
   if(payload.customComponents){
     payload.customComponents.forEach(function(cc){
@@ -6327,7 +6410,7 @@ var mqSaveTimer = null;
 // WSZYSTKO razem (bez podziału) — to czysto lokalna kopia zapasowa
 // przeglądarki, nie ma tu ryzyka konfliktu między osobami.
 var MQ_PRIVATE_KEYS = ["buildList","currentBrand","headerVariant","footerVariant","favoriteComponents","favoriteEmails"];
-var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds","customFlows","dmEntries"];
+var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds","deletedBuiltinFlowIds","customFlows","dmEntries"];
 function splitBackupPayload(full){
   var priv = {}, shared = {};
   MQ_PRIVATE_KEYS.forEach(function(k){ priv[k] = full[k]; });
@@ -6773,23 +6856,28 @@ var editState = { componentId:null, listUid:null, values:{}, touched:{}, default
 /* Mały wektorowy "ołówek" (zamiast emoji, spójnie z resztą UI) — używany
    przy przycisku zmiany nazwy wariantu, w obu miejscach (edytor istniejącego
    komponentu / New component). */
-// Zestaw ikon — user: "korzystaj proszę z ikon tych https://fonts.google.com/
-// icons te które używasz są tragiczne". Wcześniej: gołe znaki Unicode
-// (⚙⇧⇩✎⧉↺×▾✓⋮☰) albo ręcznie rysowany ICON_PENCIL — teraz prawdziwe,
-// oficjalne ścieżki Material Symbols (Outlined, licencja Apache 2.0),
-// osadzone jako inline SVG (fill="currentColor", żeby dziedziczyły kolor
-// tak samo jak dawniej robił to sam tekst glifu) — nie webfont/ligatura
-// (uniknięcie migotania "surowej nazwy ikony" zanim font się doładuje).
-var ICON_PENCIL = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>';
-var ICON_CLOSE = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>';
-var ICON_CHECK = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>';
-var ICON_REFRESH = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>';
-var ICON_DUPLICATE = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/></svg>';
+// Zestaw ikon — user: "Ikony zaciągnij z: https://fonts.google.com/icons -
+// waga 300, material symbols (new), outlined, optical size 24". Pobrane
+// bezpośrednio z gstatic (fonts.gstatic.com/s/i/.../materialsymbolsoutlined/
+// {name}/wght300/24px.svg) — prawdziwe ścieżki wagi 300, nie wcześniejsza
+// domyślna (400) waga. Osadzone jako inline SVG (fill="currentColor"), nie
+// webfont/ligatura (bez migotania "surowej nazwy ikony" przed doładowaniem).
+var ICON_PENCIL = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M200-200h50.46l409.46-409.46-50.46-50.46L200-250.46V-200Zm-60 60v-135.38l527.62-527.39q9.07-8.24 20.03-12.73 10.97-4.5 23-4.5t23.3 4.27q11.28 4.27 19.97 13.58l48.85 49.46q9.31 8.69 13.27 20 3.96 11.31 3.96 22.62 0 12.07-4.12 23.03-4.12 10.97-13.11 20.04L275.38-140H140Zm620.38-570.15-50.23-50.23 50.23 50.23Zm-126.13 75.9-24.79-25.67 50.46 50.46-25.67-24.79Z"/></svg>';
+var ICON_CLOSE = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg>';
+var ICON_CHECK = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M382-253.85 168.62-467.23 211.38-510 382-339.38 748.62-706l42.76 42.77L382-253.85Z"/></svg>';
+var ICON_REFRESH = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M481.54-180q-125.63 0-212.81-87.17-87.19-87.17-87.19-212.77 0-125.6 87.19-212.83Q355.91-780 481.54-780q70.15 0 132.77 31.19 62.61 31.2 104.15 88.04V-780h60v244.61H533.85v-59.99h158q-31.62-57.93-87.7-91.27Q548.08-720 481.54-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h63.23q-27.23 97.92-107.27 158.96Q583.46-180 481.54-180Z"/></svg>';
+var ICON_DUPLICATE = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M362.31-260Q332-260 311-281q-21-21-21-51.31v-455.38Q290-818 311-839q21-21 51.31-21h335.38Q728-860 749-839q21 21 21 51.31v455.38Q770-302 749-281q-21 21-51.31 21H362.31Zm0-60h335.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-455.38q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H362.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v455.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85Zm-140 200Q192-120 171-141q-21-21-21-51.31v-515.38h60v515.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85h395.38v60H222.31ZM350-320v-480 480Z"/></svg>';
 var ICON_DRAG = '<svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M360-160q-33 0-56.5-23.5T280-240q0-33 23.5-56.5T360-320q33 0 56.5 23.5T440-240q0 33-23.5 56.5T360-160Zm240 0q-33 0-56.5-23.5T520-240q0-33 23.5-56.5T600-320q33 0 56.5 23.5T680-240q0 33-23.5 56.5T600-160ZM360-400q-33 0-56.5-23.5T280-480q0-33 23.5-56.5T360-560q33 0 56.5 23.5T440-480q0 33-23.5 56.5T360-400Zm240 0q-33 0-56.5-23.5T520-480q0-33 23.5-56.5T600-560q33 0 56.5 23.5T680-480q0 33-23.5 56.5T600-400ZM360-640q-33 0-56.5-23.5T280-720q0-33 23.5-56.5T360-800q33 0 56.5 23.5T440-720q0 33-23.5 56.5T360-640Zm240 0q-33 0-56.5-23.5T520-720q0-33 23.5-56.5T600-800q33 0 56.5 23.5T680-720q0 33-23.5 56.5T600-640Z"/></svg>';
-var ICON_CARET_DOWN = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"/></svg>';
-var ICON_SETTINGS = '<svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg>';
-var ICON_REPLY = '<svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M760-200v-160q0-50-35-85t-85-35H273l144 144-57 56-240-240 240-240 57 56-144 144h367q83 0 141.5 58.5T840-360v160h-80Z"/></svg>';
-var ICON_MORE_VERT = '<svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/></svg>';
+var ICON_CARET_DOWN = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-358.46 253.85-584.62 296-626.77l184 184 184-184 42.15 42.15L480-358.46Z"/></svg>';
+var ICON_SETTINGS = '<svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="m387.69-100-15.23-121.85q-16.07-5.38-32.96-15.07-16.88-9.7-30.19-20.77L196.46-210l-92.3-160 97.61-73.77q-1.38-8.92-1.96-17.92-.58-9-.58-17.93 0-8.53.58-17.34t1.96-19.27L104.16-590l92.3-159.23 112.46 47.31q14.47-11.46 30.89-20.96t32.27-15.27L387.69-860h184.62l15.23 122.23q18 6.54 32.57 15.27 14.58 8.73 29.43 20.58l114-47.31L855.84-590l-99.15 74.92q2.15 9.69 2.35 18.12.19 8.42.19 16.96 0 8.15-.39 16.58-.38 8.42-2.76 19.27L854.46-370l-92.31 160-112.61-48.08q-14.85 11.85-30.31 20.96-15.46 9.12-31.69 14.89L572.31-100H387.69ZM440-160h78.62L533-267.15q30.62-8 55.96-22.73 25.35-14.74 48.89-37.89L737.23-286l39.39-68-86.77-65.38q5-15.54 6.8-30.47 1.81-14.92 1.81-30.15 0-15.62-1.81-30.15-1.8-14.54-6.8-29.7L777.38-606 738-674l-100.54 42.38q-20.08-21.46-48.11-37.92-28.04-16.46-56.73-23.31L520-800h-79.38l-13.24 106.77q-30.61 7.23-56.53 22.15-25.93 14.93-49.47 38.46L222-674l-39.38 68L269-541.62q-5 14.24-7 29.62t-2 32.38q0 15.62 2 30.62 2 15 6.62 29.62l-86 65.38L222-286l99-42q22.77 23.38 48.69 38.31 25.93 14.92 57.31 22.92L440-160Zm40.46-200q49.92 0 84.96-35.04 35.04-35.04 35.04-84.96 0-49.92-35.04-84.96Q530.38-600 480.46-600q-50.54 0-85.27 35.04T360.46-480q0 49.92 34.73 84.96Q429.92-360 480.46-360ZM480-480Z"/></svg>';
+var ICON_REPLY = '<svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M760-220v-140q0-53.85-38.08-91.92Q683.85-490 630-490H254.92l154 154-42.77 42.15L140-520l226.15-226.15L408.92-704l-154 154H630q78.77 0 134.38 55.62Q820-438.77 820-360v140h-60Z"/></svg>';
+var ICON_MORE_VERT = '<svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-189.23q-24.75 0-42.37-17.63Q420-224.48 420-249.23q0-24.75 17.63-42.38 17.62-17.62 42.37-17.62 24.75 0 42.37 17.62Q540-273.98 540-249.23q0 24.75-17.63 42.37-17.62 17.63-42.37 17.63ZM480-420q-24.75 0-42.37-17.63Q420-455.25 420-480q0-24.75 17.63-42.37Q455.25-540 480-540q24.75 0 42.37 17.63Q540-504.75 540-480q0 24.75-17.63 42.37Q504.75-420 480-420Zm0-230.77q-24.75 0-42.37-17.62Q420-686.02 420-710.77q0-24.75 17.63-42.37 17.62-17.63 42.37-17.63 24.75 0 42.37 17.63Q540-735.52 540-710.77q0 24.75-17.63 42.38-17.62 17.62-42.37 17.62Z"/></svg>';
+var ICON_DELETE = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M292.31-140q-29.92 0-51.12-21.19Q220-182.39 220-212.31V-720h-40v-60h180v-35.38h240V-780h180v60h-40v507.69Q740-182 719-161q-21 21-51.31 21H292.31ZM680-720H280v507.69q0 5.39 3.46 8.85t8.85 3.46h375.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46V-720ZM376.16-280h59.99v-360h-59.99v360Zm147.69 0h59.99v-360h-59.99v360ZM280-720v520-520Z"/></svg>';
+var ICON_ADD = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M450-450H220v-60h230v-230h60v230h230v60H510v230h-60v-230Z"/></svg>';
+var ICON_SEARCH = '<svg width="15" height="15" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M781.69-136.92 530.46-388.16q-30 24.77-69 38.77-39 14-80.69 14-102.46 0-173.54-71.07-71.07-71.08-71.07-173.54t71.07-173.54q71.08-71.07 173.54-71.07t173.54 71.07q71.07 71.08 71.07 173.54 0 42.85-14.38 81.85-14.39 39-38.39 67.84l251.23 251.23-42.15 42.16ZM380.77-395.38q77.31 0 130.96-53.66 53.66-53.65 53.66-130.96t-53.66-130.96q-53.65-53.66-130.96-53.66t-130.96 53.66Q196.15-657.31 196.15-580t53.66 130.96q53.65 53.66 130.96 53.66Z"/></svg>';
+var ICON_MENU = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M140-254.62v-59.99h680v59.99H140ZM140-450v-60h680v60H140Zm0-195.39v-59.99h680v59.99H140Z"/></svg>';
+var ICON_CHEVRON_LEFT = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M560-253.85 333.85-480 560-706.15 602.15-664l-184 184 184 184L560-253.85Z"/></svg>';
+var ICON_CHEVRON_RIGHT = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="m517.85-480-184-184L376-706.15 602.15-480 376-253.85 333.85-296l184-184Z"/></svg>';
 // "code" | "phrases" — który panel jest aktualnie widoczny w edytorze
 // komponentu (patrz syncEditModeUI/editModeToggle). Tylko JEDEN panel na
 // raz, w tym samym miejscu — nie dwa sklejone jak wcześniej.
@@ -7318,6 +7406,8 @@ function openComponentEditor(componentId, listUid){
   // (patrz updateTokenValue/applyValuesToCode). Podgląd obok i eksport
   // dostają realną treść osobno, przy renderowaniu.
   byId("editCodePreview").value = baseCode;
+  syncEditFavBtn(componentId);
+  byId("editFavBtn").onclick = function(){ toggleCompFavorite(componentId); syncEditFavBtn(componentId); };
   byId("editOverlay").classList.add("open");
   mountEditPreview();
   updateEditSaveOnlyBtnState(); // świeże otwarcie = brak zmian jeszcze, przycisk ma być nieaktywny
@@ -7537,6 +7627,22 @@ function saveComponentEdit(){
   });
 }
 byId("editClose").addEventListener("click", closeEditor);
+/* Sama mutacja (bez UI potwierdzenia) — wydzielona, żeby zarówno przycisk
+   Delete w edytorze JAK I "Delete" w nowym menu 3-kropek na karcie
+   (patrz card-menu niżej) robiły dokładnie to samo, jednym źródłem prawdy. */
+function deleteComponentRecord(id){
+  var compForDelete = findComp(id);
+  // patrz analogiczny komentarz przy deleteReadyEmailRecord — bez tego
+  // wbudowany komponent wraca po odświeżeniu, bo customComponents nigdy
+  // go nie obejmuje.
+  if(compForDelete && !compForDelete.custom && DELETED_BUILTIN_COMPONENT_IDS.indexOf(id)===-1){
+    DELETED_BUILTIN_COMPONENT_IDS.push(id);
+  }
+  COMPONENTS = COMPONENTS.filter(function(c){ return c.id!==id; });
+  state.list = state.list.filter(function(item){ return item.componentId!==id; });
+  READY_EMAILS.forEach(function(e){ e.componentIds = e.componentIds.filter(function(cid){ return cid!==id; }); });
+  return saveToStorage();
+}
 var editDeleteArmed = false;
 byId("editDeleteBtn").addEventListener("click", function(){
   var btn = byId("editDeleteBtn");
@@ -7549,18 +7655,9 @@ byId("editDeleteBtn").addEventListener("click", function(){
     return;
   }
   var id = editState.componentId;
-  // patrz analogiczny komentarz przy requestDeleteReadyEmail — bez tego
-  // wbudowany komponent wraca po odświeżeniu, bo customComponents nigdy
-  // go nie obejmuje.
-  if(compForDelete && !compForDelete.custom && DELETED_BUILTIN_COMPONENT_IDS.indexOf(id)===-1){
-    DELETED_BUILTIN_COMPONENT_IDS.push(id);
-  }
-  COMPONENTS = COMPONENTS.filter(function(c){ return c.id!==id; });
-  state.list = state.list.filter(function(item){ return item.componentId!==id; });
-  READY_EMAILS.forEach(function(e){ e.componentIds = e.componentIds.filter(function(cid){ return cid!==id; }); });
   editDeleteArmed = false;
   withBtnLoading(btn, function(){
-    return saveToStorage().then(function(){
+    return deleteComponentRecord(id).then(function(){
       closeEditor();
       renderAll();
       showToast("Component deleted");
@@ -8522,7 +8619,7 @@ function usersManagerRowHtml(u){
       '<option value="admin"'+(u.role==="admin"?' selected':'')+'>Admin</option>'+
     '</select>'+
     '<span class="user-manage-count" title="Components created">'+compCount+'</span>'+
-    '<span class="user-manage-count" title="Ready-made emails created">'+emailCount+'</span>'+
+    '<span class="user-manage-count" title="E-mails created">'+emailCount+'</span>'+
     '<button type="button" class="btn ghost small" data-user-toggle-disabled="'+u.uid+'"'+selfLock+'>'+(u.disabled?'Enable':'Disable')+'</button>'+
   '</div>';
 }
@@ -9006,6 +9103,63 @@ function renderPrimaryNav(){
     if(active) btn.setAttribute("aria-current","page");
     else btn.removeAttribute("aria-current");
   });
+  renderNavCats();
+}
+/* Kategorie AKTYWNEJ destynacji, wcięte w sidebarze pod nią — user (po
+   odrzuceniu wcześniejszej wersji): "kategorie komponentów zostają na
+   lewym sidebarze, tak jak było wcześniej", tak samo kategorie gotowych
+   maili. Trzy kontenery w markupie (po jednym pod Components/E-mails/Flow
+   Repository) — pokazujemy WYŁĄCZNIE ten, który pasuje do state.section,
+   pozostałe dwa czyścimy i chowamy. */
+function renderNavCats(){
+  var wraps = { components: byId("navCatsComponents"), emails: byId("navCatsEmails"), flows: byId("navCatsFlows") };
+  Object.keys(wraps).forEach(function(key){
+    var wrap = wraps[key];
+    if(!wrap) return;
+    if(key!==state.section){ wrap.style.display = "none"; wrap.innerHTML = ""; return; }
+    wrap.style.display = "";
+    wrap.innerHTML = "";
+    function catBtn(label, count, active, onClick){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "nav-cat-btn";
+      b.setAttribute("aria-pressed", active?"true":"false");
+      b.innerHTML = esc(label)+(count!=null ? '<span class="n">'+count+'</span>' : "");
+      b.addEventListener("click", onClick);
+      wrap.appendChild(b);
+    }
+    if(key==="components"){
+      catBtn("All", compsByCategory("all").length, state.category==="all", function(){
+        state.category="all"; state.page=1; renderAll();
+      });
+      // user: "kolumna z Categories ma się sortować alfabetycznie" — sortowana
+      // KOPIA (slice), więc kolejność w CATEGORIES samej (menedżer kategorii,
+      // dropdown przy tworzeniu komponentu) zostaje nietknięta.
+      CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).forEach(function(c){
+        catBtn(c.label, compsByCategory(c.id).length, state.category===c.id, function(){
+          state.category=c.id; state.page=1; renderAll();
+        });
+      });
+    } else if(key==="emails"){
+      EMAIL_FLOWS.forEach(function(f){
+        catBtn(f.label, emailsByFlow(f.id).length, state.emailFlow===f.id, function(){
+          state.emailFlow=f.id; state.page=1; renderAll();
+        });
+      });
+    } else if(key==="flows"){
+      catBtn("All", FLOWS.length, state.flowCategory==="all", function(){
+        state.flowCategory="all"; state.page=1; renderAll();
+      });
+      FLOW_CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).forEach(function(c){
+        var n = flowsByCategory(c.id).length;
+        // Kategoria bez ani jednego flow się nie pokazuje — inaczej lista od
+        // razu niesie 7 pustych pozycji przy jednym zaseedowanym wpisie.
+        if(n===0 && state.flowCategory!==c.id) return;
+        catBtn(c.label, n, state.flowCategory===c.id, function(){
+          state.flowCategory=c.id; state.page=1; renderAll();
+        });
+      });
+    }
+  });
 }
 function goToSection(section){
   // Brand Kit potrzebuje wczytania draftu aktualnej marki, nie samego
@@ -9023,60 +9177,15 @@ function goToSection(section){
   closeNavOnMobile();
   renderAll();
 }
-/* Pasek filtrów w nagłówku strony — kategorie komponentów ALBO kategorie
-   gotowych maili, zależnie od sekcji. Jeden komponent UI zamiast dwóch
-   równoległych list + dwóch rzędów chipsów jak wcześniej. */
+/* Pasek nad listingiem — dziś niesie WYŁĄCZNIE filtr platformy CRM
+   (kategorie zjechały do sidebaru, patrz renderNavCats). Zostaje jako
+   osobna funkcja, bo nadal decyduje, kiedy w ogóle pokazać ten pasek. */
 function renderFilterBar(){
-  var wrap = byId("filterChips");
   var bar = byId("filterbar");
-  if(!wrap || !bar) return;
-  wrap.innerHTML = "";
+  if(!bar) return;
   // Brand Kit to formularz, a harmonogram ma własny pasek narzędzi
-  // (miesiąc/legenda) — w obu nie ma czego filtrować chipsami kategorii.
-  if(state.section==="brandkit" || state.section==="schedule"){ bar.style.display = "none"; return; }
-  bar.style.display = "";
-
-  function chip(label, count, active, onClick){
-    var b = document.createElement("button");
-    b.className = "fchip"; b.type = "button";
-    b.setAttribute("aria-pressed", active?"true":"false");
-    b.innerHTML = esc(label)+(count!=null ? '<span class="n">'+count+'</span>' : "");
-    b.addEventListener("click", onClick);
-    wrap.appendChild(b);
-  }
-
-  if(state.section==="components"){
-    chip("All", compsByCategory("all").length, state.category==="all", function(){
-      state.category="all"; state.page=1; renderAll();
-    });
-    // user: "kolumna z Categories ma się sortować alfabetycznie" — sortowana
-    // KOPIA (slice), więc kolejność w CATEGORIES samej (menedżer kategorii,
-    // dropdown przy tworzeniu komponentu) zostaje nietknięta.
-    CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).forEach(function(c){
-      chip(c.label, compsByCategory(c.id).length, state.category===c.id, function(){
-        state.category=c.id; state.page=1; renderAll();
-      });
-    });
-  } else if(state.section==="emails"){
-    EMAIL_FLOWS.forEach(function(f){
-      chip(f.label, emailsByFlow(f.id).length, state.emailFlow===f.id, function(){
-        state.emailFlow=f.id; state.page=1; renderAll();
-      });
-    });
-  } else if(state.section==="flows"){
-    chip("All", FLOWS.length, state.flowCategory==="all", function(){
-      state.flowCategory="all"; state.page=1; renderAll();
-    });
-    FLOW_CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).forEach(function(c){
-      var n = flowsByCategory(c.id).length;
-      // Kategoria bez ani jednego flow się nie pokazuje — inaczej pasek od
-      // razu niesie 7 pustych chipsów przy jednym zaseedowanym wpisie.
-      if(n===0 && state.flowCategory!==c.id) return;
-      chip(c.label, n, state.flowCategory===c.id, function(){
-        state.flowCategory=c.id; state.page=1; renderAll();
-      });
-    });
-  }
+  // (miesiąc/legenda) — w obu nie ma czego filtrować platformą CRM.
+  bar.style.display = (state.section==="brandkit" || state.section==="schedule") ? "none" : "";
 }
 /* Zwijanie/rozwijanie nawigacji. Na wąskim ekranie to overlay (przesuwa
    się nad treścią), na szerokim — kolumna zwężana do samych ikon. */
@@ -9089,10 +9198,18 @@ function flowCategoryLabel(id){
   var c = FLOW_CATEGORIES.filter(function(x){ return x.id===id; })[0];
   return c ? c.label : id;
 }
+// user: "Industry ma brać z settingsów przecież" — f.industry jest TERAZ
+// id z INDUSTRIES (ta sama lista co Settings → Industries), nie wolny
+// tekst; ten resolver id→label jest jedynym miejscem, które go rozwiązuje
+// do wyświetlenia (karta/sticky panel/.md export).
+function flowIndustryLabel(id){
+  var ind = INDUSTRIES.filter(function(x){ return x.id===id; })[0];
+  return ind ? ind.label : id;
+}
 function renderFlowGrid(){
   var q = state.searchQuery;
   var fullList = flowsByCategory(state.flowCategory).filter(function(f){
-    return matchesSearch([f.label, f.id, f.desc, f.industry, f.goal], q);
+    return matchesSearch([f.label, f.id, f.desc, flowIndustryLabel(f.industry), f.goal], q);
   });
   var page = paginateList(fullList);
   byId("gridTitle").textContent = state.flowCategory==="all" ? "All flows" : flowCategoryLabel(state.flowCategory);
@@ -9113,8 +9230,8 @@ function renderFlowGrid(){
         '<span class="flow-chip">'+esc((f.stages||[]).length)+' stages</span>'+
       '</div>'+
       '<div class="flow-card-top">'+
-        '<p class="flow-card-cat">'+esc(f.industry||"")+'</p>'+
-        '<p class="flow-card-title">'+esc(f.label)+'</p>'+
+        '<p class="flow-card-cat">'+esc(flowIndustryLabel(f.industry)||"")+'</p>'+
+        '<div class="card-name-row"><p class="flow-card-title">'+esc(f.label)+'</p>'+cardMenuHtml("flow", f.id)+'</div>'+
         '<p class="flow-card-desc">'+esc(f.desc||"")+'</p>'+
       '</div>'+
       '<div class="flow-card-meta">'+chips+'</div>'+
@@ -9142,7 +9259,7 @@ function openFlowDetail(flowId){
   byId("flowTitle").textContent = f.label;
   var meta = [
     ["Category", flowCategoryLabel(f.category)],
-    ["Industry", f.industry],
+    ["Industry", flowIndustryLabel(f.industry)],
     ["Channels", (f.channels||[]).map(function(c){ return FLOW_CHANNEL_LABELS[c]||c; }).join(", ")],
     ["Stages", String((f.stages||[]).length)],
     ["Duration", f.duration],
@@ -9164,10 +9281,11 @@ function openFlowDetail(flowId){
       (chips ? '<div class="flow-stage-chips">'+chips+'</div>' : "")+
     '</div>';
   }).join("");
-  byId("flowBody").innerHTML =
+  byId("flowMetaPanel").innerHTML =
     '<div class="flow-meta-grid">'+
       meta.map(function(p){ return '<div class="flow-meta-item"><div class="k">'+esc(p[0])+'</div><div class="v">'+esc(p[1])+'</div></div>'; }).join("")+
-    '</div>'+
+    '</div>';
+  byId("flowBody").innerHTML =
     sec("What it does", f.desc ? '<p>'+esc(f.desc)+'</p>' : "")+
     sec("Goal", f.goal ? '<p>'+esc(f.goal)+'</p>' : "")+
     sec("Audience", f.audience ? '<p>'+esc(f.audience)+'</p>' : "")+
@@ -9176,10 +9294,218 @@ function openFlowDetail(flowId){
     sec("Stages", stagesHtml)+
     sec("Success metrics", list(f.kpis))+
     sec("Notes", f.notes ? '<p>'+esc(f.notes)+'</p>' : "");
+  // 3-kropki w nagłówku — id celu ustawiany TU, przy każdym otwarciu
+  // (patrz delegowany handler w cardMenuHtml/document click, czyta go z
+  // data-card-menu-id).
+  byId("flowDetailMenuWrap").setAttribute("data-card-menu-id", flowId);
   byId("flowOverlay").classList.add("open");
   urlOpenFlowId = flowId; syncUrlFromState();
 }
 function closeFlowOverlay(){ byId("flowOverlay").classList.remove("open"); urlOpenFlowId = null; syncUrlFromState(); }
+
+/* ================================================================
+   ADD / EDIT FLOW — user: "dodaj tez mozliwosc dodawania kolejnych
+   flows do repository" + edycja wszystkich pól sticky panelu przez
+   3-kropki (patrz cardMenuHtml). Jeden formularz dla obu trybów
+   (flowForm.editId null = nowy flow) — ten sam wzorzec co
+   openComponentForm/openSaveEmailForm.
+   ================================================================ */
+var flowForm = { editId: null, draft: null };
+// Nazwa "uniqueFlowKey" jest już zajęta przez menedżer kategorii gotowych
+// maili (EMAIL_FLOWS, Settings) — inna koncepcja "flow" niż Flow
+// Repository. Osobna nazwa, żeby function-declaration hoisting nie
+// nadpisał tamtej (dokładnie ta sama pułapka co addFlowBtn/addFlowRepoBtn).
+function uniqueFlowRepoKey(base){
+  var key = base, n = 2;
+  while(findFlow(key)){ key = base + "-" + n; n++; }
+  return key;
+}
+function emptyFlowDraft(){
+  return {
+    label:"", category: (FLOW_CATEGORIES[0]||{}).id||"", industry: (INDUSTRIES[0]||{}).id||"",
+    duration:"", channels:[], crmPlatforms:[], desc:"", goal:"", audience:"",
+    mechanics:[], rules:[], kpis:[], notes:"", stages:[]
+  };
+}
+function openFlowForm(existing){
+  flowForm.editId = existing ? existing.id : null;
+  flowForm.draft = existing ? {
+    label: existing.label||"", category: existing.category||(FLOW_CATEGORIES[0]||{}).id, industry: existing.industry||(INDUSTRIES[0]||{}).id,
+    duration: existing.duration||"", channels: (existing.channels||[]).slice(), crmPlatforms: (existing.crmPlatforms||[]).slice(),
+    desc: existing.desc||"", goal: existing.goal||"", audience: existing.audience||"",
+    mechanics: (existing.mechanics||[]).slice(), rules: (existing.rules||[]).slice(), kpis: (existing.kpis||[]).slice(),
+    notes: existing.notes||"", stages: (existing.stages||[]).map(function(s){ return Object.assign({}, s); })
+  } : emptyFlowDraft();
+  byId("flowFormTitle").textContent = existing ? "Edit flow" : "Add flow";
+  renderFlowFormFields();
+  byId("flowFormOverlay").classList.add("open");
+}
+function closeFlowForm(){ byId("flowFormOverlay").classList.remove("open"); }
+function renderFlowFormFields(){
+  var form = byId("flowForm");
+  var d = flowForm.draft;
+  function textField(key, label, placeholder){
+    return '<div class="bf-field"><label for="ff-'+key+'">'+esc(label)+'</label>'+
+      '<input type="text" id="ff-'+key+'" data-ff-field="'+key+'" value="'+esc(d[key]||"")+'" placeholder="'+esc(placeholder||"")+'"></div>';
+  }
+  function textareaField(key, label){
+    return '<div class="bf-field"><label for="ff-'+key+'">'+esc(label)+'</label>'+
+      '<textarea id="ff-'+key+'" data-ff-field="'+key+'" rows="3">'+esc(d[key]||"")+'</textarea></div>';
+  }
+  function listTextareaField(key, label){
+    return '<div class="bf-field"><label for="ff-'+key+'">'+esc(label)+'</label>'+
+      '<textarea id="ff-'+key+'" data-ff-list-field="'+key+'" rows="4" placeholder="One per line">'+esc((d[key]||[]).join("\n"))+'</textarea></div>';
+  }
+  function selectField(key, label, options){
+    return '<div class="bf-field"><label for="ff-'+key+'">'+esc(label)+'</label>'+
+      '<select id="ff-'+key+'" data-ff-select-field="'+key+'">'+
+        options.map(function(o){ return '<option value="'+esc(o[0])+'"'+(d[key]===o[0]?' selected':'')+'>'+esc(o[1])+'</option>'; }).join("")+
+      '</select></div>';
+  }
+  function checkboxGroup(key, label, options){
+    return '<div class="bf-group"><p class="bf-group-title">'+esc(label)+'</p><div class="bf-row" data-ff-check-group="'+key+'">'+
+      options.map(function(o){
+        var checked = (d[key]||[]).indexOf(o[0])!==-1;
+        return '<label class="bf-checkbox"><input type="checkbox" value="'+esc(o[0])+'"'+(checked?' checked':'')+'>'+esc(o[1])+'</label>';
+      }).join("")+
+    '</div></div>';
+  }
+  form.innerHTML =
+    '<div class="bf-group"><div class="bf-row">'+
+      textField("label", "Flow name")+
+      // category/industry rozwiązywane NA ŻYWO z FLOW_CATEGORIES/INDUSTRIES
+      // (jak "category" w renderComponentFormFields) — user: "Industry ma
+      // brać z settingsów przecież".
+      selectField("category", "Category", FLOW_CATEGORIES.map(function(c){ return [c.id, c.label]; }))+
+    '</div>'+
+    '<div class="bf-row">'+
+      selectField("industry", "Industry", INDUSTRIES.map(function(i){ return [i.id, i.label]; }))+
+      textField("duration", "Duration", "e.g. Campaign runs 4 weeks")+
+    '</div></div>'+
+    checkboxGroup("channels", "Channels", Object.keys(FLOW_CHANNEL_LABELS).map(function(k){ return [k, FLOW_CHANNEL_LABELS[k]]; }))+
+    checkboxGroup("crmPlatforms", "Compatible with", Object.keys(CRM_PLATFORM_LABELS).map(function(k){ return [k, CRM_PLATFORM_LABELS[k]]; }))+
+    '<div class="bf-group">'+
+      textareaField("desc", "What it does")+
+      textareaField("goal", "Goal")+
+      textareaField("audience", "Audience")+
+    '</div>'+
+    '<div class="bf-group">'+
+      listTextareaField("mechanics", "Mechanics")+
+      listTextareaField("rules", "Global rules")+
+      listTextareaField("kpis", "Success metrics")+
+      textareaField("notes", "Notes")+
+    '</div>'+
+    '<div class="bf-group"><p class="bf-group-title">Stages</p><div id="ffStagesList"></div>'+
+      '<button type="button" class="btn ghost small flow-stage-add-btn" id="ffAddStageBtn">+ Add stage</button>'+
+    '</div>';
+  form.querySelectorAll("[data-ff-field]").forEach(function(el){
+    el.addEventListener("input", function(){ flowForm.draft[el.getAttribute("data-ff-field")] = el.value; });
+  });
+  form.querySelectorAll("[data-ff-list-field]").forEach(function(el){
+    el.addEventListener("input", function(){
+      flowForm.draft[el.getAttribute("data-ff-list-field")] = el.value.split("\n").map(function(s){ return s.trim(); }).filter(Boolean);
+    });
+  });
+  form.querySelectorAll("[data-ff-select-field]").forEach(function(el){
+    el.addEventListener("change", function(){ flowForm.draft[el.getAttribute("data-ff-select-field")] = el.value; });
+  });
+  form.querySelectorAll("[data-ff-check-group]").forEach(function(wrap){
+    var key = wrap.getAttribute("data-ff-check-group");
+    wrap.querySelectorAll("input[type=checkbox]").forEach(function(cb){
+      cb.addEventListener("change", function(){
+        flowForm.draft[key] = Array.from(wrap.querySelectorAll("input[type=checkbox]:checked")).map(function(c){ return c.value; });
+      });
+    });
+  });
+  enhanceAllSelects(form);
+  renderFlowFormStages();
+  byId("ffAddStageBtn").addEventListener("click", function(){
+    flowForm.draft.stages.push({ name:"", timing:"", channel:"", purpose:"", detail:"" });
+    renderFlowFormStages();
+  });
+}
+// Etapy — repeatable rows edytowane wprost (bez osobnego kroku "dodaj" jak
+// przy wariantach komponentu — tu każde pole jest od razu na widoku).
+function renderFlowFormStages(){
+  var wrap = byId("ffStagesList");
+  wrap.innerHTML = flowForm.draft.stages.map(function(s, i){
+    return '<div class="flow-stage-edit" data-ff-stage-index="'+i+'">'+
+      '<button type="button" class="icon-btn flow-stage-edit-remove" data-ff-stage-remove="'+i+'" aria-label="Remove stage" title="Remove stage">'+ICON_CLOSE+'</button>'+
+      '<div class="bf-row">'+
+        '<div class="bf-field"><label>Stage name</label><input type="text" data-ff-stage-field="name" value="'+esc(s.name||"")+'"></div>'+
+        '<div class="bf-field"><label>Trigger / timing</label><input type="text" data-ff-stage-field="timing" value="'+esc(s.timing||"")+'"></div>'+
+      '</div>'+
+      '<div class="bf-row">'+
+        '<div class="bf-field"><label>Channel</label><input type="text" data-ff-stage-field="channel" value="'+esc(s.channel||"")+'" placeholder="e.g. email, sms"></div>'+
+        '<div class="bf-field"><label>Purpose</label><input type="text" data-ff-stage-field="purpose" value="'+esc(s.purpose||"")+'"></div>'+
+      '</div>'+
+      '<div class="bf-field"><label>Detail</label><textarea rows="2" data-ff-stage-field="detail">'+esc(s.detail||"")+'</textarea></div>'+
+    '</div>';
+  }).join("") || '<p style="font-size:12.5px; color:var(--ink-faint); margin:0 0 10px">No stages yet — add at least one.</p>';
+  wrap.querySelectorAll("[data-ff-stage-field]").forEach(function(el){
+    var idx = +el.closest("[data-ff-stage-index]").getAttribute("data-ff-stage-index");
+    el.addEventListener("input", function(){ flowForm.draft.stages[idx][el.getAttribute("data-ff-stage-field")] = el.value; });
+  });
+  wrap.querySelectorAll("[data-ff-stage-remove]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      flowForm.draft.stages.splice(+btn.getAttribute("data-ff-stage-remove"), 1);
+      renderFlowFormStages();
+    });
+  });
+}
+function saveFlowForm(){
+  var d = flowForm.draft;
+  var label = (d.label||"").trim();
+  if(!label){ showToast("Enter a flow name"); byId("ff-label").focus(); return; }
+  var payload = {
+    label: label, category: d.category, industry: d.industry, duration: (d.duration||"").trim(),
+    channels: d.channels||[], crmPlatforms: d.crmPlatforms||[],
+    desc: (d.desc||"").trim(), goal: (d.goal||"").trim(), audience: (d.audience||"").trim(),
+    mechanics: d.mechanics||[], rules: d.rules||[], kpis: d.kpis||[], notes: (d.notes||"").trim(),
+    stages: d.stages.filter(function(s){ return (s.name||"").trim(); })
+  };
+  if(flowForm.editId){
+    var existing = findFlow(flowForm.editId);
+    if(!existing) return;
+    if(!canManageRecord(existing)){ showToast("You're not the creator of this flow", "error"); return; }
+    return withBtnLoading(byId("flowFormSave"), function(){
+      Object.assign(existing, payload);
+      return saveToStorage().then(function(){
+        closeFlowForm(); renderAll();
+        if(byId("flowOverlay").classList.contains("open")) openFlowDetail(existing.id);
+        // patrz analogiczny komentarz przy saveEmailFormSubmit — wbudowany
+        // (niecustomowy) flow nigdy nie trafia do customFlows w
+        // buildBackupPayload, więc edycja jego metadanych przetrwa tylko
+        // do odświeżenia strony.
+        showToast("Updated flow “"+label+"”" + (existing.custom ? "" : " (changes to a built-in flow only last this session)"));
+      });
+    });
+  }
+  var requestedId = slugifyKey(label);
+  var finalId = findFlow(requestedId) ? uniqueFlowRepoKey(requestedId) : requestedId;
+  return withBtnLoading(byId("flowFormSave"), function(){
+    FLOWS.push(Object.assign({ id: finalId, custom: true, createdBy: currentUserStamp() }, payload));
+    state.section = "flows"; state.flowCategory = payload.category;
+    return saveToStorage().then(function(){
+      closeFlowForm(); renderAll();
+      showToast("Added flow “"+label+"”");
+    });
+  });
+}
+function deleteFlow(id){
+  var f = findFlow(id);
+  if(!f) return;
+  if(!canManageRecord(f)){ showToast("You're not the creator of this flow", "error"); return; }
+  // patrz analogiczny komentarz przy deleteComponentRecord/deleteReadyEmailRecord
+  // — bez tego wbudowany flow wraca po odświeżeniu strony.
+  if(!f.custom && DELETED_BUILTIN_FLOW_IDS.indexOf(id)===-1) DELETED_BUILTIN_FLOW_IDS.push(id);
+  FLOWS = FLOWS.filter(function(x){ return x.id!==id; });
+  saveToStorage().then(function(){
+    if(urlOpenFlowId===id) closeFlowOverlay();
+    renderAll();
+    showToast("Flow deleted");
+  });
+}
 /* Eksport .md — user: "mam mieć możliwość otrzymania pliku .md z
    kompletnym rozpisem dla dowolnego agenta LLM w CRMie aby ten na
    podstawie treści stworzył takową kampanię odwzorowaną 1:1 zgodnie z
@@ -9199,7 +9525,7 @@ function buildFlowMarkdown(f){
   h(2, "At a glance");
   var rows = [
     ["Category", flowCategoryLabel(f.category)],
-    ["Industry", f.industry],
+    ["Industry", flowIndustryLabel(f.industry)],
     ["Channels", (f.channels||[]).map(function(c){ return FLOW_CHANNEL_LABELS[c]||c; }).join(", ")],
     ["Duration", f.duration],
     ["Originally built in", (f.crmPlatforms||[]).map(function(k){ return CRM_PLATFORM_LABELS[k]||k; }).join(", ") || "Any CRM"],
@@ -9507,8 +9833,8 @@ function closeDmDetail(){ byId("dmDetailOverlay").classList.remove("open"); dmDe
    miał tam jakiekolwiek zastosowanie. */
 var SECTION_META = {
   components: { title:"Components", search:"Search components…", primary:"add", stack:true },
-  emails:     { title:"Ready-made emails", search:"Search emails…", primary:null, stack:true },
-  flows:      { title:"Flow Repository", search:"Search flows…", primary:null, stack:false },
+  emails:     { title:"E-mails", search:"Search emails…", primary:null, stack:true },
+  flows:      { title:"Flow Repository", search:"Search flows…", primary:"add-flow", stack:false },
   schedule:   { title:"DM Schedule", search:null, primary:null, stack:false },
   brandkit:   { title:"Brand Kit", search:null, primary:null, stack:false }
 };
@@ -9544,12 +9870,20 @@ function syncSectionChrome(){
   } else {
     searchWrap.style.display = "none";
   }
-  // "Add component" to akcja biblioteki komponentów, nie globalna.
+  // "Add component"/"Add Flow" to akcje WŁAŚCIWE DLA STRONY, nie globalne.
   byId("addComponentBtn").style.display = meta.primary==="add" ? "" : "none";
+  byId("addFlowRepoBtn").style.display = meta.primary==="add-flow" ? "" : "none";
   // Filtr CRM zawęża komponenty/maile po platformie — w Brand Kicie nie ma
   // czego zawężać.
   byId("crmFilterRow").style.display = isBrandKit ? "none" : "";
-  // Mail Stack dotyczy budowania maila — w Brand Kicie jest bez sensu.
+  // Mail Stack dotyczy budowania maila — gdzie indziej jest bez sensu.
+  // Na desktopie ta kolumna jest ZAWSZE widoczna (user: "Mail Stack ma być
+  // zawsze widoczny - tak jak było wcześniej"), więc tu tylko decydujemy,
+  // czy w ogóle rezerwować dla niej trzecią kolumnę grida (.app.no-stack) —
+  // #dockToggle wciąż ma sens jako przełącznik, ale WYŁĄCZNIE na wąskim
+  // ekranie (patrz media query przy .dock), gdzie trzy kolumny się nie
+  // mieszczą i Mail Stack wraca do bycia panelem otwieranym na żądanie.
+  byId("app").classList.toggle("no-stack", !meta.stack);
   byId("dockToggle").style.display = meta.stack ? "" : "none";
   if(!meta.stack) closeDock();
 }
@@ -9647,8 +9981,8 @@ var lastGridSignature = null;
 // nie.
 function starIconHtml(filled){
   var path = filled
-    ? 'm233-120 65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Z'
-    : 'm354-287 126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143ZM233-120l65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Zm247-350Z';
+    ? 'm263-161.54 57.31-246.77-191.46-165.92 252.61-21.92L480-828.84l98.54 232.69 252.61 21.92-191.46 165.92L697-161.54 480-292.46 263-161.54Z'
+    : 'm354-287 126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143Zm-91 125.46 57.31-246.77-191.46-165.92 252.61-21.92L480-828.84l98.54 232.69 252.61 21.92-191.46 165.92L697-161.54 480-292.46 263-161.54ZM480-470Z';
   return '<svg width="20" height="20" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="'+path+'"></path></svg>';
 }
 function isCompFavorite(id){ return !!state.favoriteComponents[id]; }
@@ -9657,6 +9991,28 @@ function toggleCompFavorite(id){
   else state.favoriteComponents[id] = true;
   saveToStorage();
   renderGrid();
+}
+// Gwiazdka ulubionych przeniesiona z widgetu karty do nagłówków modali
+// (editOverlay dla komponentów, previewModal dla maili) — te dwie funkcje
+// tylko odświeżają WYGLĄD danego przycisku (klasa is-favorite + ikona),
+// wołane raz przy otwarciu modala i ponownie po każdym kliknięciu.
+function syncEditFavBtn(componentId){
+  var btn = byId("editFavBtn");
+  if(!btn) return;
+  var fav = isCompFavorite(componentId);
+  btn.classList.toggle("is-favorite", fav);
+  btn.innerHTML = starIconHtml(fav);
+  btn.setAttribute("aria-label", fav ? "Remove from favorites" : "Add to favorites");
+  btn.title = fav ? "Remove from favorites" : "Add to favorites";
+}
+function syncPreviewFavBtn(emailId){
+  var btn = byId("previewFavBtn");
+  if(!btn) return;
+  var fav = isEmailFavorite(emailId);
+  btn.classList.toggle("is-favorite", fav);
+  btn.innerHTML = starIconHtml(fav);
+  btn.setAttribute("aria-label", fav ? "Remove from favorites" : "Add to favorites");
+  btn.title = fav ? "Remove from favorites" : "Add to favorites";
 }
 function isEmailFavorite(id){ return !!state.favoriteEmails[id]; }
 function toggleEmailFavorite(id){
@@ -9736,16 +10092,103 @@ function emailCompatiblePlatforms(e){
 // w obu renderGrid/renderEmailGrid. Pomijamy całkiem, gdy nic nie ma do
 // wypisania (np. gotowy mail złożony z wzajemnie wykluczających się
 // komponentów — puste przecięcie, patrz emailCompatiblePlatforms).
-function createdByNameOnlyHtml(record){
-  if(!record.createdBy) return "";
-  var who = record.createdBy.displayName || record.createdBy.email || "";
-  return '<p class="card-created-by">'+avatarHtml(record.createdBy, 14)+esc(who)+'</p>';
-}
+// user: "nazwy CRM bez chipsów, same napisy, ale fontem 9.5px" — jedna
+// linia zwykłego tekstu (rozmiar niesie .card-compat-text w CSS) zamiast
+// rzędu osobnych pigułek.
 function compatBoxHtml(keys){
   if(!keys || !keys.length) return "";
-  var chips = keys.map(function(k){ return '<span class="card-crm-chip">'+esc(CRM_PLATFORM_LABELS[k]||k)+'</span>'; }).join("");
-  return '<div class="card-compat-box">'+chips+'</div>';
+  var text = keys.map(function(k){ return CRM_PLATFORM_LABELS[k]||k; }).join(" · ");
+  return '<p class="card-compat-text">'+esc(text)+'</p>';
 }
+// Menu 3-kropek (Edit/Delete) na widgecie karty — user: "po prawej stronie
+// na linii nazwy komponentu/gotowego maila mają pojawić się te 3 kropki...
+// kliknięcie ma otworzyć dymek z opcjami Edit, Delete". Jeden generyczny
+// budowniczy dla wszystkich trzech typów kart (komponent/e-mail/flow) —
+// obsługa kliknięć jest TEŻ jedna, delegowana na document (patrz niżej),
+// żeby nie trzeba było na nowo podpinać listenerów przy każdym renderze.
+function cardMenuHtml(kind, id){
+  return '<div class="card-menu-wrap" data-card-menu-kind="'+kind+'" data-card-menu-id="'+esc(id)+'">'+
+    '<button type="button" class="icon-btn card-menu-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More options">'+ICON_MORE_VERT+'</button>'+
+    '<ul class="card-menu" role="menu" style="display:none">'+
+      '<li class="card-menu-item" role="menuitem" data-card-menu-edit>Edit</li>'+
+      '<li class="card-menu-item danger" role="menuitem" data-card-menu-delete>Delete</li>'+
+    '</ul>'+
+  '</div>';
+}
+function closeAllCardMenus(){
+  document.querySelectorAll(".card-menu-wrap").forEach(function(wrap){
+    var btn = wrap.querySelector(".card-menu-btn");
+    var menu = wrap.querySelector(".card-menu");
+    if(menu) menu.style.display = "none";
+    if(btn) btn.setAttribute("aria-expanded", "false");
+  });
+}
+var cardMenuDeleteArmed = {};
+// "Click again to delete" wprost na pozycji menu, zamiast window.confirm —
+// ten sam dwuklikowy wzorzec co przyciski Delete w modalach (editDeleteBtn/
+// previewDeleteBtn), tylko stan trzymany per klucz "kind:id" zamiast
+// jednej globalnej flagi (na liście może być otwarte tylko jedno menu
+// naraz, ale klucz i tak chroni przed pomyleniem pozycji, gdyby render
+// zdążył podmienić DOM pod spodem). */
+function armCardMenuDelete(itemEl, key, onConfirm){
+  if(cardMenuDeleteArmed[key]){
+    clearTimeout(cardMenuDeleteArmed[key].timer);
+    delete cardMenuDeleteArmed[key];
+    onConfirm();
+    return;
+  }
+  itemEl.textContent = "Click again to delete";
+  cardMenuDeleteArmed[key] = { timer: setTimeout(function(){
+    delete cardMenuDeleteArmed[key];
+    if(itemEl.isConnected) itemEl.textContent = "Delete";
+  }, 4000) };
+}
+document.addEventListener("click", function(e){
+  var btn = e.target.closest(".card-menu-btn");
+  if(btn){
+    e.stopPropagation();
+    var wrap = btn.closest(".card-menu-wrap");
+    var menu = wrap.querySelector(".card-menu");
+    var wasOpen = menu.style.display !== "none";
+    closeAllCardMenus();
+    if(!wasOpen){ menu.style.display = ""; btn.setAttribute("aria-expanded", "true"); }
+    return;
+  }
+  var editItem = e.target.closest("[data-card-menu-edit]");
+  var delItem = e.target.closest("[data-card-menu-delete]");
+  if(editItem || delItem){
+    e.stopPropagation();
+    var itemWrap = e.target.closest(".card-menu-wrap");
+    var kind = itemWrap.getAttribute("data-card-menu-kind");
+    var id = itemWrap.getAttribute("data-card-menu-id");
+    if(editItem){
+      closeAllCardMenus();
+      if(kind==="component") openComponentEditor(id, null);
+      else if(kind==="email") openEditReadyEmail(id);
+      else if(kind==="flow" && typeof openFlowForm==="function") openFlowForm(findFlow(id));
+      return;
+    }
+    // Delete
+    var record = kind==="component" ? findComp(id) : kind==="email" ? findEmail(id) : (typeof findFlow==="function" ? findFlow(id) : null);
+    if((kind==="component" || kind==="email") && !canManageRecord(record)){
+      showToast("You're not the creator of this "+(kind==="component"?"component":"e-mail"), "error");
+      closeAllCardMenus();
+      return;
+    }
+    armCardMenuDelete(delItem, kind+":"+id, function(){
+      closeAllCardMenus();
+      if(kind==="component"){
+        deleteComponentRecord(id).then(function(){ renderAll(); showToast("Component deleted"); });
+      } else if(kind==="email"){
+        deleteReadyEmailRecord(id).then(function(){ renderAll(); showToast("E-mail deleted"); });
+      } else if(kind==="flow" && typeof deleteFlow==="function"){
+        deleteFlow(id);
+      }
+    });
+    return;
+  }
+  if(!e.target.closest(".card-menu-wrap")) closeAllCardMenus();
+});
 function renderGrid(){
   // Brand Kit nie jest listingiem — bez tego wyjścia funkcja spadała do
   // gałęzi komponentów i NADPISYWAŁA nagłówek strony ustawiony wcześniej
@@ -9766,18 +10209,12 @@ function renderGrid(){
   var grid = byId("cardGrid"); grid.innerHTML = "";
   page.items.forEach(function(c){
     var inList = state.list.some(function(li){ return li.componentId===c.id; });
-    var sourceTitle = c.source==="universal" ? "" : ' title="pattern: '+esc(c.source)+'"';
-    var fav = isCompFavorite(c.id);
     var el = document.createElement("div"); el.className = "card";
-    var catLabel = (CATEGORIES.filter(function(x){return x.id===c.category;})[0]||{label:c.category}).label;
     el.innerHTML =
-      '<div class="card-head"><span class="card-key mono"'+sourceTitle+'>'+esc(catLabel)+'</span>'+
-        '<button type="button" class="icon-btn card-favorite-btn'+(fav?' is-favorite':'')+'" data-fav-component="'+c.id+'" aria-label="'+(fav?'Remove from favorites':'Add to favorites')+'" title="'+(fav?'Remove from favorites':'Add to favorites')+'">'+starIconHtml(fav)+'</button>'+
-      '</div>'+
       '<div class="card-preview">'+renderComponentThumb(c, b)+'</div>'+
       '<div class="card-body">'+
-        createdByNameOnlyHtml(c)+
-        '<p class="card-label">'+esc(c.label)+'</p>'+
+        '<div class="card-name-row"><p class="card-label">'+esc(c.label)+'</p>'+cardMenuHtml("component", c.id)+'</div>'+
+        (c.desc ? '<p class="card-desc">'+esc(c.desc)+'</p>' : "")+
         compatBoxHtml(componentCompatiblePlatforms(c))+
       '</div>'+
       '<div class="card-actions">'+
@@ -9792,9 +10229,6 @@ function renderGrid(){
   grid.querySelectorAll("[data-open]").forEach(function(btn){
     btn.addEventListener("click", function(){ openComponentEditor(btn.getAttribute("data-open"), null); });
   });
-  grid.querySelectorAll("[data-fav-component]").forEach(function(btn){
-    btn.addEventListener("click", function(e){ e.stopPropagation(); toggleCompFavorite(btn.getAttribute("data-fav-component")); });
-  });
   renderPagination(page.totalPages);
 }
 
@@ -9802,7 +10236,20 @@ function renderGrid(){
    którego jest złożony, przechodzi crmFilterAllows — mail złożony choćby z
    jednego komponentu zablokowanego dla wybranej platformy i tak nie zadziała
    w całości na tej platformie. */
+/* Bug user: odznaczenie CRM-a (np. Customer.io) nie chowało maila
+   przypisanego WYŁĄCZNIE do niego. Powód: ta funkcja sprawdzała TYLKO
+   komponenty, z których mail się składa (przez crmFilterAllows), i NIGDY
+   nie patrzyła na e.crmPlatforms — jawne przypisanie CRM ustawiane w
+   formularzu edycji ("Compatible with"), które ma być NADRZĘDNE wobec
+   automatycznego przecięcia komponentów. Gdy e.crmPlatforms jest
+   ustawione, jest teraz jedynym źródłem prawdy (widoczny, jeśli
+   przynajmniej jedna z jego platform jest zaznaczona w filtrze — ta sama
+   reguła co crmFilterAllows dla pojedynczego komponentu); dopiero brak
+   jawnego przypisania wraca do starego przecięcia po komponentach. */
 function emailVisibleForCrmFilter(e){
+  if(e.crmPlatforms && e.crmPlatforms.length){
+    return e.crmPlatforms.some(function(k){ return state.crmFilter[k]; });
+  }
   return e.componentIds.every(function(id){
     var c = findComp(id);
     return !c || crmFilterAllows(c);
@@ -9857,23 +10304,16 @@ function renderEmailGrid(){
   var page = paginateList(fullList);
   // Sam tytuł sekcji — aktywną kategorię niesie już zaznaczony chip w
   // pasku filtrów, więc doklejanie jej do nagłówka było powtórzeniem.
-  byId("gridTitle").textContent = "Ready-made emails";
+  byId("gridTitle").textContent = "E-mails";
   byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " e-mail" : " e-mails");
   var grid = byId("cardGrid"); grid.innerHTML = "";
   page.items.forEach(function(e){
-    var fav = isEmailFavorite(e.id);
     var el = document.createElement("div"); el.className = "card"; el.style.gridColumn = "span 1";
     el.innerHTML =
-      '<div class="card-head"><span class="card-key mono">'+esc(e.componentIds.length)+' components</span>'+
-        '<span style="display:flex; align-items:center; gap:4px">'+
-        '<button type="button" class="icon-btn" data-edit-email="'+e.id+'" aria-label="Edit" title="Edit">'+ICON_PENCIL+'</button>'+
-        '<button type="button" class="icon-btn card-favorite-btn'+(fav?' is-favorite':'')+'" data-fav-email="'+e.id+'" aria-label="'+(fav?'Remove from favorites':'Add to favorites')+'" title="'+(fav?'Remove from favorites':'Add to favorites')+'">'+starIconHtml(fav)+'</button>'+
-        '</span>'+
-      '</div>'+
       '<div class="card-preview">'+renderEmailThumb(e, b)+emailThumbFadeHtml()+'</div>'+
       '<div class="card-body">'+
-        createdByNameOnlyHtml(e)+
-        '<p class="card-label">'+esc(e.label)+'</p>'+
+        '<div class="card-name-row"><p class="card-label">'+esc(e.label)+'</p>'+cardMenuHtml("email", e.id)+'</div>'+
+        (e.desc ? '<p class="card-desc">'+esc(e.desc)+'</p>' : "")+
         compatBoxHtml(emailCompatiblePlatforms(e))+
       '</div>'+
       '<div class="card-actions">'+
@@ -9887,12 +10327,6 @@ function renderEmailGrid(){
   });
   grid.querySelectorAll("[data-email-add]").forEach(function(btn){
     btn.addEventListener("click", function(){ addEmailToList(btn.getAttribute("data-email-add")); });
-  });
-  grid.querySelectorAll("[data-fav-email]").forEach(function(btn){
-    btn.addEventListener("click", function(e){ e.stopPropagation(); toggleEmailFavorite(btn.getAttribute("data-fav-email")); });
-  });
-  grid.querySelectorAll("[data-edit-email]").forEach(function(btn){
-    btn.addEventListener("click", function(e){ e.stopPropagation(); openEditReadyEmail(btn.getAttribute("data-edit-email")); });
   });
   renderPagination(page.totalPages);
 }
@@ -10334,7 +10768,7 @@ function mountMjmlIframe(containerId, bodyMjml, b, opts){
         'var uid=wrap.getAttribute("data-mf-item-uid");'+
         'var btn=document.createElement("button");'+
         'btn.type="button";btn.className="mf-item-del";btn.setAttribute("aria-label","Delete component");'+
-        'btn.innerHTML=\'<svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"></path></svg>\';'+
+        'btn.innerHTML=\'<svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="M292.31-140q-29.92 0-51.12-21.19Q220-182.39 220-212.31V-720h-40v-60h180v-35.38h240V-780h180v60h-40v507.69Q740-182 719-161q-21 21-51.31 21H292.31ZM680-720H280v507.69q0 5.39 3.46 8.85t8.85 3.46h375.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46V-720ZM376.16-280h59.99v-360h-59.99v360Zm147.69 0h59.99v-360h-59.99v360ZM280-720v520-520Z"></path></svg>\';'+
         'btn.addEventListener("click",function(e){'+
           'e.preventDefault();e.stopPropagation();'+
           'wrap.remove();'+
@@ -10539,16 +10973,10 @@ byId("previewFooterVariantSelect").addEventListener("change", function(){
   if(previewRecompile) previewRecompile();
 });
 
-var emailDeleteArmed = false;
-function requestDeleteReadyEmail(emailId){
-  var btn = byId("previewDeleteBtn");
-  if(!canManageRecord(findEmail(emailId))){ showToast("You're not the creator of this ready-made email", "error"); return; }
-  if(!emailDeleteArmed){
-    emailDeleteArmed = true;
-    btn.textContent = "Are you sure? Click again";
-    setTimeout(function(){ emailDeleteArmed = false; if(btn) btn.textContent = "Delete"; }, 4000);
-    return;
-  }
+/* Sama mutacja — wydzielona z tego samego powodu co deleteComponentRecord:
+   jedno źródło prawdy dla przycisku Delete w modalu I dla "Delete" w
+   nowym menu 3-kropek na karcie. */
+function deleteReadyEmailRecord(emailId){
   // wbudowany (niecustomowy) mail nigdy nie trafia do customEmails w
   // buildBackupPayload, więc samo filtrowanie tablicy w pamięci nic nie
   // zapisuje — bez tego wpisu do DELETED_BUILTIN_EMAIL_IDS wracałby przy
@@ -10558,13 +10986,25 @@ function requestDeleteReadyEmail(emailId){
     DELETED_BUILTIN_EMAIL_IDS.push(emailId);
   }
   READY_EMAILS = READY_EMAILS.filter(function(e){ return e.id!==emailId; });
+  return saveToStorage();
+}
+var emailDeleteArmed = false;
+function requestDeleteReadyEmail(emailId){
+  var btn = byId("previewDeleteBtn");
+  if(!canManageRecord(findEmail(emailId))){ showToast("You're not the creator of this e-mail", "error"); return; }
+  if(!emailDeleteArmed){
+    emailDeleteArmed = true;
+    btn.textContent = "Are you sure? Click again";
+    setTimeout(function(){ emailDeleteArmed = false; if(btn) btn.textContent = "Delete"; }, 4000);
+    return;
+  }
   emailDeleteArmed = false;
   return withBtnLoading(btn, function(){
-    return saveToStorage().then(function(){
+    return deleteReadyEmailRecord(emailId).then(function(){
       byId("previewOverlay").classList.remove("open");
       urlOpenEmailId = null;
       renderAll();
-      showToast("Ready-made email deleted");
+      showToast("E-mail deleted");
     });
   });
 }
@@ -10588,7 +11028,18 @@ function openEmailPreview(emailId){
   var e = findEmail(emailId), b = brand();
   byId("previewTitle").textContent = e.label;
   byId("previewModal").classList.add("mail-preview-modal");
-  byId("previewShareBtn").style.display = "";
+  // user: "przycisk ołówka przenieś z widgetu do popupu przy [X]" +
+  // "Przycisk dodawania do ulubionych przenieś obok [X] w popupie przy
+  // ołówku" — oba żyją TERAZ tylko tu (podgląd zapisanego maila ma id do
+  // edycji/ulubionych; ad-hoc podgląd listy budowy w openMailPreview nie
+  // ma żadnego z nich, patrz tam).
+  var editBtn = byId("previewEditBtn");
+  editBtn.style.display = "";
+  editBtn.onclick = function(){ closePreviewOverlay(); openEditReadyEmail(e.id); };
+  var favBtn = byId("previewFavBtn");
+  favBtn.style.display = "";
+  syncPreviewFavBtn(e.id);
+  favBtn.onclick = function(){ toggleEmailFavorite(e.id); syncPreviewFavBtn(e.id); };
   renderPreviewChromeSelectors(b);
   renderInboxChrome(e.label, b);
   previewRecompile = function(){ openEmailPreview(emailId); };
@@ -10631,11 +11082,12 @@ function openEmailPreview(emailId){
 
 function openMailPreview(){
   if(state.list.length===0) return;
-  // Podgląd całej, ad-hoc listy budowy (nie jednego zapisanego maila) —
-  // nie ma swojego id do udostępnienia, więc Share w tym trybie się chowa
-  // (patrz przycisk niżej) i URL nie niesie ?email=.
+  // Podgląd całej, ad-hoc listy budowy (nie jednego zapisanego maila) — nie
+  // ma swojego id, więc ani edycja metadanych, ani ulubione nie mają się do
+  // czego odnieść — oba przyciski się chowają, i URL nie niesie ?email=.
   urlOpenEmailId = null; urlOpenComponentId = null; syncUrlFromState();
-  byId("previewShareBtn").style.display = "none";
+  byId("previewEditBtn").style.display = "none";
+  byId("previewFavBtn").style.display = "none";
   var b = brand();
   byId("previewTitle").textContent = "Email preview — " + b.name;
   byId("previewModal").classList.add("mail-preview-modal");
@@ -10693,6 +11145,11 @@ byId("flowCopyMdBtn").addEventListener("click", function(){
 byId("flowShareBtn").addEventListener("click", function(){
   if(flowOpenId) copyShareUrl({ section:"flows", flowid: flowOpenId });
 });
+byId("addFlowRepoBtn").addEventListener("click", function(){ openFlowForm(null); });
+byId("flowFormClose").addEventListener("click", closeFlowForm);
+byId("flowFormCancel").addEventListener("click", closeFlowForm);
+byId("flowFormSave").addEventListener("click", saveFlowForm);
+bindOverlayBackdropClose("flowFormOverlay", closeFlowForm);
 
 /* ---- Harmonogram DM ---- */
 byId("dmPrevMonth").addEventListener("click", function(){ shiftDmMonth(-1); syncUrlFromState(); });
@@ -10811,7 +11268,7 @@ function readyEmailOptionsForSelect(){
 }
 function updateSaveEmailFormChrome(){
   var updating = !!saveEmailForm.updateId;
-  byId("saveEmailFormTitle").textContent = saveEmailForm.metaOnly ? "Edit e-mail" : (updating ? "Update ready-made email" : "Save as ready-made email");
+  byId("saveEmailFormTitle").textContent = saveEmailForm.metaOnly ? "Edit e-mail" : (updating ? "Update e-mail" : "Save as e-mail");
   byId("saveEmailFormSave").textContent = saveEmailForm.metaOnly ? "Save changes" : (updating ? "Update" : "Save");
 }
 function openSaveEmailForm(){
@@ -10831,7 +11288,7 @@ function openSaveEmailForm(){
 function openEditReadyEmail(emailId){
   var e = findEmail(emailId);
   if(!e) return;
-  if(!canManageRecord(e)){ showToast("You're not the creator of this ready-made email", "error"); return; }
+  if(!canManageRecord(e)){ showToast("You're not the creator of this e-mail", "error"); return; }
   saveEmailForm.updateId = emailId;
   saveEmailForm.metaOnly = true;
   // user: "dodaj mi w edycji ready-made email opcje przypisania go do
@@ -10853,7 +11310,7 @@ function renderSaveEmailFormFields(){
   // "Update an existing..." nie ma tu zastosowania (cel jest ustalony).
   var targetHtml = saveEmailForm.metaOnly ? "" : '<div class="bf-group"><p class="bf-group-title">Save target</p><div class="bf-row">'+
     '<div class="bf-field" style="flex-basis:100%">'+
-      '<label for="sef-target">Update an existing ready-made email (optional)</label>'+
+      '<label for="sef-target">Update an existing e-mail (optional)</label>'+
       '<select id="sef-target" data-cs-searchable="1">'+
         readyEmailOptionsForSelect().map(function(o){ return '<option value="'+o[0]+'"'+((saveEmailForm.updateId||"")===o[0]?' selected':'')+'>'+esc(o[1])+'</option>'; }).join("")+
       '</select>'+
@@ -10925,7 +11382,7 @@ function saveEmailFormSubmit(){
   if(saveEmailForm.metaOnly && saveEmailForm.updateId){
     var metaExisting = findEmail(saveEmailForm.updateId);
     if(!metaExisting){ showToast("The selected email no longer exists"); return; }
-    if(!canManageRecord(metaExisting)){ showToast("You're not the creator of this ready-made email", "error"); return; }
+    if(!canManageRecord(metaExisting)){ showToast("You're not the creator of this e-mail", "error"); return; }
     metaExisting.label = label;
     metaExisting.flow = d.flow;
     metaExisting.crmPlatforms = d.crmPlatforms || [];
@@ -10934,7 +11391,7 @@ function saveEmailFormSubmit(){
       return saveToStorage().then(function(){
         closeSaveEmailForm();
         renderAll();
-        showToast("Ready-made email updated");
+        showToast("E-mail updated");
       });
     });
   }
@@ -10961,7 +11418,7 @@ function saveEmailFormSubmit(){
   if(saveEmailForm.updateId){
     var existing = findEmail(saveEmailForm.updateId);
     if(!existing){ showToast("The selected email no longer exists — save as new"); return; }
-    if(!canManageRecord(existing)){ showToast("You're not the creator of this ready-made email", "error"); return; }
+    if(!canManageRecord(existing)){ showToast("You're not the creator of this e-mail", "error"); return; }
     existing.label = label;
     existing.flow = d.flow;
     existing.componentIds = componentIds;
@@ -10976,7 +11433,7 @@ function saveEmailFormSubmit(){
       return saveToStorage().then(function(){
         closeSaveEmailForm();
         renderAll();
-        showToast("Updated ready-made email “"+label+"”" + (existing.custom ? "" : " (changes to a built-in email only last this session)"));
+        showToast("Updated e-mail “"+label+"”" + (existing.custom ? "" : " (changes to a built-in email only last this session)"));
       });
     });
   }
@@ -10997,7 +11454,7 @@ function saveEmailFormSubmit(){
     return saveToStorage().then(function(){
       closeSaveEmailForm();
       renderAll();
-      showToast("Saved ready-made email “"+label+"”");
+      showToast("Saved e-mail “"+label+"”");
     });
   });
 }
@@ -11419,13 +11876,6 @@ function copyShareUrl(params){
     fallbackCopy(url, "Link copied");
   }
 }
-byId("editShareBtn").addEventListener("click", function(){
-  copyShareUrl({ section:"components", category:(editState.metaDraft && editState.metaDraft.category) || "all", component: editState.componentId });
-});
-byId("previewShareBtn").addEventListener("click", function(){
-  if(!urlOpenEmailId) return;
-  copyShareUrl({ section:"emails", flow: state.emailFlow, email: urlOpenEmailId });
-});
 byId("copyBtn").addEventListener("click", function(){
   var txt = previewExportCode;
   if(navigator.clipboard && navigator.clipboard.writeText){
@@ -12058,12 +12508,11 @@ function skeletonCardHtml(){
   '</div>';
 }
 function renderSkeletonPlaceholders(){
-  // Rail z listami kategorii zniknął w redesignie — jego szkielet zastąpiony
-  // szkieletem PASKA FILTRÓW, bo to on wypełnia się realnymi danymi
-  // (patrz renderFilterBar). Nawigacja po lewej jest statyczna, więc nie
-  // potrzebuje szkieletu w ogóle.
-  byId("filterChips").innerHTML = ["64px","88px","72px","96px","70px"].map(function(w){
-    return '<div class="skeleton-block" style="height:30px;width:'+w+';border-radius:999px"></div>';
+  // Kategorie znów żyją w sidebarze (patrz renderNavCats) — domyślna
+  // sekcja startowa to "components", więc to jej kontener dostaje
+  // szkielet; realny render (renderNavCats) go i tak zaraz nadpisze.
+  byId("navCatsComponents").innerHTML = ["64px","88px","72px","96px","70px"].map(function(w){
+    return '<div class="skeleton-block" style="height:22px;width:'+w+';border-radius:6px;margin-bottom:2px"></div>';
   }).join("");
   byId("cardGrid").innerHTML = new Array(8).fill(0).map(skeletonCardHtml).join("");
   byId("listBody").innerHTML = '<div class="skeleton-block skeleton-list-row"></div><div class="skeleton-block skeleton-list-row"></div>';
