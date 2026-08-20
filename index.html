@@ -341,6 +341,11 @@
      query) — na desktopie kolumna jest zawsze widoczna, nic nie trzeba
      przełączać. */
   #dockToggle{display:none}
+  /* user: "Po co tu ten button? Do usunięcia" (X w nagłówku Mail Stacka) —
+     na desktopie Mail Stack jest zawsze widoczną kolumną, nie ma czego
+     zamykać. Na wąskim ekranie dock wraca do bycia off-canvas panelem
+     (patrz media query) i tam X wciąż ma sens jako zamknięcie. */
+  #dockClose{display:none}
 
   /* Brand Kit jako strona */
   .bk-head{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px}
@@ -397,6 +402,7 @@
     .icon-btn.nav-toggle{display:inline-flex}
     #dockToggle{display:inline-flex}
     .app.no-stack #dockToggle{display:none}
+    #dockClose{display:inline-flex}
     .dock{
       position:fixed; top:var(--topbar-h); right:0; bottom:0; left:auto; width:340px; max-width:92vw; z-index:45;
       max-height:none; border-left:1px solid var(--line-strong);
@@ -11565,7 +11571,7 @@ byId("clearListBtn").addEventListener("click", function(){
   if(!clearListArmed){
     clearListArmed = true;
     btn.classList.add("armed");
-    showToast("Click again to clear the whole Mail Stack");
+    showToast("Are you sure? Click again to clear the whole Mail Stack");
     setTimeout(function(){ clearListArmed = false; btn.classList.remove("armed"); }, 4000);
     return;
   }
