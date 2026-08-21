@@ -654,6 +654,12 @@
   .flow-stage-purpose{font-size:13px; font-weight:500; color:var(--ink); margin:8px 0 0}
   .flow-stage-detail{font-size:13px; line-height:1.6; color:var(--ink-muted); margin:5px 0 0}
   .flow-stage-chips{display:flex; gap:5px; margin-top:9px; flex-wrap:wrap}
+  /* Gotowe maile podpięte pod dany step — user: "skladam sobie maila
+     klikam save as i w popupie wybieram flow -> krok w ktorym ten mail
+     wychodzi. w flow konkretnym juz widze jakie maile sa podpiete do
+     jakiego". */
+  .flow-stage-emails{list-style:none; margin:10px 0 0; padding:8px 0 0; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:6px}
+  .flow-email-row{display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px; color:var(--ink)}
 
   /* Edytor etapów w Add/Edit flow — repeatable rows, ten sam duch co
      add/remove wariantów w edytorze komponentu, tylko pola edytowalne
@@ -6937,7 +6943,9 @@ function applyBackupPayload(payload){
         READY_EMAILS.push({
           id:ce.id, flow:ce.flow, label:ce.label, desc:ce.desc, note:ce.note,
           componentIds:ce.componentIds, componentValues:ce.componentValues, componentVariants:ce.componentVariants,
-          crmPlatforms:ce.crmPlatforms, custom:true, createdBy:ce.createdBy
+          crmPlatforms:ce.crmPlatforms,
+          linkedFlowId:ce.linkedFlowId||"", linkedStageIndex:(ce.linkedStageIndex!=null?ce.linkedStageIndex:null),
+          custom:true, createdBy:ce.createdBy
         });
       }
     });
@@ -10056,35 +10064,54 @@ function renderFlowGrid(){
 /* Pełny opis flow — user: "mam mieć pełen obraz co w nim jest, do czego
    służy, co robi, po co jest, jaka kategoria, jaka branża, etc." */
 var flowOpenId = null;
+// user: "skladam sobie maila klikam save as i w popupie wybieram flow ->
+// krok w ktorym ten mail wychodzi. w flow konkretnym juz widze jakie
+// maile sa podpiete do jakiego" — READY_EMAILS z e.linkedFlowId===f.id,
+// pogrupowane po e.linkedStageIndex (null/"" = podpięty do flow, ale bez
+// konkretnego stepu).
+function flowLinkedEmailRowHtml(e){
+  return '<li class="flow-email-row">'+
+    '<span>'+esc(e.label)+'</span>'+
+    '<button type="button" class="btn ghost small" data-flow-email-preview="'+esc(e.id)+'">Preview</button>'+
+  '</li>';
+}
 function openFlowDetail(flowId){
   var f = findFlow(flowId);
   if(!f) return;
   flowOpenId = flowId;
   byId("flowTitle").textContent = f.label;
+  var linkedEmails = READY_EMAILS.filter(function(e){ return e.linkedFlowId===f.id; });
   var meta = [
     ["Category", flowCategoryLabel(f.category)],
     ["Industry", flowIndustryLabel(f.industry)],
     ["Channels", (f.channels||[]).map(function(c){ return FLOW_CHANNEL_LABELS[c]||c; }).join(", ")],
     ["Stages", String((f.stages||[]).length)],
     ["Duration", f.duration],
-    ["Built for", (f.crmPlatforms||[]).map(function(k){ return CRM_PLATFORM_LABELS[k]||k; }).join(", ") || "Any CRM"]
+    ["Built for", (f.crmPlatforms||[]).map(function(k){ return CRM_PLATFORM_LABELS[k]||k; }).join(", ") || "Any CRM"],
+    ["Linked e-mails", linkedEmails.length ? String(linkedEmails.length) : ""]
   ].filter(function(p){ return p[1]; });
   function sec(title, inner){ return inner ? '<div class="flow-sec"><h4>'+esc(title)+'</h4>'+inner+'</div>' : ""; }
   function list(arr){
     if(!arr || !arr.length) return "";
     return '<ul class="flow-list">'+arr.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join("")+'</ul>';
   }
-  var stagesHtml = (f.stages||[]).map(function(s){
+  var stagesHtml = (f.stages||[]).map(function(s, i){
     var chips = String(s.channel||"").split(",").map(function(c){ return c.trim(); }).filter(Boolean)
       .map(function(c){ return '<span class="flow-chip">'+esc(c)+'</span>'; }).join("");
+    var stageEmails = linkedEmails.filter(function(e){ return e.linkedStageIndex===i; });
+    var emailsHtml = stageEmails.length ? '<ul class="flow-stage-emails">'+stageEmails.map(flowLinkedEmailRowHtml).join("")+'</ul>' : "";
     return '<div class="flow-stage">'+
       '<div class="flow-stage-head"><span class="flow-stage-name">'+esc(s.name)+'</span>'+
         (s.timing ? '<span class="flow-stage-timing">'+esc(s.timing)+'</span>' : "")+'</div>'+
       (s.purpose ? '<p class="flow-stage-purpose">'+esc(s.purpose)+'</p>' : "")+
       (s.detail ? '<p class="flow-stage-detail">'+esc(s.detail)+'</p>' : "")+
       (chips ? '<div class="flow-stage-chips">'+chips+'</div>' : "")+
+      emailsHtml+
     '</div>';
   }).join("");
+  // Podpięte do flow, ale bez konkretnego stepu (linkedStageIndex null/"").
+  var unassignedEmails = linkedEmails.filter(function(e){ return e.linkedStageIndex==null || e.linkedStageIndex===""; });
+  var emailsSecHtml = unassignedEmails.length ? '<ul class="flow-stage-emails" style="border-top:none; padding-top:0">'+unassignedEmails.map(flowLinkedEmailRowHtml).join("")+'</ul>' : "";
   byId("flowMetaPanel").innerHTML =
     '<div class="flow-meta-grid">'+
       meta.map(function(p){ return '<div class="flow-meta-item"><div class="k">'+esc(p[0])+'</div><div class="v">'+esc(p[1])+'</div></div>'; }).join("")+
@@ -10096,8 +10123,12 @@ function openFlowDetail(flowId){
     sec("Mechanics", list(f.mechanics))+
     sec("Rules that apply across the whole flow", list(f.rules))+
     sec("Stages", stagesHtml)+
+    sec("E-mails not tied to a specific step", emailsSecHtml)+
     sec("Success metrics", list(f.kpis))+
     sec("Notes", f.notes ? '<p>'+esc(f.notes)+'</p>' : "");
+  byId("flowBody").querySelectorAll("[data-flow-email-preview]").forEach(function(btn){
+    btn.addEventListener("click", function(){ openEmailPreview(btn.getAttribute("data-flow-email-preview")); });
+  });
   // 3-kropki w nagłówku — id celu ustawiany TU, przy każdym otwarciu
   // (patrz delegowany handler w cardMenuHtml/document click, czyta go z
   // data-card-menu-id).
@@ -12592,7 +12623,8 @@ function uniqueEmailKey(base){
 function freshSaveEmailDraft(){
   return {
     label: "",
-    flow: EMAIL_FLOWS.some(function(f){ return f.id===state.emailFlow; }) ? state.emailFlow : EMAIL_FLOWS[0].id
+    flow: EMAIL_FLOWS.some(function(f){ return f.id===state.emailFlow; }) ? state.emailFlow : EMAIL_FLOWS[0].id,
+    linkedFlowId: "", linkedStageIndex: ""
   };
 }
 function readyEmailOptionsForSelect(){
@@ -12635,7 +12667,10 @@ function openEditReadyEmail(emailId){
   // przecięcia komponentów (patrz emailCompatiblePlatforms). Przy
   // PIERWSZYM otwarciu edytora startujemy od aktualnego wyniku tego
   // przecięcia — sensowny punkt startowy do ręcznej korekty, nie pusta lista.
-  saveEmailForm.draft = { label: e.label, flow: e.flow, crmPlatforms: e.crmPlatforms || emailCompatiblePlatforms(e) };
+  saveEmailForm.draft = {
+    label: e.label, flow: e.flow, crmPlatforms: e.crmPlatforms || emailCompatiblePlatforms(e),
+    linkedFlowId: e.linkedFlowId||"", linkedStageIndex: (e.linkedStageIndex!=null ? String(e.linkedStageIndex) : "")
+  };
   updateSaveEmailFormChrome();
   renderSaveEmailFormFields();
   byId("saveEmailFormOverlay").classList.add("open");
@@ -12683,7 +12718,27 @@ function renderSaveEmailFormFields(){
       }).join("")+
     '</div></div>';
   }
-  form.innerHTML = targetHtml + fieldsHtml + crmHtml;
+  // user: "skladam sobie maila klikam save as i w popupie wybieram flow ->
+  // krok w ktorym ten mail wychodzi" — Step zależy od wybranego Flow
+  // (kaskada), więc przerenderowujemy cały formularz przy zmianie Flow —
+  // Step start zawsze na pustej wartości, bo stary indeks mógłby
+  // wskazywać na zupełnie inny step innego flow.
+  var linkedFlow = d.linkedFlowId ? findFlow(d.linkedFlowId) : null;
+  var flowLinkHtml = '<div class="bf-group"><p class="bf-group-title">Flow Repository</p><div class="bf-row">'+
+    '<div class="bf-field"><label for="sef-linkedFlow">Flow</label>'+
+      '<select id="sef-linkedFlow" data-cs-searchable="1">'+
+        '<option value=""'+(!d.linkedFlowId?' selected':'')+'>— Not linked to a flow —</option>'+
+        FLOWS.map(function(fl){ return '<option value="'+esc(fl.id)+'"'+(d.linkedFlowId===fl.id?' selected':'')+'>'+esc(fl.label)+'</option>'; }).join("")+
+      '</select>'+
+    '</div>'+
+    '<div class="bf-field"><label for="sef-linkedStage">Step</label>'+
+      '<select id="sef-linkedStage"'+(!linkedFlow || !(linkedFlow.stages||[]).length ? ' disabled' : '')+'>'+
+        '<option value=""'+(d.linkedStageIndex===""?' selected':'')+'>— Not tied to a specific step —</option>'+
+        (linkedFlow ? (linkedFlow.stages||[]).map(function(s, i){ return '<option value="'+i+'"'+(d.linkedStageIndex===String(i)?' selected':'')+'>'+esc(s.name||("Step "+(i+1)))+'</option>'; }).join("") : "")+
+      '</select>'+
+    '</div>'+
+  '</div></div>';
+  form.innerHTML = targetHtml + fieldsHtml + flowLinkHtml + crmHtml;
   form.querySelectorAll("[data-sef-crm]").forEach(function(el){
     el.addEventListener("change", function(){
       var key = el.getAttribute("data-sef-crm");
@@ -12696,7 +12751,10 @@ function renderSaveEmailFormFields(){
     saveEmailForm.updateId = id;
     if(id){
       var e = findEmail(id);
-      saveEmailForm.draft = e ? { label:e.label, flow:e.flow } : freshSaveEmailDraft();
+      saveEmailForm.draft = e ? {
+        label:e.label, flow:e.flow,
+        linkedFlowId: e.linkedFlowId||"", linkedStageIndex: (e.linkedStageIndex!=null ? String(e.linkedStageIndex) : "")
+      } : freshSaveEmailDraft();
     } else {
       saveEmailForm.draft = freshSaveEmailDraft();
     }
@@ -12705,6 +12763,14 @@ function renderSaveEmailFormFields(){
   });
   form.querySelectorAll("[data-sef-field]").forEach(function(el){
     el.addEventListener("input", function(){ saveEmailForm.draft[el.getAttribute("data-sef-field")] = el.value; });
+  });
+  if(byId("sef-linkedFlow")) byId("sef-linkedFlow").addEventListener("change", function(){
+    d.linkedFlowId = this.value || "";
+    d.linkedStageIndex = "";
+    renderSaveEmailFormFields();
+  });
+  if(byId("sef-linkedStage")) byId("sef-linkedStage").addEventListener("change", function(){
+    d.linkedStageIndex = this.value || "";
   });
   enhanceAllSelects(form);
 }
@@ -12724,6 +12790,8 @@ function saveEmailFormSubmit(){
     metaExisting.label = label;
     metaExisting.flow = d.flow;
     metaExisting.crmPlatforms = d.crmPlatforms || [];
+    metaExisting.linkedFlowId = d.linkedFlowId || "";
+    metaExisting.linkedStageIndex = (d.linkedStageIndex!=="" && d.linkedStageIndex!=null) ? +d.linkedStageIndex : null;
     state.section = "emails"; state.emailFlow = d.flow;
     return withBtnLoading(btn, function(){
       return saveToStorage().then(function(){
@@ -12762,6 +12830,8 @@ function saveEmailFormSubmit(){
     existing.componentIds = componentIds;
     existing.componentValues = componentValues;
     existing.componentVariants = componentVariants;
+    existing.linkedFlowId = d.linkedFlowId || "";
+    existing.linkedStageIndex = (d.linkedStageIndex!=="" && d.linkedStageIndex!=null) ? +d.linkedStageIndex : null;
     // Wbudowany mail zaktualizowany tak zostaje (bez .custom) — więc
     // aktualizacja przetrwa tylko bieżącą sesję, dokładnie jak przy
     // usuwaniu wbudowanych maili (saveToStorage zapisuje tylko custom).
@@ -12784,6 +12854,8 @@ function saveEmailFormSubmit(){
     componentIds: componentIds,
     componentValues: componentValues,
     componentVariants: componentVariants,
+    linkedFlowId: d.linkedFlowId || "",
+    linkedStageIndex: (d.linkedStageIndex!=="" && d.linkedStageIndex!=null) ? +d.linkedStageIndex : null,
     custom: true,
     createdBy: currentUserStamp()
   });
