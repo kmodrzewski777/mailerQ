@@ -6155,7 +6155,7 @@ var SKILLS = [];
 SKILLS.push({
   id:"customerio-goals-report",
   category:"data",
-  client:"Customer.io",
+  brand:"",
   label:"Customerio Goals Report",
   desc:"Connect to Customer.io and report GOALS dashboard results — Profiles/People, Events, Impact (revenue) and the Attributed vs Unattributed split — that EXACTLY match what the user sees in the Customer.io Goals UI, for any goal and any period. Use this whenever the user wants Customer.io goal results, conversion/goal counts, attribution numbers, or a goal-dashboard read — e.g. \"wyniki [goal] za ostatnie 7 dni\", \"ile konwersji / Impact / Profiles na goalu X\", \"pokaż Goals w Customer.io\", \"sprawdź dashboard [nazwa]\", or \"dlaczego moje liczby z API nie zgadzają się z dashboardem\". It handles the exact things that make API numbers drift from the UI: the rolling last-N-days window, the async attribution refresh, and the correct field→tile mapping. Works for ANY Customer.io workspace the token is authenticated to — it is NOT tied to one client, so it is safe to hand to another person with their own account.",
   tags:["customer.io","goals","reporting","api"],
@@ -6169,7 +6169,7 @@ SKILLS.push({
 SKILLS.push({
   id:"pstryk-newsletter",
   category:"writing",
-  client:"Pstryk",
+  brand:"pstryk",
   label:"Pstryk Newsletter",
   desc:"Tworzy kompletne newslettery dla marki Pstryk (polski sprzedawca energii w taryfach dynamicznych). Zwraca tematy A/B + preheader, gotowe copy podzielone na bloki oraz wizualizację maila w stylistyce marki; kod Customer.io na życzenie. Użyj ZAWSZE, gdy użytkownik prosi o newsletter, maila, „kolejny mail z planu\", „zrób maila o X dla Pstryka\", mail urgency/sprzedażowy, mail produktowy/release-notes, humanizację treści Pstryk, wizualizację lub podgląd maila, wersję kodowaną Customer.io, albo pyta o plan / tematy newsletterów — nawet jeśli nie powie wprost „skill\" ani „Pstryk\", a z kontekstu wynika, że chodzi o maile Pstryk.",
   tags:["pstryk","newsletter","copywriting"],
@@ -6183,7 +6183,7 @@ SKILLS.push({
 SKILLS.push({
   id:"pstryk-oplacalnosc",
   category:"research",
-  client:"Pstryk",
+  brand:"pstryk",
   label:"Pstryk Oplacalnosc",
   desc:"Baza wiedzy i agregator argumentów o tym, DLACZEGO taryfa dynamiczna Pstryk opłaca się posiadaczom urządzeń energetycznych: magazynu energii, ładowarki EV, pompy ciepła oraz paneli fotowoltaicznych (net-billing, Prosument Pstryk, Roaming prosumenta). Zbiera konkretne liczby, mechanizmy, gwarancje cenowe, case studies i źródła w jednym miejscu. Użyj ZAWSZE, gdy trzeba wyjaśnić/uargumentować opłacalność Pstryk dla jednej z tych czterech grup, przygotować copy/newsletter/FAQ/ofertę na ten temat, odpowiedzieć na pytanie „czy Pstryk się opłaca gdy mam magazyn / elektryka / pompę ciepła / fotowoltaikę\", albo zweryfikować argument sprzedażowy. Współpracuje ze skillem pstryk-newsletter (dostarcza mu faktów), sam nie pisze layoutu maila.",
   tags:["pstryk","knowledge-base","research"],
@@ -6197,7 +6197,7 @@ SKILLS.push({
 SKILLS.push({
   id:"retentionq-flow-overview",
   category:"automation",
-  client:"RetentionQ",
+  brand:"",
   label:"Retentionq Flow Overview",
   desc:"Builds a client-facing \"Flow Overview\" HTML artifact (RetentionQ house style) that explains how one marketing-automation flow works — target audience, timing, branching logic, individual messages, and how success is measured. Works for ANY client and ANY flow type (abandoned cart/checkout, onboarding, winback, post-purchase, browse abandonment, replenishment, etc.), not just one client. Use this whenever someone needs to present a flow's logic to a client or stakeholder in a standardized, presentable form — trigger phrases like \"flow overview\", \"przedstaw to flow klientowi\", \"pokaż jak działa ten flow\", \"strategia flow\", \"raport z flow\", \"jak wygląda ten flow krok po kroku\", or when asked to turn a Customer.io/Klaviyo/ManyChat/MailerLite automation into a client-readable explainer. Extracted from the first real one built for Berty's Abandoned Cart flow — read references/example.html for the full worked reference before building a new one.",
   tags:["flow","client-facing","artifact","html"],
@@ -6211,7 +6211,7 @@ SKILLS.push({
 SKILLS.push({
   id:"retentionq-report",
   category:"data",
-  client:"RetentionQ",
+  brand:"",
   label:"Retentionq Report",
   desc:"Dodaje lub aktualizuje miesięczny raport wyników (Marketing Automation + Direct Marketing) w artefakcie RetentionQ pod stałym URL. Użyj, gdy Krzysztof podaje surowe dane za konkretny miesiąc (output prompta do Customer.io + realRevenue z Power BI + spam z Google Postmaster) i mówi, czy to NOWY miesiąc, czy AKTUALIZACJA istniejącego. Skill liczy całą matematykę (skalowanie real/CIO, sumy, udziały, TOP 3, konwersje, porównania m/m, paski historyczne) i wstrzykuje gotowy raport do dokumentu.",
   tags:["reporting","retentionq","analytics"],
@@ -6225,7 +6225,7 @@ SKILLS.push({
 SKILLS.push({
   id:"retentionq-style",
   category:"design",
-  client:"RetentionQ",
+  brand:"",
   label:"Retentionq Style",
   desc:"The single visual style for anything you build for RetentionQ (retentionq.com) — reports, presentations/decks/slides, HTML artifacts, dashboards, web apps, landing pages, one-pagers, charts, and email. Use this skill WHENEVER you are about to produce a visual deliverable in the RetentionQ context (or the user says \"RetentionQ\", \"RQ\", \"in our style\", \"brand style\", \"na naszym stylu\"), even if they don't spell out the exact colors or fonts. It carries the exact palette, Plus Jakarta Sans type scale, spacing, button and component rules extracted from the live site, so every output looks like it came from the same brand. Read this before writing the first line of HTML/CSS, choosing any color, or laying out a slide or page.",
   tags:["design-system","branding","retentionq"],
@@ -6239,7 +6239,7 @@ SKILLS.push({
 SKILLS.push({
   id:"ui-styling",
   category:"design",
-  client:"RetentionQ",
+  brand:"",
   label:"Ui Styling",
   desc:"Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing design systems, creating responsive layouts, adding accessible components (dialogs, dropdowns, forms, tables), customizing themes and colors, implementing dark mode, generating visual designs and posters, or establishing consistent styling patterns across applications.",
   tags:["shadcn","tailwind","ui"],
@@ -6253,7 +6253,7 @@ SKILLS.push({
 SKILLS.push({
   id:"ui-ux-pro-max",
   category:"design",
-  client:"RetentionQ",
+  brand:"",
   label:"Ui Ux Pro Max",
   desc:"UI/UX design intelligence for web and mobile. Searchable local database with 84 styles, 192 color palettes, 74 font pairings, 192 product types, 98 UX guidelines, 104 icon entries, 16 GSAP motion presets, and 25 chart types across 22 stacks (React, Next.js, Vue, Nuxt, Svelte, Astro, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui, Jetpack Compose, Angular, Laravel, JavaFX, WPF, WinUI, Avalonia, Uno Platform, UWP, Three.js, and HTML/CSS). Use when designing, building, or reviewing UI: pages, components, color schemes, typography, layout, accessibility, animation, or data visualization.",
   tags:["ui","ux","design-system"],
@@ -6267,7 +6267,7 @@ SKILLS.push({
 SKILLS.push({
   id:"berty-brand-voice",
   category:"writing",
-  client:"Berty",
+  brand:"berty",
   label:"Berty Brand Voice",
   desc:"The single source of truth for Berty's (thisisberty.com) tone of voice — how the brand talks across every channel: emails, graphics, social, landing pages. Read this before writing ANY Berty-facing copy. Copy-writing Berty skills (e.g. berty-email-copywriting) reference this file so the voice stays consistent in one place. Use when the user asks about Berty's tone/voice/style, wants to update it, or when any copy task for Berty needs its house voice.",
   tags:["berty","tone-of-voice","brand"],
@@ -6281,7 +6281,7 @@ SKILLS.push({
 SKILLS.push({
   id:"berty-email-copywriting",
   category:"writing",
-  client:"Berty",
+  brand:"berty",
   label:"Berty Email Copywriting",
   desc:"Writes marketing email copy for Berty (thisisberty.com) in its house tone of voice. Use whenever the user briefs an email — describes what it's about, the goal, the audience, the offer — and wants copy: subject lines, preheaders, heading and body. Produces exactly two A/B subjects (one Curiosity Gap, one Real Benefit), a preheader for each, then heading + body (+ CTA and any extra blocks when briefed). Trigger on requests like \"potrzebuję copy do maila…\", \"napisz maila o…\", \"zrób copy na kampanię…\", \"subject + preheader + treść\", even without naming the brand — Berty is the default voice.",
   tags:["berty","copywriting","email"],
@@ -6295,7 +6295,7 @@ SKILLS.push({
 SKILLS.push({
   id:"berty-newsletter-builder",
   category:"coding",
-  client:"Berty",
+  brand:"berty",
   label:"Berty Newsletter Builder",
   desc:"Odwzorowuje eksport z Figmy na gotowy kod newslettera Berty (thisisberty.com) w komponentach x-* (MJML-podobny szablon Customer.io) — 1:1 pod względem struktury, spacingów, fontów, borderów i CTA. Użyj ZAWSZE, gdy user wrzuca screen/eksport maila Berty i chce go „zakodować\", „przerobić na kod\", „zrobić z tego maila\", „odwzorować szablonem\", „zbudować newsletter z Figmy\", albo podsyła layout z prośbą o wersję do Customer.io — nawet jeśli nie powie wprost „x-component\" ani „szablon\". Działa też OD ZERA (bez layoutu): gdy user podaje sam temat maila i chce cały newsletter Berty — wtedy treść bierze ze skilla berty-email-copywriting, a opis produktu na końcu tworzy po zapoznaniu się z jego stroną na thisisberty.com. User dostarcza grafiki po swojej stronie; skill wstawia placeholdery obrazów z gotowymi ALTami, dobiera kolor akcentu i zwraca kompletny kod z sekcjami, podpisem i stałą stopką.",
   tags:["berty","figma","html","customer.io"],
@@ -6309,7 +6309,7 @@ SKILLS.push({
 SKILLS.push({
   id:"dynamic-content-liquid",
   category:"coding",
-  client:"",
+  brand:"",
   label:"Dynamic Content Liquid",
   desc:"How to write Liquid personalization (if/else, unless, loops, {{ }} output) inside Customer.io Design Studio (Parcel editor) email markup so it actually evaluates correctly at send time — for ANY client, not one brand. Use whenever the user asks to add conditional content, a personalized block, an if/else branch, or a dynamic section to a Customer.io Design Studio email based on a customer attribute, event attribute, or journey attribute. Also use when debugging a Customer.io email where a `{% if %}` block \"doesn't work\", \"shows the wrong branch\", \"always falls to else\", or \"works for one variant but not the other\" — these are almost always the component-wrapping bug this skill exists to prevent, not a data or quoting problem.",
   tags:["liquid","customer.io","personalization"],
@@ -6323,7 +6323,7 @@ SKILLS.push({
 SKILLS.push({
   id:"email-product-grid",
   category:"coding",
-  client:"",
+  brand:"",
   label:"Email Product Grid",
   desc:"Builds a ready-to-paste, Gmail-proof HTML product grid for marketing emails (Customer.io and similar) from a list of ecommerce product URLs — works for ANY store, not just one brand. Use this whenever the user pastes one or more product links (Shopify or other ecommerce) or a collection/category URL and wants a \"product grid\", \"grid produktów\", email tiles, product cards, or a block of products for a newsletter — even if they don't say the word \"grid\". One card per URL: the skill visits each page, pulls the name, price, image, promo status and rating, and assembles the standardized table-based, aligned markup. It carries a default visual style (colors/font/labels) that you swap per store. Trigger it for any \"here are the products, make me the grid\" request.",
   tags:["html","ecommerce","product-grid"],
@@ -10023,10 +10023,19 @@ function skillCategoryLabel(id){
   var c = SKILL_CATEGORIES.filter(function(x){ return x.id===id; })[0];
   return c ? c.label : id;
 }
+// user: "zamiast nowego pola Client raczej powinienes korzystac juz z tego
+// co jest czyli BRAND (mamy Brand Kit przecież)" — skille wskazują na
+// prawdziwy klucz BRANDS (patrz brandSelectBtn/state.brand), nie na
+// dowolny tekst. Puste "" = skill nie jest przypisany do żadnej marki
+// (np. wewnętrzne narzędzia RetentionQ albo skille cross-client).
+function skillBrandLabel(key){
+  if(!key || !BRANDS[key]) return "";
+  return BRANDS[key].short || BRANDS[key].name || key;
+}
 function renderSkillGrid(){
   var q = state.searchQuery;
   var fullList = skillsByCategory(state.skillCategory).filter(function(s){
-    return matchesSearch([s.label, s.id, s.desc, s.client, (s.tags||[]).join(" ")], q);
+    return matchesSearch([s.label, s.id, s.desc, skillBrandLabel(s.brand), (s.tags||[]).join(" ")], q);
   });
   var page = paginateList(fullList);
   byId("gridTitle").textContent = state.skillCategory==="all" ? "All skills" : skillCategoryLabel(state.skillCategory);
@@ -10050,7 +10059,7 @@ function renderSkillGrid(){
         // user: "przypisz je do odpowiednich klientów" — klient jako
         // eyebrow nad nazwą, ten sam wzorzec co dawna .flow-card-cat
         // (industry) na kartach flow.
-        (s.client ? '<p class="flow-card-cat">'+esc(s.client)+'</p>' : '')+
+        (skillBrandLabel(s.brand) ? '<p class="flow-card-cat">'+esc(skillBrandLabel(s.brand))+'</p>' : '')+
         '<div class="card-name-row"><p class="flow-card-title">'+esc(s.label)+'</p>'+cardMenuHtml("skill", s.id, "Update")+'</div>'+
         '<p class="flow-card-desc">'+esc(s.desc||"")+'</p>'+
       '</div>'+
@@ -10081,7 +10090,7 @@ function openSkillDetail(skillId){
   // ostatni go aktualizował" — osobne pola, żeby "kiedy" i "kto" było
   // widać na pierwszy rzut oka w sticky panelu, nie tylko na karcie.
   var meta = [
-    ["Client", s.client||""],
+    ["Brand", skillBrandLabel(s.brand)],
     ["Category", skillCategoryLabel(s.category)],
     ["Tags", (s.tags||[]).join(", ")],
     ["Created by", displayNameOf(s.createdBy)],
@@ -10115,12 +10124,12 @@ function uniqueSkillKey(base){
   return key;
 }
 function emptySkillDraft(){
-  return { label:"", category: (SKILL_CATEGORIES[0]||{}).id||"", client:"", desc:"", tags:[], useCases:[], instructions:"", notes:"" };
+  return { label:"", category: (SKILL_CATEGORIES[0]||{}).id||"", brand:"", desc:"", tags:[], useCases:[], instructions:"", notes:"" };
 }
 function openSkillForm(existing){
   skillForm.editId = existing ? existing.id : null;
   skillForm.draft = existing ? {
-    label: existing.label||"", category: existing.category||(SKILL_CATEGORIES[0]||{}).id, client: existing.client||"",
+    label: existing.label||"", category: existing.category||(SKILL_CATEGORIES[0]||{}).id, brand: existing.brand||"",
     desc: existing.desc||"", tags: (existing.tags||[]).slice(), useCases: (existing.useCases||[]).slice(),
     instructions: existing.instructions||"", notes: existing.notes||""
   } : emptySkillDraft();
@@ -10156,7 +10165,7 @@ function renderSkillFormFields(){
       selectField("category", "Category", SKILL_CATEGORIES.map(function(c){ return [c.id, c.label]; }))+
     '</div>'+
     '<div class="bf-row">'+
-      textField("client", "Client", "e.g. Pstryk, Berty — leave blank if it's cross-client")+
+      selectField("brand", "Brand", [["", "— No specific brand (cross-client) —"]].concat(BRAND_ORDER.map(function(k){ return [k, BRANDS[k].short||BRANDS[k].name]; })))+
     '</div></div>'+
     '<div class="bf-group">'+
       textareaField("desc", "What it does")+
@@ -10185,7 +10194,7 @@ function saveSkillForm(){
   var label = (d.label||"").trim();
   if(!label){ showToast("Enter a skill name"); byId("sf-label").focus(); return; }
   var payload = {
-    label: label, category: d.category, client: (d.client||"").trim(),
+    label: label, category: d.category, brand: d.brand||"",
     desc: (d.desc||"").trim(), tags: d.tags||[], useCases: d.useCases||[],
     instructions: (d.instructions||"").trim(), notes: (d.notes||"").trim()
   };
@@ -10244,7 +10253,7 @@ function buildSkillMarkdown(s){
   if(s.notes){ h(2, "Notes"); p(s.notes); }
   L.push("---"); L.push("");
   var footBits = ["category: "+skillCategoryLabel(s.category)];
-  if(s.client) footBits.push("client: "+s.client);
+  if(skillBrandLabel(s.brand)) footBits.push("brand: "+skillBrandLabel(s.brand));
   if(s.tags && s.tags.length) footBits.push("tags: "+s.tags.join(", "));
   if(s.updatedAt) footBits.push("updated "+formatUpdatedStamp(s.updatedAt)+(displayNameOf(s.updatedBy) ? " by "+displayNameOf(s.updatedBy) : ""));
   L.push("_Exported from Maximus Skills · "+footBits.join(" · ")+"._");
