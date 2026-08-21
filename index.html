@@ -1338,6 +1338,13 @@
       <span class="nav-label">Skills</span><span class="n" id="navCountSkills"></span>
     </button>
     <div class="nav-cats is-collapsed" id="navCatsSkills" role="group" aria-label="Skill categories"></div>
+    <!-- user: "do przechowywania kodów liquid" — ta sama architektura co
+         Skills/Flow Repository. -->
+    <button class="nav-item" type="button" data-nav="liquid">
+      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M320-242 80-482l240-240 57 57-184 184 183 183-56 56Zm320 0-56-56 183-183-184-184 57-57 240 240-240 240Z"/></svg>
+      <span class="nav-label">Liquid Snippets</span><span class="n" id="navCountLiquid"></span>
+    </button>
+    <div class="nav-cats is-collapsed" id="navCatsLiquid" role="group" aria-label="Liquid snippet categories"></div>
     <button class="nav-item" type="button" data-nav="schedule">
       <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M212.31-100Q182-100 161-121q-21-21-21-51.31v-535.38Q140-738 161-759q21-21 51.31-21h55.38v-84.61h61.54V-780h303.08v-84.61h60V-780h55.38Q778-780 799-759q21 21 21 51.31v535.38Q820-142 799-121q-21 21-51.31 21H212.31Zm0-60h535.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-375.38H200v375.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM200-607.69h560v-100q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H212.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v100Z"/></svg>
       <span class="nav-label">DM Schedule</span><span class="n" id="navCountSchedule"></span>
@@ -1364,6 +1371,7 @@
              dla sekcji "flows", patrz syncSectionChrome. -->
         <button class="btn small" id="addFlowRepoBtn" type="button" style="display:none">Add Flow</button>
         <button class="btn small" id="addSkillBtn" type="button" style="display:none">Add Skill</button>
+        <button class="btn small" id="addLiquidBtn" type="button" style="display:none">Add Snippet</button>
         <button class="btn ghost small" id="dockToggle" type="button" aria-expanded="false" aria-controls="drawer">
           Mail Stack<span class="dock-pill" id="dockCount">0</span>
         </button>
@@ -1886,6 +1894,52 @@
     <div class="modal-footer-bar" style="gap:8px">
       <button class="btn ghost small" type="button" id="skillFormCancel" style="flex:1">Cancel</button>
       <button class="btn small" type="button" id="skillFormSave" style="flex:1">Save skill</button>
+    </div>
+  </div>
+</div>
+
+<!-- Szczegóły snippeta Liquid — ten sam wzorzec co Skills wyżej, bez
+     widoku instalacji (jedyna akcja to skopiowanie kodu). -->
+<div class="overlay" id="liquidOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:1040px">
+    <div class="modal-head">
+      <h3 id="liquidTitle"></h3>
+      <span style="display:flex; align-items:center; gap:4px">
+        <div class="card-menu-wrap" id="liquidDetailMenuWrap" data-card-menu-kind="liquid" data-card-menu-id="">
+          <button type="button" class="icon-btn card-menu-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More options"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-189.23q-24.75 0-42.37-17.63Q420-224.48 420-249.23q0-24.75 17.63-42.38 17.62-17.62 42.37-17.62 24.75 0 42.37 17.62Q540-273.98 540-249.23q0 24.75-17.63 42.37-17.62 17.63-42.37 17.63ZM480-420q-24.75 0-42.37-17.63Q420-455.25 420-480q0-24.75 17.63-42.37Q455.25-540 480-540q24.75 0 42.37 17.63Q540-504.75 540-480q0 24.75-17.63 42.37Q504.75-420 480-420Zm0-230.77q-24.75 0-42.37-17.62Q420-686.02 420-710.77q0-24.75 17.63-42.37 17.62-17.63 42.37-17.63 24.75 0 42.37 17.63Q540-735.52 540-710.77q0 24.75-17.63 42.38-17.62 17.62-42.37 17.62Z"/></svg></button>
+          <ul class="card-menu" role="menu" style="display:none">
+            <li class="card-menu-item" role="menuitem" data-card-menu-edit>Edit</li>
+            <li class="card-menu-item danger" role="menuitem" data-card-menu-delete>Delete</li>
+          </ul>
+        </div>
+        <button class="modal-close" id="liquidClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+      </span>
+    </div>
+    <div class="modal-body">
+      <div class="flow-detail-grid">
+        <div class="flow-detail-main" id="liquidBody"></div>
+        <aside class="flow-detail-side" id="liquidMetaPanel"></aside>
+      </div>
+    </div>
+    <div class="modal-footer-bar" style="gap:8px">
+      <button class="btn small" id="liquidCopyBtn" type="button" style="flex:1">Copy code</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Liquid Snippet — ten sam wzorzec co Add/Edit Skill wyżej. -->
+<div class="overlay" id="liquidFormOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-head">
+      <h3 id="liquidFormTitle">Add snippet</h3>
+      <button class="modal-close" id="liquidFormClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <form id="liquidForm" class="brand-form"></form>
+    </div>
+    <div class="modal-footer-bar" style="gap:8px">
+      <button class="btn ghost small" type="button" id="liquidFormCancel" style="flex:1">Cancel</button>
+      <button class="btn small" type="button" id="liquidFormSave" style="flex:1">Save snippet</button>
     </div>
   </div>
 </div>
@@ -6386,6 +6440,63 @@ SKILLS.push({
 });
 
 /* ================================================================
+   LIQUID SNIPPETS — biblioteka gotowych fragmentów kodu Liquid
+   (Customer.io/Shopify), do wklejenia bezpośrednio w treść maila.
+   user: "do przechowywania kodów liquid" — ta sama architektura co
+   Flow Repository/Skills (własne kategorie, karta + popup + formularz,
+   bez kolumny Mail Stack — meta.stack:false).
+   ================================================================ */
+var LIQUID_CATEGORIES = [
+  { id:"personalization", label:"Personalization" },
+  { id:"conditionals", label:"Conditional logic" },
+  { id:"loops", label:"Loops & lists" },
+  { id:"formatting", label:"Formatting" },
+  { id:"products", label:"Product data" },
+  { id:"other", label:"Other" }
+];
+var LIQUID_SNIPPETS = [];
+LIQUID_SNIPPETS.push({
+  id:"first-name-fallback",
+  category:"personalization",
+  brand:"",
+  label:"First name with a safe fallback",
+  desc:"Uses the customer's first name when we have it, otherwise falls back to a neutral greeting instead of printing a blank or \"undefined\".",
+  code:"{% if customer.first_name and customer.first_name != \"\" %}\n  Cześć {{ customer.first_name }}!\n{% else %}\n  Cześć!\n{% endif %}",
+  notes:"",
+  createdBy:"Maximus", updatedAt:"2026-08-21T12:00:00.000Z", updatedBy:"Maximus"
+});
+LIQUID_SNIPPETS.push({
+  id:"segment-conditional-block",
+  category:"conditionals",
+  brand:"",
+  label:"Show a block only for one segment",
+  desc:"Renders an entire section only if the profile belongs to a given Customer.io segment — swap a CTA or offer per audience without duplicating the whole email.",
+  code:"{% if customer_io.segments contains \"vip_customers\" %}\n  <!-- VIP-only block -->\n{% else %}\n  <!-- standard block -->\n{% endif %}",
+  notes:"",
+  createdBy:"Maximus", updatedAt:"2026-08-21T12:00:00.000Z", updatedBy:"Maximus"
+});
+LIQUID_SNIPPETS.push({
+  id:"loop-recommended-products",
+  category:"loops",
+  brand:"",
+  label:"Loop over recommended products",
+  desc:"Iterates a product-recommendation event/array and prints a row per product — the base loop most product-grid emails start from.",
+  code:"{% for product in event.recommended_products limit:4 %}\n  {{ product.name }} — {{ product.price }}\n{% endfor %}",
+  notes:"",
+  createdBy:"Maximus", updatedAt:"2026-08-21T12:00:00.000Z", updatedBy:"Maximus"
+});
+LIQUID_SNIPPETS.push({
+  id:"format-date-locale",
+  category:"formatting",
+  brand:"",
+  label:"Format a date, Polish-friendly",
+  desc:"Formats an ISO timestamp into a readable dd.mm.yyyy date for the email body — the format Customer.io's default filter doesn't give you out of the box.",
+  code:"{{ customer.created_at | date: \"%d.%m.%Y\" }}",
+  notes:"",
+  createdBy:"Maximus", updatedAt:"2026-08-21T12:00:00.000Z", updatedBy:"Maximus"
+});
+
+/* ================================================================
    HARMONOGRAM DIRECT MARKETINGU — user: "harmonogram wysyłek Direct
    Marketingowych. Obecnie korzystamy z ClickUpa. Nie chcemy tam wpuszczać
    klientów, ale wypadałoby żeby mieli wgląd do tego co kiedy wychodzi".
@@ -6430,6 +6541,7 @@ var state = { brand:"neutral", category:"all", section:"components", emailFlow:"
   // (patrz initDmMonth), to stan przeglądania, więc nie jest zapisywany.
   flowCategory:"all",
   skillCategory:"all",
+  liquidCategory:"all",
   dmMonth:"",
   // Który z 3 wariantów headera/stopki marki (patrz BRANDS[key].header2Code
   // itd.) ma wejść do skompilowanego maila — wybierane w oknie Podgląd
@@ -6731,6 +6843,10 @@ function buildBackupPayload(){
     // przez zespół biblioteka, nie prywatny stan.
     deletedBuiltinSkillIds: DELETED_BUILTIN_SKILL_IDS,
     customSkills: SKILLS.filter(function(s){ return s.custom; }),
+    // Liquid Snippets — user: "do przechowywania kodów liquid", ta sama
+    // wspólna/dzielona biblioteka co Flow Repository/Skills.
+    deletedBuiltinLiquidIds: DELETED_BUILTIN_LIQUID_IDS,
+    customLiquidSnippets: LIQUID_SNIPPETS.filter(function(s){ return s.custom; }),
     dmEntries: DM_ENTRIES
   };
 }
@@ -6749,6 +6865,7 @@ var DELETED_BUILTIN_COMPONENT_IDS = [];
 var DELETED_BUILTIN_EMAIL_IDS = [];
 var DELETED_BUILTIN_FLOW_IDS = [];
 var DELETED_BUILTIN_SKILL_IDS = [];
+var DELETED_BUILTIN_LIQUID_IDS = [];
 function applyBackupPayload(payload){
   if(payload.brands) BRANDS = payload.brands;
   if(payload.brandOrder) BRAND_ORDER = payload.brandOrder;
@@ -6767,6 +6884,10 @@ function applyBackupPayload(payload){
   if(payload.deletedBuiltinSkillIds){
     DELETED_BUILTIN_SKILL_IDS = payload.deletedBuiltinSkillIds;
     SKILLS = SKILLS.filter(function(s){ return DELETED_BUILTIN_SKILL_IDS.indexOf(s.id)===-1; });
+  }
+  if(payload.deletedBuiltinLiquidIds){
+    DELETED_BUILTIN_LIQUID_IDS = payload.deletedBuiltinLiquidIds;
+    LIQUID_SNIPPETS = LIQUID_SNIPPETS.filter(function(s){ return DELETED_BUILTIN_LIQUID_IDS.indexOf(s.id)===-1; });
   }
   if(payload.customComponents){
     payload.customComponents.forEach(function(cc){
@@ -6845,6 +6966,11 @@ function applyBackupPayload(payload){
       if(!findSkill(cs.id)) SKILLS.push(Object.assign({}, cs, { custom:true }));
     });
   }
+  if(payload.customLiquidSnippets){
+    payload.customLiquidSnippets.forEach(function(cl){
+      if(!findSnippet(cl.id)) LIQUID_SNIPPETS.push(Object.assign({}, cl, { custom:true }));
+    });
+  }
   // Harmonogram podmieniany w CAŁOŚCI (nie scalany per-wpis) — to jedna,
   // wspólna tablica, a nie katalog z wbudowanym seedem jak komponenty.
   if(payload.dmEntries) DM_ENTRIES = payload.dmEntries;
@@ -6860,7 +6986,7 @@ var mqSaveTimer = null;
 // WSZYSTKO razem (bez podziału) — to czysto lokalna kopia zapasowa
 // przeglądarki, nie ma tu ryzyka konfliktu między osobami.
 var MQ_PRIVATE_KEYS = ["buildList","currentBrand","headerVariant","footerVariant","favoriteComponents","favoriteEmails"];
-var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds","deletedBuiltinFlowIds","customFlows","deletedBuiltinSkillIds","customSkills","dmEntries"];
+var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds","deletedBuiltinFlowIds","customFlows","deletedBuiltinSkillIds","customSkills","deletedBuiltinLiquidIds","customLiquidSnippets","dmEntries"];
 function splitBackupPayload(full){
   var priv = {}, shared = {};
   MQ_PRIVATE_KEYS.forEach(function(k){ priv[k] = full[k]; });
@@ -9745,6 +9871,7 @@ function renderPrimaryNav(){
   byId("navCountEmails").textContent = READY_EMAILS.length;
   byId("navCountFlows").textContent = FLOWS.length;
   byId("navCountSkills").textContent = SKILLS.length;
+  byId("navCountLiquid").textContent = LIQUID_SNIPPETS.length;
   byId("navCountSchedule").textContent = DM_ENTRIES.length;
   nav.querySelectorAll("[data-nav]").forEach(function(btn){
     var target = btn.getAttribute("data-nav");
@@ -9762,7 +9889,7 @@ function renderPrimaryNav(){
    Repository) — pokazujemy WYŁĄCZNIE ten, który pasuje do state.section,
    pozostałe dwa czyścimy i chowamy. */
 function renderNavCats(){
-  var wraps = { components: byId("navCatsComponents"), emails: byId("navCatsEmails"), flows: byId("navCatsFlows"), skills: byId("navCatsSkills") };
+  var wraps = { components: byId("navCatsComponents"), emails: byId("navCatsEmails"), flows: byId("navCatsFlows"), skills: byId("navCatsSkills"), liquid: byId("navCatsLiquid") };
   Object.keys(wraps).forEach(function(key){
     var wrap = wraps[key];
     if(!wrap) return;
@@ -9822,6 +9949,17 @@ function renderNavCats(){
         if(n===0 && state.skillCategory!==c.id) return;
         catBtn(c.label, n, state.skillCategory===c.id, function(){
           state.skillCategory=c.id; state.page=1; renderAll();
+        });
+      });
+    } else if(key==="liquid"){
+      catBtn("All", LIQUID_SNIPPETS.length, state.liquidCategory==="all", function(){
+        state.liquidCategory="all"; state.page=1; renderAll();
+      });
+      LIQUID_CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).forEach(function(c){
+        var n = snippetsByCategory(c.id).length;
+        if(n===0 && state.liquidCategory!==c.id) return;
+        catBtn(c.label, n, state.liquidCategory===c.id, function(){
+          state.liquidCategory=c.id; state.page=1; renderAll();
         });
       });
     }
@@ -10549,6 +10687,192 @@ function deleteSkill(id){
     showToast("Skill deleted");
   });
 }
+
+/* ================================================================
+   LIQUID SNIPPETS — ta sama architektura co Skills wyżej (kategorie,
+   karta, popup szczegółów, formularz, usuwanie), bez instalacji — jedyna
+   realna akcja to skopiowanie kodu do schowka.
+   ================================================================ */
+var liquidOpenId = null;
+function findSnippet(id){ for(var i=0;i<LIQUID_SNIPPETS.length;i++){ if(LIQUID_SNIPPETS[i].id===id) return LIQUID_SNIPPETS[i]; } return null; }
+function snippetsByCategory(cat){ return cat==="all" ? LIQUID_SNIPPETS.slice() : LIQUID_SNIPPETS.filter(function(s){ return s.category===cat; }); }
+function snippetCategoryLabel(id){
+  var c = LIQUID_CATEGORIES.filter(function(x){ return x.id===id; })[0];
+  return c ? c.label : id;
+}
+// skillBrandLabel jest generyczne (BRANDS[key] -> nazwa), nie tylko dla
+// skilli — reużyte tu wprost zamiast duplikować identyczną logikę.
+function snippetEyebrowLabel(s){
+  var cat = snippetCategoryLabel(s.category);
+  var b = skillBrandLabel(s.brand);
+  return b ? cat+" - "+b : cat;
+}
+function renderSnippetGrid(){
+  var q = state.searchQuery;
+  var fullList = snippetsByCategory(state.liquidCategory).filter(function(s){
+    return matchesSearch([s.label, s.id, s.desc, skillBrandLabel(s.brand)], q);
+  });
+  var page = paginateList(fullList);
+  byId("gridTitle").textContent = state.liquidCategory==="all" ? "All snippets" : snippetCategoryLabel(state.liquidCategory);
+  byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " snippet" : " snippets");
+  var grid = byId("cardGrid"); grid.innerHTML = "";
+  if(fullList.length===0){
+    grid.innerHTML = '<p class="drawer-empty" style="grid-column:1/-1; padding:36px">No snippets here yet.</p>';
+    renderPagination(1);
+    return;
+  }
+  page.items.forEach(function(s){
+    var el = document.createElement("div"); el.className = "card flow-card";
+    el.innerHTML =
+      '<div class="flow-card-top">'+
+        '<p class="flow-card-cat">'+esc(snippetEyebrowLabel(s))+'</p>'+
+        '<div class="card-name-row"><p class="flow-card-title">'+esc(s.label)+'</p>'+cardMenuHtml("liquid", s.id, "Edit")+'</div>'+
+        '<p class="flow-card-desc">'+esc(s.desc||"")+'</p>'+
+      '</div>'+
+      '<div class="flow-card-foot">'+
+        '<button class="btn small" data-snippet-open="'+esc(s.id)+'" style="flex:1">Open</button>'+
+      '</div>';
+    grid.appendChild(el);
+  });
+  grid.querySelectorAll("[data-snippet-open]").forEach(function(btn){
+    btn.addEventListener("click", function(){ openSnippetDetail(btn.getAttribute("data-snippet-open")); });
+  });
+  renderPagination(page.totalPages);
+}
+function openSnippetDetail(snippetId){
+  var s = findSnippet(snippetId);
+  if(!s) return;
+  liquidOpenId = snippetId;
+  byId("liquidTitle").textContent = s.label;
+  var meta = [
+    ["Brand", skillBrandLabel(s.brand)],
+    ["Category", snippetCategoryLabel(s.category)],
+    ["Created by", displayNameOf(s.createdBy)],
+    ["Last updated", formatUpdatedStamp(s.updatedAt)],
+    ["Updated by", displayNameOf(s.updatedBy)]
+  ].filter(function(p){ return p[1]; });
+  function sec(title, inner){ return inner ? '<div class="flow-sec"><h4>'+esc(title)+'</h4>'+inner+'</div>' : ""; }
+  byId("liquidMetaPanel").innerHTML =
+    '<div class="flow-meta-grid">'+
+      meta.map(function(p){ return '<div class="flow-meta-item"><div class="k">'+esc(p[0])+'</div><div class="v">'+esc(p[1])+'</div></div>'; }).join("")+
+    '</div>';
+  byId("liquidBody").innerHTML =
+    sec("What it does", s.desc ? '<p>'+esc(s.desc)+'</p>' : "")+
+    sec("Code", s.code ? '<pre class="code">'+esc(s.code)+'</pre>' : "")+
+    sec("Notes", s.notes ? '<p>'+esc(s.notes)+'</p>' : "");
+  byId("liquidDetailMenuWrap").setAttribute("data-card-menu-id", snippetId);
+  byId("liquidOverlay").classList.add("open");
+  urlOpenLiquidId = snippetId; syncUrlFromState();
+}
+function closeLiquidOverlay(){ byId("liquidOverlay").classList.remove("open"); urlOpenLiquidId = null; syncUrlFromState(); }
+
+var liquidForm = { editId: null, draft: null };
+function uniqueSnippetKey(base){
+  var key = base, n = 2;
+  while(findSnippet(key)){ key = base + "-" + n; n++; }
+  return key;
+}
+function emptySnippetDraft(){
+  return { label:"", category: (LIQUID_CATEGORIES[0]||{}).id||"", brand:"", desc:"", code:"", notes:"" };
+}
+function openSnippetForm(existing){
+  liquidForm.editId = existing ? existing.id : null;
+  liquidForm.draft = existing ? {
+    label: existing.label||"", category: existing.category||(LIQUID_CATEGORIES[0]||{}).id, brand: existing.brand||"",
+    desc: existing.desc||"", code: existing.code||"", notes: existing.notes||""
+  } : emptySnippetDraft();
+  byId("liquidFormTitle").textContent = existing ? "Edit snippet" : "Add snippet";
+  renderSnippetFormFields();
+  byId("liquidFormOverlay").classList.add("open");
+}
+function closeSnippetForm(){ byId("liquidFormOverlay").classList.remove("open"); }
+function renderSnippetFormFields(){
+  var form = byId("liquidForm");
+  var d = liquidForm.draft;
+  function textField(key, label, placeholder){
+    return '<div class="bf-field"><label for="lf-'+key+'">'+esc(label)+'</label>'+
+      '<input type="text" id="lf-'+key+'" data-lf-field="'+key+'" value="'+esc(d[key]||"")+'" placeholder="'+esc(placeholder||"")+'"></div>';
+  }
+  function textareaField(key, label, rows){
+    return '<div class="bf-field"><label for="lf-'+key+'">'+esc(label)+'</label>'+
+      '<textarea id="lf-'+key+'" data-lf-field="'+key+'" rows="'+(rows||3)+'">'+esc(d[key]||"")+'</textarea></div>';
+  }
+  function selectField(key, label, options){
+    return '<div class="bf-field"><label for="lf-'+key+'">'+esc(label)+'</label>'+
+      '<select id="lf-'+key+'" data-lf-select-field="'+key+'">'+
+        options.map(function(o){ return '<option value="'+esc(o[0])+'"'+(d[key]===o[0]?' selected':'')+'>'+esc(o[1])+'</option>'; }).join("")+
+      '</select></div>';
+  }
+  form.innerHTML =
+    '<div class="bf-group"><div class="bf-row">'+
+      textField("label", "Snippet name")+
+      selectField("category", "Category", LIQUID_CATEGORIES.map(function(c){ return [c.id, c.label]; }))+
+    '</div>'+
+    '<div class="bf-row">'+
+      selectField("brand", "Brand", [["", "— No specific brand (cross-client) —"]].concat(BRAND_ORDER.map(function(k){ return [k, BRANDS[k].short||BRANDS[k].name]; })))+
+    '</div></div>'+
+    '<div class="bf-group">'+
+      textareaField("desc", "What it does")+
+    '</div>'+
+    '<div class="bf-group">'+
+      textareaField("code", "Liquid code", 8)+
+      textareaField("notes", "Notes")+
+    '</div>';
+  form.querySelectorAll("[data-lf-field]").forEach(function(el){
+    el.addEventListener("input", function(){ liquidForm.draft[el.getAttribute("data-lf-field")] = el.value; });
+  });
+  form.querySelectorAll("[data-lf-select-field]").forEach(function(el){
+    el.addEventListener("change", function(){ liquidForm.draft[el.getAttribute("data-lf-select-field")] = el.value; });
+  });
+  enhanceAllSelects(form);
+}
+function saveSnippetForm(){
+  var d = liquidForm.draft;
+  var label = (d.label||"").trim();
+  if(!label){ showToast("Enter a snippet name"); byId("lf-label").focus(); return; }
+  var payload = {
+    label: label, category: d.category, brand: d.brand||"",
+    desc: (d.desc||"").trim(), code: (d.code||"").trim(), notes: (d.notes||"").trim()
+  };
+  if(liquidForm.editId){
+    var existing = findSnippet(liquidForm.editId);
+    if(!existing) return;
+    if(!canManageRecord(existing)){ showToast("You're not the creator of this snippet", "error"); return; }
+    return withBtnLoading(byId("liquidFormSave"), function(){
+      Object.assign(existing, payload, { updatedAt: new Date().toISOString(), updatedBy: currentUserStamp() });
+      return saveToStorage().then(function(){
+        closeSnippetForm(); renderAll();
+        if(byId("liquidOverlay").classList.contains("open")) openSnippetDetail(existing.id);
+        showToast("Updated snippet “"+label+"”" + (existing.custom ? "" : " (changes to a built-in snippet only last this session)"));
+      });
+    });
+  }
+  var requestedId = slugifyKey(label);
+  var finalId = findSnippet(requestedId) ? uniqueSnippetKey(requestedId) : requestedId;
+  return withBtnLoading(byId("liquidFormSave"), function(){
+    var now = new Date().toISOString();
+    var who = currentUserStamp();
+    LIQUID_SNIPPETS.push(Object.assign({ id: finalId, custom: true, createdBy: who, updatedAt: now, updatedBy: who }, payload));
+    state.section = "liquid"; state.liquidCategory = payload.category;
+    return saveToStorage().then(function(){
+      closeSnippetForm(); renderAll();
+      showToast("Added snippet “"+label+"”");
+    });
+  });
+}
+function deleteSnippet(id){
+  var s = findSnippet(id);
+  if(!s) return;
+  if(!canManageRecord(s)){ showToast("You're not the creator of this snippet", "error"); return; }
+  if(!s.custom && DELETED_BUILTIN_LIQUID_IDS.indexOf(id)===-1) DELETED_BUILTIN_LIQUID_IDS.push(id);
+  LIQUID_SNIPPETS = LIQUID_SNIPPETS.filter(function(x){ return x.id!==id; });
+  saveToStorage().then(function(){
+    if(urlOpenLiquidId===id) closeLiquidOverlay();
+    renderAll();
+    showToast("Snippet deleted");
+  });
+}
+
 /* ================================================================
    HARMONOGRAM DM — kalendarz miesięczny
    ================================================================ */
@@ -10798,6 +11122,7 @@ var SECTION_META = {
   emails:     { title:"E-mails", search:"Search emails…", primary:null, stack:true },
   flows:      { title:"Flow Repository", search:"Search flows…", primary:"add-flow", stack:false },
   skills:     { title:"Skills", search:"Search skills…", primary:"add-skill", stack:false },
+  liquid:     { title:"Liquid Snippets", search:"Search snippets…", primary:"add-liquid", stack:false },
   schedule:   { title:"DM Schedule", search:null, primary:null, stack:false },
   brandkit:   { title:"Brand Kit", search:null, primary:null, stack:false }
 };
@@ -10838,6 +11163,7 @@ function syncSectionChrome(){
   // widoczności per sekcja. "Add Flow" zostaje kontekstowe.
   byId("addFlowRepoBtn").style.display = meta.primary==="add-flow" ? "" : "none";
   byId("addSkillBtn").style.display = meta.primary==="add-skill" ? "" : "none";
+  byId("addLiquidBtn").style.display = meta.primary==="add-liquid" ? "" : "none";
   // Filtr CRM zawęża komponenty/maile po platformie — w Brand Kicie nie ma
   // czego zawężać.
   byId("crmFilterRow").style.display = isBrandKit ? "none" : "";
@@ -11134,10 +11460,11 @@ document.addEventListener("click", function(e){
       else if(kind==="email") openEditReadyEmail(id);
       else if(kind==="flow" && typeof openFlowForm==="function") openFlowForm(findFlow(id));
       else if(kind==="skill" && typeof openSkillForm==="function") openSkillForm(findSkill(id));
+      else if(kind==="liquid" && typeof openSnippetForm==="function") openSnippetForm(findSnippet(id));
       return;
     }
     // Delete
-    var record = kind==="component" ? findComp(id) : kind==="email" ? findEmail(id) : kind==="flow" ? (typeof findFlow==="function" ? findFlow(id) : null) : (typeof findSkill==="function" ? findSkill(id) : null);
+    var record = kind==="component" ? findComp(id) : kind==="email" ? findEmail(id) : kind==="flow" ? (typeof findFlow==="function" ? findFlow(id) : null) : kind==="skill" ? (typeof findSkill==="function" ? findSkill(id) : null) : (typeof findSnippet==="function" ? findSnippet(id) : null);
     if((kind==="component" || kind==="email") && !canManageRecord(record)){
       showToast("You're not the creator of this "+(kind==="component"?"component":"e-mail"), "error");
       closeAllCardMenus();
@@ -11153,6 +11480,8 @@ document.addEventListener("click", function(e){
         deleteFlow(id);
       } else if(kind==="skill" && typeof deleteSkill==="function"){
         deleteSkill(id);
+      } else if(kind==="liquid" && typeof deleteSnippet==="function"){
+        deleteSnippet(id);
       }
     });
     return;
@@ -11167,6 +11496,7 @@ function renderGrid(){
   if(state.section==="schedule"){ renderDmCalendar(); return; }
   if(state.section==="flows"){ renderFlowGrid(); return; }
   if(state.section==="skills"){ renderSkillGrid(); return; }
+  if(state.section==="liquid"){ renderSnippetGrid(); return; }
   if(state.section==="emails"){ renderEmailGrid(); return; }
   var b = brand();
   var q = state.searchQuery;
@@ -12145,6 +12475,20 @@ byId("skillFormCancel").addEventListener("click", closeSkillForm);
 byId("skillFormSave").addEventListener("click", saveSkillForm);
 bindOverlayBackdropClose("skillFormOverlay", closeSkillForm);
 
+/* ---- Liquid Snippets ---- */
+byId("liquidClose").addEventListener("click", closeLiquidOverlay);
+bindOverlayBackdropClose("liquidOverlay", closeLiquidOverlay);
+byId("liquidCopyBtn").addEventListener("click", function(){
+  var s = liquidOpenId && findSnippet(liquidOpenId);
+  if(!s) return;
+  copyText(s.code||"", "Copied — paste it wherever the template needs it");
+});
+byId("addLiquidBtn").addEventListener("click", function(){ openSnippetForm(null); });
+byId("liquidFormClose").addEventListener("click", closeSnippetForm);
+byId("liquidFormCancel").addEventListener("click", closeSnippetForm);
+byId("liquidFormSave").addEventListener("click", saveSnippetForm);
+bindOverlayBackdropClose("liquidFormOverlay", closeSnippetForm);
+
 /* ---- Harmonogram DM ---- */
 byId("dmPrevMonth").addEventListener("click", function(){ shiftDmMonth(-1); syncUrlFromState(); });
 byId("dmNextMonth").addEventListener("click", function(){ shiftDmMonth(1); syncUrlFromState(); });
@@ -12645,6 +12989,7 @@ var urlOpenComponentId = null;
 var urlOpenEmailId = null;
 var urlOpenFlowId = null;
 var urlOpenSkillId = null;
+var urlOpenLiquidId = null;
 function syncUrlFromState(){
   // Publiczny link do kalendarza NIE może się sam przepisać na zwykły URL
   // appki — inaczej pierwszy render skasowałby ?dmshare= z paska adresu i
@@ -12658,6 +13003,8 @@ function syncUrlFromState(){
     params.set("flowcat", state.flowCategory||"all");
   } else if(state.section==="skills"){
     params.set("skillcat", state.skillCategory||"all");
+  } else if(state.section==="liquid"){
+    params.set("liquidcat", state.liquidCategory||"all");
   } else if(state.section==="schedule"){
     if(state.dmMonth) params.set("month", state.dmMonth);
   } else {
@@ -12669,6 +13016,7 @@ function syncUrlFromState(){
   if(urlOpenEmailId) params.set("email", urlOpenEmailId);
   if(urlOpenFlowId) params.set("flowid", urlOpenFlowId);
   if(urlOpenSkillId) params.set("skillid", urlOpenSkillId);
+  if(urlOpenLiquidId) params.set("liquidid", urlOpenLiquidId);
   var qs = params.toString();
   history.replaceState(null, "", location.pathname + (qs ? "?"+qs : ""));
 }
@@ -12687,6 +13035,7 @@ function restoreStateFromUrl(){
   var emailId = params.get("email");
   var flowId = params.get("flowid");
   var skillId = params.get("skillid");
+  var liquidId = params.get("liquidid");
   var changed = false;
   if(section==="emails"){
     state.section = "emails"; changed = true;
@@ -12708,6 +13057,10 @@ function restoreStateFromUrl(){
     state.section = "skills"; changed = true;
     var skillCat = params.get("skillcat");
     if(skillCat && (skillCat==="all" || SKILL_CATEGORIES.some(function(c){ return c.id===skillCat; }))) state.skillCategory = skillCat;
+  } else if(section==="liquid"){
+    state.section = "liquid"; changed = true;
+    var liquidCat = params.get("liquidcat");
+    if(liquidCat && (liquidCat==="all" || LIQUID_CATEGORIES.some(function(c){ return c.id===liquidCat; }))) state.liquidCategory = liquidCat;
   } else if(section==="schedule"){
     state.section = "schedule"; changed = true;
     var month = params.get("month");
@@ -12720,6 +13073,7 @@ function restoreStateFromUrl(){
   else if(emailId && findEmail(emailId)) openEmailPreview(emailId);
   else if(flowId && findFlow(flowId)) openFlowDetail(flowId);
   else if(skillId && findSkill(skillId)) openSkillDetail(skillId);
+  else if(liquidId && findSnippet(liquidId)) openSnippetDetail(liquidId);
 }
 function renderAll(){
   renderSwatches(); renderPrimaryNav(); renderFilterBar(); renderCrmFilterRow();
