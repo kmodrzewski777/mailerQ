@@ -1816,8 +1816,10 @@
       <span style="display:flex; align-items:center; gap:4px">
         <div class="card-menu-wrap" id="skillDetailMenuWrap" data-card-menu-kind="skill" data-card-menu-id="">
           <button type="button" class="icon-btn card-menu-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More options"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-189.23q-24.75 0-42.37-17.63Q420-224.48 420-249.23q0-24.75 17.63-42.38 17.62-17.62 42.37-17.62 24.75 0 42.37 17.62Q540-273.98 540-249.23q0 24.75-17.63 42.37-17.62 17.63-42.37 17.63ZM480-420q-24.75 0-42.37-17.63Q420-455.25 420-480q0-24.75 17.63-42.37Q455.25-540 480-540q24.75 0 42.37 17.63Q540-504.75 540-480q0 24.75-17.63 42.37Q504.75-420 480-420Zm0-230.77q-24.75 0-42.37-17.62Q420-686.02 420-710.77q0-24.75 17.63-42.37 17.62-17.63 42.37-17.63 24.75 0 42.37 17.63Q540-735.52 540-710.77q0 24.75-17.63 42.38-17.62 17.62-42.37 17.62Z"/></svg></button>
+          <!-- user: "musi być opcja Update" — dla skilla to "Update", nie
+               "Edit" (patrz cardMenuHtml na kartach, ta sama etykieta). -->
           <ul class="card-menu" role="menu" style="display:none">
-            <li class="card-menu-item" role="menuitem" data-card-menu-edit>Edit</li>
+            <li class="card-menu-item" role="menuitem" data-card-menu-edit>Update</li>
             <li class="card-menu-item danger" role="menuitem" data-card-menu-delete>Delete</li>
           </ul>
         </div>
@@ -6157,7 +6159,9 @@ SKILLS.push({
   ],
   instructions:"# PDF Form Filler\n\nWhen the user provides a PDF form and a set of values to fill in:\n\n1. Inspect the PDF's form fields (or, if it has none, treat the layout as a template to write text back into at matching coordinates).\n2. Map the supplied values to field names using close string matching; ask for confirmation on any ambiguous match rather than guessing silently.\n3. Preserve the original page size, fonts, and non-form content exactly — only the field values change.\n4. Output a single filled PDF per record. For batches, name files predictably (e.g. `lastname_firstname.pdf`).\n5. Flag any required field that has no matching value instead of leaving it blank without comment.",
   notes:"Placeholder seed skill for the Skills section — replace with a real one from your team.",
-  createdBy:"Maximus"
+  createdBy:"Maximus",
+  updatedAt:"2026-08-21T09:00:00.000Z",
+  updatedBy:"Maximus"
 });
 SKILLS.push({
   id:"excel-report-builder",
@@ -6172,7 +6176,9 @@ SKILLS.push({
   ],
   instructions:"# Excel Report Builder\n\nWhen given a raw data export and asked for a report:\n\n1. Build a \"Summary\" tab first: key totals/averages at the top, in large, clearly labeled cells.\n2. Put the cleaned raw data on a second tab, formatted as a real table (header row, borders, frozen header).\n3. Add 1-2 charts on the summary tab that answer the most obvious question the data raises (trend over time, split by category) — don't add a chart for every column.\n4. Use conditional formatting sparingly, only where it highlights something actionable (e.g. below-target rows in red).\n5. Never silently drop rows with missing data — surface them on a small \"Needs review\" tab instead.",
   notes:"Placeholder seed skill for the Skills section — replace with a real one from your team.",
-  createdBy:"Maximus"
+  createdBy:"Maximus",
+  updatedAt:"2026-08-21T09:00:00.000Z",
+  updatedBy:"Maximus"
 });
 
 /* ================================================================
@@ -9841,6 +9847,23 @@ function downloadFlowMarkdown(flowId){
    ================================================================ */
 var skillOpenId = null;
 function findSkill(id){ for(var i=0;i<SKILLS.length;i++){ if(SKILLS[i].id===id) return SKILLS[i]; } return null; }
+// user: "musi być... informacja na jaki dzień i godzinę jest aktualny
+// skill i kto ostatni go aktualizował" — stamp jest ten sam obiekt co
+// createdBy (patrz currentUserStamp: {uid, displayName, photoURL, email}),
+// ale seed-owe skille (SKILLS.push wyżej) mają go jako gołą nazwę-string —
+// ten helper obsługuje oba kształty zamiast zakładać jeden z nich.
+function displayNameOf(stamp){
+  if(!stamp) return "";
+  if(typeof stamp==="string") return stamp;
+  return stamp.displayName || stamp.email || "";
+}
+function formatUpdatedStamp(iso){
+  if(!iso) return "";
+  var d = new Date(iso);
+  if(isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-GB", { day:"numeric", month:"short", year:"numeric" })+", "+
+    d.toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" });
+}
 function skillsByCategory(cat){ return cat==="all" ? SKILLS.slice() : SKILLS.filter(function(s){ return s.category===cat; }); }
 function skillCategoryLabel(id){
   var c = SKILL_CATEGORIES.filter(function(x){ return x.id===id; })[0];
@@ -9870,10 +9893,13 @@ function renderSkillGrid(){
         '<span class="flow-chip">'+esc((s.tags||[]).length)+' tags</span>'+
       '</div>'+
       '<div class="flow-card-top">'+
-        '<div class="card-name-row"><p class="flow-card-title">'+esc(s.label)+'</p>'+cardMenuHtml("skill", s.id)+'</div>'+
+        '<div class="card-name-row"><p class="flow-card-title">'+esc(s.label)+'</p>'+cardMenuHtml("skill", s.id, "Update")+'</div>'+
         '<p class="flow-card-desc">'+esc(s.desc||"")+'</p>'+
       '</div>'+
       '<div class="flow-card-meta">'+chips+'</div>'+
+      // user: "gdzieś na widgecie ma być informacja na jaki dzień i
+      // godzinę jest aktualny skill i kto ostatni go aktualizował".
+      (s.updatedAt ? '<p class="card-compat-text" style="padding:6px 16px 0">Updated '+esc(formatUpdatedStamp(s.updatedAt))+(displayNameOf(s.updatedBy) ? ' by '+esc(displayNameOf(s.updatedBy)) : '')+'</p>' : '')+
       '<div class="flow-card-foot">'+
         '<button class="btn ghost small" data-skill-open="'+esc(s.id)+'">Open</button>'+
         '<button class="btn small" data-skill-md="'+esc(s.id)+'">Get .md</button>'+
@@ -9893,10 +9919,15 @@ function openSkillDetail(skillId){
   if(!s) return;
   skillOpenId = skillId;
   byId("skillTitle").textContent = s.label;
+  // user: "informacja na jaki dzień i godzinę jest aktualny skill i kto
+  // ostatni go aktualizował" — osobne pola, żeby "kiedy" i "kto" było
+  // widać na pierwszy rzut oka w sticky panelu, nie tylko na karcie.
   var meta = [
     ["Category", skillCategoryLabel(s.category)],
     ["Tags", (s.tags||[]).join(", ")],
-    ["Created by", s.createdBy||""]
+    ["Created by", displayNameOf(s.createdBy)],
+    ["Last updated", formatUpdatedStamp(s.updatedAt)],
+    ["Updated by", displayNameOf(s.updatedBy)]
   ].filter(function(p){ return p[1]; });
   function sec(title, inner){ return inner ? '<div class="flow-sec"><h4>'+esc(title)+'</h4>'+inner+'</div>' : ""; }
   function list(arr){
@@ -9934,7 +9965,7 @@ function openSkillForm(existing){
     desc: existing.desc||"", tags: (existing.tags||[]).slice(), useCases: (existing.useCases||[]).slice(),
     instructions: existing.instructions||"", notes: existing.notes||""
   } : emptySkillDraft();
-  byId("skillFormTitle").textContent = existing ? "Edit skill" : "Add skill";
+  byId("skillFormTitle").textContent = existing ? "Update skill" : "Add skill";
   renderSkillFormFields();
   byId("skillFormOverlay").classList.add("open");
 }
@@ -9996,12 +10027,17 @@ function saveSkillForm(){
     desc: (d.desc||"").trim(), tags: d.tags||[], useCases: d.useCases||[],
     instructions: (d.instructions||"").trim(), notes: (d.notes||"").trim()
   };
+  // user: "jeśli ktoś coś w nim zmieni to będzie aktualizował skilla...
+  // informacja na jaki dzień i godzinę jest aktualny skill i kto ostatni
+  // go aktualizował" — stemplowane przy KAŻDYM zapisie (nowy skill i
+  // każda kolejna aktualizacja), niezależnie od tego, co konkretnie się
+  // zmieniło w formularzu.
   if(skillForm.editId){
     var existing = findSkill(skillForm.editId);
     if(!existing) return;
     if(!canManageRecord(existing)){ showToast("You're not the creator of this skill", "error"); return; }
     return withBtnLoading(byId("skillFormSave"), function(){
-      Object.assign(existing, payload);
+      Object.assign(existing, payload, { updatedAt: new Date().toISOString(), updatedBy: currentUserStamp() });
       return saveToStorage().then(function(){
         closeSkillForm(); renderAll();
         if(byId("skillOverlay").classList.contains("open")) openSkillDetail(existing.id);
@@ -10012,7 +10048,9 @@ function saveSkillForm(){
   var requestedId = slugifyKey(label);
   var finalId = findSkill(requestedId) ? uniqueSkillKey(requestedId) : requestedId;
   return withBtnLoading(byId("skillFormSave"), function(){
-    SKILLS.push(Object.assign({ id: finalId, custom: true, createdBy: currentUserStamp() }, payload));
+    var now = new Date().toISOString();
+    var who = currentUserStamp();
+    SKILLS.push(Object.assign({ id: finalId, custom: true, createdBy: who, updatedAt: now, updatedBy: who }, payload));
     state.section = "skills"; state.skillCategory = payload.category;
     return saveToStorage().then(function(){
       closeSkillForm(); renderAll();
@@ -10043,7 +10081,10 @@ function buildSkillMarkdown(s){
   if(s.instructions){ h(2, "Instructions"); L.push(s.instructions); L.push(""); }
   if(s.notes){ h(2, "Notes"); p(s.notes); }
   L.push("---"); L.push("");
-  L.push("_Exported from Maximus Skills · category: "+skillCategoryLabel(s.category)+((s.tags&&s.tags.length) ? " · tags: "+s.tags.join(", ") : "")+"._");
+  var footBits = ["category: "+skillCategoryLabel(s.category)];
+  if(s.tags && s.tags.length) footBits.push("tags: "+s.tags.join(", "));
+  if(s.updatedAt) footBits.push("updated "+formatUpdatedStamp(s.updatedAt)+(displayNameOf(s.updatedBy) ? " by "+displayNameOf(s.updatedBy) : ""));
+  L.push("_Exported from Maximus Skills · "+footBits.join(" · ")+"._");
   return L.join("\n");
 }
 function skillMdFilename(s){
@@ -10584,11 +10625,14 @@ function compatBoxHtml(keys){
 // budowniczy dla wszystkich trzech typów kart (komponent/e-mail/flow) —
 // obsługa kliknięć jest TEŻ jedna, delegowana na document (patrz niżej),
 // żeby nie trzeba było na nowo podpinać listenerów przy każdym renderze.
-function cardMenuHtml(kind, id){
+function cardMenuHtml(kind, id, editLabel){
+  // user (skills): "musi być opcja Update" — dla skilli "Edit" faktycznie
+  // znaczy "wgraj nowszą wersję kodu", więc etykieta jest inna niż dla
+  // reszty kart; wszystko poza tekstem zostaje identyczne.
   return '<div class="card-menu-wrap" data-card-menu-kind="'+kind+'" data-card-menu-id="'+esc(id)+'">'+
     '<button type="button" class="icon-btn card-menu-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More options">'+ICON_MORE_VERT+'</button>'+
     '<ul class="card-menu" role="menu" style="display:none">'+
-      '<li class="card-menu-item" role="menuitem" data-card-menu-edit>Edit</li>'+
+      '<li class="card-menu-item" role="menuitem" data-card-menu-edit>'+esc(editLabel||"Edit")+'</li>'+
       '<li class="card-menu-item danger" role="menuitem" data-card-menu-delete>Delete</li>'+
     '</ul>'+
   '</div>';
