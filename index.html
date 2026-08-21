@@ -1300,6 +1300,14 @@
       <span class="nav-label">Flow Repository</span><span class="n" id="navCountFlows"></span>
     </button>
     <div class="nav-cats is-collapsed" id="navCatsFlows" role="group" aria-label="Flow categories"></div>
+    <!-- user: "Dodaj kolejną kategorię - udostępnianie skilli do Claude" —
+         nowa sekcja, ta sama architektura co Flow Repository (własne
+         kategorie, karta, formularz, bez Mail Stacka). -->
+    <button class="nav-item" type="button" data-nav="skills">
+      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M208.85-197.69h504.61q3.85 0 6.35-2.69 2.5-2.7 2.5-6.54v-176.31l36.92-15.85q18.31-6.84 29.54-23.53Q800-439.31 800-461.15q0-21.62-11.23-38.43t-29.54-24.04l-36.92-15.23v-176.53q0-4.24-2.5-6.74t-6.35-2.5H534.92l-7.3-51.07q-3.77-25.85-22.39-43.92-18.61-18.08-44.08-18.08-26.07 0-44.69 18.08-18.61 18.07-22.38 43.92l-7.31 51.07H208.46q-3.46 0-5.96 2.5t-2.5 6.74V-624q51.77 17.15 84.15 62.04 32.39 44.88 32.39 100.81 0 57.3-32.19 102.19-32.2 44.88-84.35 61.27v90.77q0 3.84 2.5 6.54 2.5 2.69 6.35 2.69Zm0 60q-29 0-48.93-20.12Q140-177.92 140-206.92V-347q48-1.54 82.27-33.58 34.27-32.04 34.27-80.57 0-45.62-34.46-78.12-34.46-32.5-82.08-36.42v-139.69q0-28.77 20.04-49t48.42-20.23h126.23q6.62-47.93 42.16-80.5 35.54-32.58 84.3-32.58 48.16 0 83.7 32.58 35.53 32.57 42.76 80.5h125.85q28.39 0 48.62 20.23 20.23 20.23 20.23 49v136.69q34.84 14.15 56.27 46.23Q860-500.38 860-461.15q0 39.07-21.42 70.96-21.43 31.88-56.27 46.57v136.7q0 29-20.23 49.11-20.23 20.12-48.62 20.12H208.85ZM500-461.15Z"/></svg>
+      <span class="nav-label">Skills</span><span class="n" id="navCountSkills"></span>
+    </button>
+    <div class="nav-cats is-collapsed" id="navCatsSkills" role="group" aria-label="Skill categories"></div>
     <button class="nav-item" type="button" data-nav="schedule">
       <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M212.31-100Q182-100 161-121q-21-21-21-51.31v-535.38Q140-738 161-759q21-21 51.31-21h55.38v-84.61h61.54V-780h303.08v-84.61h60V-780h55.38Q778-780 799-759q21 21 21 51.31v535.38Q820-142 799-121q-21 21-51.31 21H212.31Zm0-60h535.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-375.38H200v375.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM200-607.69h560v-100q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H212.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v100Z"/></svg>
       <span class="nav-label">DM Schedule</span><span class="n" id="navCountSchedule"></span>
@@ -1325,6 +1333,7 @@
              topbaru). "Add Flow" zostaje tu — kontekstowa akcja WYŁĄCZNIE
              dla sekcji "flows", patrz syncSectionChrome. -->
         <button class="btn small" id="addFlowRepoBtn" type="button" style="display:none">Add Flow</button>
+        <button class="btn small" id="addSkillBtn" type="button" style="display:none">Add Skill</button>
         <button class="btn ghost small" id="dockToggle" type="button" aria-expanded="false" aria-controls="drawer">
           Mail Stack<span class="dock-pill" id="dockCount">0</span>
         </button>
@@ -1793,6 +1802,54 @@
     <div class="modal-footer-bar" style="gap:8px">
       <button class="btn ghost small" type="button" id="flowFormCancel" style="flex:1">Cancel</button>
       <button class="btn small" type="button" id="flowFormSave" style="flex:1">Save flow</button>
+    </div>
+  </div>
+</div>
+
+<!-- Szczegóły skilla — ten sam wzorzec co szczegóły flow wyżej, bez
+     przycisku share (usunięty wcześniej z edytorów komponentu/maila na
+     wyraźną prośbę, więc nie dodajemy go tu od nowa). -->
+<div class="overlay" id="skillOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:1040px">
+    <div class="modal-head">
+      <h3 id="skillTitle"></h3>
+      <span style="display:flex; align-items:center; gap:4px">
+        <div class="card-menu-wrap" id="skillDetailMenuWrap" data-card-menu-kind="skill" data-card-menu-id="">
+          <button type="button" class="icon-btn card-menu-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More options"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-189.23q-24.75 0-42.37-17.63Q420-224.48 420-249.23q0-24.75 17.63-42.38 17.62-17.62 42.37-17.62 24.75 0 42.37 17.62Q540-273.98 540-249.23q0 24.75-17.63 42.37-17.62 17.63-42.37 17.63ZM480-420q-24.75 0-42.37-17.63Q420-455.25 420-480q0-24.75 17.63-42.37Q455.25-540 480-540q24.75 0 42.37 17.63Q540-504.75 540-480q0 24.75-17.63 42.37Q504.75-420 480-420Zm0-230.77q-24.75 0-42.37-17.62Q420-686.02 420-710.77q0-24.75 17.63-42.37 17.62-17.63 42.37-17.63 24.75 0 42.37 17.63Q540-735.52 540-710.77q0 24.75-17.63 42.38-17.62 17.62-42.37 17.62Z"/></svg></button>
+          <ul class="card-menu" role="menu" style="display:none">
+            <li class="card-menu-item" role="menuitem" data-card-menu-edit>Edit</li>
+            <li class="card-menu-item danger" role="menuitem" data-card-menu-delete>Delete</li>
+          </ul>
+        </div>
+        <button class="modal-close" id="skillClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+      </span>
+    </div>
+    <div class="modal-body">
+      <div class="flow-detail-grid">
+        <div class="flow-detail-main" id="skillBody"></div>
+        <aside class="flow-detail-side" id="skillMetaPanel"></aside>
+      </div>
+    </div>
+    <div class="modal-footer-bar" style="gap:8px">
+      <button class="btn ghost small" id="skillCopyMdBtn" type="button" style="flex:1">Copy .md</button>
+      <button class="btn small" id="skillDownloadMdBtn" type="button" style="flex:1">Download .md</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Skill — ten sam wzorzec co Add/Edit Flow wyżej. -->
+<div class="overlay" id="skillFormOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-head">
+      <h3 id="skillFormTitle">Add skill</h3>
+      <button class="modal-close" id="skillFormClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <form id="skillForm" class="brand-form"></form>
+    </div>
+    <div class="modal-footer-bar" style="gap:8px">
+      <button class="btn ghost small" type="button" id="skillFormCancel" style="flex:1">Cancel</button>
+      <button class="btn small" type="button" id="skillFormSave" style="flex:1">Save skill</button>
     </div>
   </div>
 </div>
@@ -6063,6 +6120,62 @@ FLOWS.push({
 });
 
 /* ================================================================
+   SKILLS — user: "Dodaj kolejną kategorię - udostępnianie skilli do
+   Claude. Zainspiruj się troche tym jak jest zrobiona na skillta.com"
+   (skillta.com: marketplace kart z nazwą/opisem skilla, kategorią,
+   tagami i pobieraniem .md). Architektura skopiowana 1:1 z Flow
+   Repository wyżej (categories/records/render/form/detail/CRUD/backup
+   payload) — ta sama sekcja bez kolumny Mail Stack (meta.stack:false).
+   Skill nie ma "stages" jak flow — jego "treścią" jest samo instructions
+   (odpowiednik ciała pliku SKILL.md), które Claude wczytuje jako
+   instrukcję. useCases pełni rolę mechanics/rules z flow: kiedy sięgnąć
+   po ten skill. */
+var SKILL_CATEGORIES = [
+  { id:"writing", label:"Writing & content" },
+  { id:"coding", label:"Coding & dev" },
+  { id:"data", label:"Data & analytics" },
+  { id:"research", label:"Research" },
+  { id:"productivity", label:"Productivity & ops" },
+  { id:"design", label:"Design" },
+  { id:"automation", label:"Automation" }
+];
+var SKILLS = [];
+
+/* Seed #1 — przykładowy skill ilustrujący kształt sekcji (jak dawny
+   placeholder "Lorem ipsum" w komponentach), nie prawdziwie opublikowany
+   skill żadnej firmy. */
+SKILLS.push({
+  id:"pdf-form-filler",
+  category:"productivity",
+  label:"PDF Form Filler",
+  desc:"Fills structured PDF forms (contracts, applications, invoices) from a plain-text or spreadsheet source, keeping field names and formatting consistent with the original template.",
+  tags:["pdf","forms","documents"],
+  useCases:[
+    "You have a blank PDF template and a list of values that need to land in the right fields.",
+    "You're batch-generating the same form for many people (e.g. onboarding paperwork).",
+    "You need the filled PDF to keep the original layout instead of being re-typeset."
+  ],
+  instructions:"# PDF Form Filler\n\nWhen the user provides a PDF form and a set of values to fill in:\n\n1. Inspect the PDF's form fields (or, if it has none, treat the layout as a template to write text back into at matching coordinates).\n2. Map the supplied values to field names using close string matching; ask for confirmation on any ambiguous match rather than guessing silently.\n3. Preserve the original page size, fonts, and non-form content exactly — only the field values change.\n4. Output a single filled PDF per record. For batches, name files predictably (e.g. `lastname_firstname.pdf`).\n5. Flag any required field that has no matching value instead of leaving it blank without comment.",
+  notes:"Placeholder seed skill for the Skills section — replace with a real one from your team.",
+  createdBy:"Maximus"
+});
+SKILLS.push({
+  id:"excel-report-builder",
+  category:"data",
+  label:"Excel Report Builder",
+  desc:"Turns a raw data export into a formatted, ready-to-share Excel report: summary tab, formatted tables, and simple charts, without the user having to build pivot tables by hand.",
+  tags:["excel","reporting","spreadsheets"],
+  useCases:[
+    "You get a raw CSV/export every week and want the same polished report structure every time.",
+    "Someone needs a spreadsheet they can open and immediately read, not a raw data dump.",
+    "You want totals, a couple of charts, and conditional formatting without doing it manually."
+  ],
+  instructions:"# Excel Report Builder\n\nWhen given a raw data export and asked for a report:\n\n1. Build a \"Summary\" tab first: key totals/averages at the top, in large, clearly labeled cells.\n2. Put the cleaned raw data on a second tab, formatted as a real table (header row, borders, frozen header).\n3. Add 1-2 charts on the summary tab that answer the most obvious question the data raises (trend over time, split by category) — don't add a chart for every column.\n4. Use conditional formatting sparingly, only where it highlights something actionable (e.g. below-target rows in red).\n5. Never silently drop rows with missing data — surface them on a small \"Needs review\" tab instead.",
+  notes:"Placeholder seed skill for the Skills section — replace with a real one from your team.",
+  createdBy:"Maximus"
+});
+
+/* ================================================================
    HARMONOGRAM DIRECT MARKETINGU — user: "harmonogram wysyłek Direct
    Marketingowych. Obecnie korzystamy z ClickUpa. Nie chcemy tam wpuszczać
    klientów, ale wypadałoby żeby mieli wgląd do tego co kiedy wychodzi".
@@ -6106,6 +6219,7 @@ var state = { brand:"neutral", category:"all", section:"components", emailFlow:"
   // state.category; dmMonth ("YYYY-MM") ustawiany na bieżący przy starcie
   // (patrz initDmMonth), to stan przeglądania, więc nie jest zapisywany.
   flowCategory:"all",
+  skillCategory:"all",
   dmMonth:"",
   // Który z 3 wariantów headera/stopki marki (patrz BRANDS[key].header2Code
   // itd.) ma wejść do skompilowanego maila — wybierane w oknie Podgląd
@@ -6396,6 +6510,11 @@ function buildBackupPayload(){
     // do dzielenia się ("miejsce do przechowywania i dzielenia się gotowymi
     // Flows"), a harmonogram jest jeden dla całej agencji.
     customFlows: FLOWS.filter(function(f){ return f.custom; }),
+    // Skills — ta sama koncepcja co Flow Repository ("Dodaj kolejną
+    // kategorię - udostępnianie skilli do Claude"): wspólna, dzielona
+    // przez zespół biblioteka, nie prywatny stan.
+    deletedBuiltinSkillIds: DELETED_BUILTIN_SKILL_IDS,
+    customSkills: SKILLS.filter(function(s){ return s.custom; }),
     dmEntries: DM_ENTRIES
   };
 }
@@ -6413,6 +6532,7 @@ function buildBackupPayload(){
 var DELETED_BUILTIN_COMPONENT_IDS = [];
 var DELETED_BUILTIN_EMAIL_IDS = [];
 var DELETED_BUILTIN_FLOW_IDS = [];
+var DELETED_BUILTIN_SKILL_IDS = [];
 function applyBackupPayload(payload){
   if(payload.brands) BRANDS = payload.brands;
   if(payload.brandOrder) BRAND_ORDER = payload.brandOrder;
@@ -6427,6 +6547,10 @@ function applyBackupPayload(payload){
   if(payload.deletedBuiltinFlowIds){
     DELETED_BUILTIN_FLOW_IDS = payload.deletedBuiltinFlowIds;
     FLOWS = FLOWS.filter(function(f){ return DELETED_BUILTIN_FLOW_IDS.indexOf(f.id)===-1; });
+  }
+  if(payload.deletedBuiltinSkillIds){
+    DELETED_BUILTIN_SKILL_IDS = payload.deletedBuiltinSkillIds;
+    SKILLS = SKILLS.filter(function(s){ return DELETED_BUILTIN_SKILL_IDS.indexOf(s.id)===-1; });
   }
   if(payload.customComponents){
     payload.customComponents.forEach(function(cc){
@@ -6493,6 +6617,11 @@ function applyBackupPayload(payload){
       if(!findFlow(cf.id)) FLOWS.push(Object.assign({}, cf, { custom:true }));
     });
   }
+  if(payload.customSkills){
+    payload.customSkills.forEach(function(cs){
+      if(!findSkill(cs.id)) SKILLS.push(Object.assign({}, cs, { custom:true }));
+    });
+  }
   // Harmonogram podmieniany w CAŁOŚCI (nie scalany per-wpis) — to jedna,
   // wspólna tablica, a nie katalog z wbudowanym seedem jak komponenty.
   if(payload.dmEntries) DM_ENTRIES = payload.dmEntries;
@@ -6508,7 +6637,7 @@ var mqSaveTimer = null;
 // WSZYSTKO razem (bez podziału) — to czysto lokalna kopia zapasowa
 // przeglądarki, nie ma tu ryzyka konfliktu między osobami.
 var MQ_PRIVATE_KEYS = ["buildList","currentBrand","headerVariant","footerVariant","favoriteComponents","favoriteEmails"];
-var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds","deletedBuiltinFlowIds","customFlows","dmEntries"];
+var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds","deletedBuiltinFlowIds","customFlows","deletedBuiltinSkillIds","customSkills","dmEntries"];
 function splitBackupPayload(full){
   var priv = {}, shared = {};
   MQ_PRIVATE_KEYS.forEach(function(k){ priv[k] = full[k]; });
@@ -9193,6 +9322,7 @@ function renderPrimaryNav(){
   byId("navCountComponents").textContent = COMPONENTS.length;
   byId("navCountEmails").textContent = READY_EMAILS.length;
   byId("navCountFlows").textContent = FLOWS.length;
+  byId("navCountSkills").textContent = SKILLS.length;
   byId("navCountSchedule").textContent = DM_ENTRIES.length;
   nav.querySelectorAll("[data-nav]").forEach(function(btn){
     var target = btn.getAttribute("data-nav");
@@ -9210,7 +9340,7 @@ function renderPrimaryNav(){
    Repository) — pokazujemy WYŁĄCZNIE ten, który pasuje do state.section,
    pozostałe dwa czyścimy i chowamy. */
 function renderNavCats(){
-  var wraps = { components: byId("navCatsComponents"), emails: byId("navCatsEmails"), flows: byId("navCatsFlows") };
+  var wraps = { components: byId("navCatsComponents"), emails: byId("navCatsEmails"), flows: byId("navCatsFlows"), skills: byId("navCatsSkills") };
   Object.keys(wraps).forEach(function(key){
     var wrap = wraps[key];
     if(!wrap) return;
@@ -9259,6 +9389,17 @@ function renderNavCats(){
         if(n===0 && state.flowCategory!==c.id) return;
         catBtn(c.label, n, state.flowCategory===c.id, function(){
           state.flowCategory=c.id; state.page=1; renderAll();
+        });
+      });
+    } else if(key==="skills"){
+      catBtn("All", SKILLS.length, state.skillCategory==="all", function(){
+        state.skillCategory="all"; state.page=1; renderAll();
+      });
+      SKILL_CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).forEach(function(c){
+        var n = skillsByCategory(c.id).length;
+        if(n===0 && state.skillCategory!==c.id) return;
+        catBtn(c.label, n, state.skillCategory===c.id, function(){
+          state.skillCategory=c.id; state.page=1; renderAll();
         });
       });
     }
@@ -9691,6 +9832,237 @@ function downloadFlowMarkdown(flowId){
 }
 
 /* ================================================================
+   SKILLS — user: "Dodaj kolejną kategorię - udostępnianie skilli do
+   Claude. Zainspiruj się troche tym jak jest zrobiona na skillta.com".
+   Ta sama architektura co Flow Repository wyżej (render/detail/form/
+   delete/eksport .md), bez "stages" — jedynym "ciałem" skilla są
+   instructions (odpowiednik pliku SKILL.md), useCases pełni rolę
+   mechanics/rules z flow (kiedy po niego sięgnąć).
+   ================================================================ */
+var skillOpenId = null;
+function findSkill(id){ for(var i=0;i<SKILLS.length;i++){ if(SKILLS[i].id===id) return SKILLS[i]; } return null; }
+function skillsByCategory(cat){ return cat==="all" ? SKILLS.slice() : SKILLS.filter(function(s){ return s.category===cat; }); }
+function skillCategoryLabel(id){
+  var c = SKILL_CATEGORIES.filter(function(x){ return x.id===id; })[0];
+  return c ? c.label : id;
+}
+function renderSkillGrid(){
+  var q = state.searchQuery;
+  var fullList = skillsByCategory(state.skillCategory).filter(function(s){
+    return matchesSearch([s.label, s.id, s.desc, (s.tags||[]).join(" ")], q);
+  });
+  var page = paginateList(fullList);
+  byId("gridTitle").textContent = state.skillCategory==="all" ? "All skills" : skillCategoryLabel(state.skillCategory);
+  byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " skill" : " skills");
+  var grid = byId("cardGrid"); grid.innerHTML = "";
+  if(fullList.length===0){
+    grid.innerHTML = '<p class="drawer-empty" style="grid-column:1/-1; padding:36px">No skills here yet.</p>';
+    renderPagination(1);
+    return;
+  }
+  page.items.forEach(function(s){
+    var el = document.createElement("div"); el.className = "card flow-card";
+    var chips = (s.tags||[]).map(function(t){
+      return '<span class="flow-chip">'+esc(t)+'</span>';
+    }).join("");
+    el.innerHTML =
+      '<div class="card-head"><span class="card-key mono">'+esc(skillCategoryLabel(s.category))+'</span>'+
+        '<span class="flow-chip">'+esc((s.tags||[]).length)+' tags</span>'+
+      '</div>'+
+      '<div class="flow-card-top">'+
+        '<div class="card-name-row"><p class="flow-card-title">'+esc(s.label)+'</p>'+cardMenuHtml("skill", s.id)+'</div>'+
+        '<p class="flow-card-desc">'+esc(s.desc||"")+'</p>'+
+      '</div>'+
+      '<div class="flow-card-meta">'+chips+'</div>'+
+      '<div class="flow-card-foot">'+
+        '<button class="btn ghost small" data-skill-open="'+esc(s.id)+'">Open</button>'+
+        '<button class="btn small" data-skill-md="'+esc(s.id)+'">Get .md</button>'+
+      '</div>';
+    grid.appendChild(el);
+  });
+  grid.querySelectorAll("[data-skill-open]").forEach(function(btn){
+    btn.addEventListener("click", function(){ openSkillDetail(btn.getAttribute("data-skill-open")); });
+  });
+  grid.querySelectorAll("[data-skill-md]").forEach(function(btn){
+    btn.addEventListener("click", function(){ downloadSkillMarkdown(btn.getAttribute("data-skill-md")); });
+  });
+  renderPagination(page.totalPages);
+}
+function openSkillDetail(skillId){
+  var s = findSkill(skillId);
+  if(!s) return;
+  skillOpenId = skillId;
+  byId("skillTitle").textContent = s.label;
+  var meta = [
+    ["Category", skillCategoryLabel(s.category)],
+    ["Tags", (s.tags||[]).join(", ")],
+    ["Created by", s.createdBy||""]
+  ].filter(function(p){ return p[1]; });
+  function sec(title, inner){ return inner ? '<div class="flow-sec"><h4>'+esc(title)+'</h4>'+inner+'</div>' : ""; }
+  function list(arr){
+    if(!arr || !arr.length) return "";
+    return '<ul class="flow-list">'+arr.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join("")+'</ul>';
+  }
+  byId("skillMetaPanel").innerHTML =
+    '<div class="flow-meta-grid">'+
+      meta.map(function(p){ return '<div class="flow-meta-item"><div class="k">'+esc(p[0])+'</div><div class="v">'+esc(p[1])+'</div></div>'; }).join("")+
+    '</div>';
+  byId("skillBody").innerHTML =
+    sec("What it does", s.desc ? '<p>'+esc(s.desc)+'</p>' : "")+
+    sec("When to use it", list(s.useCases))+
+    sec("Instructions", s.instructions ? '<pre class="code">'+esc(s.instructions)+'</pre>' : "")+
+    sec("Notes", s.notes ? '<p>'+esc(s.notes)+'</p>' : "");
+  byId("skillDetailMenuWrap").setAttribute("data-card-menu-id", skillId);
+  byId("skillOverlay").classList.add("open");
+  urlOpenSkillId = skillId; syncUrlFromState();
+}
+function closeSkillOverlay(){ byId("skillOverlay").classList.remove("open"); urlOpenSkillId = null; syncUrlFromState(); }
+
+var skillForm = { editId: null, draft: null };
+function uniqueSkillKey(base){
+  var key = base, n = 2;
+  while(findSkill(key)){ key = base + "-" + n; n++; }
+  return key;
+}
+function emptySkillDraft(){
+  return { label:"", category: (SKILL_CATEGORIES[0]||{}).id||"", desc:"", tags:[], useCases:[], instructions:"", notes:"" };
+}
+function openSkillForm(existing){
+  skillForm.editId = existing ? existing.id : null;
+  skillForm.draft = existing ? {
+    label: existing.label||"", category: existing.category||(SKILL_CATEGORIES[0]||{}).id,
+    desc: existing.desc||"", tags: (existing.tags||[]).slice(), useCases: (existing.useCases||[]).slice(),
+    instructions: existing.instructions||"", notes: existing.notes||""
+  } : emptySkillDraft();
+  byId("skillFormTitle").textContent = existing ? "Edit skill" : "Add skill";
+  renderSkillFormFields();
+  byId("skillFormOverlay").classList.add("open");
+}
+function closeSkillForm(){ byId("skillFormOverlay").classList.remove("open"); }
+function renderSkillFormFields(){
+  var form = byId("skillForm");
+  var d = skillForm.draft;
+  function textField(key, label, placeholder){
+    return '<div class="bf-field"><label for="sf-'+key+'">'+esc(label)+'</label>'+
+      '<input type="text" id="sf-'+key+'" data-sf-field="'+key+'" value="'+esc(d[key]||"")+'" placeholder="'+esc(placeholder||"")+'"></div>';
+  }
+  function textareaField(key, label, rows){
+    return '<div class="bf-field"><label for="sf-'+key+'">'+esc(label)+'</label>'+
+      '<textarea id="sf-'+key+'" data-sf-field="'+key+'" rows="'+(rows||3)+'">'+esc(d[key]||"")+'</textarea></div>';
+  }
+  function listTextareaField(key, label){
+    return '<div class="bf-field"><label for="sf-'+key+'">'+esc(label)+'</label>'+
+      '<textarea id="sf-'+key+'" data-sf-list-field="'+key+'" rows="3" placeholder="One per line">'+esc((d[key]||[]).join("\n"))+'</textarea></div>';
+  }
+  function selectField(key, label, options){
+    return '<div class="bf-field"><label for="sf-'+key+'">'+esc(label)+'</label>'+
+      '<select id="sf-'+key+'" data-sf-select-field="'+key+'">'+
+        options.map(function(o){ return '<option value="'+esc(o[0])+'"'+(d[key]===o[0]?' selected':'')+'>'+esc(o[1])+'</option>'; }).join("")+
+      '</select></div>';
+  }
+  form.innerHTML =
+    '<div class="bf-group"><div class="bf-row">'+
+      textField("label", "Skill name")+
+      selectField("category", "Category", SKILL_CATEGORIES.map(function(c){ return [c.id, c.label]; }))+
+    '</div></div>'+
+    '<div class="bf-group">'+
+      textareaField("desc", "What it does")+
+      listTextareaField("tags", "Tags")+
+      listTextareaField("useCases", "When to use it")+
+    '</div>'+
+    '<div class="bf-group">'+
+      textareaField("instructions", "Instructions (the actual SKILL.md content)", 8)+
+      textareaField("notes", "Notes")+
+    '</div>';
+  form.querySelectorAll("[data-sf-field]").forEach(function(el){
+    el.addEventListener("input", function(){ skillForm.draft[el.getAttribute("data-sf-field")] = el.value; });
+  });
+  form.querySelectorAll("[data-sf-list-field]").forEach(function(el){
+    el.addEventListener("input", function(){
+      skillForm.draft[el.getAttribute("data-sf-list-field")] = el.value.split("\n").map(function(s){ return s.trim(); }).filter(Boolean);
+    });
+  });
+  form.querySelectorAll("[data-sf-select-field]").forEach(function(el){
+    el.addEventListener("change", function(){ skillForm.draft[el.getAttribute("data-sf-select-field")] = el.value; });
+  });
+  enhanceAllSelects(form);
+}
+function saveSkillForm(){
+  var d = skillForm.draft;
+  var label = (d.label||"").trim();
+  if(!label){ showToast("Enter a skill name"); byId("sf-label").focus(); return; }
+  var payload = {
+    label: label, category: d.category,
+    desc: (d.desc||"").trim(), tags: d.tags||[], useCases: d.useCases||[],
+    instructions: (d.instructions||"").trim(), notes: (d.notes||"").trim()
+  };
+  if(skillForm.editId){
+    var existing = findSkill(skillForm.editId);
+    if(!existing) return;
+    if(!canManageRecord(existing)){ showToast("You're not the creator of this skill", "error"); return; }
+    return withBtnLoading(byId("skillFormSave"), function(){
+      Object.assign(existing, payload);
+      return saveToStorage().then(function(){
+        closeSkillForm(); renderAll();
+        if(byId("skillOverlay").classList.contains("open")) openSkillDetail(existing.id);
+        showToast("Updated skill “"+label+"”" + (existing.custom ? "" : " (changes to a built-in skill only last this session)"));
+      });
+    });
+  }
+  var requestedId = slugifyKey(label);
+  var finalId = findSkill(requestedId) ? uniqueSkillKey(requestedId) : requestedId;
+  return withBtnLoading(byId("skillFormSave"), function(){
+    SKILLS.push(Object.assign({ id: finalId, custom: true, createdBy: currentUserStamp() }, payload));
+    state.section = "skills"; state.skillCategory = payload.category;
+    return saveToStorage().then(function(){
+      closeSkillForm(); renderAll();
+      showToast("Added skill “"+label+"”");
+    });
+  });
+}
+function deleteSkill(id){
+  var s = findSkill(id);
+  if(!s) return;
+  if(!canManageRecord(s)){ showToast("You're not the creator of this skill", "error"); return; }
+  if(!s.custom && DELETED_BUILTIN_SKILL_IDS.indexOf(id)===-1) DELETED_BUILTIN_SKILL_IDS.push(id);
+  SKILLS = SKILLS.filter(function(x){ return x.id!==id; });
+  saveToStorage().then(function(){
+    if(urlOpenSkillId===id) closeSkillOverlay();
+    renderAll();
+    showToast("Skill deleted");
+  });
+}
+function buildSkillMarkdown(s){
+  var L = [];
+  function h(n, t){ L.push("#".repeat(n)+" "+t); L.push(""); }
+  function p(t){ if(t){ L.push(t); L.push(""); } }
+  function ul(arr){ if(arr && arr.length){ arr.forEach(function(x){ L.push("- "+x); }); L.push(""); } }
+  h(1, s.label);
+  p(s.desc);
+  if(s.useCases && s.useCases.length){ h(2, "When to use it"); ul(s.useCases); }
+  if(s.instructions){ h(2, "Instructions"); L.push(s.instructions); L.push(""); }
+  if(s.notes){ h(2, "Notes"); p(s.notes); }
+  L.push("---"); L.push("");
+  L.push("_Exported from Maximus Skills · category: "+skillCategoryLabel(s.category)+((s.tags&&s.tags.length) ? " · tags: "+s.tags.join(", ") : "")+"._");
+  return L.join("\n");
+}
+function skillMdFilename(s){
+  return String(s.id||"skill").replace(/[^a-z0-9-_]+/gi,"-").toLowerCase()+".md";
+}
+function downloadSkillMarkdown(skillId){
+  var s = findSkill(skillId);
+  if(!s) return;
+  var md = buildSkillMarkdown(s);
+  var blob = new Blob([md], { type:"text/markdown;charset=utf-8" });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url; a.download = skillMdFilename(s);
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  showToast("Downloaded "+skillMdFilename(s));
+}
+
+/* ================================================================
    HARMONOGRAM DM — kalendarz miesięczny
    ================================================================ */
 // user: "Widzę tam również informacje kto jest odpowiedzialny za układanie
@@ -9938,6 +10310,7 @@ var SECTION_META = {
   components: { title:"Components", search:"Search components…", primary:"add", stack:true },
   emails:     { title:"E-mails", search:"Search emails…", primary:null, stack:true },
   flows:      { title:"Flow Repository", search:"Search flows…", primary:"add-flow", stack:false },
+  skills:     { title:"Skills", search:"Search skills…", primary:"add-skill", stack:false },
   schedule:   { title:"DM Schedule", search:null, primary:null, stack:false },
   brandkit:   { title:"Brand Kit", search:null, primary:null, stack:false }
 };
@@ -9977,6 +10350,7 @@ function syncSectionChrome(){
   // "header... dodaj komponent" jako stała pozycja) — bez przełączania
   // widoczności per sekcja. "Add Flow" zostaje kontekstowe.
   byId("addFlowRepoBtn").style.display = meta.primary==="add-flow" ? "" : "none";
+  byId("addSkillBtn").style.display = meta.primary==="add-skill" ? "" : "none";
   // Filtr CRM zawęża komponenty/maile po platformie — w Brand Kicie nie ma
   // czego zawężać.
   byId("crmFilterRow").style.display = isBrandKit ? "none" : "";
@@ -10270,10 +10644,11 @@ document.addEventListener("click", function(e){
       if(kind==="component") openComponentEditor(id, null);
       else if(kind==="email") openEditReadyEmail(id);
       else if(kind==="flow" && typeof openFlowForm==="function") openFlowForm(findFlow(id));
+      else if(kind==="skill" && typeof openSkillForm==="function") openSkillForm(findSkill(id));
       return;
     }
     // Delete
-    var record = kind==="component" ? findComp(id) : kind==="email" ? findEmail(id) : (typeof findFlow==="function" ? findFlow(id) : null);
+    var record = kind==="component" ? findComp(id) : kind==="email" ? findEmail(id) : kind==="flow" ? (typeof findFlow==="function" ? findFlow(id) : null) : (typeof findSkill==="function" ? findSkill(id) : null);
     if((kind==="component" || kind==="email") && !canManageRecord(record)){
       showToast("You're not the creator of this "+(kind==="component"?"component":"e-mail"), "error");
       closeAllCardMenus();
@@ -10287,6 +10662,8 @@ document.addEventListener("click", function(e){
         deleteReadyEmailRecord(id).then(function(){ renderAll(); showToast("E-mail deleted"); });
       } else if(kind==="flow" && typeof deleteFlow==="function"){
         deleteFlow(id);
+      } else if(kind==="skill" && typeof deleteSkill==="function"){
+        deleteSkill(id);
       }
     });
     return;
@@ -10300,6 +10677,7 @@ function renderGrid(){
   if(state.section==="brandkit") return;
   if(state.section==="schedule"){ renderDmCalendar(); return; }
   if(state.section==="flows"){ renderFlowGrid(); return; }
+  if(state.section==="skills"){ renderSkillGrid(); return; }
   if(state.section==="emails"){ renderEmailGrid(); return; }
   var b = brand();
   var q = state.searchQuery;
@@ -11255,6 +11633,21 @@ byId("flowFormCancel").addEventListener("click", closeFlowForm);
 byId("flowFormSave").addEventListener("click", saveFlowForm);
 bindOverlayBackdropClose("flowFormOverlay", closeFlowForm);
 
+/* ---- Skills ---- */
+byId("skillClose").addEventListener("click", closeSkillOverlay);
+bindOverlayBackdropClose("skillOverlay", closeSkillOverlay);
+byId("skillDownloadMdBtn").addEventListener("click", function(){ if(skillOpenId) downloadSkillMarkdown(skillOpenId); });
+byId("skillCopyMdBtn").addEventListener("click", function(){
+  var s = skillOpenId && findSkill(skillOpenId);
+  if(!s) return;
+  copyText(buildSkillMarkdown(s), "Markdown copied — paste it as SKILL.md");
+});
+byId("addSkillBtn").addEventListener("click", function(){ openSkillForm(null); });
+byId("skillFormClose").addEventListener("click", closeSkillForm);
+byId("skillFormCancel").addEventListener("click", closeSkillForm);
+byId("skillFormSave").addEventListener("click", saveSkillForm);
+bindOverlayBackdropClose("skillFormOverlay", closeSkillForm);
+
 /* ---- Harmonogram DM ---- */
 byId("dmPrevMonth").addEventListener("click", function(){ shiftDmMonth(-1); syncUrlFromState(); });
 byId("dmNextMonth").addEventListener("click", function(){ shiftDmMonth(1); syncUrlFromState(); });
@@ -11754,6 +12147,7 @@ function syncGoogleFontLink(b){
 var urlOpenComponentId = null;
 var urlOpenEmailId = null;
 var urlOpenFlowId = null;
+var urlOpenSkillId = null;
 function syncUrlFromState(){
   // Publiczny link do kalendarza NIE może się sam przepisać na zwykły URL
   // appki — inaczej pierwszy render skasowałby ?dmshare= z paska adresu i
@@ -11765,6 +12159,8 @@ function syncUrlFromState(){
     if(state.emailFlow) params.set("flow", state.emailFlow);
   } else if(state.section==="flows"){
     params.set("flowcat", state.flowCategory||"all");
+  } else if(state.section==="skills"){
+    params.set("skillcat", state.skillCategory||"all");
   } else if(state.section==="schedule"){
     if(state.dmMonth) params.set("month", state.dmMonth);
   } else {
@@ -11775,6 +12171,7 @@ function syncUrlFromState(){
   if(urlOpenComponentId) params.set("component", urlOpenComponentId);
   if(urlOpenEmailId) params.set("email", urlOpenEmailId);
   if(urlOpenFlowId) params.set("flowid", urlOpenFlowId);
+  if(urlOpenSkillId) params.set("skillid", urlOpenSkillId);
   var qs = params.toString();
   history.replaceState(null, "", location.pathname + (qs ? "?"+qs : ""));
 }
@@ -11792,6 +12189,7 @@ function restoreStateFromUrl(){
   var componentId = params.get("component");
   var emailId = params.get("email");
   var flowId = params.get("flowid");
+  var skillId = params.get("skillid");
   var changed = false;
   if(section==="emails"){
     state.section = "emails"; changed = true;
@@ -11809,6 +12207,10 @@ function restoreStateFromUrl(){
     state.section = "flows"; changed = true;
     var flowCat = params.get("flowcat");
     if(flowCat && (flowCat==="all" || FLOW_CATEGORIES.some(function(c){ return c.id===flowCat; }))) state.flowCategory = flowCat;
+  } else if(section==="skills"){
+    state.section = "skills"; changed = true;
+    var skillCat = params.get("skillcat");
+    if(skillCat && (skillCat==="all" || SKILL_CATEGORIES.some(function(c){ return c.id===skillCat; }))) state.skillCategory = skillCat;
   } else if(section==="schedule"){
     state.section = "schedule"; changed = true;
     var month = params.get("month");
@@ -11820,6 +12222,7 @@ function restoreStateFromUrl(){
   if(componentId && findComp(componentId)) openComponentEditor(componentId, null);
   else if(emailId && findEmail(emailId)) openEmailPreview(emailId);
   else if(flowId && findFlow(flowId)) openFlowDetail(flowId);
+  else if(skillId && findSkill(skillId)) openSkillDetail(skillId);
 }
 function renderAll(){
   renderSwatches(); renderPrimaryNav(); renderFilterBar(); renderCrmFilterRow();
