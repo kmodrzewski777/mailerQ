@@ -229,6 +229,11 @@
   }
   .nav-brand{display:flex; align-items:center; gap:10px; min-width:0}
   .nav-brand .brand-logo-text{font-size:22px; white-space:nowrap; overflow:hidden}
+  /* Drobny druk wersji/daty deployu pod logiem — user: "wersję apki i
+     potem dodawaj do wersji jakieś kolejne cyfry" (patrz APP_VERSION w
+     skrypcie, bump ręczny przy każdym kolejnym deployu). */
+  .nav-brand-stack{display:flex; flex-direction:column; line-height:1.1; min-width:0}
+  .app-version-tag{font-size:9.5px; font-weight:400; color:var(--ink-faint); white-space:nowrap; margin-top:2px}
   .topbar-right{display:flex; align-items:center; gap:10px; flex:none}
   .topbar-right .brand-select-btn{min-width:150px}
 
@@ -590,7 +595,7 @@
   /* user: "te 3 kropki na widgecie są tak małe że tego w ogole nie widac"
      — --ink-faint (bardzo jasny szary) na białym tle realnie ginął;
      --ink-muted ma dużo więcej kontrastu i pasuje do reszty ikon w apce. */
-  .icon-btn.card-menu-btn{width:25px; height:25px; border:none; background:transparent; color:var(--ink-muted)}
+  .icon-btn.card-menu-btn{width:29px; height:29px; border:none; background:transparent; color:var(--ink-muted)}
   .icon-btn.card-menu-btn:hover{background:var(--surface-2); color:var(--ink)}
   .card-menu{
     position:absolute; top:calc(100% + 4px); right:0; z-index:20; min-width:130px;
@@ -760,14 +765,14 @@
   /* user: "toć te ikony są mikroskopijne" — box powiększony razem z
      samymi SVG-ami (patrz ICON_* wyżej, teraz 20-22px), żeby ikona miała
      wygodny margines w środku zamiast dotykać krawędzi przycisku. */
-  .icon-btn{width:25px; height:25px; border:1px solid var(--line); background:var(--surface); border-radius:5px; color:var(--ink-muted); font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center}
+  .icon-btn{width:29px; height:29px; border:1px solid var(--line); background:var(--surface); border-radius:5px; color:var(--ink-muted); font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center}
   /* Warianty przy polu Variant (New component / Edit component) siedzą w
      tym samym wierszu co select/input, więc mają dopasować się WYSOKOŚCIĄ
      do niego zamiast trzymać sztywne 22px .icon-btn — user: "przyciski
      przy VARIANT są nieadekwatne rozmiarem do pozostałych pół". Sztywna
      height na .icon-btn blokowałaby align-items:stretch (domyślny na
      flex row), height:auto ją odblokowuje. */
-  .icon-btn-field{width:25px; height:auto; align-self:stretch}
+  .icon-btn-field{width:29px; height:auto; align-self:stretch}
   .icon-btn:hover{border-color:var(--line-strong); color:var(--ink)}
   .icon-btn:disabled{opacity:.3; cursor:default}
   .icon-btn.armed{border-color:var(--accent-strong); color:var(--accent-strong)}
@@ -795,7 +800,7 @@
      wielkościach" — .modal-close było 29x29 podczas gdy .icon-btn/
      .card-menu-btn (ta sama ikona X wewnątrz) było 25x25. Jeden rozmiar
      hit-boxa dla WSZYSTKICH przycisków-ikon w apce. */
-  .modal-close{width:25px; height:25px; border-radius:5px; border:1px solid var(--line); background:var(--surface); color:var(--ink-muted); display:flex; align-items:center; justify-content:center}
+  .modal-close{width:29px; height:29px; border-radius:5px; border:1px solid var(--line); background:var(--surface); color:var(--ink-muted); display:flex; align-items:center; justify-content:center}
   .modal-body{padding:20px; overflow-y:auto}
   .modal-footer-bar{flex:none; padding:14px 20px; border-top:1px solid var(--line); background:var(--surface)}
   .modal-preview-box{background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:20px; margin-bottom:16px; display:flex; align-items:center; justify-content:center}
@@ -842,7 +847,15 @@
      więcej miejsca w oknie modala, żeby w typowym przypadku NIE
      dochodziło jeszcze do przewijania .modal-body — jeden scrollbar
      (ramy), nie dwa zagnieżdżone. */
-  .preview-frame.stacked{height:60vh; overflow-y:auto; overflow-anchor:none; border:1px solid var(--line); border-radius:8px; margin-bottom:16px}
+  /* max-height, nie height — user: "w podgladzie maili tez na samym
+     spodzie jest taka spora szpara". Stały height:60vh forsował TĘ
+     wysokość nawet dla krótkiego maila (np. tylko header+footer),
+     zostawiając pustą przestrzeń pod skompilowaną treścią wewnątrz tego
+     przewijalnego boxa. max-height zachowuje dokładnie to samo
+     zachowanie dla DŁUGICH maili (nadal ucina na 60vh i przewija w
+     środku — powód wyżej wciąż aktualny), ale krótszy mail po prostu
+     kurczy box do swojej rzeczywistej wysokości. */
+  .preview-frame.stacked{max-height:60vh; overflow-y:auto; overflow-anchor:none; border:1px solid var(--line); border-radius:8px; margin-bottom:16px}
   /* user: "podgląd na wersji mobile... zależy mi by rozmiar treści w
      podglądzie był bardzo zbliżony do tego co mam faktycznie [na
      telefonie]" — realne kliencki poczty (Gmail app w szczególności)
@@ -866,7 +879,7 @@
      Bez premnożenia height przez .92 (jak przy transform) — zoom sam
      zmniejsza to, ile miejsca ramka zajmuje w SWOIM rodzicu, zachowując
      przy tym normalny (nie-pomniejszony) układ WEWNĄTRZ siebie. */
-  .preview-frame.stacked.is-mobile{width:420px; max-width:100%; margin-left:auto; margin-right:auto; border-radius:20px; height:60vh; zoom:.92}
+  .preview-frame.stacked.is-mobile{width:420px; max-width:100%; margin-left:auto; margin-right:auto; border-radius:20px; max-height:60vh; zoom:.92}
   .preview-frame .inbox-chrome{border:0; border-bottom:1px solid var(--line); border-radius:0; margin-bottom:0}
   .preview-frame .modal-preview-box{border:0; border-radius:0; margin-bottom:0; display:block; padding:20px}
   .inbox-chrome{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-bottom:12px}
@@ -885,6 +898,14 @@
     white-space:pre-wrap; word-break:break-word; max-height:340px; overflow-y:auto; box-sizing:border-box;
   }
   textarea.code{color:var(--ink); resize:vertical}
+  /* "Installation prompt" — druga strona popupu szczegółów skilla (patrz
+     skillInstallBtn/renderSkillInstallPanel), architektura info wzięta ze
+     skillta.com (numerowane kroki + nazwany blok kodu + duży CTA), samo
+     stylowanie zostaje czarno-białe, spójne z resztą appki. */
+  .skill-install-steps{margin:0 0 16px; padding-left:20px; font-size:13.5px; line-height:1.65; color:var(--ink)}
+  .skill-install-steps li{margin-bottom:6px}
+  .skill-install-steps code{background:var(--surface-2); padding:1px 5px; border-radius:4px; font-family:var(--font-mono); font-size:12px}
+  .skill-install-code-head{font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:6px}
   /* Podgląd kodu i podgląd maila w tym samym modalu mają dzielić TĘ SAMĄ
      politykę wysokości (70vh/min 120px), zamiast .code's własnego,
      niezależnego max-height:340px — inaczej przełączanie "Preview code"/
@@ -1250,7 +1271,10 @@
 <header class="topbar">
   <div class="topbar-inner">
     <div class="nav-brand">
-      <span class="brand-logo-text" translate="no">Maximus</span>
+      <div class="nav-brand-stack">
+        <span class="brand-logo-text" translate="no">Maximus</span>
+        <span class="app-version-tag" id="appVersionTag"></span>
+      </div>
     </div>
     <div class="topbar-right">
       <div class="brand-select" id="brandSelectWrap">
@@ -1833,14 +1857,18 @@
       </span>
     </div>
     <div class="modal-body">
-      <div class="flow-detail-grid">
+      <div class="flow-detail-grid" id="skillDetailView">
         <div class="flow-detail-main" id="skillBody"></div>
         <aside class="flow-detail-side" id="skillMetaPanel"></aside>
       </div>
+      <!-- user: "po kliknięciu w przycisk Install... ma się pojawić nowa
+           treść w popupie... ma być tutaj Installation prompt" — druga
+           "strona" tego samego popupu, przełączana przyciskiem w stopce
+           (patrz skillInstallBtn), nie osobny modal. -->
+      <div id="skillInstallView" style="display:none"></div>
     </div>
     <div class="modal-footer-bar" style="gap:8px">
-      <button class="btn ghost small" id="skillCopyMdBtn" type="button" style="flex:1">Copy .md</button>
-      <button class="btn small" id="skillDownloadMdBtn" type="button" style="flex:1">Download .md</button>
+      <button class="btn small" id="skillInstallBtn" type="button" style="flex:1">Install</button>
     </div>
   </div>
 </div>
@@ -2182,6 +2210,22 @@
 <script>
 (function(){
 "use strict";
+
+/* Wersja appki + data ostatniego deployu, pod logiem w topbarze (patrz
+   #appVersionTag) — user: "wymyśl na podstawie naszej konwersacji wersję
+   apki i potem dodawaj do wersji jakieś kolejne cyfry". Bump ręczny przy
+   KAŻDYM kolejnym deployu (nie automatyczny): patch (x.x.N) dla drobnych
+   poprawek/bugfixów, minor (x.N.0) gdy dochodzi nowa sekcja/funkcja,
+   major (N.0.0) tylko przy fundamentalnej przebudowie (jak redesigny
+   sprzed tej wersji — stąd start od 3.x, nie 1.0.0: to już trzecia duża
+   generacja UI tej appki, nie pierwszy dzień). APP_UPDATED = data TEGO
+   konkretnego deployu (ustaw ją na dziś przy każdym push).
+   Historia: 3.0 = wielki redesign na sidebar+topbar (Phase 0-4), 3.1 =
+   Flow Repository, 3.2 = DM Schedule + Skills, 3.3 = import 13 skilli +
+   Brand Kit integracja, 3.4 = przebudowa edytora komponentu (warianty,
+   frazy per wariant, multi-CRM). */
+var APP_VERSION = "3.5.0";
+var APP_UPDATED = "2026-08-21";
 
 /* ================================================================
    MARKI — pełny model tokenów wizualnych.
@@ -10250,10 +10294,21 @@ function skillBrandLabel(key){
   if(!key || !BRANDS[key]) return "";
   return BRANDS[key].short || BRANDS[key].name || key;
 }
+// user: "w nagłówku zawsze piszesz najpierw nazwę głównej kategorii, potem
+// myślnik i dopiero podkategoria... gdy jest wybrany brand to niech się
+// jeszcze dodaje nazwa brandu, by bylo np. AUTOMATION - BERTY" — jedna
+// linia eyebrow zamiast osobnego card-head (kategoria+tagi) i osobnego
+// wiersza brandu; CSS (.flow-card-cat, text-transform:uppercase) robi
+// wielkie litery, więc tu zwracamy zwykły case.
+function skillEyebrowLabel(s){
+  var cat = skillCategoryLabel(s.category);
+  var b = skillBrandLabel(s.brand);
+  return b ? cat+" - "+b : cat;
+}
 function renderSkillGrid(){
   var q = state.searchQuery;
   var fullList = skillsByCategory(state.skillCategory).filter(function(s){
-    return matchesSearch([s.label, s.id, s.desc, skillBrandLabel(s.brand), (s.tags||[]).join(" ")], q);
+    return matchesSearch([s.label, s.id, s.desc, skillBrandLabel(s.brand)], q);
   });
   var page = paginateList(fullList);
   byId("gridTitle").textContent = state.skillCategory==="all" ? "All skills" : skillCategoryLabel(state.skillCategory);
@@ -10266,36 +10321,22 @@ function renderSkillGrid(){
   }
   page.items.forEach(function(s){
     var el = document.createElement("div"); el.className = "card flow-card";
-    var chips = (s.tags||[]).map(function(t){
-      return '<span class="flow-chip">'+esc(t)+'</span>';
-    }).join("");
     el.innerHTML =
-      '<div class="card-head"><span class="card-key mono">'+esc(skillCategoryLabel(s.category))+'</span>'+
-        '<span class="flow-chip">'+esc((s.tags||[]).length)+' tags</span>'+
-      '</div>'+
       '<div class="flow-card-top">'+
-        // user: "przypisz je do odpowiednich klientów" — klient jako
-        // eyebrow nad nazwą, ten sam wzorzec co dawna .flow-card-cat
-        // (industry) na kartach flow.
-        (skillBrandLabel(s.brand) ? '<p class="flow-card-cat">'+esc(skillBrandLabel(s.brand))+'</p>' : '')+
+        '<p class="flow-card-cat">'+esc(skillEyebrowLabel(s))+'</p>'+
         '<div class="card-name-row"><p class="flow-card-title">'+esc(s.label)+'</p>'+cardMenuHtml("skill", s.id, "Update")+'</div>'+
         '<p class="flow-card-desc">'+esc(s.desc||"")+'</p>'+
       '</div>'+
-      '<div class="flow-card-meta">'+chips+'</div>'+
-      // user: "gdzieś na widgecie ma być informacja na jaki dzień i
-      // godzinę jest aktualny skill i kto ostatni go aktualizował".
-      (s.updatedAt ? '<p class="card-compat-text" style="padding:6px 16px 0">Updated '+esc(formatUpdatedStamp(s.updatedAt))+(displayNameOf(s.updatedBy) ? ' by '+esc(displayNameOf(s.updatedBy)) : '')+'</p>' : '')+
+      // user: "zamiast dwoch przycisk open / get .md ma być tylko jeden
+      // 'Install'" — otwiera ten sam widok szczegółów; realna instalacja
+      // (kopiowalny snippet) żyje teraz w środku popupu (patrz openSkillInstallPanel).
       '<div class="flow-card-foot">'+
-        '<button class="btn ghost small" data-skill-open="'+esc(s.id)+'">Open</button>'+
-        '<button class="btn small" data-skill-md="'+esc(s.id)+'">Get .md</button>'+
+        '<button class="btn small" data-skill-open="'+esc(s.id)+'" style="flex:1">Install</button>'+
       '</div>';
     grid.appendChild(el);
   });
   grid.querySelectorAll("[data-skill-open]").forEach(function(btn){
     btn.addEventListener("click", function(){ openSkillDetail(btn.getAttribute("data-skill-open")); });
-  });
-  grid.querySelectorAll("[data-skill-md]").forEach(function(btn){
-    btn.addEventListener("click", function(){ downloadSkillMarkdown(btn.getAttribute("data-skill-md")); });
   });
   renderPagination(page.totalPages);
 }
@@ -10310,7 +10351,6 @@ function openSkillDetail(skillId){
   var meta = [
     ["Brand", skillBrandLabel(s.brand)],
     ["Category", skillCategoryLabel(s.category)],
-    ["Tags", (s.tags||[]).join(", ")],
     ["Created by", displayNameOf(s.createdBy)],
     ["Last updated", formatUpdatedStamp(s.updatedAt)],
     ["Updated by", displayNameOf(s.updatedBy)]
@@ -10330,10 +10370,61 @@ function openSkillDetail(skillId){
     sec("Instructions", s.instructions ? '<pre class="code">'+esc(s.instructions)+'</pre>' : "")+
     sec("Notes", s.notes ? '<p>'+esc(s.notes)+'</p>' : "");
   byId("skillDetailMenuWrap").setAttribute("data-card-menu-id", skillId);
+  showSkillDetailView(); // reset na widok szczegółów — reotwarcie po Install nie ma zostawać na installation prompt
   byId("skillOverlay").classList.add("open");
   urlOpenSkillId = skillId; syncUrlFromState();
 }
 function closeSkillOverlay(){ byId("skillOverlay").classList.remove("open"); urlOpenSkillId = null; syncUrlFromState(); }
+/* Popup szczegółów skilla ma DWA widoki w tym samym oknie (nie dwa
+   osobne modale) — normalny widok i "Installation prompt", przełączane
+   jednym przyciskiem w stopce (patrz HTML #skillInstallView/#skillDetailView).
+   user: "po kliknięciu w przycisk Install... ma się pojawić nowa treść w
+   popupie". */
+function showSkillDetailView(){
+  byId("skillDetailView").style.display = "";
+  byId("skillInstallView").style.display = "none";
+  byId("skillInstallBtn").textContent = "Install";
+}
+function showSkillInstallView(){
+  var s = findSkill(skillOpenId);
+  if(!s) return;
+  renderSkillInstallPanel(s);
+  byId("skillDetailView").style.display = "none";
+  byId("skillInstallView").style.display = "";
+  byId("skillInstallBtn").textContent = "Back to details";
+}
+/* Real, pastable installer — user: "wykorzystaj tylko architekturę
+   informacji" ze skillta.com (kroki + nazwany blok kodu + duży CTA), ale
+   treść musi być PRAWDZIWA: skille w Maximusie żyją tu, nie na GitHubie,
+   więc snippet sam zapisuje ~/.claude/skills/<id>/SKILL.md z realną
+   frontmatter (name/description) + s.instructions jako ciało — dokładnie
+   ten sam kształt co prawdziwe importowane skille (patrz build-skills-import.js
+   z wcześniejszej sesji). Osobny, dedykowany heredoc-delimiter (nie zwykłe
+   "EOF"), żeby nie kolidować z literalnym "EOF" wewnątrz instructions. */
+function buildSkillInstallMd(s){
+  var name = String(s.id || slugify(s.label||"skill") || "skill");
+  var desc = (s.desc||"").trim();
+  return "---\nname: "+name+"\ndescription: "+JSON.stringify(desc)+"\n---\n\n"+(s.instructions||"").trim()+"\n";
+}
+function buildSkillInstallSnippet(s){
+  var dir = "~/.claude/skills/"+String(s.id||"skill").replace(/[^a-z0-9-_]+/gi,"-").toLowerCase();
+  return "mkdir -p "+dir+"\ncat > "+dir+"/SKILL.md << 'INSTALL_SKILL_EOF'\n"+buildSkillInstallMd(s)+"INSTALL_SKILL_EOF\n";
+}
+function renderSkillInstallPanel(s){
+  var snippet = buildSkillInstallSnippet(s);
+  byId("skillInstallView").innerHTML =
+    '<ol class="skill-install-steps">'+
+      '<li>Copy the snippet below with <strong>Copy &amp; Install</strong>.</li>'+
+      '<li>Open a terminal — or the terminal inside Claude Code.</li>'+
+      '<li>Paste it and press Enter. It writes this skill straight to <code>~/.claude/skills/'+esc(s.id)+'/SKILL.md</code>.</li>'+
+    '</ol>'+
+    '<div class="skill-install-code-head">Installation snippet</div>'+
+    '<pre class="code" id="skillInstallCode">'+esc(snippet)+'</pre>'+
+    '<button class="btn small" type="button" id="skillInstallCopyBtn" style="width:100%; margin-top:14px">Copy &amp; Install</button>';
+  byId("skillInstallCopyBtn").addEventListener("click", function(){
+    copyText(snippet, "Copied — paste it in your terminal to install “"+s.label+"”");
+  });
+}
 
 var skillForm = { editId: null, draft: null };
 function uniqueSkillKey(base){
@@ -10342,13 +10433,13 @@ function uniqueSkillKey(base){
   return key;
 }
 function emptySkillDraft(){
-  return { label:"", category: (SKILL_CATEGORIES[0]||{}).id||"", brand:"", desc:"", tags:[], useCases:[], instructions:"", notes:"" };
+  return { label:"", category: (SKILL_CATEGORIES[0]||{}).id||"", brand:"", desc:"", useCases:[], instructions:"", notes:"" };
 }
 function openSkillForm(existing){
   skillForm.editId = existing ? existing.id : null;
   skillForm.draft = existing ? {
     label: existing.label||"", category: existing.category||(SKILL_CATEGORIES[0]||{}).id, brand: existing.brand||"",
-    desc: existing.desc||"", tags: (existing.tags||[]).slice(), useCases: (existing.useCases||[]).slice(),
+    desc: existing.desc||"", useCases: (existing.useCases||[]).slice(),
     instructions: existing.instructions||"", notes: existing.notes||""
   } : emptySkillDraft();
   byId("skillFormTitle").textContent = existing ? "Update skill" : "Add skill";
@@ -10387,7 +10478,6 @@ function renderSkillFormFields(){
     '</div></div>'+
     '<div class="bf-group">'+
       textareaField("desc", "What it does")+
-      listTextareaField("tags", "Tags")+
       listTextareaField("useCases", "When to use it")+
     '</div>'+
     '<div class="bf-group">'+
@@ -10413,7 +10503,7 @@ function saveSkillForm(){
   if(!label){ showToast("Enter a skill name"); byId("sf-label").focus(); return; }
   var payload = {
     label: label, category: d.category, brand: d.brand||"",
-    desc: (d.desc||"").trim(), tags: d.tags||[], useCases: d.useCases||[],
+    desc: (d.desc||"").trim(), useCases: d.useCases||[],
     instructions: (d.instructions||"").trim(), notes: (d.notes||"").trim()
   };
   // user: "jeśli ktoś coś w nim zmieni to będzie aktualizował skilla...
@@ -10459,40 +10549,6 @@ function deleteSkill(id){
     showToast("Skill deleted");
   });
 }
-function buildSkillMarkdown(s){
-  var L = [];
-  function h(n, t){ L.push("#".repeat(n)+" "+t); L.push(""); }
-  function p(t){ if(t){ L.push(t); L.push(""); } }
-  function ul(arr){ if(arr && arr.length){ arr.forEach(function(x){ L.push("- "+x); }); L.push(""); } }
-  h(1, s.label);
-  p(s.desc);
-  if(s.useCases && s.useCases.length){ h(2, "When to use it"); ul(s.useCases); }
-  if(s.instructions){ h(2, "Instructions"); L.push(s.instructions); L.push(""); }
-  if(s.notes){ h(2, "Notes"); p(s.notes); }
-  L.push("---"); L.push("");
-  var footBits = ["category: "+skillCategoryLabel(s.category)];
-  if(skillBrandLabel(s.brand)) footBits.push("brand: "+skillBrandLabel(s.brand));
-  if(s.tags && s.tags.length) footBits.push("tags: "+s.tags.join(", "));
-  if(s.updatedAt) footBits.push("updated "+formatUpdatedStamp(s.updatedAt)+(displayNameOf(s.updatedBy) ? " by "+displayNameOf(s.updatedBy) : ""));
-  L.push("_Exported from Maximus Skills · "+footBits.join(" · ")+"._");
-  return L.join("\n");
-}
-function skillMdFilename(s){
-  return String(s.id||"skill").replace(/[^a-z0-9-_]+/gi,"-").toLowerCase()+".md";
-}
-function downloadSkillMarkdown(skillId){
-  var s = findSkill(skillId);
-  if(!s) return;
-  var md = buildSkillMarkdown(s);
-  var blob = new Blob([md], { type:"text/markdown;charset=utf-8" });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement("a");
-  a.href = url; a.download = skillMdFilename(s);
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
-  showToast("Downloaded "+skillMdFilename(s));
-}
-
 /* ================================================================
    HARMONOGRAM DM — kalendarz miesięczny
    ================================================================ */
@@ -11765,7 +11821,17 @@ function mountMjmlIframe(containerId, bodyMjml, b, opts){
         var newHeight = (e.data.__mjmlPreviewHeight+20)+"px";
         var heightChanging = iframe.style.height !== newHeight;
         iframe.style.height = newHeight;
-        resetPreviewScrollIfMain(containerId, iframe);
+        // user: "Jak wrzucam treść w live preview to mi cofa cały preview
+        // na samą górę" — BEZ resetu scrolla tutaj. Wpisywanie tekstu w
+        // contentEditable (patrz __mfTokenEdit) zmienia wysokość treści,
+        // co ODPALA TEN SAM ResizeObserver co realny resize (device/theme
+        // toggle, przeładowanie iframe'a) — reset scrolla na KAŻDĄ zmianę
+        // wysokości cofał więc podgląd na górę przy każdym wpisanym
+        // znaku. Prawdziwe resize'y (przełącznik Desktop/Mobile, Light/
+        // Dark, pierwsze wczytanie) już same, jawnie, resetują scroll w
+        // swoich własnych miejscach (setPreviewDevice/previewRecompile/
+        // iframe.onload) — nie trzeba tego duplikować tutaj kosztem
+        // wpisywania tekstu.
         // Odsłaniamy treść DOPIERO PO zakończeniu animacji wysokości —
         // inaczej treść staje się widoczna W TRAKCIE jeszcze trwającej
         // zmiany rozmiaru, co wygląda na ucięte/przycięte (iframe tnie
@@ -12069,11 +12135,9 @@ bindOverlayBackdropClose("flowFormOverlay", closeFlowForm);
 /* ---- Skills ---- */
 byId("skillClose").addEventListener("click", closeSkillOverlay);
 bindOverlayBackdropClose("skillOverlay", closeSkillOverlay);
-byId("skillDownloadMdBtn").addEventListener("click", function(){ if(skillOpenId) downloadSkillMarkdown(skillOpenId); });
-byId("skillCopyMdBtn").addEventListener("click", function(){
-  var s = skillOpenId && findSkill(skillOpenId);
-  if(!s) return;
-  copyText(buildSkillMarkdown(s), "Markdown copied — paste it as SKILL.md");
+byId("skillInstallBtn").addEventListener("click", function(){
+  if(byId("skillInstallView").style.display==="none") showSkillInstallView();
+  else showSkillDetailView();
 });
 byId("addSkillBtn").addEventListener("click", function(){ openSkillForm(null); });
 byId("skillFormClose").addEventListener("click", closeSkillForm);
@@ -13459,6 +13523,7 @@ function renderSkeletonPlaceholders(){
 }
 renderSkeletonPlaceholders();
 byId("footerYear").textContent = new Date().getFullYear();
+byId("appVersionTag").textContent = "v"+APP_VERSION+" · "+new Date(APP_UPDATED+"T00:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
 
 /* ================================================================
    LOGOWANIE / REJESTRACJA — most do modułu Firebase (patrz <script
