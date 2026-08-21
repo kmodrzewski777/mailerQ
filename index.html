@@ -1084,6 +1084,12 @@
   .bf-preview-label{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 8px; position:sticky; top:0}
   .bf-preview-box{position:sticky; top:24px; background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:16px; display:flex; flex-direction:column; gap:10px}
   .bf-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:18px; padding-top:14px; border-top:1px solid var(--line)}
+  /* Pasek Delete/Save as/Save changes w edytorze komponentu — user: "jak
+     content popupu jest dłuższy to nie widać tych przycisków". Sticky w
+     obrębie #editOverlay .modal-body (jedyny scrollujący rodzic), z
+     ujemnym marginesem znoszącym padding modal-body, żeby pasek sięgał
+     równo do prawdziwej krawędzi okna, bez martwej szpary pod spodem. */
+  #editActionsBar{position:sticky; bottom:-20px; margin:18px -20px -20px; padding:14px 20px; background:var(--surface); z-index:2}
   .bf-accordion{border:1px solid var(--line); border-radius:5px; background:var(--surface)}
   .bf-accordion + .bf-accordion{border-top:0; border-radius:0}
   .bf-accordion:first-of-type{border-radius:5px 5px 0 0}
@@ -1952,7 +1958,7 @@
               </div>
             </div>
           </div>
-          <div class="bf-group" id="editAiSupportGroup" style="margin-top:16px">
+          <div class="bf-group" id="editAiSupportGroup" style="margin-top:16px; display:none">
             <p class="bf-group-title" id="editAiSupportTitle" style="display:flex; align-items:center; gap:5px">
               <svg width="18" height="18" viewBox="0 -960 960 960" fill="var(--accent)" aria-hidden="true"><path d="M740-616.16 697.69-710l-93.84-42.31 93.84-42.3L740-888.46l42.31 93.85 93.84 42.3L782.31-710 740-616.16Zm0 544.62-42.31-93.85-93.84-42.3L697.69-250 740-343.84 782.31-250l93.84 42.31-93.84 42.3L740-71.54ZM355.38-208.47l-84.61-186.92L83.85-480l186.92-84.61 84.61-186.92L440-564.61 626.92-480 440-395.39l-84.62 186.92Z"></path></svg>
               AI Support
@@ -1982,7 +1988,7 @@
           </div>
         </div>
       </div>
-      <div class="bf-actions" style="justify-content:space-between">
+      <div class="bf-actions" id="editActionsBar" style="justify-content:space-between">
         <button class="btn ghost small" type="button" id="editDeleteBtn" style="color:#b42318; border-color:#b42318">Delete</button>
         <div style="display:flex; gap:8px">
           <button class="btn ghost small" type="button" id="editSaveAsBtn">Save as</button>
@@ -3124,7 +3130,7 @@ function compileMjmlFragment(source, ctx){
    SALESmanago pomoc.salesmanago.pl/dodawanie-linku-opt-out,
    Customer.io docs.customer.io/messaging/liquid/tag-list. */
 // Klucz wewnętrzny "salesmanago" ZOSTAJE bez zmian (to on jest zapisany w
-// istniejących danych — brand.crmPlatform, component.crmPlatform — zmiana
+// istniejących danych — brand.crmPlatform, component.crmPlatforms — zmiana
 // klucza wymagałaby migracji wszystkiego, co już go referencuje). Zmienia
 // się TYLKO wyświetlana nazwa — user: "Zmień SalesManago na ManagoAI".
 var CRM_PLATFORM_LABELS = { klaviyo:"Klaviyo", salesmanago:"ManagoAI", customerio:"Customer.io" };
@@ -6392,9 +6398,9 @@ var state = { brand:"neutral", category:"all", section:"components", emailFlow:"
   // stan przeglądania, nie dane usera, ma się zerować przy każdym nowym
   // wejściu do apki.
   searchQuery:"", page:1,
-  // Filtr CRM/ESP nad listingiem (checkboxy) — DODATKOWO zawęża to, co i tak
-  // przepuszcza compVisibleForBrand (widoczność wg aktywnej marki). user:
-  // "niech domyślnie te dwa nieprzypisane do brandu CRMy będą odznaczone"
+  // Filtr CRM/ESP nad listingiem (checkboxy) — JEDYNE źródło prawdy o
+  // widoczności wg platformy (patrz crmFilterAllows). user: "niech
+  // domyślnie te dwa nieprzypisane do brandu CRMy będą odznaczone"
   // — startuje PUSTY (nic zaznaczone), a renderCrmFilterRow zawsze wymusza
   // true na platformie WŁASNEJ marki przy każdym renderze (patrz tam),
   // więc efektywnie startuje: tylko platforma brandu zaznaczona, reszta
@@ -6514,31 +6520,36 @@ function bindOverlayBackdropClose(overlayId, onClose){
   });
 }
 function brand(){ return BRANDS[state.brand]; }
-/* Komponent widoczny, jeśli nie ma przypisanej platformy (stare/importowane
-   komponenty — domyślnie "all") ALBO ma "all" ALBO zgadza się z CRM/ESP
-   aktualnie wybranej marki (patrz brand().crmPlatform, Brand Kit). Np.
-   Berty na Klaviyo widzi komponenty bez przypisania + "All" + "Klaviyo",
-   NIE widzi komponentów oznaczonych "Customer.io"/"SalesManago". */
-function compVisibleForBrand(c, b){
-  return !c.crmPlatform || c.crmPlatform==="all" || c.crmPlatform===(b.crmPlatform||"klaviyo");
+/* Platformy przypisane do komponentu — tablica (jak e.crmPlatforms na
+   gotowych mailach/flows), puste/nieustawione = "działa wszędzie", nie
+   jedna sztywna platforma. Wcześniej komponent trzymał POJEDYNCZĄ
+   crmPlatform, a widoczność DODATKOWO gasiła go, gdy nie zgadzała się z
+   crmPlatform aktywnej marki — user: "po wybraniu że komponent np jest dla
+   Customer.io to - pomimo zaznaczonego checkboxu Customer.io w filtrach -
+   ten komponent się nie pokazuje". To była podwójna, niespójna bramka: sam
+   checkbox filtra już poprawnie odzwierciedla platformę marki (patrz
+   renderCrmFilterRow -> lockedKey), więc druga, sztywna bramka na markę
+   tylko psuła wynik. Teraz widoczność zależy WYŁĄCZNIE od checkboxów
+   filtra, tak samo jak dla gotowych maili/flows. */
+function componentCrmPlatforms(c){
+  return (c.crmPlatforms && c.crmPlatforms.length) ? c.crmPlatforms : null;
 }
-/* Checkboxy nad listingiem (state.crmFilter) — dodatkowe, ręczne zawężenie
-   listingu poza tym, co i tak przepuszcza compVisibleForBrand. Komponent
-   bez przypisania/"all" pasuje do KAŻDEJ zaznaczonej platformy — czyli
-   pokazuje się, jeśli zaznaczona jest CHOĆ JEDNA platforma; przy zerze
-   zaznaczonych znika też on (user: "jeśli odznaczę wszystko to nadal widzę
-   wszystkie komponenty, raczej nie powinienem widzieć nic" — poprzednia
-   wersja traktowała "all" jako zawsze widoczne, bez względu na checkboxy). */
+/* Checkboxy nad listingiem (state.crmFilter) — komponent bez przypisania
+   (null = "all") pasuje do KAŻDEJ zaznaczonej platformy — czyli pokazuje
+   się, jeśli zaznaczona jest CHOĆ JEDNA platforma; przy zerze zaznaczonych
+   znika też on (user: "jeśli odznaczę wszystko to nadal widzę wszystkie
+   komponenty, raczej nie powinienem widzieć nic"). Komponent z konkretnymi
+   platformami pokazuje się, jeśli CHOĆKOLWIEK z nich jest zaznaczona. */
 function crmFilterAllows(c){
-  if(!c.crmPlatform || c.crmPlatform==="all"){
+  var platforms = componentCrmPlatforms(c);
+  if(!platforms){
     return Object.keys(state.crmFilter).some(function(k){ return state.crmFilter[k]; });
   }
-  return !!state.crmFilter[c.crmPlatform];
+  return platforms.some(function(k){ return state.crmFilter[k]; });
 }
 function compsByCategory(cat){
-  var b = brand();
   var byCat = cat==="all" ? COMPONENTS : COMPONENTS.filter(function(c){ return c.category===cat; });
-  return byCat.filter(function(c){ return compVisibleForBrand(c, b) && crmFilterAllows(c); });
+  return byCat.filter(crmFilterAllows);
 }
 function findComp(id){ for(var i=0;i<COMPONENTS.length;i++){ if(COMPONENTS[i].id===id) return COMPONENTS[i]; } return null; }
 /* Zwraca kod MJML dla pozycji z listy budowy, albo null gdy komponent, na
@@ -6630,7 +6641,8 @@ function buildBackupPayload(){
       try{
         return {
           id:c.id, category:c.category, source:c.source, label:c.label, desc:c.desc, code:c.code(b),
-          crmPlatform:c.crmPlatform||"all",
+          crmPlatforms:c.crmPlatforms||[],
+          defaultVariantLabel:c.defaultVariantLabel||undefined,
           // Zapisane domyślne frazy (patrz saveComponentCatalogChanges) —
           // user: "daj mi też mozliwosc zapisywania komponentu jesli zmienie
           // frazy w nim wystepujące".
@@ -6717,6 +6729,11 @@ function applyBackupPayload(payload){
       var restoredVariants = (cc.variants||[]).map(function(v){
         return { id:v.id, label:v.label, code:(function(fixedCode){ return function(){ return fixedCode; }; })(v.code) };
       });
+      // Wstecznie: dane zapisane PRZED przejściem na wieloplatformowe
+      // crmPlatforms miały jedną crmPlatform (string). "all" = brak
+      // ograniczenia (pusta tablica), realna platforma = tablica z jednym
+      // wpisem.
+      var ccPlatforms = cc.crmPlatforms || (cc.crmPlatform && cc.crmPlatform!=="all" ? [cc.crmPlatform] : []);
       var existing = findComp(cc.id);
       if(existing){
         // wbudowany komponent, którego kod został wcześniej ręcznie
@@ -6726,16 +6743,18 @@ function applyBackupPayload(payload){
         // (wbudowany ładny albo wcześniej ustawiony surowy dump), nie
         // ma potrzeby go nadpisywać przy każdym wczytaniu strony.
         existing.category = cc.category; existing.source = cc.source; existing.label = cc.label; existing.desc = cc.desc;
-        existing.crmPlatform = cc.crmPlatform||"all";
+        existing.crmPlatforms = ccPlatforms;
         existing.custom = true;
         existing.code = (function(fixedCode){ return function(){ return fixedCode; }; })(cc.code);
         if(cc.defaultValues) existing.defaultValues = cc.defaultValues;
+        if(cc.defaultVariantLabel) existing.defaultVariantLabel = cc.defaultVariantLabel;
         if(restoredVariants.length) existing.variants = restoredVariants;
         if(cc.createdBy) existing.createdBy = cc.createdBy;
       } else {
         COMPONENTS.push({
           id:cc.id, category:cc.category, source:cc.source, label:cc.label, desc:cc.desc, custom:true,
-          crmPlatform:cc.crmPlatform||"all",
+          crmPlatforms:ccPlatforms,
+          defaultVariantLabel: cc.defaultVariantLabel||undefined,
           defaultValues: cc.defaultValues||undefined,
           variants: restoredVariants.length ? restoredVariants : undefined,
           createdBy: cc.createdBy||undefined,
@@ -6922,12 +6941,14 @@ var COMPONENT_FIELDS = [
   {key:"id", label:"Key (ID)", type:"text"},
   {key:"category", label:"Category", type:"select", options:null},
   {key:"desc", label:"Description", type:"text"},
-  {key:"crmPlatform", label:"CRM/ESP", type:"select", options:null}
+  // Checkboxy zamiast pojedynczego selecta — user: "komponent może pasować
+  // do więcej niż jednego CRM". Puste = działa wszędzie (patrz
+  // componentCrmPlatforms/crmFilterAllows). Renderowane osobnym widgetem
+  // (crmMultiSelectHtml/initCrmMultiSelect), nie generyczną gałęzią
+  // type==="select" w renderComponentFormFields/renderEditMetaForm.
+  {key:"crmPlatforms", label:"CRM/ESP", type:"crmcheck", options:null}
 ];
 COMPONENT_FIELDS[2].options = CATEGORIES.map(function(c){ return [c.id, c.label]; });
-// "All" + jedna opcja na platformę z CRM_PLATFORM_LABELS — brak wpisu
-// (stare/importowane komponenty) traktowany jak "all", patrz compsByCategory.
-COMPONENT_FIELDS[4].options = [["all","All"]].concat(Object.keys(CRM_PLATFORM_LABELS).map(function(k){ return [k, CRM_PLATFORM_LABELS[k]]; }));
 
 /* variants/activeVariantId/defaultCode — draft-level odpowiednik
    editState.activeVariantId/comp.variants w edytorze istniejącego
@@ -6935,7 +6956,7 @@ COMPONENT_FIELDS[4].options = [["all","All"]].concat(Object.keys(CRM_PLATFORM_LA
    istnieje w COMPONENTS — wszystko żyje w draft-cie do chwili Save.
    user: "w przypadku dodawania nowego komponentu mam mieć też możliwość
    od razu dodawania wariantów i ich ustalania kodem". */
-var componentForm = { draft:null, variants:[], activeVariantId:null, defaultCode:"" };
+var componentForm = { draft:null, variants:[], activeVariantId:null, defaultCode:"", defaultLabel:"Default" };
 
 function slugifyKey(s){ return slugify(s); }
 function uniqueComponentKey(base){
@@ -6945,10 +6966,11 @@ function uniqueComponentKey(base){
 }
 
 function openComponentForm(){
-  componentForm.draft = { label:"", id:"", category: state.section==="components"&&state.category!=="all" ? state.category : CATEGORIES[0].id, source:"custom", desc:"", crmPlatform:"all" };
+  componentForm.draft = { label:"", id:"", category: state.section==="components"&&state.category!=="all" ? state.category : CATEGORIES[0].id, source:"custom", desc:"", crmPlatforms:[] };
   componentForm.variants = [];
   componentForm.activeVariantId = null;
   componentForm.defaultCode = "";
+  componentForm.defaultLabel = "Default";
   byId("componentFormTitle").textContent = "New component";
   byId("componentFormDesc").style.display = "none";
   byId("componentCodeField").style.display = "";
@@ -6958,13 +6980,65 @@ function openComponentForm(){
 }
 function closeComponentForm(){ byId("componentFormOverlay").classList.remove("open"); }
 
+/* Widget CRM/ESP jako checkboxy w tym samym stylu/układzie co picker marki
+   (patrz renderSwatches/.brand-select-*) — user: "przy wyborze CRM z
+   dropdownu musi być opcja zaznaczania checkboxów, a nie wskazywania tylko
+   jednego CRMa. Bo komponent może pasować do więcej niż jednego CRM".
+   Wspólne dla New component (prefix "cf") i Edit component (prefix "em"). */
+function crmMultiSelectLabel(selected){
+  if(!selected || !selected.length) return "All";
+  return selected.map(function(k){ return CRM_PLATFORM_LABELS[k]||k; }).join(", ");
+}
+function crmMultiSelectHtml(prefix, selected){
+  return '<div class="brand-select" id="'+prefix+'-crmPlatforms-wrap">'+
+    '<button type="button" class="brand-select-btn" id="'+prefix+'-crmPlatforms-btn" aria-haspopup="true" aria-expanded="false" style="width:100%">'+
+      '<span id="'+prefix+'-crmPlatforms-label">'+esc(crmMultiSelectLabel(selected))+'</span>'+
+      '<span class="brand-select-caret" aria-hidden="true">'+ICON_CARET_DOWN+'</span>'+
+    '</button>'+
+    '<ul class="brand-select-menu" id="'+prefix+'-crmPlatforms-menu" role="group" aria-label="CRM/ESP" style="display:none">'+
+      Object.keys(CRM_PLATFORM_LABELS).map(function(k){
+        var checked = (selected||[]).indexOf(k)!==-1;
+        return '<li class="brand-select-option"><label style="display:flex; align-items:center; gap:8px; width:100%; cursor:pointer; margin:0; font-weight:400">'+
+          '<input type="checkbox" data-crm-check="'+k+'"'+(checked?' checked':'')+'>'+
+          '<span>'+esc(CRM_PLATFORM_LABELS[k])+'</span>'+
+        '</label></li>';
+      }).join("")+
+    '</ul>'+
+  '</div>';
+}
+function initCrmMultiSelect(prefix, getSelected, onChange){
+  var wrap = byId(prefix+"-crmPlatforms-wrap");
+  if(!wrap) return;
+  var btn = byId(prefix+"-crmPlatforms-btn");
+  var menu = byId(prefix+"-crmPlatforms-menu");
+  function closeMenu(){ menu.style.display = "none"; btn.setAttribute("aria-expanded","false"); }
+  btn.addEventListener("click", function(e){
+    e.stopPropagation();
+    var open = menu.style.display !== "none";
+    if(open){ closeMenu(); return; }
+    menu.style.display = "";
+    btn.setAttribute("aria-expanded","true");
+  });
+  menu.querySelectorAll("[data-crm-check]").forEach(function(cb){
+    cb.addEventListener("change", function(){
+      var key = cb.getAttribute("data-crm-check");
+      var list = getSelected();
+      var next = cb.checked ? list.concat([key]) : list.filter(function(k){ return k!==key; });
+      onChange(next);
+      byId(prefix+"-crmPlatforms-label").textContent = crmMultiSelectLabel(next);
+    });
+  });
+  document.addEventListener("click", function(e){ if(!wrap.contains(e.target)) closeMenu(); });
+}
 function renderComponentFormFields(){
   var form = byId("componentForm");
   var d = componentForm.draft;
   form.innerHTML = '<div class="bf-group"><div class="bf-row">' + COMPONENT_FIELDS.map(function(f){
     var val = d[f.key];
     var html = '<div class="bf-field"><label for="cf-'+f.key+'">'+esc(f.label)+'</label>';
-    if(f.type==="select"){
+    if(f.type==="crmcheck"){
+      html += crmMultiSelectHtml("cf", val);
+    } else if(f.type==="select"){
       // "category" rozwiązywane na żywo z CATEGORIES (jak "flow" w
       // renderSaveEmailFormFields) zamiast raz zamrożonego COMPONENT_FIELDS[2]
       // .options — inaczej rename/dodanie/usunięcie kategorii w Site Settings
@@ -6983,18 +7057,29 @@ function renderComponentFormFields(){
     el.addEventListener("input", function(){ componentForm.draft[el.getAttribute("data-cf-field")] = el.value; });
   });
   enhanceAllSelects(form);
+  initCrmMultiSelect("cf", function(){ return componentForm.draft.crmPlatforms||[]; }, function(next){ componentForm.draft.crmPlatforms = next; });
   cfInitVariantField();
 }
+/* Picker wariantu — user: "ołówek edycji wariantu ma być obok nazwy
+   wariantu, identycznie jak mamy w dropdownie z Brand Kit". Zamiast
+   natywnego <select> + rzędu zewnętrznych przycisków ołówek/+/x, to teraz
+   dokładnie ten sam widget co picker marki (patrz renderSwatches):
+   przycisk + własne .brand-select-menu, każdy wiersz to nazwa wariantu +
+   ołówek OBOK niej (.brand-select-edit-btn), na końcu "+ Add variant" jak
+   "+ Add new" w Brand Kicie. Ołówek jest teraz też przy Default (dawniej
+   ukryty) — user: "daj mi też mozliwosc zmiany nazwy Defaultowego
+   wariantu". */
 function cfVariantFieldHtml(){
   return '<div class="bf-field" id="cfVariantFieldWrap">'+
-    '<label for="cf-variant">Variant</label>'+
-    '<div id="cfVariantSelectRow" style="display:flex; gap:4px">'+
-      '<select id="cf-variant" style="flex:1"></select>'+
-      '<button type="button" class="icon-btn icon-btn-field" id="cfVariantRenameBtn" title="Rename variant" aria-label="Rename variant" style="display:none">'+ICON_PENCIL+'</button>'+
-      '<button type="button" class="icon-btn icon-btn-field" id="cfVariantAddBtn" title="Add variant" aria-label="Add variant">+</button>'+
-      '<button type="button" class="icon-btn icon-btn-field" id="cfVariantDeleteBtn" title="Delete variant" aria-label="Delete variant" style="display:none; color:#b42318">'+ICON_CLOSE+'</button>'+
+    '<label>Variant</label>'+
+    '<div class="brand-select" id="cfVariantWrap">'+
+      '<button type="button" class="brand-select-btn" id="cfVariantBtn" aria-haspopup="listbox" aria-expanded="false" style="width:100%">'+
+        '<span id="cfVariantLabel"></span>'+
+        '<span class="brand-select-caret" aria-hidden="true">'+ICON_CARET_DOWN+'</span>'+
+      '</button>'+
+      '<ul class="brand-select-menu" id="cfVariantMenu" role="listbox" style="display:none"></ul>'+
     '</div>'+
-    '<div id="cfVariantAddRow" style="display:none; gap:4px">'+
+    '<div id="cfVariantAddRow" style="display:none; gap:4px; margin-top:4px">'+
       '<input type="text" id="cfVariantNameInput" class="inline-edit-input">'+
       '<button type="button" class="icon-btn icon-btn-field" id="cfVariantAddConfirm" title="Save" aria-label="Save">'+ICON_CHECK+'</button>'+
       '<button type="button" class="icon-btn icon-btn-field" id="cfVariantAddCancel" title="Cancel" aria-label="Cancel">'+ICON_CLOSE+'</button>'+
@@ -7016,32 +7101,87 @@ function cfCommitCurrentSlot(){
     componentForm.defaultCode = code;
   }
 }
+function cfRenderVariantOptions(){
+  var current = componentForm.activeVariantId || "";
+  var defaultLabel = componentForm.defaultLabel || "Default";
+  var activeVariant = current ? componentForm.variants.filter(function(v){ return v.id===current; })[0] : null;
+  byId("cfVariantLabel").textContent = activeVariant ? activeVariant.label : defaultLabel;
+  byId("cfVariantMenu").innerHTML =
+    '<li class="brand-select-option" data-variant-id="" aria-selected="'+(current===""?"true":"false")+'">'+
+      '<span>'+esc(defaultLabel)+'</span>'+
+      '<button type="button" class="icon-btn brand-select-edit-btn" data-variant-rename="" title="Rename variant" aria-label="Rename '+esc(defaultLabel)+'">'+ICON_PENCIL+'</button>'+
+    '</li>'+
+    componentForm.variants.map(function(v){
+      return '<li class="brand-select-option" data-variant-id="'+esc(v.id)+'" aria-selected="'+(current===v.id?"true":"false")+'">'+
+        '<span>'+esc(v.label)+'</span>'+
+        '<span style="display:flex; gap:2px; flex:none">'+
+          '<button type="button" class="icon-btn brand-select-edit-btn" data-variant-rename="'+esc(v.id)+'" title="Rename variant" aria-label="Rename '+esc(v.label)+'">'+ICON_PENCIL+'</button>'+
+          '<button type="button" class="icon-btn brand-select-edit-btn" data-variant-delete="'+esc(v.id)+'" title="Delete variant" aria-label="Delete '+esc(v.label)+'" style="color:#b42318">'+ICON_CLOSE+'</button>'+
+        '</span>'+
+      '</li>';
+    }).join("")+
+    '<li class="brand-select-option brand-select-add" data-variant-add="1">+ Add variant</li>';
+}
+var cfVariantAddMode = "add"; // "add" | "rename" — czyta/ustawia cfConfirmAddVariant
+var cfVariantRenameTargetId = null; // "" tu by kolidowało z falsy-check, więc null = Default
 function cfInitVariantField(){
   cfRenderVariantOptions();
-  byId("cf-variant").addEventListener("input", function(){
-    cfCommitCurrentSlot();
-    componentForm.activeVariantId = this.value || null;
-    byId("componentCodeInput").value = componentForm.activeVariantId
-      ? (componentForm.variants.filter(function(v){ return v.id===componentForm.activeVariantId; })[0]||{code:""}).code
-      : componentForm.defaultCode;
-    byId("cfVariantDeleteBtn").style.display = componentForm.activeVariantId ? "" : "none";
+  var wrap = byId("cfVariantWrap"), btn = byId("cfVariantBtn"), menu = byId("cfVariantMenu");
+  function closeMenu(){ menu.style.display = "none"; btn.setAttribute("aria-expanded","false"); }
+  btn.addEventListener("click", function(e){
+    e.stopPropagation();
+    if(menu.style.display !== "none"){ closeMenu(); return; }
+    menu.style.display = "";
+    btn.setAttribute("aria-expanded","true");
   });
-  byId("cfVariantAddBtn").addEventListener("click", function(){
-    cfVariantAddMode = "add";
-    byId("cfVariantSelectRow").style.display = "none";
-    byId("cfVariantAddRow").style.display = "flex";
-    byId("cfVariantNameInput").value = "";
-    byId("cfVariantNameInput").focus();
-  });
-  byId("cfVariantRenameBtn").addEventListener("click", function(){
-    var variant = componentForm.variants.filter(function(v){ return v.id===componentForm.activeVariantId; })[0];
-    if(!variant) return;
-    cfVariantAddMode = "rename";
-    byId("cfVariantSelectRow").style.display = "none";
-    byId("cfVariantAddRow").style.display = "flex";
-    byId("cfVariantNameInput").value = variant.label;
-    byId("cfVariantNameInput").focus();
-    byId("cfVariantNameInput").select();
+  document.addEventListener("click", function(e){ if(!wrap.contains(e.target)) closeMenu(); });
+  menu.addEventListener("click", function(e){
+    var renameBtn = e.target.closest("[data-variant-rename]");
+    var deleteBtn = e.target.closest("[data-variant-delete]");
+    var addRow = e.target.closest("[data-variant-add]");
+    if(renameBtn){
+      e.stopPropagation();
+      var rid = renameBtn.getAttribute("data-variant-rename");
+      cfVariantRenameTargetId = rid || null;
+      cfVariantAddMode = "rename";
+      closeMenu();
+      byId("cfVariantAddRow").style.display = "flex";
+      byId("cfVariantNameInput").value = rid ? (componentForm.variants.filter(function(v){ return v.id===rid; })[0]||{label:""}).label : (componentForm.defaultLabel||"Default");
+      byId("cfVariantNameInput").focus();
+      byId("cfVariantNameInput").select();
+      return;
+    }
+    if(deleteBtn){
+      e.stopPropagation();
+      var did = deleteBtn.getAttribute("data-variant-delete");
+      componentForm.variants = componentForm.variants.filter(function(v){ return v.id!==did; });
+      if(componentForm.activeVariantId===did){
+        componentForm.activeVariantId = null;
+        byId("componentCodeInput").value = componentForm.defaultCode;
+      }
+      cfRenderVariantOptions();
+      showToast("Variant deleted");
+      return;
+    }
+    if(addRow){
+      cfVariantAddMode = "add";
+      closeMenu();
+      byId("cfVariantAddRow").style.display = "flex";
+      byId("cfVariantNameInput").value = "";
+      byId("cfVariantNameInput").focus();
+      return;
+    }
+    var li = e.target.closest("[data-variant-id]");
+    if(li){
+      cfCommitCurrentSlot();
+      var vid = li.getAttribute("data-variant-id");
+      componentForm.activeVariantId = vid || null;
+      byId("componentCodeInput").value = componentForm.activeVariantId
+        ? (componentForm.variants.filter(function(v){ return v.id===componentForm.activeVariantId; })[0]||{code:""}).code
+        : componentForm.defaultCode;
+      closeMenu();
+      cfRenderVariantOptions();
+    }
   });
   byId("cfVariantAddCancel").addEventListener("click", cfCancelAddVariant);
   byId("cfVariantAddConfirm").addEventListener("click", cfConfirmAddVariant);
@@ -7049,39 +7189,21 @@ function cfInitVariantField(){
     if(e.key==="Enter"){ e.preventDefault(); cfConfirmAddVariant(); }
     if(e.key==="Escape"){ e.preventDefault(); cfCancelAddVariant(); }
   });
-  byId("cfVariantDeleteBtn").addEventListener("click", function(){
-    if(!componentForm.activeVariantId) return;
-    componentForm.variants = componentForm.variants.filter(function(v){ return v.id!==componentForm.activeVariantId; });
-    componentForm.activeVariantId = null;
-    byId("componentCodeInput").value = componentForm.defaultCode;
-    byId("cfVariantDeleteBtn").style.display = "none";
-    cfRenderVariantOptions();
-    showToast("Variant deleted");
-  });
 }
 function cfCancelAddVariant(){
   byId("cfVariantAddRow").style.display = "none";
-  byId("cfVariantSelectRow").style.display = "flex";
 }
-function cfRenderVariantOptions(){
-  var sel = byId("cf-variant");
-  var current = componentForm.activeVariantId || "";
-  sel.innerHTML = '<option value="">Default</option>' + componentForm.variants.map(function(v){
-    return '<option value="'+esc(v.id)+'"'+(v.id===current?' selected':'')+'>'+esc(v.label)+'</option>';
-  }).join("");
-  sel.value = current;
-  enhanceSelect(sel);
-  byId("cfVariantDeleteBtn").style.display = current ? "" : "none";
-  byId("cfVariantRenameBtn").style.display = current ? "" : "none";
-}
-var cfVariantAddMode = "add"; // "add" | "rename" — czyta/ustawia cfConfirmAddVariant
 function cfConfirmAddVariant(){
   var name = byId("cfVariantNameInput").value.trim();
   if(!name){ showToast("Enter a variant name"); return; }
   if(cfVariantAddMode==="rename"){
-    var target = componentForm.variants.filter(function(v){ return v.id===componentForm.activeVariantId; })[0];
-    if(!target) return;
-    target.label = name;
+    if(cfVariantRenameTargetId){
+      var target = componentForm.variants.filter(function(v){ return v.id===cfVariantRenameTargetId; })[0];
+      if(!target) return;
+      target.label = name;
+    } else {
+      componentForm.defaultLabel = name;
+    }
     cfCancelAddVariant();
     cfRenderVariantOptions();
     showToast("Variant renamed");
@@ -7099,7 +7221,6 @@ function cfConfirmAddVariant(){
   cfCancelAddVariant();
   componentForm.activeVariantId = vid;
   byId("componentCodeInput").value = snapshot;
-  byId("cfVariantDeleteBtn").style.display = "";
   cfRenderVariantOptions();
   showToast("Variant “"+name+"” added — edit the code, then save");
 }
@@ -7121,10 +7242,11 @@ function saveComponentForm(){
   });
   COMPONENTS.push({
     id: finalId, category: d.category, source: (d.source||"").trim() || "custom",
-    label: label, desc: (d.desc||"").trim(), crmPlatform: d.crmPlatform||"all", custom: true,
+    label: label, desc: (d.desc||"").trim(), crmPlatforms: d.crmPlatforms||[], custom: true,
     preview: makeCustomPreview(code),
     code: function(){ return code; },
     variants: variantsForComp.length ? variantsForComp : undefined,
+    defaultVariantLabel: (componentForm.defaultLabel && componentForm.defaultLabel!=="Default") ? componentForm.defaultLabel : undefined,
     createdBy: currentUserStamp()
   });
   state.section = "components"; state.category = d.category;
@@ -7239,7 +7361,14 @@ function guessTokenDefault(token){
   return LOREM_SENTENCE;
 }
 
-var editState = { componentId:null, listUid:null, values:{}, touched:{}, defaultCode:"", activeVariantId:null, lastMetaChanged:false };
+// valuesByVariant — user: "warianty patrzyły nie tylko na kod ale również
+// na frazy... obecnie jest tak, że są te same frazy niezależnie od
+// wybranego wariantu, tylko kod się zmienia". editState.values/touched to
+// zawsze frazy DLA AKTUALNIE aktywnego wariantu; switchToVariant chowa je
+// tu pod kluczem wariantu i przywraca (albo zasiewa od nowa) przy powrocie,
+// żeby dwa warianty dzielące tę samą nazwę tokenu nie pokazywały tej samej
+// wpisanej treści.
+var editState = { componentId:null, listUid:null, values:{}, touched:{}, valuesByVariant:{}, defaultCode:"", activeVariantId:null, lastMetaChanged:false };
 /* Mały wektorowy "ołówek" (zamiast emoji, spójnie z resztą UI) — używany
    przy przycisku zmiany nazwy wariantu, w obu miejscach (edytor istniejącego
    komponentu / New component). */
@@ -7510,7 +7639,9 @@ function renderEditMetaForm(){
   form.innerHTML = COMPONENT_FIELDS.map(function(f){
     var val = d[f.key];
     var html = '<div class="bf-field"><label for="em-'+f.key+'">'+esc(f.label)+'</label>';
-    if(f.type==="select"){
+    if(f.type==="crmcheck"){
+      html += crmMultiSelectHtml("em", val);
+    } else if(f.type==="select"){
       // patrz analogiczny komentarz w renderComponentFormFields — ten sam
       // fix, tu dla edycji ISTNIEJĄCEGO komponentu.
       var opts = f.key==="category" ? CATEGORIES.map(function(c){ return [c.id, c.label]; }) : f.options;
@@ -7529,18 +7660,26 @@ function renderEditMetaForm(){
     });
   });
   enhanceAllSelects(form);
+  initCrmMultiSelect("em", function(){ return editState.metaDraft.crmPlatforms||[]; }, function(next){
+    editState.metaDraft.crmPlatforms = next;
+    updateEditSaveOnlyBtnState();
+  });
   initVariantField();
 }
+/* Ten sam widget co picker marki (patrz renderSwatches) i cfVariantFieldHtml
+   w formularzu "New component" — user: "identycznie jak mamy w dropdownie
+   z Brand Kit — jest nazwa brandu i obok edycja. Identyczny układ i styl". */
 function variantFieldHtml(){
   return '<div class="bf-field" id="editVariantFieldWrap">'+
-    '<label for="em-variant">Variant</label>'+
-    '<div id="editVariantSelectRow" style="display:flex; gap:4px">'+
-      '<select id="em-variant" style="flex:1"></select>'+
-      '<button type="button" class="icon-btn icon-btn-field" id="editVariantRenameBtn" title="Rename variant" aria-label="Rename variant" style="display:none">'+ICON_PENCIL+'</button>'+
-      '<button type="button" class="icon-btn icon-btn-field" id="editVariantAddBtn" title="Add variant" aria-label="Add variant">+</button>'+
-      '<button type="button" class="icon-btn icon-btn-field" id="editVariantDeleteBtn" title="Delete variant" aria-label="Delete variant" style="display:none; color:#b42318">'+ICON_CLOSE+'</button>'+
+    '<label>Variant</label>'+
+    '<div class="brand-select" id="editVariantWrap">'+
+      '<button type="button" class="brand-select-btn" id="editVariantBtn" aria-haspopup="listbox" aria-expanded="false" style="width:100%">'+
+        '<span id="editVariantLabel"></span>'+
+        '<span class="brand-select-caret" aria-hidden="true">'+ICON_CARET_DOWN+'</span>'+
+      '</button>'+
+      '<ul class="brand-select-menu" id="editVariantMenu" role="listbox" style="display:none"></ul>'+
     '</div>'+
-    '<div id="editVariantAddRow" style="display:none; gap:4px">'+
+    '<div id="editVariantAddRow" style="display:none; gap:4px; margin-top:4px">'+
       '<input type="text" id="editVariantNameInput" class="inline-edit-input">'+
       '<button type="button" class="icon-btn icon-btn-field" id="editVariantAddConfirm" title="Save" aria-label="Save">'+ICON_CHECK+'</button>'+
       '<button type="button" class="icon-btn icon-btn-field" id="editVariantAddCancel" title="Cancel" aria-label="Cancel">'+ICON_CLOSE+'</button>'+
@@ -7558,28 +7697,79 @@ function variantFieldHtml(){
    (albo, gorzej, po cichu nadpisywała Default), stąd dwa warianty
    ("Centered"/"Left") z identycznym kodem w zgłoszeniu usera. */
 var editVariantAddMode = "add"; // "add" | "rename" — czyta/ustawia confirmAddVariant
+var editVariantRenameTargetId = null; // null = Default, inaczej id wariantu
+function renderVariantOptions(c){
+  var variants = c.variants || [];
+  var current = editState.activeVariantId || "";
+  var defaultLabel = c.defaultVariantLabel || "Default";
+  var activeVariant = current ? variants.filter(function(v){ return v.id===current; })[0] : null;
+  byId("editVariantLabel").textContent = activeVariant ? activeVariant.label : defaultLabel;
+  byId("editVariantMenu").innerHTML =
+    '<li class="brand-select-option" data-variant-id="" aria-selected="'+(current===""?"true":"false")+'">'+
+      '<span>'+esc(defaultLabel)+'</span>'+
+      '<button type="button" class="icon-btn brand-select-edit-btn" data-variant-rename="" title="Rename variant" aria-label="Rename '+esc(defaultLabel)+'">'+ICON_PENCIL+'</button>'+
+    '</li>'+
+    variants.map(function(v){
+      return '<li class="brand-select-option" data-variant-id="'+esc(v.id)+'" aria-selected="'+(current===v.id?"true":"false")+'">'+
+        '<span>'+esc(v.label)+'</span>'+
+        '<span style="display:flex; gap:2px; flex:none">'+
+          '<button type="button" class="icon-btn brand-select-edit-btn" data-variant-rename="'+esc(v.id)+'" title="Rename variant" aria-label="Rename '+esc(v.label)+'">'+ICON_PENCIL+'</button>'+
+          '<button type="button" class="icon-btn brand-select-edit-btn" data-variant-delete="'+esc(v.id)+'" title="Delete variant" aria-label="Delete '+esc(v.label)+'" style="color:#b42318">'+ICON_CLOSE+'</button>'+
+        '</span>'+
+      '</li>';
+    }).join("")+
+    '<li class="brand-select-option brand-select-add" data-variant-add="1">+ Add variant</li>';
+}
 function initVariantField(){
   var c = findComp(editState.componentId);
   if(!c) return;
   editState.activeVariantId = null;
   renderVariantOptions(c);
-  byId("em-variant").addEventListener("input", function(){ switchToVariant(this.value || null); });
-  byId("editVariantAddBtn").addEventListener("click", function(){
-    editVariantAddMode = "add";
-    byId("editVariantSelectRow").style.display = "none";
-    byId("editVariantAddRow").style.display = "flex";
-    byId("editVariantNameInput").value = "";
-    byId("editVariantNameInput").focus();
+  var wrap = byId("editVariantWrap"), btn = byId("editVariantBtn"), menu = byId("editVariantMenu");
+  function closeMenu(){ menu.style.display = "none"; btn.setAttribute("aria-expanded","false"); }
+  btn.addEventListener("click", function(e){
+    e.stopPropagation();
+    if(menu.style.display !== "none"){ closeMenu(); return; }
+    menu.style.display = "";
+    btn.setAttribute("aria-expanded","true");
   });
-  byId("editVariantRenameBtn").addEventListener("click", function(){
-    var variant = (c.variants||[]).filter(function(v){ return v.id===editState.activeVariantId; })[0];
-    if(!variant) return;
-    editVariantAddMode = "rename";
-    byId("editVariantSelectRow").style.display = "none";
-    byId("editVariantAddRow").style.display = "flex";
-    byId("editVariantNameInput").value = variant.label;
-    byId("editVariantNameInput").focus();
-    byId("editVariantNameInput").select();
+  document.addEventListener("click", function(e){ if(!wrap.contains(e.target)) closeMenu(); });
+  menu.addEventListener("click", function(e){
+    var cc = findComp(editState.componentId);
+    if(!cc) return;
+    var renameBtn = e.target.closest("[data-variant-rename]");
+    var deleteBtn = e.target.closest("[data-variant-delete]");
+    var addRow = e.target.closest("[data-variant-add]");
+    if(renameBtn){
+      e.stopPropagation();
+      var rid = renameBtn.getAttribute("data-variant-rename");
+      editVariantRenameTargetId = rid || null;
+      editVariantAddMode = "rename";
+      closeMenu();
+      byId("editVariantAddRow").style.display = "flex";
+      byId("editVariantNameInput").value = rid ? (cc.variants||[]).filter(function(v){ return v.id===rid; })[0].label : (cc.defaultVariantLabel||"Default");
+      byId("editVariantNameInput").focus();
+      byId("editVariantNameInput").select();
+      return;
+    }
+    if(deleteBtn){
+      e.stopPropagation();
+      deleteVariantById(deleteBtn.getAttribute("data-variant-delete"));
+      return;
+    }
+    if(addRow){
+      editVariantAddMode = "add";
+      closeMenu();
+      byId("editVariantAddRow").style.display = "flex";
+      byId("editVariantNameInput").value = "";
+      byId("editVariantNameInput").focus();
+      return;
+    }
+    var li = e.target.closest("[data-variant-id]");
+    if(li){
+      closeMenu();
+      switchToVariant(li.getAttribute("data-variant-id") || null);
+    }
   });
   byId("editVariantAddCancel").addEventListener("click", cancelAddVariant);
   byId("editVariantAddConfirm").addEventListener("click", confirmAddVariant);
@@ -7587,27 +7777,36 @@ function initVariantField(){
     if(e.key==="Enter"){ e.preventDefault(); confirmAddVariant(); }
     if(e.key==="Escape"){ e.preventDefault(); cancelAddVariant(); }
   });
-  byId("editVariantDeleteBtn").addEventListener("click", deleteActiveVariant);
 }
 function cancelAddVariant(){
   byId("editVariantAddRow").style.display = "none";
-  byId("editVariantSelectRow").style.display = "flex";
 }
-function renderVariantOptions(c){
-  var sel = byId("em-variant");
-  var variants = c.variants || [];
-  var current = editState.activeVariantId || "";
-  sel.innerHTML = '<option value="">Default</option>' + variants.map(function(v){
-    return '<option value="'+esc(v.id)+'"'+(v.id===current?' selected':'')+'>'+esc(v.label)+'</option>';
-  }).join("");
-  sel.value = current;
-  enhanceSelect(sel); // już opakowany od pierwszego renderu — to tylko resync widocznej etykiety
-  byId("editVariantDeleteBtn").style.display = current ? "" : "none";
-  byId("editVariantRenameBtn").style.display = current ? "" : "none";
+/* Kaskada domyślnej treści dla tokenów, które NIE MAJĄ jeszcze wartości w
+   editState.values: zapisana domyślna fraza komponentu (jeśli user ją
+   kiedyś zapisał), inaczej zgadnięta lorem-ipsum podpowiedź. Wspólna dla
+   pierwszego otwarcia edytora (openComponentEditor) i pierwszego wejścia w
+   dany wariant w tej sesji (switchToVariant), żeby oba miejsca zasiewały
+   frazy dokładnie tak samo. */
+function seedEditValuesForTokens(c, tokens){
+  tokens.forEach(function(t){
+    if(t in editState.values) return;
+    if(c.defaultValues && (t in c.defaultValues)){
+      editState.values[t] = c.defaultValues[t];
+      editState.touched[t] = true;
+    } else {
+      editState.values[t] = guessTokenDefault(t);
+    }
+  });
 }
 function switchToVariant(vid){
   var c = findComp(editState.componentId);
   if(!c) return;
+  // Frazy wpisane w slocie, z którego właśnie schodzimy, zostają pod jego
+  // kluczem — user: "warianty patrzyły nie tylko na kod ale również na
+  // frazy... obecnie są te same frazy niezależnie od wybranego wariantu".
+  var oldKey = editState.activeVariantId || "";
+  editState.valuesByVariant[oldKey] = { values: editState.values, touched: editState.touched };
+
   editState.activeVariantId = vid;
   var code;
   if(vid){
@@ -7620,10 +7819,24 @@ function switchToVariant(vid){
   // — po przełączeniu porównujemy do KODU TEGO wariantu, nie do Default.
   editState.defaultCode = code;
   byId("editCodePreview").value = code;
-  byId("editVariantDeleteBtn").style.display = vid ? "" : "none";
+
+  var newKey = vid || "";
+  var cached = editState.valuesByVariant[newKey];
+  if(cached){
+    editState.values = cached.values;
+    editState.touched = cached.touched;
+  } else {
+    editState.values = {};
+    editState.touched = {};
+    seedEditValuesForTokens(c, extractTokens(code));
+    editState.valuesByVariant[newKey] = { values: editState.values, touched: editState.touched };
+  }
+
+  editLastTokenSignature = null; // wymuś przebudowę formularza fraz — sygnatura tokenów mogła się nie zmienić, ale ICH WARTOŚCI tak
   syncTokenFormFromCode();
   mountEditPreview();
   updateEditSaveOnlyBtnState();
+  renderVariantOptions(c);
 }
 function confirmAddVariant(){
   var name = byId("editVariantNameInput").value.trim();
@@ -7631,9 +7844,13 @@ function confirmAddVariant(){
   var c = findComp(editState.componentId);
   if(!c) return;
   if(editVariantAddMode==="rename"){
-    var target = (c.variants||[]).filter(function(v){ return v.id===editState.activeVariantId; })[0];
-    if(!target) return;
-    target.label = name;
+    if(editVariantRenameTargetId){
+      var target = (c.variants||[]).filter(function(v){ return v.id===editVariantRenameTargetId; })[0];
+      if(!target) return;
+      target.label = name;
+    } else {
+      c.defaultVariantLabel = name;
+    }
     c.custom = true;
     saveToStorage();
     cancelAddVariant();
@@ -7654,17 +7871,20 @@ function confirmAddVariant(){
   saveToStorage();
   cancelAddVariant();
   switchToVariant(vid); // od razu przełącz — TO jego kod user ma teraz edytować
-  renderVariantOptions(c);
   showToast("Variant “"+name+"” added — edit the code, then Save changes");
 }
-function deleteActiveVariant(){
+function deleteVariantById(vid){
   var c = findComp(editState.componentId);
-  if(!c || !c.variants || !editState.activeVariantId) return;
-  c.variants = c.variants.filter(function(v){ return v.id!==editState.activeVariantId; });
+  if(!c || !c.variants || !vid) return;
+  c.variants = c.variants.filter(function(v){ return v.id!==vid; });
   c.custom = true; // patrz komentarz przy dodawaniu wariantu — inaczej usunięcie nie przetrwa odświeżenia
+  delete editState.valuesByVariant[vid];
   saveToStorage();
-  switchToVariant(null);
-  renderVariantOptions(c);
+  if(editState.activeVariantId===vid){
+    switchToVariant(null); // wraca do Default, jeśli usunęliśmy AKTYWNY wariant spod nóg
+  } else {
+    renderVariantOptions(c);
+  }
   showToast("Variant deleted");
 }
 /* Zapisuje editState.metaDraft NA komponent w katalogu — wołane na
@@ -7696,7 +7916,7 @@ function commitEditMeta(){
   comp.desc = (d.desc||"").trim();
   comp.source = (d.source||"").trim() || comp.source;
   comp.category = d.category;
-  comp.crmPlatform = d.crmPlatform || "all";
+  comp.crmPlatforms = d.crmPlatforms || [];
   if(metaChanged) comp.custom = true;
   if(requestedId !== comp.id){
     var oldId = comp.id;
@@ -7712,7 +7932,7 @@ function openComponentEditor(componentId, listUid){
   var c = findComp(componentId), b = brand();
   editState.componentId = componentId;
   editState.listUid = listUid || null;
-  editState.metaDraft = { label:c.label, id:c.id, category:c.category, source:c.source, desc:c.desc, crmPlatform:c.crmPlatform||"all" };
+  editState.metaDraft = { label:c.label, id:c.id, category:c.category, source:c.source, desc:c.desc, crmPlatforms:(c.crmPlatforms||[]).slice() };
   editState.defaultMeta = Object.assign({}, editState.metaDraft);
   renderEditMetaForm(); // resetuje editState.activeVariantId na null (Default) — patrz initVariantField
 
@@ -7734,6 +7954,7 @@ function openComponentEditor(componentId, listUid){
 
   var baseCode = (existingItem && existingItem.code) ? existingItem.code : editState.defaultCode;
   var tokens = extractTokens(baseCode);
+  editState.valuesByVariant = {};
   editState.values = {};
   editState.touched = {};
   // Poprzednio zapisane, JAWNIE wpisane wartości (jeśli to już istniejąca
@@ -7752,19 +7973,15 @@ function openComponentEditor(componentId, listUid){
   // ukryty); dla świeżo otwartego komponentu z katalogu — jego zapisane
   // domyślne frazy (comp.defaultValues), jeśli takie ma.
   editState.defaultValues = Object.assign({}, (existingItem && existingItem.values) || c.defaultValues || {});
-  // Kaskada dla NIEDOTKNIĘTYCH jeszcze tokenów: najpierw zapisana domyślna
-  // fraza tego komponentu (jeśli user ją kiedyś zapisał — patrz niżej), a
-  // dopiero potem zgadnięta lorem-ipsum podpowiedź. Zapisana fraza liczy
-  // się jako PRAWDZIWA, zatwierdzona treść (touched:true), nie podpowiedź.
-  tokens.forEach(function(t){
-    if(t in editState.values) return;
-    if(c.defaultValues && (t in c.defaultValues)){
-      editState.values[t] = c.defaultValues[t];
-      editState.touched[t] = true;
-    } else {
-      editState.values[t] = guessTokenDefault(t);
-    }
-  });
+  // Kaskada dla NIEDOTKNIĘTYCH jeszcze tokenów — wydzielona do
+  // seedEditValuesForTokens, bo switchToVariant potrzebuje DOKŁADNIE tej
+  // samej logiki przy pierwszym wejściu w wariant, dla którego nie ma
+  // jeszcze nic w editState.valuesByVariant.
+  seedEditValuesForTokens(c, tokens);
+  // Slot fraz DLA WARIANTU, z którym edytor się właśnie otwiera (Default
+  // albo restoredVariant wyżej) — kolejne przełączenia wariantu mają do
+  // czego wracać bez utraty tego, co user już wpisał w tej sesji.
+  editState.valuesByVariant[editState.activeVariantId||""] = { values: editState.values, touched: editState.touched };
 
   byId("editTitle").textContent = c.label;
   byId("editSaveBtn").textContent = listUid ? "Save changes" : "Add to list";
@@ -7898,11 +8115,12 @@ function openSaveComponentAsNew(){
     category: editState.metaDraft.category || c.category,
     source: "custom",
     desc: editState.metaDraft.desc || c.desc || "",
-    crmPlatform: editState.metaDraft.crmPlatform || c.crmPlatform || "all"
+    crmPlatforms: (editState.metaDraft.crmPlatforms || c.crmPlatforms || []).slice()
   };
   componentForm.variants = [];
   componentForm.activeVariantId = null;
   componentForm.defaultCode = currentCode;
+  componentForm.defaultLabel = "Default";
   closeEditor();
   byId("componentFormTitle").textContent = "New component";
   byId("componentFormDesc").style.display = "none";
@@ -10744,12 +10962,11 @@ function renderPagination(totalPages){
 }
 /* Sygnety CRM na kartach — user: "sygnety... jako badge ilustrujące dla
    jakich CRM to jest komponent lub gotowy mail". Brak badge'a = działa
-   wszędzie (crmPlatform:"all"/nieustawiony) — pokazywanie WSZYSTKICH 3
+   wszędzie (crmPlatforms:[]/nieustawione) — pokazywanie WSZYSTKICH 3
    sygnetów na każdej z ~175 kart byłoby szumem, nie informacją; badge
    pojawia się TYLKO, gdy coś faktycznie ZAWĘŻA zgodność. */
 function componentCompatiblePlatforms(c){
-  if(!c.crmPlatform || c.crmPlatform==="all") return Object.keys(CRM_PLATFORM_LABELS);
-  return [c.crmPlatform];
+  return componentCrmPlatforms(c) || Object.keys(CRM_PLATFORM_LABELS);
 }
 // Gotowy mail = przecięcie zgodności WSZYSTKICH jego komponentów — mail
 // złożony z komponentu tylko-Klaviyo i komponentu tylko-Customer.io w
