@@ -12505,7 +12505,7 @@ function renderSkillFormFields(){
       selectField("category", "Category", SKILL_CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).map(function(c){ return [c.id, c.label]; }))+
     '</div>'+
     '<div class="bf-row">'+
-      selectField("brand", "Brand", [["", "— No specific brand (cross-client) —"]].concat(BRAND_ORDER.slice().sort(function(a,c){ return (BRANDS[a].short||BRANDS[a].name).localeCompare(BRANDS[c].short||BRANDS[c].name); }).map(function(k){ return [k, BRANDS[k].short||BRANDS[k].name]; })))+
+      selectField("brand", "Brand", [["", "— No specific brand (cross-client) —"]].concat(BRAND_ORDER.filter(function(k){ return k!=="neutral"; }).sort(function(a,c){ return (BRANDS[a].short||BRANDS[a].name).localeCompare(BRANDS[c].short||BRANDS[c].name); }).map(function(k){ return [k, BRANDS[k].short||BRANDS[k].name]; })))+
     '</div></div>'+
     '<div class="bf-group">'+
       textareaField("desc", "What it does")+
@@ -12943,7 +12943,7 @@ function renderSnippetFormFields(){
       selectField("category", "Category", LIQUID_CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).map(function(c){ return [c.id, c.label]; }))+
     '</div>'+
     '<div class="bf-row">'+
-      selectField("brand", "Brand", [["", "— No specific brand (cross-client) —"]].concat(BRAND_ORDER.slice().sort(function(a,c){ return (BRANDS[a].short||BRANDS[a].name).localeCompare(BRANDS[c].short||BRANDS[c].name); }).map(function(k){ return [k, BRANDS[k].short||BRANDS[k].name]; })))+
+      selectField("brand", "Brand", [["", "— No specific brand (cross-client) —"]].concat(BRAND_ORDER.filter(function(k){ return k!=="neutral"; }).sort(function(a,c){ return (BRANDS[a].short||BRANDS[a].name).localeCompare(BRANDS[c].short||BRANDS[c].name); }).map(function(k){ return [k, BRANDS[k].short||BRANDS[k].name]; })))+
     '</div></div>'+
     '<div class="bf-group">'+
       textareaField("desc", "What it does")+
@@ -13218,7 +13218,11 @@ function renderReportGenChrome(){
   // (żadnej synchronizacji z state.brand — to osobny wybór, "klient
   // raportu", nie "aktywna marka w edytorze").
   if(sel && !sel.options.length){
-    sel.innerHTML = BRAND_ORDER.slice().sort(function(a,c){ return (BRANDS[a].short||BRANDS[a].name).localeCompare(BRANDS[c].short||BRANDS[c].name); }).map(function(k){ return '<option value="'+esc(k)+'">'+esc(BRANDS[k].short||BRANDS[k].name)+'</option>'; }).join("");
+    // user: "Przeanalizuj miejsca, w których proponujesz różne brandy i
+    // wywal z nich NO BRAND. No Brand ma być TYLKO w Brand Kicie" —
+    // "neutral" (white-label placeholder) nie jest realnym klientem, dla
+    // którego dałoby się wygenerować raport.
+    sel.innerHTML = BRAND_ORDER.filter(function(k){ return k!=="neutral"; }).sort(function(a,c){ return (BRANDS[a].short||BRANDS[a].name).localeCompare(BRANDS[c].short||BRANDS[c].name); }).map(function(k){ return '<option value="'+esc(k)+'">'+esc(BRANDS[k].short||BRANDS[k].name)+'</option>'; }).join("");
     enhanceAllSelects(byId("reportGenPage"));
   }
   byId("reportGenResult").style.display = "none";
@@ -13354,9 +13358,14 @@ function dmClientFilterAllows(e){
 function renderDmClientFilter(){
   var wrap = byId("dmClientFilterWrap");
   if(!wrap) return;
-  var allOn = BRAND_ORDER.every(function(k){ return state.dmClientFilter[k]!==false; });
-  byId("dmClientFilterLabel").textContent = allOn ? "All clients" : "Clients: "+BRAND_ORDER.filter(function(k){ return state.dmClientFilter[k]!==false; }).map(function(k){ return BRANDS[k].short||BRANDS[k].name; }).join(", ") || "None";
-  byId("dmClientFilterMenu").innerHTML = BRAND_ORDER.slice().sort(function(a,c){ return (BRANDS[a].short||BRANDS[a].name).localeCompare(BRANDS[c].short||BRANDS[c].name); }).map(function(k){
+  // user: "wywal NO BRAND [z miejsc gdzie proponujesz brandy]... ma być
+  // TYLKO w Brand Kicie" — "neutral" nie jest realnym klientem DM
+  // Schedule (dmEntryBrandKey i tak nigdy go nie zwróci dla wpisu bez
+  // dopasowania, patrz komentarz wyżej), więc nie ma co go tu proponować.
+  var clientKeys = BRAND_ORDER.filter(function(k){ return k!=="neutral"; });
+  var allOn = clientKeys.every(function(k){ return state.dmClientFilter[k]!==false; });
+  byId("dmClientFilterLabel").textContent = allOn ? "All clients" : "Clients: "+clientKeys.filter(function(k){ return state.dmClientFilter[k]!==false; }).map(function(k){ return BRANDS[k].short||BRANDS[k].name; }).join(", ") || "None";
+  byId("dmClientFilterMenu").innerHTML = clientKeys.slice().sort(function(a,c){ return (BRANDS[a].short||BRANDS[a].name).localeCompare(BRANDS[c].short||BRANDS[c].name); }).map(function(k){
     var checked = state.dmClientFilter[k]!==false;
     return '<li class="brand-select-option"><label style="display:flex; align-items:center; gap:8px; width:100%; cursor:pointer; margin:0; font-weight:400">'+
       '<input type="checkbox" data-dm-client-check="'+esc(k)+'"'+(checked?' checked':'')+'>'+
