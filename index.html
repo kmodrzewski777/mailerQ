@@ -2560,8 +2560,8 @@
    Flow Repository, 3.2 = DM Schedule + Skills, 3.3 = import 13 skilli +
    Brand Kit integracja, 3.4 = przebudowa edytora komponentu (warianty,
    frazy per wariant, multi-CRM). */
-var APP_VERSION = "3.5.0";
-var APP_UPDATED = "2026-08-21";
+var APP_VERSION = "3.6.0";
+var APP_UPDATED = "2026-08-25";
 
 /* ================================================================
    MARKI — pełny model tokenów wizualnych.
@@ -8070,7 +8070,10 @@ var state = { brand:"neutral", category:"all", section:"components", emailFlow:"
   // stan przeglądania jak knowledgeCategory, nie zapisywany osobno (sam
   // status przeczytania żyje w users/{uid}.knowledgeReadIds, patrz
   // isArticleRead/toggleArticleRead).
-  knowledgeReadFilter:"all",
+  // user, drugi raz: "domyślnym widokiem ma być NOT REVIEWED" — zamiast
+  // "all" (patrz też renderKnowledgeReadFilterRow, filtr "All" usunięty
+  // z paska, zostają tylko Not reviewed / Reviewed).
+  knowledgeReadFilter:"unread",
   dmMonth:"",
   // user: "wrzuć też filtrowanie brandów/Client. Zeby mozna było zawezic
   // dla jakich klientow widzimy obecnie harmonogram" — mapa brandKey->bool,
@@ -12630,10 +12633,12 @@ function fmtKbDate(iso){
 // została jawnie cofnięta tym poleceniem.
 function renderKnowledgeGrid(){
   var q = state.searchQuery;
+  // user, drugi raz: "domyślnym widokiem ma być NOT REVIEWED. All nie jest
+  // potrzebne" — filtr ma już tylko 2 stany (unread/read, patrz
+  // renderKnowledgeReadFilterRow), więc bez gałęzi "all".
   var fullList = articlesByCategory(state.knowledgeCategory).filter(function(a){
     return matchesSearch([a.title, a.id, a.summary], q) &&
-      (state.knowledgeReadFilter==="all" ||
-       (state.knowledgeReadFilter==="read" ? isArticleRead(a.id) : !isArticleRead(a.id)));
+      (state.knowledgeReadFilter==="read" ? isArticleRead(a.id) : !isArticleRead(a.id));
   });
   // user: "sam listing sortuje się wg ilości plusów" — malejąco po liczbie
   // głosów; Array#sort jest stabilny (ES2019+), więc remisy (w tym same
@@ -12657,26 +12662,18 @@ function renderKnowledgeGrid(){
         '<p class="flow-card-title">'+esc(a.title)+'</p>'+
         '<p class="flow-card-desc">'+esc(a.summary||"")+'</p>'+
       '</div>'+
+      // user, drugi raz: "Przycisk +1 ma się nie pojawiać na widgecie. Jak
+      // ktoś ma dać temu +1 skoro jeszcze się nie zapoznał" — +1 zostaje
+      // WYŁĄCZNIE w popupie szczegółów (obok "Mark as reviewed"), karta ma
+      // już tylko "Open". Sortowanie listingu po articleUpvoteCount (patrz
+      // wyżej) zostaje — po prostu bez widocznego licznika na karcie.
       '<div class="flow-card-foot">'+
         '<button class="btn small" data-kb-open="'+esc(a.id)+'" style="flex:1">Open</button>'+
-        '<button class="btn ghost small" data-kb-upvote="'+esc(a.id)+'" aria-pressed="'+(isArticleUpvoted(a.id)?"true":"false")+'" style="flex:none" title="Mark this article as valuable">+1</button>'+
       '</div>';
     grid.appendChild(el);
   });
   grid.querySelectorAll("[data-kb-open]").forEach(function(btn){
     btn.addEventListener("click", function(){ openKnowledgeDetail(btn.getAttribute("data-kb-open")); });
-  });
-  grid.querySelectorAll("[data-kb-upvote]").forEach(function(btn){
-    btn.addEventListener("click", function(e){
-      e.stopPropagation();
-      // user: "jak wcisne przycisk +1 to ma sie pokazac hint ze pomyslnie
-      // oznaczylem ta lekcje jako wartościowa" — toast tylko przy DODANIU
-      // głosu (nowUpvoted===true), nie przy jego cofnięciu.
-      var nowUpvoted = toggleArticleUpvote(btn.getAttribute("data-kb-upvote"));
-      if(nowUpvoted) showToast("Marked this article as valuable");
-      renderKnowledgeGrid();
-      if(knowledgeOpenArticleId) syncKnowledgeUpvoteBtn(knowledgeOpenArticleId);
-    });
   });
   renderPagination(page.totalPages);
 }
@@ -12684,13 +12681,17 @@ function renderKnowledgeGrid(){
 // zapoznałem się'" — dokłada się do TEGO SAMEGO paska co filtr CRM
 // (#crmFilterRow), przełączanego per-sekcja (patrz strażnik w
 // renderCrmFilterRow) — jeden wspólny kontener, jak page-head-actions.
+// user, drugi raz: "All nie jest potrzebne - ma być tylko NOT REVIEWED i
+// REVIEWED" — 2 stany zamiast 3, "all" usunięte z paska (patrz też
+// state.knowledgeReadFilter default = "unread", nie "all", i
+// renderKnowledgeGrid, które nie ma już gałęzi "all").
 function renderKnowledgeReadFilterRow(){
   var row = byId("crmFilterRow");
   if(!row) return;
   var all = KNOWLEDGE_ARTICLES.length;
   var readCount = KNOWLEDGE_ARTICLES.filter(function(a){ return isArticleRead(a.id); }).length;
-  var counts = { all:all, unread:all-readCount, read:readCount };
-  var filters = [["all","All"],["unread","Not reviewed"],["read","Reviewed"]];
+  var counts = { unread:all-readCount, read:readCount };
+  var filters = [["unread","Not reviewed"],["read","Reviewed"]];
   row.innerHTML = '<span style="font-size:12.5px; color:var(--ink-faint)">Progress:</span>'+
     filters.map(function(f){
       var active = state.knowledgeReadFilter===f[0];
