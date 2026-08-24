@@ -172,6 +172,15 @@
     font-size:9px; font-weight:500; letter-spacing:.09em; text-transform:uppercase;
     color:var(--ink-faint); padding:16px 10px 0;
   }
+  /* user: "Na lewym sidebarze widzimy rozwinięcie tej kategorii... i
+     żadnych innych głównych kategorii" — kategorie żyją teraz w topbarze
+     (patrz #topbarGroups), sidebar pokazuje TYLKO pozycje aktywnej grupy
+     (patrz syncNavGroupVisibility w JS). display:contents = grupa jest
+     strukturalnie "przezroczysta" dla .nav (flex column, gap:2px) — jej
+     przyciski liczą się jako BEZPOŚREDNIE dzieci .nav, więc odstępy
+     MIĘDZY nimi zostają identyczne jak bez opakowania w div. */
+  .nav-group{display:contents}
+  .nav-group.is-hidden-group{display:none}
   .nav-item{
     display:flex; align-items:center; gap:10px; width:100%; box-sizing:border-box;
     padding:9px 10px; border:0; border-radius:9px; background:transparent;
@@ -247,7 +256,22 @@
   .nav-brand-stack{display:flex; flex-direction:column; line-height:1.1; min-width:0}
   .app-version-tag{font-size:9.5px; font-weight:400; color:var(--ink-faint); white-space:nowrap; margin-top:2px}
   .topbar-right{display:flex; align-items:center; gap:10px; flex:none}
-  .topbar-right .brand-select-btn{min-width:150px}
+  /* user: "Wprowadź zmiany do headera. Mają się tam pojawić głównej
+     kategorie" — 6 zakładek, wypełniają teraz przestrzeń zwolnioną przez
+     wyprowadzenie brand-pickera/Add Component z topbaru (patrz
+     page-head-actions). flex:1 + justify-content:center centruje je
+     niezawodnie między logiem a prawą stroną, niezależnie od tego, jak
+     szerokie są te dwa skrajne bloki. Podkreślenie (border-bottom) jako
+     wskaźnik aktywnej zakładki, nie wypełnione tło — ta sama zasada
+     "bez chamskiego podświetlania", co .nav-item[aria-current]. */
+  .topbar-groups{flex:1; min-width:0; display:flex; align-items:center; justify-content:center; gap:4px; overflow-x:auto}
+  .topbar-group-btn{
+    display:flex; align-items:center; gap:6px; padding:8px 14px 6px; border:none; border-bottom:2px solid transparent;
+    background:transparent; color:var(--ink-muted); font:inherit; font-size:13.5px; font-weight:500;
+    white-space:nowrap; cursor:pointer; transition:color .15s ease, border-color .15s ease; flex:none;
+  }
+  .topbar-group-btn:hover{color:var(--ink)}
+  .topbar-group-btn[aria-current="page"]{color:var(--ink); border-bottom-color:var(--ink)}
 
   /* Pasek roboczy — sticky nagłówek STRONY. Niesie: gdzie jestem + ile
      tego jest + wyszukiwarka + akcja właściwa DLA TEJ strony. */
@@ -1309,16 +1333,17 @@
         <span class="app-version-tag" id="appVersionTag"></span>
       </div>
     </div>
+    <!-- user: "Wprowadź zmiany do headera. Mają się tam pojawić głównej
+         kategorie... Klikając w nie przechodzi do listingu danej
+         kategorii" — te same 6 grup co dawniej w sidebarze (patrz
+         NAV_GROUPS w JS), teraz jako zakładki w topbarze; sidebar reaguje
+         na aktywną (patrz syncNavGroupVisibility). -->
+    <nav class="topbar-groups" id="topbarGroups" aria-label="Sections"></nav>
     <div class="topbar-right">
-      <div class="brand-select" id="brandSelectWrap">
-        <button type="button" class="brand-select-btn" id="brandSelectBtn" aria-haspopup="listbox" aria-expanded="false">
-          <span class="brand-picker-dot" id="brandPickerDot" aria-hidden="true"></span>
-          <span id="brandSelectLabel"></span>
-          <span class="brand-select-caret" aria-hidden="true"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-358.46 253.85-584.62 296-626.77l184 184 184-184 42.15 42.15L480-358.46Z"/></svg></span>
-        </button>
-        <ul class="brand-select-menu" id="brandSelectMenu" role="listbox" aria-label="Brand selection" style="display:none"></ul>
-      </div>
-      <button class="btn small" id="addComponentBtn" type="button">Add Component</button>
+      <!-- Wybór marki i "Add Component" przeniesione z topbaru do
+           #page-head-actions (patrz tam, niżej w pliku) — user: "Wybór
+           brandu oraz przycisk Add Component przerzucasz do kategorii
+           Components gdzieś w rejon nagłówka sekcji". -->
       <div class="brand-select" id="authUserMenuWrap">
         <button class="btn ghost auth-user-badge" id="authUserBtn" type="button" title="Account" aria-haspopup="menu" aria-expanded="false" style="display:none"></button>
         <ul class="brand-select-menu brand-select-menu-right" id="authUserMenu" role="menu" aria-label="Account menu" style="display:none">
@@ -1341,73 +1366,83 @@
        wcześniej"). Marka/konto/Settings przeniesione do .topbar wyżej —
        .nav niesie już tylko destynacje biblioteki. -->
   <nav class="nav" id="appNav" aria-label="Main">
-    <!-- user: "podziel itemy na kategorie... i ułóż to też w takiej
-         kolejności" — sześć nazwanych grup, w podanej kolejności.
-         .nav-group-title już istniał w CSS (z wcześniejszej iteracji
-         designu), tylko nieużywany w markupie — teraz wraca do gry. -->
-    <p class="nav-group-title">Composer</p>
-    <button class="nav-item" type="button" data-nav="components">
-      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M659.08-460.77 461.54-658.31l197.54-197.53 197.53 197.53-197.53 197.54Zm-506.77-66.92v-280h280v280h-280Zm375.38 375.38v-280h280v280h-280Zm-375.38 0v-280h280v280h-280Zm60-435.38h160v-160h-160v160Zm447.77 43.38 113-113-113-113-113 113 113 113Zm-72.39 332h160v-160h-160v160Zm-375.38 0h160v-160h-160v160Z"/></svg>
-      <span class="nav-label">Components</span><span class="n" id="navCountComponents"></span>
-    </button>
-    <div class="nav-cats" id="navCatsComponents" role="group" aria-label="Component categories"></div>
-    <button class="nav-item" type="button" data-nav="emails">
-      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M172.31-180Q142-180 121-201q-21-21-21-51.31v-455.38Q100-738 121-759q21-21 51.31-21h615.38Q818-780 839-759q21 21 21 51.31v455.38Q860-222 839-201q-21 21-51.31 21H172.31ZM480-457.69 160-662.31v410q0 5.39 3.46 8.85t8.85 3.46h615.38q5.39 0 8.85-3.46t3.46-8.85v-410L480-457.69Zm0-62.31 313.85-200h-627.7L480-520Z"/></svg>
-      <span class="nav-label">E-mails</span><span class="n" id="navCountEmails"></span>
-    </button>
-    <div class="nav-cats is-collapsed" id="navCatsEmails" role="group" aria-label="E-mail categories"></div>
-    <!-- user: "do przechowywania kodów liquid" — ta sama architektura co
-         Skills/Flow Repository. -->
-    <button class="nav-item" type="button" data-nav="liquid">
-      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M320-242 80-482l240-240 57 57-184 184 183 183-56 56Zm320 0-56-56 183-183-184-184 57-57 240 240-240 240Z"/></svg>
-      <span class="nav-label">Liquid Snippets</span><span class="n" id="navCountLiquid"></span>
-    </button>
-    <div class="nav-cats is-collapsed" id="navCatsLiquid" role="group" aria-label="Liquid snippet categories"></div>
+    <!-- user: "Klikając w [kategorie główne w headerze] przechodzi do
+         listingu danej kategorii. Na lewym sidebarze widzimy rozwinięcie
+         tej kategorii... i żadnych innych głównych kategorii" — sidebar
+         renderuje teraz TYLKO grupę aktywnej sekcji (patrz
+         syncNavGroupVisibility). Nagłówek grupy (.nav-group-title) już nie
+         jest tu potrzebny — tę samą nazwę niesie aktywna zakładka w
+         topbarze (patrz #topbarGroups), dublowanie byłoby zbędne. Każda
+         grupa to display:contents (patrz CSS) — strukturalnie niewidoczna
+         dla layoutu .nav, więc odstępy między pozycjami W GRUPIE zostają
+         identyczne jak dotąd; is-hidden-group chowa całą grupę na raz. -->
+    <div class="nav-group" data-navgroup="composer">
+      <button class="nav-item" type="button" data-nav="components">
+        <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M659.08-460.77 461.54-658.31l197.54-197.53 197.53 197.53-197.53 197.54Zm-506.77-66.92v-280h280v280h-280Zm375.38 375.38v-280h280v280h-280Zm-375.38 0v-280h280v280h-280Zm60-435.38h160v-160h-160v160Zm447.77 43.38 113-113-113-113-113 113 113 113Zm-72.39 332h160v-160h-160v160Zm-375.38 0h160v-160h-160v160Z"/></svg>
+        <span class="nav-label">Components</span><span class="n" id="navCountComponents"></span>
+      </button>
+      <div class="nav-cats" id="navCatsComponents" role="group" aria-label="Component categories"></div>
+      <button class="nav-item" type="button" data-nav="emails">
+        <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M172.31-180Q142-180 121-201q-21-21-21-51.31v-455.38Q100-738 121-759q21-21 51.31-21h615.38Q818-780 839-759q21 21 21 51.31v455.38Q860-222 839-201q-21 21-51.31 21H172.31ZM480-457.69 160-662.31v410q0 5.39 3.46 8.85t8.85 3.46h615.38q5.39 0 8.85-3.46t3.46-8.85v-410L480-457.69Zm0-62.31 313.85-200h-627.7L480-520Z"/></svg>
+        <span class="nav-label">E-mails</span><span class="n" id="navCountEmails"></span>
+      </button>
+      <div class="nav-cats is-collapsed" id="navCatsEmails" role="group" aria-label="E-mail categories"></div>
+      <button class="nav-item" type="button" data-nav="liquid">
+        <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M320-242 80-482l240-240 57 57-184 184 183 183-56 56Zm320 0-56-56 183-183-184-184 57-57 240 240-240 240Z"/></svg>
+        <span class="nav-label">Liquid Snippets</span><span class="n" id="navCountLiquid"></span>
+      </button>
+      <div class="nav-cats is-collapsed" id="navCatsLiquid" role="group" aria-label="Liquid snippet categories"></div>
+    </div>
 
-    <p class="nav-group-title">Marketing Automation</p>
-    <button class="nav-item" type="button" data-nav="flows">
-      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M450-100v-174.23q0-55.23-16.23-84.54-16.23-29.31-45.77-55.69l42.77-42.77q12.77 11.77 25.5 27.35Q469-414.31 480-396.84q12.85-21.7 29.65-40.04 16.81-18.35 34.89-34.66 44.15-39.61 74.38-95.23 30.23-55.62 30.7-177.92l-73 73-42.77-42.16L680-860l146.15 146.15L784-671.69l-74.39-73.77q-.46 138.77-37.65 206.19-37.19 67.42-86.5 112.35-33.15 30.15-54.31 59.38Q510-338.31 510-274.23V-100h-60ZM259.15-634.15q-4.38-20.39-6.26-50.54-1.89-30.16-2.5-60.77L176-671.69l-42.15-42.16L280-860l146.15 146.15-42.77 42.16-73-72.39q-.38 27.16 1.81 52.39t5.35 43.54l-58.39 14Z"/></svg>
-      <span class="nav-label">Automation Flows</span><span class="n" id="navCountFlows"></span>
-    </button>
-    <div class="nav-cats is-collapsed" id="navCatsFlows" role="group" aria-label="Flow categories"></div>
+    <div class="nav-group" data-navgroup="automation">
+      <button class="nav-item" type="button" data-nav="flows">
+        <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M450-100v-174.23q0-55.23-16.23-84.54-16.23-29.31-45.77-55.69l42.77-42.77q12.77 11.77 25.5 27.35Q469-414.31 480-396.84q12.85-21.7 29.65-40.04 16.81-18.35 34.89-34.66 44.15-39.61 74.38-95.23 30.23-55.62 30.7-177.92l-73 73-42.77-42.16L680-860l146.15 146.15L784-671.69l-74.39-73.77q-.46 138.77-37.65 206.19-37.19 67.42-86.5 112.35-33.15 30.15-54.31 59.38Q510-338.31 510-274.23V-100h-60ZM259.15-634.15q-4.38-20.39-6.26-50.54-1.89-30.16-2.5-60.77L176-671.69l-42.15-42.16L280-860l146.15 146.15-42.77 42.16-73-72.39q-.38 27.16 1.81 52.39t5.35 43.54l-58.39 14Z"/></svg>
+        <span class="nav-label">Automation Flows</span><span class="n" id="navCountFlows"></span>
+      </button>
+      <div class="nav-cats is-collapsed" id="navCatsFlows" role="group" aria-label="Flow categories"></div>
+    </div>
 
-    <p class="nav-group-title">Direct Marketing</p>
-    <button class="nav-item" type="button" data-nav="schedule">
-      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M212.31-100Q182-100 161-121q-21-21-21-51.31v-535.38Q140-738 161-759q21-21 51.31-21h55.38v-84.61h61.54V-780h303.08v-84.61h60V-780h55.38Q778-780 799-759q21 21 21 51.31v535.38Q820-142 799-121q-21 21-51.31 21H212.31Zm0-60h535.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-375.38H200v375.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM200-607.69h560v-100q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H212.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v100Z"/></svg>
-      <span class="nav-label">Schedule</span><span class="n" id="navCountSchedule"></span>
-    </button>
+    <div class="nav-group" data-navgroup="direct">
+      <button class="nav-item" type="button" data-nav="schedule">
+        <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M212.31-100Q182-100 161-121q-21-21-21-51.31v-535.38Q140-738 161-759q21-21 51.31-21h55.38v-84.61h61.54V-780h303.08v-84.61h60V-780h55.38Q778-780 799-759q21 21 21 51.31v535.38Q820-142 799-121q-21 21-51.31 21H212.31Zm0-60h535.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-375.38H200v375.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM200-607.69h560v-100q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H212.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v100Z"/></svg>
+        <span class="nav-label">Schedule</span><span class="n" id="navCountSchedule"></span>
+      </button>
+    </div>
 
-    <p class="nav-group-title">AI</p>
-    <!-- user: "Dodaj kolejną kategorię - udostępnianie skilli do Claude" —
-         nowa sekcja, ta sama architektura co Flow Repository (własne
-         kategorie, karta, formularz, bez Mail Stacka). -->
-    <button class="nav-item" type="button" data-nav="skills">
-      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M208.85-197.69h504.61q3.85 0 6.35-2.69 2.5-2.7 2.5-6.54v-176.31l36.92-15.85q18.31-6.84 29.54-23.53Q800-439.31 800-461.15q0-21.62-11.23-38.43t-29.54-24.04l-36.92-15.23v-176.53q0-4.24-2.5-6.74t-6.35-2.5H534.92l-7.3-51.07q-3.77-25.85-22.39-43.92-18.61-18.08-44.08-18.08-26.07 0-44.69 18.08-18.61 18.07-22.38 43.92l-7.31 51.07H208.46q-3.46 0-5.96 2.5t-2.5 6.74V-624q51.77 17.15 84.15 62.04 32.39 44.88 32.39 100.81 0 57.3-32.19 102.19-32.2 44.88-84.35 61.27v90.77q0 3.84 2.5 6.54 2.5 2.69 6.35 2.69Zm0 60q-29 0-48.93-20.12Q140-177.92 140-206.92V-347q48-1.54 82.27-33.58 34.27-32.04 34.27-80.57 0-45.62-34.46-78.12-34.46-32.5-82.08-36.42v-139.69q0-28.77 20.04-49t48.42-20.23h126.23q6.62-47.93 42.16-80.5 35.54-32.58 84.3-32.58 48.16 0 83.7 32.58 35.53 32.57 42.76 80.5h125.85q28.39 0 48.62 20.23 20.23 20.23 20.23 49v136.69q34.84 14.15 56.27 46.23Q860-500.38 860-461.15q0 39.07-21.42 70.96-21.43 31.88-56.27 46.57v136.7q0 29-20.23 49.11-20.23 20.12-48.62 20.12H208.85ZM500-461.15Z"/></svg>
-      <span class="nav-label">Skills</span><span class="n" id="navCountSkills"></span>
-    </button>
-    <div class="nav-cats is-collapsed" id="navCatsSkills" role="group" aria-label="Skill categories"></div>
+    <div class="nav-group" data-navgroup="ai">
+      <!-- user: "Dodaj kolejną kategorię - udostępnianie skilli do Claude" —
+           nowa sekcja, ta sama architektura co Flow Repository (własne
+           kategorie, karta, formularz, bez Mail Stacka). -->
+      <button class="nav-item" type="button" data-nav="skills">
+        <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M208.85-197.69h504.61q3.85 0 6.35-2.69 2.5-2.7 2.5-6.54v-176.31l36.92-15.85q18.31-6.84 29.54-23.53Q800-439.31 800-461.15q0-21.62-11.23-38.43t-29.54-24.04l-36.92-15.23v-176.53q0-4.24-2.5-6.74t-6.35-2.5H534.92l-7.3-51.07q-3.77-25.85-22.39-43.92-18.61-18.08-44.08-18.08-26.07 0-44.69 18.08-18.61 18.07-22.38 43.92l-7.31 51.07H208.46q-3.46 0-5.96 2.5t-2.5 6.74V-624q51.77 17.15 84.15 62.04 32.39 44.88 32.39 100.81 0 57.3-32.19 102.19-32.2 44.88-84.35 61.27v90.77q0 3.84 2.5 6.54 2.5 2.69 6.35 2.69Zm0 60q-29 0-48.93-20.12Q140-177.92 140-206.92V-347q48-1.54 82.27-33.58 34.27-32.04 34.27-80.57 0-45.62-34.46-78.12-34.46-32.5-82.08-36.42v-139.69q0-28.77 20.04-49t48.42-20.23h126.23q6.62-47.93 42.16-80.5 35.54-32.58 84.3-32.58 48.16 0 83.7 32.58 35.53 32.57 42.76 80.5h125.85q28.39 0 48.62 20.23 20.23 20.23 20.23 49v136.69q34.84 14.15 56.27 46.23Q860-500.38 860-461.15q0 39.07-21.42 70.96-21.43 31.88-56.27 46.57v136.7q0 29-20.23 49.11-20.23 20.12-48.62 20.12H208.85ZM500-461.15Z"/></svg>
+        <span class="nav-label">Skills</span><span class="n" id="navCountSkills"></span>
+      </button>
+      <div class="nav-cats is-collapsed" id="navCatsSkills" role="group" aria-label="Skill categories"></div>
+    </div>
 
-    <p class="nav-group-title">Services</p>
-    <!-- user: "generator indywidualnych kodów rabatowych... Żadnej logiki,
-         na razie tylko front end do zaprezentowania" — lista paczek kodów +
-         formularz; dwa pola (warunki użycia, kampanie) świadomie
-         zablokowane (patrz renderDiscountFormFields), sam CRUD działa jak
-         w każdej innej sekcji appki. -->
-    <button class="nav-item" type="button" data-nav="discounts">
-      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M336-480q-45 0-76.5-31.5T228-588q0-45 31.5-76.5T336-696q45 0 76.5 31.5T444-588q0 45-31.5 76.5T336-480Zm0-72q15 0 25.5-10.5T372-588q0-15-10.5-25.5T336-624q-15 0-25.5 10.5T300-588q0 15 10.5 25.5T336-552ZM624-264q-45 0-76.5-31.5T516-372q0-45 31.5-76.5T624-480q45 0 76.5 31.5T732-372q0 45-31.5 76.5T624-264Zm0-72q15 0 25.5-10.5T660-372q0-15-10.5-25.5T624-408q-15 0-25.5 10.5T588-372q0 15 10.5 25.5T624-336ZM252-216l-72-72 528-528 72 72-528 528Z"/></svg>
-      <span class="nav-label">Discount Codes</span><span class="n" id="navCountDiscounts"></span>
-    </button>
+    <div class="nav-group" data-navgroup="services">
+      <!-- user: "generator indywidualnych kodów rabatowych... Żadnej
+           logiki, na razie tylko front end do zaprezentowania" — lista
+           paczek kodów + formularz; dwa pola (warunki użycia, kampanie)
+           świadomie zablokowane (patrz renderDiscountFormFields), sam
+           CRUD działa jak w każdej innej sekcji appki. -->
+      <button class="nav-item" type="button" data-nav="discounts">
+        <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M336-480q-45 0-76.5-31.5T228-588q0-45 31.5-76.5T336-696q45 0 76.5 31.5T444-588q0 45-31.5 76.5T336-480Zm0-72q15 0 25.5-10.5T372-588q0-15-10.5-25.5T336-624q-15 0-25.5 10.5T300-588q0 15 10.5 25.5T336-552ZM624-264q-45 0-76.5-31.5T516-372q0-45 31.5-76.5T624-480q45 0 76.5 31.5T732-372q0 45-31.5 76.5T624-264Zm0-72q15 0 25.5-10.5T660-372q0-15-10.5-25.5T624-408q-15 0-25.5 10.5T588-372q0 15 10.5 25.5T624-336ZM252-216l-72-72 528-528 72 72-528 528Z"/></svg>
+        <span class="nav-label">Discount Codes</span><span class="n" id="navCountDiscounts"></span>
+      </button>
+    </div>
 
-    <p class="nav-group-title">Reporting</p>
-    <!-- user: "generator raportów miesięcznych dla klienta... na razie sam
-         front end bez żadnej logiki" — wybór klienta+miesiąca, Generate
-         pokazuje placeholder ("coming soon"), bez żadnej realnej treści
-         raportu. Osobna, jednoekranowa strona (jak DM Schedule/Brand Kit),
-         nie listing. -->
-    <button class="nav-item" type="button" data-nav="reports">
-      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M320-240h320v-80H320v80Zm0-160h320v-80H320v80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z"/></svg>
-      <span class="nav-label">Monthly Reports</span>
-    </button>
+    <div class="nav-group" data-navgroup="reporting">
+      <!-- user: "generator raportów miesięcznych dla klienta... na razie
+           sam front end bez żadnej logiki" — wybór klienta+miesiąca,
+           Generate pokazuje placeholder ("coming soon"), bez żadnej
+           realnej treści raportu. Osobna, jednoekranowa strona (jak DM
+           Schedule/Brand Kit), nie listing. -->
+      <button class="nav-item" type="button" data-nav="reports">
+        <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M320-240h320v-80H320v80Zm0-160h320v-80H320v80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z"/></svg>
+        <span class="nav-label">Monthly Reports</span>
+      </button>
+    </div>
   </nav>
 
   <div class="work">
@@ -1424,10 +1459,25 @@
         <span class="page-count" id="gridCount"></span>
       </div>
       <div class="page-head-actions">
-        <!-- "Add Component" przeniesiony do .topbar (globalny, zawsze
-             widoczny — user: "dodaj komponent" jako stała pozycja
-             topbaru). "Add Flow" zostaje tu — kontekstowa akcja WYŁĄCZNIE
-             dla sekcji "flows", patrz syncSectionChrome. -->
+        <!-- user: "Wybór brandu oraz przycisk Add Component przerzucasz do
+             kategorii Components gdzieś w rejon nagłówka sekcji" + "Wybór
+             brandu również przenosić do sekcji z gotowymi mailami i
+             liquid snippetsami" + "Wybór brandu... daj też do AI skills
+             przy przycisku Add Skill" — #page-head-actions jest JEDNYM,
+             współdzielonym kontenerem dla WSZYSTKICH sekcji (ten sam wzorzec
+             co addFlowRepoBtn/addSkillBtn itd. niżej), więc #brandSelectWrap
+             nie musi nigdzie "wędrować" — wystarczy pokazywać/chować go w
+             tym jednym miejscu, gdy state.section jest jedną z
+             [components, emails, liquid, skills] (patrz syncSectionChrome). -->
+        <div class="brand-select" id="brandSelectWrap" style="display:none">
+          <button type="button" class="brand-select-btn" id="brandSelectBtn" aria-haspopup="listbox" aria-expanded="false">
+            <span class="brand-picker-dot" id="brandPickerDot" aria-hidden="true"></span>
+            <span id="brandSelectLabel"></span>
+            <span class="brand-select-caret" aria-hidden="true"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-358.46 253.85-584.62 296-626.77l184 184 184-184 42.15 42.15L480-358.46Z"/></svg></span>
+          </button>
+          <ul class="brand-select-menu" id="brandSelectMenu" role="listbox" aria-label="Brand selection" style="display:none"></ul>
+        </div>
+        <button class="btn small" id="addComponentBtn" type="button" style="display:none">Add Component</button>
         <button class="btn small" id="addFlowRepoBtn" type="button" style="display:none">Add Flow</button>
         <button class="btn small" id="addSkillBtn" type="button" style="display:none">Add Skill</button>
         <button class="btn small" id="addLiquidBtn" type="button" style="display:none">Add Snippet</button>
@@ -1696,7 +1746,23 @@
             <button class="btn small" type="button" id="dmAddBtn">Add Send</button>
           </div>
         </div>
-        <div class="dm-owner-row" id="dmOwnerRow"></div>
+        <div class="dm-owner-row" id="dmOwnerRow">
+          <span id="dmOwnerRowText"></span>
+          <!-- user: "w Direct Marketing - Schedule wrzuć też filtrowanie
+               brandów/Client. Zeby mozna było zawezic dla jakich klientow
+               widzimy obecnie harmonogram" — ten sam wzorzec dropdown +
+               checkboxy co CRM/ESP w Discount Codes/Save-as-email. Osobny
+               <span> obok tekstu właściciela, żeby renderDmOwnerRow()
+               (który nadpisuje SWÓJ fragment przez innerHTML) nie kasował
+               tego widgetu przy każdym renderze. -->
+          <div class="brand-select" id="dmClientFilterWrap" style="margin-left:auto">
+            <button type="button" class="brand-select-btn" id="dmClientFilterBtn" aria-haspopup="true" aria-expanded="false">
+              <span id="dmClientFilterLabel"></span>
+              <span class="brand-select-caret" aria-hidden="true"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-358.46 253.85-584.62 296-626.77l184 184 184-184 42.15 42.15L480-358.46Z"/></svg></span>
+            </button>
+            <ul class="brand-select-menu brand-select-menu-right" id="dmClientFilterMenu" role="group" aria-label="Filter by client" style="display:none"></ul>
+          </div>
+        </div>
         <div class="dm-grid" id="dmGrid"></div>
       </div>
       <!-- Generator raportów miesięcznych — user: "wybieramy klienta,
@@ -6689,6 +6755,12 @@ var state = { brand:"neutral", category:"all", section:"components", emailFlow:"
   skillCategory:"all",
   liquidCategory:"all",
   dmMonth:"",
+  // user: "wrzuć też filtrowanie brandów/Client. Zeby mozna było zawezic
+  // dla jakich klientow widzimy obecnie harmonogram" — mapa brandKey->bool,
+  // klucz NIEOBECNY = domyślnie widoczny (tak nie trzeba z góry wypisywać
+  // wszystkich marek jako true). Stan przeglądania jak crmFilter/dmMonth —
+  // nie zapisywane w localStorage.
+  dmClientFilter:{},
   // Który z 3 wariantów headera/stopki marki (patrz BRANDS[key].header2Code
   // itd.) ma wejść do skompilowanego maila — wybierane w oknie Podgląd
   // (patrz previewHeaderVariantSelect/previewFooterVariantSelect), globalnie
@@ -10062,7 +10134,55 @@ function renderPrimaryNav(){
     if(active) btn.setAttribute("aria-current","page");
     else btn.removeAttribute("aria-current");
   });
+  renderTopbarGroups();
+  syncNavGroupVisibility();
   renderNavCats();
+}
+// user: "Mają się tam pojawić głównej kategorie Composer; Marketing
+// Automation; Direct Marketing; AI; Services; Reporting. Klikając w nie
+// przechodzi do listingu danej kategorii. Na lewym sidebarze widzimy
+// rozwinięcie tej kategorii... i żadnych innych głównych kategorii" —
+// pierwsza sekcja w każdej tablicy = cel kliknięcia zakładki (goToSection).
+var NAV_GROUPS = [
+  { id:"composer", label:"Composer", sections:["components","emails","liquid"] },
+  { id:"automation", label:"Marketing Automation", sections:["flows"] },
+  { id:"direct", label:"Direct Marketing", sections:["schedule"] },
+  { id:"ai", label:"AI", sections:["skills"] },
+  { id:"services", label:"Services", sections:["discounts"] },
+  { id:"reporting", label:"Reporting", sections:["reports"] }
+];
+function groupForSection(section){
+  return NAV_GROUPS.filter(function(g){ return g.sections.indexOf(section)!==-1; })[0] || null;
+}
+// Renderowane RAZ (dzieci #topbarGroups puste na starcie), potem tylko
+// resync aria-current — te 6 zakładek się nie zmienia w trakcie sesji.
+function renderTopbarGroups(){
+  var nav = byId("topbarGroups");
+  if(!nav) return;
+  if(!nav.children.length){
+    nav.innerHTML = NAV_GROUPS.map(function(g){
+      return '<button type="button" class="topbar-group-btn" data-navgroup="'+esc(g.id)+'">'+esc(g.label)+'</button>';
+    }).join("");
+    nav.querySelectorAll("[data-navgroup]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var g = NAV_GROUPS.filter(function(x){ return x.id===btn.getAttribute("data-navgroup"); })[0];
+        if(g) goToSection(g.sections[0]);
+      });
+    });
+  }
+  var activeGroup = groupForSection(state.section);
+  nav.querySelectorAll("[data-navgroup]").forEach(function(btn){
+    if(activeGroup && activeGroup.id===btn.getAttribute("data-navgroup")) btn.setAttribute("aria-current","page");
+    else btn.removeAttribute("aria-current");
+  });
+}
+// Brand Kit celowo nie zmienia state.section (patrz goToSection) — sidebar
+// więc zostaje na grupie, w której user faktycznie był, zamiast znikać.
+function syncNavGroupVisibility(){
+  var activeGroup = groupForSection(state.section);
+  document.querySelectorAll(".nav-group[data-navgroup]").forEach(function(el){
+    el.classList.toggle("is-hidden-group", !(activeGroup && activeGroup.id===el.getAttribute("data-navgroup")));
+  });
 }
 /* Kategorie AKTYWNEJ destynacji, wcięte w sidebarze pod nią — user (po
    odrzuceniu wcześniejszej wersji): "kategorie komponentów zostają na
@@ -11358,12 +11478,60 @@ function dmMonthLabel(key){
   var d = new Date(+parts[0], +parts[1]-1, 1);
   return d.toLocaleDateString("en-GB", { month:"long", year:"numeric" });
 }
+// DM_ENTRIES.client jest wolnym tekstem (user wpisuje ręcznie — "e.g.
+// Foodify"), nie kluczem BRANDS — więc dopasowanie po nazwie (short/name),
+// bez rozróżniania wielkości liter. Wpis, który nie pasuje do ŻADNEJ marki
+// (literówka, klient spoza Brand Kitu), jest zawsze widoczny — nie ma go
+// jak sensownie odfiltrować, więc nie znika po cichu.
+function dmEntryBrandKey(e){
+  var text = String((e && e.client)||"").trim().toLowerCase();
+  if(!text) return null;
+  return BRAND_ORDER.filter(function(k){
+    var b = BRANDS[k];
+    return b && ((b.short||"").toLowerCase()===text || (b.name||"").toLowerCase()===text);
+  })[0] || null;
+}
+function dmClientFilterAllows(e){
+  var key = dmEntryBrandKey(e);
+  if(!key) return true;
+  return state.dmClientFilter[key] !== false;
+}
+function renderDmClientFilter(){
+  var wrap = byId("dmClientFilterWrap");
+  if(!wrap) return;
+  var allOn = BRAND_ORDER.every(function(k){ return state.dmClientFilter[k]!==false; });
+  byId("dmClientFilterLabel").textContent = allOn ? "All clients" : "Clients: "+BRAND_ORDER.filter(function(k){ return state.dmClientFilter[k]!==false; }).map(function(k){ return BRANDS[k].short||BRANDS[k].name; }).join(", ") || "None";
+  byId("dmClientFilterMenu").innerHTML = BRAND_ORDER.map(function(k){
+    var checked = state.dmClientFilter[k]!==false;
+    return '<li class="brand-select-option"><label style="display:flex; align-items:center; gap:8px; width:100%; cursor:pointer; margin:0; font-weight:400">'+
+      '<input type="checkbox" data-dm-client-check="'+esc(k)+'"'+(checked?' checked':'')+'>'+
+      '<span>'+esc(BRANDS[k].short||BRANDS[k].name)+'</span>'+
+    '</label></li>';
+  }).join("");
+  if(wrap.dataset.wired) return;
+  wrap.dataset.wired = "1";
+  var btn = byId("dmClientFilterBtn"), menu = byId("dmClientFilterMenu");
+  function closeMenu(){ menu.style.display = "none"; btn.setAttribute("aria-expanded","false"); }
+  btn.addEventListener("click", function(e){
+    e.stopPropagation();
+    if(menu.style.display !== "none"){ closeMenu(); return; }
+    menu.style.display = "";
+    btn.setAttribute("aria-expanded","true");
+  });
+  document.addEventListener("click", function(e){ if(!wrap.contains(e.target)) closeMenu(); });
+  menu.addEventListener("change", function(e){
+    var cb = e.target.closest("[data-dm-client-check]");
+    if(!cb) return;
+    state.dmClientFilter[cb.getAttribute("data-dm-client-check")] = cb.checked;
+    renderDmCalendar();
+  });
+}
 function dmEntriesForDate(dateStr){
-  return DM_ENTRIES.filter(function(e){ return e.date===dateStr; })
+  return DM_ENTRIES.filter(function(e){ return e.date===dateStr && dmClientFilterAllows(e); })
     .slice().sort(function(a,b){ return String(a.time||"").localeCompare(String(b.time||"")); });
 }
 function renderDmOwnerRow(){
-  var row = byId("dmOwnerRow");
+  var row = byId("dmOwnerRowText");
   if(!row) return;
   // Profil szukany w katalogu users (patrz MQUsers.list) — gdy katalog nie
   // jest jeszcze wczytany albo tej osoby w nim nie ma, pokazujemy sam
@@ -11379,7 +11547,7 @@ function renderDmLegend(){
   var el = byId("dmLegend");
   if(!el) return;
   el.innerHTML = DM_STATUSES.map(function(s){
-    var n = DM_ENTRIES.filter(function(e){ return e.status===s.id && String(e.date||"").indexOf(state.dmMonth)===0; }).length;
+    var n = DM_ENTRIES.filter(function(e){ return e.status===s.id && String(e.date||"").indexOf(state.dmMonth)===0 && dmClientFilterAllows(e); }).length;
     return '<span class="lg"><span class="sw dm-ev s-'+esc(s.id)+'" style="padding:0"></span>'+esc(s.label)+' ('+n+')</span>';
   }).join("");
 }
@@ -11388,9 +11556,15 @@ function renderDmCalendar(){
   var grid = byId("dmGrid");
   if(!grid) return;
   byId("dmMonthLabel").textContent = dmMonthLabel(state.dmMonth);
-  byId("gridTitle").textContent = "DM schedule";
-  byId("gridCount").textContent = DM_ENTRIES.length + (DM_ENTRIES.length===1 ? " send" : " sends");
+  byId("gridTitle").textContent = "Schedule";
+  // user: "wrzuć też filtrowanie brandów/Client. Zeby mozna było zawezic
+  // dla jakich klientow widzimy obecnie harmonogram" — licznik w
+  // nagłówku ma odzwierciedlać TO, co faktycznie widać po filtrze, nie
+  // absolutnie wszystko w bazie.
+  var visibleCount = DM_ENTRIES.filter(dmClientFilterAllows).length;
+  byId("gridCount").textContent = visibleCount + (visibleCount===1 ? " send" : " sends");
   renderDmOwnerRow();
+  renderDmClientFilter();
   renderDmLegend();
 
   var parts = state.dmMonth.split("-");
@@ -11626,9 +11800,15 @@ function syncSectionChrome(){
   } else {
     searchWrap.style.display = "none";
   }
-  // "Add Component" jest teraz globalnym przyciskiem w .topbar (user:
-  // "header... dodaj komponent" jako stała pozycja) — bez przełączania
-  // widoczności per sekcja. "Add Flow" zostaje kontekstowe.
+  // user: "Wybór brandu oraz przycisk Add Component przerzucasz do
+  // kategorii Components gdzieś w rejon nagłówka sekcji" — "Add Component"
+  // jest teraz KONTEKSTOWE jak każdy inny przycisk "Add X" (było globalne
+  // w .topbar). Brand picker pokazuje się w tym samym miejscu dla
+  // wszystkich sekcji, w których user faktycznie edytuje/przegląda coś
+  // przypisanego do marki (patrz też pkt 3/5 zgłoszenia: E-mails, Liquid
+  // Snippets, Skills).
+  byId("addComponentBtn").style.display = meta.primary==="add" ? "" : "none";
+  byId("brandSelectWrap").style.display = ["components","emails","liquid","skills"].indexOf(state.section)!==-1 ? "" : "none";
   byId("addFlowRepoBtn").style.display = meta.primary==="add-flow" ? "" : "none";
   byId("addSkillBtn").style.display = meta.primary==="add-skill" ? "" : "none";
   byId("addLiquidBtn").style.display = meta.primary==="add-liquid" ? "" : "none";
@@ -14773,9 +14953,10 @@ window.MQPublicCalendar = async function(token){
     byId("app").style.gridTemplateColumns = "1fr";
     byId("navToggle").style.display = "none";
     byId("brandSelectWrap").style.display = "none";
-    // user: przeniesione do .topbar — publiczny widz nie ma prawa dotknąć
-    // ani jednego z nich, więc chowamy je tu tak samo jak brandSelectWrap.
+    // publiczny widz nie ma prawa dotknąć ani jednego z nich, więc chowamy
+    // je tu tak samo jak brandSelectWrap.
     byId("addComponentBtn").style.display = "none";
+    byId("topbarGroups").style.display = "none";
     byId("authUserMenuWrap").style.display = "none";
     byId("crmSettingsTopbarBtn").style.display = "none";
     byId("dmAddBtn").style.display = "none";
