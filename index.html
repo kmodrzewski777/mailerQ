@@ -10047,7 +10047,15 @@ function renderNavCats(){
       b.type = "button"; b.className = "nav-cat-btn";
       b.setAttribute("aria-pressed", active?"true":"false");
       b.innerHTML = esc(label)+(count!=null ? '<span class="n">'+count+'</span>' : "");
-      b.addEventListener("click", onClick);
+      // user: "jeśli klikne w jakis element przez co pojawi mi sie nowy
+      // listing to ma naturalnie mnie zescrollować na sama gore strony" —
+      // JEDNO miejsce pokrywa przełączanie kategorii we wszystkich pięciu
+      // sekcjach (components/emails/flows/skills/liquid), bo wszystkie
+      // przechodzą przez ten sam helper. Ten sam wzorzec co paginacja.
+      b.addEventListener("click", function(){
+        onClick();
+        window.scrollTo({ top:0, behavior:"smooth" });
+      });
       wrap.appendChild(b);
     }
     if(key==="components"){
@@ -10112,9 +10120,17 @@ function renderNavCats(){
   });
 }
 function goToSection(section){
+  // user: "jeśli klikne w jakis element przez co pojawi mi sie nowy
+  // listing to ma naturalnie mnie zescrollować na sama gore strony" — ten
+  // sam wzorzec co paginacja (patrz renderPagination), wołany PO
+  // renderAll(), żeby scrollował już do świeżo wyrenderowanej treści.
   // Brand Kit potrzebuje wczytania draftu aktualnej marki, nie samego
   // przełączenia flagi — openBrandForm robi jedno i drugie.
-  if(section==="brandkit"){ closeNavOnMobile(); openBrandForm("edit", state.brand); return; }
+  if(section==="brandkit"){
+    closeNavOnMobile(); openBrandForm("edit", state.brand);
+    window.scrollTo({ top:0, behavior:"smooth" });
+    return;
+  }
   // Kalendarz musi mieć ustawiony miesiąc ZANIM renderAll go narysuje —
   // pusty state.dmMonth wysypałby renderDmCalendar na split("-").
   if(section==="schedule") initDmMonth();
@@ -10126,6 +10142,7 @@ function goToSection(section){
   var si = byId("searchInput"); if(si) si.value = "";
   closeNavOnMobile();
   renderAll();
+  window.scrollTo({ top:0, behavior:"smooth" });
 }
 /* Pasek nad listingiem — dziś niesie WYŁĄCZNIE filtr platformy CRM
    (kategorie zjechały do sidebaru, patrz renderNavCats). Zostaje jako
