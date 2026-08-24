@@ -1443,6 +1443,21 @@
         <span class="nav-label">Monthly Reports</span>
       </button>
     </div>
+
+    <!-- user: "Przeanalizuj ten dokument [PDF od Laya Consulting o email
+         marketingu]. Stwórz w aplikacji nową kategorię Knowledge Base i
+         wrzuć do niej opisane wszystkie praktyki... Skategoryzuj je
+         najpierw na Marketing Automation / Direct Marketing / pozostałe.
+         Potem potwórz pomniejsze rozdziały." — WYŁĄCZNIE do czytania (bez
+         add/edit, jak reszta bibliotek), statyczne dane (patrz
+         KNOWLEDGE_ARTICLES). -->
+    <div class="nav-group" data-navgroup="knowledge">
+      <button class="nav-item" type="button" data-nav="knowledge">
+        <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q134 0 227 93t93 227q0 134-93 227t-227 93Zm0-80q100 0 170-70t70-170q0-100-70-170t-170-70q-100 0-170 70t-70 170q0 100 70 170t170 70Zm-40-120v-240h80v240h-80Zm40-320q17 0 28.5-11.5T520-720q0-17-11.5-28.5T480-760q-17 0-28.5 11.5T440-720q0 17 11.5 28.5T480-680Z"/></svg>
+        <span class="nav-label">Knowledge Base</span><span class="n" id="navCountKnowledge"></span>
+      </button>
+      <div class="nav-cats is-collapsed" id="navCatsKnowledge" role="group" aria-label="Knowledge base categories"></div>
+    </div>
   </nav>
 
   <div class="work">
@@ -2072,6 +2087,24 @@
     </div>
     <div class="modal-footer-bar" style="gap:8px">
       <button class="btn small" id="liquidCopyBtn" type="button" style="flex:1">Copy code</button>
+    </div>
+  </div>
+</div>
+
+<!-- Knowledge Base — user: "wrzuć do niej opisane wszystkie praktyki" —
+     WYŁĄCZNIE do czytania, więc bez card-menu (Edit/Delete) i bez stopki z
+     akcją, w przeciwieństwie do liquidOverlay powyżej. -->
+<div class="overlay" id="knowledgeOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:1040px">
+    <div class="modal-head">
+      <h3 id="knowledgeTitle"></h3>
+      <button class="modal-close" id="knowledgeClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="flow-detail-grid">
+        <div class="flow-detail-main" id="knowledgeBody"></div>
+        <aside class="flow-detail-side" id="knowledgeMetaPanel"></aside>
+      </div>
     </div>
   </div>
 </div>
@@ -6847,6 +6880,853 @@ LIQUID_SNIPPETS.push({
   createdBy:"Maximus", updatedAt:"2026-08-21T12:00:00.000Z", updatedBy:"Maximus"
 });
 
+/* ================================================================
+   KNOWLEDGE BASE — user: "Przeanalizuj ten dokument [294-stronicowy PDF
+   'Do THIS To Generate Millions With Email Marketing in 2026' od Laya
+   Consulting]. Stwórz w aplikacji nową kategorię Knowledge Base i wrzuć do
+   niej opisane wszystkie praktyki... Skategoryzuj je najpierw na działania
+   Marketing Automation (Flows automatyczne) oraz Direct Marketing
+   (pojedyncze wysyłki) i jakieś pozostałe. Potem potwórz pomniejsze
+   rozdziały." Sekcja WYŁĄCZNIE do czytania (jak Components/Flows ma
+   add/edit, ale tu user nie prosił o możliwość dopisywania nowych
+   artykułów) — bez formularza, bez CRUD, bez backup payload (statyczne
+   dane, jak CATEGORIES/EMAIL_FLOWS). Każdy artykuł = jeden mniejszy
+   rozdział z dokumentu (Pillar/Bonus), "source" niesie dokładne
+   odwzorowanie z jakiego rozdziału pochodzi. */
+var KNOWLEDGE_CATEGORIES = [
+  { id:"automation", label:"Marketing Automation" },
+  { id:"direct", label:"Direct Marketing" },
+  { id:"other", label:"Other" }
+];
+var KNOWLEDGE_ARTICLES = [];
+
+// ---------- MARKETING AUTOMATION (Flows automatyczne) ----------
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-welcome-flow", category:"automation",
+  title:"Welcome Series",
+  summary:"Most conversions happen in the first 24 hours — front-load the incentive in email #1, don't overbuild the rest.",
+  source:"Pillar #5 — Core Flow Infrastructure",
+  sections:[
+    { heading:"The Truth About Welcome Flows", bullets:[
+      "The majority of conversions happen within the first 24 hours.",
+      "After Day 1, customer intent weakens significantly.",
+      "A slow-drip storytelling/testimonial \"nurturing\" approach doesn't move the needle much.",
+      "If the welcome flow isn't converting, the real issue is usually website messaging or the front-end offer, not the flow itself."
+    ]},
+    { heading:"3 High-Impact Priorities", bullets:[
+      "Optimize Email #1 — it generates most conversions. Test subject line, offer and CTA relentlessly.",
+      "Test your pop-up — a high-converting sign-up pop-up directly impacts how many people even enter the flow.",
+      "Collect Zero-Party Data at sign-up to personalize emails and boost engagement (e.g. \"What's your biggest struggle?\")."
+    ]},
+    { heading:"Optimal Structure", bullets:[
+      "Email 1 — Welcome + the incentive offered in the pop-up. Don't overcomplicate it, get the discount code across ASAP.",
+      "Email 2 — Meet the team/founders, brand mission/values/story, USPs, what to expect.",
+      "Email 3 — Social proof (testimonials, success stories, PR, awards, influencer collabs). If you collected ZPD, this is where to add conditional splits.",
+      "Email 4 — Product info, showcase best-sellers, revisit USPs.",
+      "Email 5 — Last chance for the incentive + FAQs/objection handling (a dynamic code matters here).",
+      "Email 6+ — Deeper brand/product education; can reuse high-performing campaigns already sent."
+    ]},
+    { heading:"Common Mistakes", bullets:[
+      "Smart Sending is ON — prevents key messages from reaching new subscribers.",
+      "Double opt-in is ON — creates unnecessary friction and reduces sign-ups.",
+      "No urgency — without a time-sensitive incentive, people delay the purchase.",
+      "Not tagging people in the flow to exclude them from campaigns.",
+      "Lack of personalization."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-site-abandonment", category:"automation",
+  title:"Site Abandonment",
+  summary:"2-5 emails to educate and build brand awareness for visitors who never viewed a specific product.",
+  source:"Pillar #5 — Core Flow Infrastructure",
+  sections:[
+    { heading:"Goal & length", bullets:["Educate, make people aware of the brand, and drive them down the funnel.", "Length: 2-5 emails."] },
+    { heading:"Content buckets", bullets:[
+      "Email 1 — Showcase popular products; touch on unique benefits that could nudge a purchase (free shipping over $X, all-natural, less calories, etc).",
+      "Email 2 — Social-proof focused; highlight unique USPs or the company mission."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-product-abandonment", category:"automation",
+  title:"Browse / Product Abandonment",
+  summary:"2-5 emails reminding visitors of the specific products they viewed, plus USPs and urgency.",
+  source:"Pillar #5 — Core Flow Infrastructure",
+  sections:[
+    { heading:"Goal & length", bullets:["Remind people of the products they visited, their USPs, and drive them down the funnel (checkout, purchase).", "Length: 2-5 emails."] },
+    { heading:"Mistakes to avoid", bullets:[
+      "\"Add Viewed Product\" tracking on your site is OFF.",
+      "Smart Sending is ON.",
+      "No urgency.",
+      "Not covering multiple USPs.",
+      "Not tagging people in the flow to exclude them from campaigns."
+    ]},
+    { heading:"Content buckets", bullets:[
+      "Email 1 — Simple, straightforward reminder of the items viewed. Don't overcomplicate it.",
+      "Email 2 — Context + brand-wide USPs (not the specific products) via social proof, testimonials, reviews, press. Can include an incentive.",
+      "Email 3 — Introduce the incentive if not done already, or add urgency to the existing offer."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-abandoned-cart", category:"automation",
+  title:"Abandoned Cart",
+  summary:"3-6 emails reminding people of items sitting in cart and pushing the purchase — not the same as checkout abandonment.",
+  source:"Pillar #5 — Core Flow Infrastructure",
+  sections:[
+    { heading:"Goal & length", bullets:["Remind cart items and push the purchase. This is NOT the abandoned-checkout flow.", "Length: 3-6 emails."] },
+    { heading:"Content buckets", bullets:[
+      "Email 1 — Reminder that items are in cart; mention benefits such as free shipping over a threshold.",
+      "Email 2 — Items are sitting in cart; include product testimonials to nudge them.",
+      "Email 3 — Discount for NEW customers only (not returning); social proof / \"featured in\" section; other product recommendations via a dynamic product block."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-abandoned-checkout", category:"automation",
+  title:"Abandoned Checkout",
+  summary:"Often the #1 or #2 revenue-generating flow — 4+ emails, more aggressive than cart abandonment, split by cart value and customer type.",
+  source:"Pillar #5 — Core Flow Infrastructure",
+  sections:[
+    { heading:"Goal & length", bullets:["Same as abandoned cart, but can be more aggressive.", "Length: 4-6 emails, at least 4."] },
+    { heading:"Key things to keep in mind", bullets:[
+      "Tag people to exclude them from campaigns, and remove the tag once they've gone through the entire flow.",
+      "Add SMS steps (fewer to returning customers).",
+      "If returning customer, don't offer a discount in the flow — tailor copy to acknowledge you know they're a customer, promote payment plans/subscriptions instead.",
+      "Don't give a % discount too soon (not in the first 2 emails) — those should be reminders only.",
+      "People get busy (kids, work, no card handy, life) — first emails are just nudges.",
+      "Condition-split the flow by high-value vs low-value cart."
+    ]},
+    { heading:"Content buckets", bullets:[
+      "Email 1 — Simple reminder, use dynamic blocks.",
+      "Email 2 — Social proof (testimonials, PR, influencers, UGC) + brand/product USPs and benefits.",
+      "Email 3 — Payment programs (e.g. buy-now-pay-later) OR a discount if new customer.",
+      "Email 4 — Last chance for the incentive + FAQs/objection handling."
+    ]},
+    { heading:"Top 7 mistakes to fix", bullets:[
+      "1. Not excluding abandoned-checkout subscribers from other campaigns — tag on entry, remove tag once the whole sequence completes.",
+      "2. Not being aggressive in the first 24 hours — most recoveries happen in 24-36h. Send at least 2 emails in that window, optimize hard, add SMS as a secondary touchpoint.",
+      "3. Not using SMS — new customers get 1-2 SMS in the first 24h, returning customers fewer; use it to reinforce urgency/scarcity.",
+      "4. Offering discounts too soon — first 2 emails are reminders only, introduce the incentive from email #3 onward to protect margin.",
+      "5. Not personalizing for returning customers — use conditional logic and messaging like \"Hey [First Name], thinking of restocking?\".",
+      "6. Discounting returning customers instead of smarter alternatives — offer payment plans, subscriptions, or loyalty perks instead.",
+      "7. Not splitting the flow by cart value — low-value carts get payment flexibility (BNPL), high-value carts can justify a discount in email #3."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-post-purchase", category:"automation",
+  title:"Post-Purchase (New & Repeat)",
+  summary:"4-12 emails across two triggers (Placed Order, Order Fulfilled) to reduce buyer's remorse, upsell, and convert first-timers into repeat buyers.",
+  source:"Pillar #5 — Core Flow Infrastructure",
+  sections:[
+    { heading:"Goal & length", bullets:["Reduce buyer's remorse, build hype, increase product enjoyment, upsell/cross-sell, and convert 1st-time purchasers into repeat purchasers.", "Length: 4-12 emails."] },
+    { heading:"Trigger: Placed Order", bullets:[
+      "Email 1 (immediate) — Thank you for your purchase + send people to your social channels.",
+      "Email 2 (30 min - 1h later) — Immediate upsell/cross-sell with a great, urgent offer to increase LTV."
+    ]},
+    { heading:"Trigger: Order Fulfilled", bullets:[
+      "Email 1 — Success stories / what makes your product better than the market — reduces buyer's remorse.",
+      "Email 2 — Product education for maximum enjoyment/care — fewer returns, happier customers.",
+      "Email 3 — Cross-sell/up-sell with relevant products + urgency, increase LTV.",
+      "Email 4 — Last-chance upsell/cross-sell offer.",
+      "Email 5 — Collect review/UGC, optionally with an incentive.",
+      "Email 6 — Send people to other channels (Instagram, TikTok, Facebook Groups) to stay omnipresent before they churn.",
+      "(Bonus) Email 7 — Introduce a referral system.",
+      "(Bonus) Email 8 — Collect qualitative data for better marketing/product decisions."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-vip-flow", category:"automation",
+  title:"VIP Flow",
+  summary:"3-5 emails treating your most valuable customers well to increase LTV and turn them into brand ambassadors.",
+  source:"Pillar #5 — Core Flow Infrastructure",
+  sections:[
+    { heading:"Goal & length", bullets:["Increase LTV and brand ambassadors — these are your most valuable customers.", "Length: 3-5 emails."] },
+    { heading:"Content buckets", bullets:[
+      "Email 1 — Let them know they're special/VIP, lay out VIP perks, potentially show a larger discount.",
+      "Email 2 — Offer reminder + popular products block."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-winback", category:"automation",
+  title:"Customer Winback",
+  summary:"3-7 emails to recover lost customers, escalating from a soft check-in to urgency-driven offers.",
+  source:"Pillar #5 — Core Flow Infrastructure",
+  sections:[
+    { heading:"Goal & length", bullets:["Recover lost customers and increase LTV.", "Length: 3-7 emails."] },
+    { heading:"Content buckets", bullets:[
+      "Email 1 — Soft nudge/check-in; let them know you noticed they left; showcase new products/updates; can offer a discount right off the bat.",
+      "Email 2 — Reminder of email 1's incentive with more urgency; show DIFFERENT products than email 1 (e.g. new releases instead of bestsellers); include strong social proof.",
+      "Email 3 — Urgency + unique quality benefits."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-replenishment", category:"automation",
+  title:"Replenishment Flow",
+  summary:"For consumable-product brands — 3-5 emails timed to each product's real usage cycle, not a guess.",
+  source:"Pillar #5 — Core Flow Infrastructure",
+  sections:[
+    { heading:"Goal & length", bullets:["Remind customers to replenish products = increase LTV.", "Length: 3-5 emails."] },
+    { heading:"Setup principles", bullets:[
+      "Focus on replenishable SKUs only — skip one-off/irrelevant items like furniture.",
+      "Set triggers based on each product's average usage cycle (e.g. a 30-day product should start the flow around day 25); Klaviyo's predictive analytics can help.",
+      "Analyze historical purchase data — different products have different usage windows.",
+      "Build up gradually — don't wait until the product is fully used up.",
+      "Avoid overcomplication — group similar SKUs, focus on high-repurchase products (80/20 rule)."
+    ]},
+    { heading:"Content buckets & example sequence", bullets:[
+      "Dynamic product blocks highlighting items from the customer's last order.",
+      "Urgency/scarcity using real stock levels (\"Only 3 left in stock\").",
+      "Follow-up reminder sequence, e.g.: Day 25 \"Running low? Restock your favorites now.\" → Day 30 \"Time to replenish\" → Day 35 \"Last chance to reorder before you run out!\"."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-sunset-unengaged", category:"automation",
+  title:"Sunset Unengaged",
+  summary:"1-2 emails to clean the list, cut Klaviyo costs, and protect deliverability.",
+  source:"Pillar #5 — Core Flow Infrastructure",
+  sections:[
+    { heading:"Goal & length", bullets:["Get rid of the unengaged, clean the email list, reduce your Klaviyo bill, improve deliverability.", "Length: 1-2 emails."] }
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-review-request", category:"automation",
+  title:"Review Request",
+  summary:"1-3 emails to collect reviews for social proof.",
+  source:"Pillar #5 — Core Flow Infrastructure",
+  sections:[
+    { heading:"Goal & length", bullets:["Collect reviews for social proof.", "Length: 1-3 emails."] }
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-birthday-flow", category:"automation",
+  title:"Birthday Flow (Optional)",
+  summary:"1-3 emails using personalized offers to lift LTV.",
+  source:"Pillar #5 — Core Flow Infrastructure",
+  sections:[
+    { heading:"Goal & length", bullets:["Increase LTV through personalized offers.", "Length: 1-3 emails."] }
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-subscription-flows", category:"automation",
+  title:"Subscription Flows: Welcome, Conversion, Pre-Charge & Winback",
+  summary:"Sell the lifestyle of subscribing (not just the product), convert one-time buyers post-purchase, and reduce silent churn with pre-charge reminders.",
+  source:"Bonus #3 — Increase Subscription Rates & Decrease Churn",
+  sections:[
+    { heading:"Optimize the welcome flow for subscriptions", bullets:[
+      "Most welcome flows sell the product — you should be selling the LIFESTYLE of subscribing.",
+      "Email 1 — Introduce the subscription model and its value: savings, ease, perks, flexibility.",
+      "Email 2 — Social proof: testimonials, UGC, quotes from long-time subscribers.",
+      "Email 3 — Overcome objections: \"Can I pause?\", \"What if I don't need it every month?\", \"Will I get bored?\".",
+      "Use behavioral/ZPD-based splits: if someone chose \"savings\" push financial benefits, if \"consistency\" push never running out.",
+      "Goal: get them to see the subscription as the default, not the upsell."
+    ]},
+    { heading:"Convert one-time buyers into subscribers post-purchase", bullets:[
+      "Split the post-purchase flow: subscribers vs one-time buyers.",
+      "For one-time buyers, send 2-3 follow-ups covering: how much they save on repeat orders, how to subscribe in 1-click, how flexible/easy management is.",
+      "Add a reorder reminder around day 20-30, framed as \"Running low? Get your next one as a subscription and save 15%.\""
+    ]},
+    { heading:"Reduce churn: pre-charge reminders & winback", bullets:[
+      "Send pre-charge reminders 3-5 days before renewal: \"Your next [product] is almost here, want to skip or swap?\" / \"Quick reminder: your delivery ships Monday. All set?\" — builds trust and reduces frustration.",
+      "Winback flow for cancelled subscribers over 30-45 days: reminder of what they're missing → re-subscribe offers (light on discounts, strong on value) → product improvements/new drops → testimonials from customers who came back.",
+      "Don't just say \"Sorry to see you go\" — give them a real reason to come back."
+    ]},
+    { heading:"Reward loyalty & celebrate milestones", bullets:[
+      "Loyalty comes from HOW you recognize your best customers, not from points alone.",
+      "Content ideas: \"You've received 6 boxes, enjoy a free gift\", \"You're officially a VIP\", \"You've been with us for a year, we're so grateful\".",
+      "Trigger flows on: number of deliveries, months subscribed, total spend."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-flow-audit-checklist", category:"automation",
+  title:"Must-Have Flows Across the Funnel (Audit Checklist)",
+  summary:"The full flow inventory an account should have, grouped by funnel stage — use it as a gap-check.",
+  source:"Bonus #4 — How To Audit Your Klaviyo Account Like a Pro",
+  sections:[
+    { heading:"Pre-purchase", bullets:["Welcome Flow", "Back-in-stock", "Low Inventory Alert", "Price Drop Alerts"] },
+    { heading:"Purchase recovery", bullets:["Site Abandonment", "Browse Abandonment", "Abandoned Cart", "Abandoned Checkout"] },
+    { heading:"Post-purchase & retention", bullets:[
+      "Order + Shipping Confirmation", "Post-Delivery Education", "Review Request", "Repeat Purchase Flow",
+      "Replenishment Flow", "Loyalty, Milestones, UGC, Affiliate Invites", "Churn Risk", "Winback/Lapsed Customer", "Returns + Refunds"
+    ]},
+    { heading:"What to check on every flow", bullets:[
+      "Are flows fully set up (no gaps in the funnel)?",
+      "Are high-impact ones like Welcome and Abandoned Checkout A/B tested?",
+      "Is zero-party data collected and used to personalize content?"
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-bfcm-flows", category:"automation",
+  title:"Upgrading Core Flows for BFCM",
+  summary:"Flows should feel urgent and timely during BFCM, not generic — shorten delays and route BFCM buyers differently.",
+  source:"Bonus #6 — The Ultimate BFCM Email Strategy",
+  sections:[
+    { heading:"What to update", bullets:[
+      "Welcome Flow — turn new signups into buyers fast with BFCM-specific messaging.",
+      "Cart & Checkout Abandonment — add urgency and promo reminders, shorten delays (e.g. 1h, 4h, 12h instead of the usual cadence).",
+      "Post-Purchase Flow — prime BFCM buyers for upsells, gifts, or referrals.",
+      "Winback Flow — resurrect lapsed buyers with exclusive second-chance deals.",
+      "Add conditional logic to route BFCM buyers into different post-BFCM messaging than the regular flow."
+    ]}
+  ]
+});
+
+// ---------- DIRECT MARKETING (Pojedyncze wysyłki / kampanie) ----------
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-email-calendar-cadence", category:"direct",
+  title:"Balanced Email Calendar & Cadence",
+  summary:"3-4 campaigns/week keeps the brand top of mind without fatigue — mix promo with value-driven content.",
+  source:"Pillar #6 & #7 — Balanced Email Calendar / Campaign Cadence",
+  sections:[
+    { heading:"Balance over pure promotion", bullets:[
+      "Too many promotional emails train the audience to buy only during sales.",
+      "Educational content, product tips, UGC stories and blog updates provide value beyond the sale and keep the audience engaged long-term.",
+      "Customer research keeps content relevant and meaningful."
+    ]},
+    { heading:"Optimal cadence", bullets:[
+      "A consistent 3-4 emails/week keeps the brand top of mind and improves open/click rates.",
+      "More than 6 emails/week can overwhelm subscribers and drive unsubscribes.",
+      "Too few emails = missed revenue; too many = fatigue and unsubscribes."
+    ]},
+    { heading:"Important points", bullets:[
+      "Skimmable content — short, single-topic emails outperform long ones.",
+      "Content variety — a structured calendar avoids \"sales fatigue\" and positions the brand as both a product provider and an industry resource.",
+      "Frequent, well-timed emails correlate with higher sales and loyalty.",
+      "Community-building emails foster stronger connections and repeat purchases."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-ab-campaigns-elements", category:"direct",
+  title:"A/B Testing Campaign Elements & Formatting",
+  summary:"Test graphic-based vs text-based campaigns, and which content modules actually move the needle.",
+  source:"Pillar #9 — A/B Testing Framework",
+  sections:[
+    { heading:"Graphic-based vs text-based", bullets:[
+      "Most brands underutilize and underestimate text-based emails — a favorite test to run at the campaign level, especially for promos.",
+      "Benefits of text-based: easier to produce, better deliverability, genuine/original/authentic feel."
+    ]},
+    { heading:"Campaign elements to test", bullets:[
+      "An email is a compilation of modules — test which formats work better: social proof, product highlights, comparison tables, charts, guarantees, PR, dynamic blocks.",
+      "Remember to test one variable at a time."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-ab-send-time", category:"direct",
+  title:"A/B Testing Send Day & Time",
+  summary:"Aim to maximize open rate when testing day/time — skip this for time-sensitive promos.",
+  source:"Pillar #9 — A/B Testing Framework",
+  sections:[
+    { heading:"What to test", bullets:["Mondays?", "Weekends?", "Morning?", "Late afternoon?", "Evening?"] },
+    { heading:"Rule of thumb", bullets:["Don't run day/time tests on time-sensitive promos or flash sales."] }
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-ai-calendar-prompt", category:"direct",
+  title:"AI-Generated Email Calendar (Prompt)",
+  summary:"A reusable prompt that builds a full month's balanced, holiday-aware campaign calendar from brand context.",
+  source:"Bonus #1 — How To Utilize AI in Email Marketing",
+  sections:[
+    { heading:"Prerequisites", bullets:["A brand description (products, audience, USPs).", "Brand tone-of-voice guidelines (formal, playful, direct, etc.)."] },
+    { heading:"Prompt structure", bullets:[
+      "\"You are an expert email marketing strategist. Create a comprehensive email calendar for [BRAND] for the month of [MONTH].\"",
+      "Include: brand context, brand voice, frequency (X emails/week), content balance (mix promo + value), and no discounts/sales/collabs/launches unless specified.",
+      "For each email concept ask for: calendar date, concept/theme, email type/category, detailed content focus (angle/story/education), key message/takeaway."
+    ]},
+    { heading:"Strategic considerations to bake in", bullets:[
+      "Browse and incorporate relevant holidays/seasonal moments (popular like Valentine's Day AND niche like \"Bikini Day\" for a swimwear brand).",
+      "Address potential customer objections where appropriate.",
+      "Focus on storytelling, education, and emotional connection.",
+      "Follow the promotional vs value-based content balance principle.",
+      "Keep emails concise, single clear message.",
+      "Incorporate social proof and text-based/founder-note emails strategically.",
+      "No \"set in stone\" strategy — use common sense for what resonates with THIS audience; keep the brand's authentic voice throughout."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-subscription-campaigns", category:"direct",
+  title:"Campaigns That Promote the Subscription Experience",
+  summary:"Campaigns aren't just for promos — for subscription brands they educate, upsell, and build a \"club, not a contract\" feeling.",
+  source:"Bonus #3 — Increase Subscription Rates & Decrease Churn",
+  sections:[
+    { heading:"What campaigns are for here", bullets:["Educating new subscribers.", "Upselling one-time buyers.", "Driving long-term engagement."] },
+    { heading:"Ideas that convert", bullets:[
+      "\"Why 90% of our customers subscribe after their first order\"",
+      "\"Subscriber-only benefits you didn't know about\"",
+      "\"What it's like to be a member for 6 months\"",
+      "\"Thinking about subscribing? Here's everything you need to know\"",
+      "Make it feel like a club, not a contract."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-campaign-audit-checklist", category:"direct",
+  title:"Klaviyo Campaign Audit Checklist",
+  summary:"What to check on the campaign side of a Klaviyo account audit.",
+  source:"Bonus #4 — How To Audit Your Klaviyo Account Like a Pro",
+  sections:[
+    { heading:"Frequency & mix", bullets:[
+      "Sending 2-4x per week?",
+      "Balanced mix: promo, education, product launch, social proof?",
+      "Mobile-first, conversion-optimized design?",
+      "CTA above the fold?",
+      "A/B testing implemented?"
+    ]},
+    { heading:"Segmentation & scheduling", bullets:["Using active segments (30D/60D/90D)?", "Excluding bouncers, complainers, and non-openers?"] }
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-bfcm-offers", category:"direct",
+  title:"BFCM: Crafting the Right Offer",
+  summary:"1-3 margin-aware, easy-to-communicate offers beat 12 confusing ones — this is ~80% of BFCM success.",
+  source:"Bonus #6 — The Ultimate BFCM Email Strategy",
+  sections:[
+    { heading:"Inventory dictates strategy", bullets:[
+      "Prioritize high-margin SKUs.",
+      "Forecast demand from past BFCM performance.",
+      "Don't overstock or under-stock bestsellers.",
+      "Use a margin-first approach to set discount tiers/bundles/offer structures.",
+      "Treat inventory as a constraint, not an afterthought — match campaigns to what you have."
+    ]},
+    { heading:"Offer structures", bullets:[
+      "Sitewide Discount — easy to communicate; can eat margins; best for brands with consistent margins across products.",
+      "Tiered Discounts (e.g. 10% off $50+, 15% off $100+, 20% off $150+) — encourages higher AOV; more complex to communicate.",
+      "% or $ Amount Off — straightforward; 40% off often outperforms $40 off on a $100 item (psychology).",
+      "Buy One, Get One (BOGO) — high perceived value, moves inventory; can significantly cut margins — best for high-margin or slow-moving stock.",
+      "Free Shipping and Returns — removes a purchase barrier; costly for heavy items; set a minimum threshold to protect margin.",
+      "VIP Discounts & Early Access — rewards loyalty and exclusivity; may cannibalize full-price sales.",
+      "Gift with Purchase — adds value without discounting, introduces new products; needs extra inventory management.",
+      "New Product Launch — creates excitement, can command full price; risky if untested.",
+      "Holiday-Themed Packaging — adds gift appeal without discounting; needs extra production/planning.",
+      "Combined Offers (e.g. 10% off sitewide + extra 20% off sale items) — clears old inventory while protecting margin on regular items; more complex to implement."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-bfcm-calendar-design", category:"direct",
+  title:"BFCM: Campaign Calendar, Design & Segments",
+  summary:"Send more than feels comfortable, design mobile-first with big CTAs, and target 4 key segments during/after BFCM.",
+  source:"Bonus #6 — The Ultimate BFCM Email Strategy",
+  sections:[
+    { heading:"Recommended cadence", bullets:[
+      "Start teasing 2-3 weeks before BFCM.",
+      "Launch early access on the Monday of BFCM week.",
+      "Send 2x/day on Thursday, Friday, Monday (AM/PM).",
+      "Sprinkle in plain-text emails from the founder."
+    ]},
+    { heading:"Campaign types & timing", bullets:[
+      "Design-based emails for major announcements/deal launches — eye-catching graphics, clear CTAs.",
+      "Plain-text emails for urgent updates/personal founder messages — stand out in a sea of graphic-heavy BFCM emails.",
+      "Morning = major deal announcements; afternoon = reminders/urgency; evening = last-minute shoppers."
+    ]},
+    { heading:"Standing out", bullets:[
+      "Subject lines: use emojis judiciously, include specific offer details (\"50% OFF EVERYTHING\"), create urgency (\"4 HOURS LEFT\").",
+      "Personalization: use name and purchase history, recommend based on browsing behavior.",
+      "Interactive elements: countdown timers, animated GIFs, scratch-to-reveal discounts.",
+      "Exclusivity: VIP-only offers, access codes.",
+      "Cross-channel: align with social/website content, drive traffic to live shopping/flash sales."
+    ]},
+    { heading:"Design principles", bullets:[
+      "Big, clear CTAs above the fold.",
+      "Mobile-first layout — most opens happen on phones.",
+      "No nav bar up top — you're not sending people to browse.",
+      "Fonts readable, 16px minimum.",
+      "Optimize for dark mode or use image-based templates if easier.",
+      "Test designs in Gmail, Outlook, and mobile views before sending."
+    ]},
+    { heading:"4 segments to focus on", bullets:[
+      "BFCM non-buyers who engaged — address objections, offer extended deals.",
+      "First-time BFCM buyers — focus on retention and increasing LTV.",
+      "Repeat customers who purchased during BFCM — reward loyalty, encourage referrals.",
+      "High-value BFCM customers — VIP treatment, early access, exclusive products."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-bfcm-post", category:"direct",
+  title:"Post-BFCM: Retention & Repurchase Strategy",
+  summary:"Most brands go quiet after BFCM — that's exactly when you win by nurturing new buyers into repeat customers.",
+  source:"Bonus #6 — The Ultimate BFCM Email Strategy",
+  sections:[
+    { heading:"What to do in December", bullets:[
+      "Return to normal sending frequency — decrease volume gradually over 1-2 weeks.",
+      "Hold off new sales for 1-2 weeks — focus on value-add content, product benefits, and success stories instead.",
+      "Send personalized \"Thank You\" emails, optionally with a small loyalty reward or exclusive content.",
+      "Revert automated flows to remove BFCM-specific content; ensure post-purchase flows are optimized for the new customers."
+    ]},
+    { heading:"Repurchase strategy (30-90 days after BF)", bullets:[
+      "Segment new customers, further split by purchase category/value.",
+      "Nurture sequence: educational content about what they bought, tips for getting the most out of it, intro to complementary products.",
+      "Incentivize the second purchase: exclusive \"new customer\" discounts, free gift with next purchase, early access to new products.",
+      "Introduce/reinforce a loyalty program built off the BFCM purchase."
+    ]}
+  ]
+});
+
+// ---------- OTHER (fundamenty, technika, strategia) ----------
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-customer-research", category:"other",
+  title:"Customer Research",
+  summary:"Brands with great email marketing know their customers inside and out — that's where messaging that converts starts.",
+  source:"Pillar #1 — Understand Your Customers to the Tee",
+  sections:[
+    { heading:"Why it matters", bullets:[
+      "In-depth research into behaviors, pain points, desires, and motivations ensures messaging resonates.",
+      "Everything — from segmentation to personalized content — starts with understanding who customers are, what they care about, and how the product meets their needs.",
+      "The difference between marketing that converts and marketing that doesn't is HOW WELL you understand the customer."
+    ]},
+    { heading:"Where to find info", bullets:["FB ads library", "Subscribe to competitors' lists", "Your reviews (Shopify + Amazon)", "Competitors' reviews (Shopify + Amazon)", "Quora/Reddit", "ChatGPT"] }
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-deliverability", category:"other",
+  title:"Email Deliverability Fundamentals",
+  summary:"Deliverability = whether emails actually land in the inbox, not just whether they're \"delivered\" — fix this before optimizing anything else.",
+  source:"Pillar #2 — Keep an Eye on Deliverability at All Times",
+  sections:[
+    { heading:"What it is & why it matters", bullets:[
+      "Deliverability rate = % of sent emails that land in an inbox, not spam. Example: 10,000 sent, 8,500 land in inbox = 85% deliverability.",
+      "More inbox placement = more sales; spam filtering literally costs revenue; enough spam flags can get ISPs to start blocking you.",
+      "A 5% increase in inbox placement can mean thousands in extra monthly revenue."
+    ]},
+    { heading:"1. Sender reputation", bullets:[
+      "Like a credit score for your emails — engagement (opens/clicks/replies), spam complaints, and bounce rates all affect it.",
+      "If people delete without opening, ISPs assume irrelevance and route future sends to spam.",
+      "Fix: regularly clean the list of inactive/fake emails; focus on high-quality content that keeps engagement high."
+    ]},
+    { heading:"2. Authentication & technical setup", bullets:[
+      "SPF confirms emails are sent from an approved server.",
+      "DKIM adds a digital signature proving the email wasn't tampered with.",
+      "DMARC tells ISPs what to do with unauthenticated emails.",
+      "Set up all three (check with MXToolbox) to prevent spoofing and improve credibility."
+    ]},
+    { heading:"3. Dedicated custom sending domain", bullets:[
+      "Sending from a shared generic ESP domain (e.g. yourbrand@klaviyomail.com) hurts trust and deliverability.",
+      "A dedicated domain gives full control over sender reputation, reduces the chance of being flagged (no sharing with other brands), and allows full SPF/DKIM/DMARC authentication."
+    ]},
+    { heading:"4. Domain vs sub-domain", bullets:[
+      "Root domain (brand.com) = website; sub-domain (email.brand.com) = email sending.",
+      "Using a sub-domain separates marketing from transactional emails, keeps the main domain's reputation clean, and reduces the risk of ALL emails getting flagged together."
+    ]},
+    { heading:"5. Engagement & content quality", bullets:[
+      "Positive signals: opening, clicking links, moving to another folder.",
+      "Negative signals: ignoring, deleting immediately, marking as spam.",
+      "Test plain-text vs designed emails — plain-text sometimes wins on both engagement and inbox placement."
+    ]},
+    { heading:"Biggest mistakes", bullets:[
+      "Sending too many emails to unengaged subscribers (3-6 months inactive) — sunset them gradually or send a re-engagement campaign before suppressing.",
+      "Ignoring list hygiene — clean monthly. Segment out: Hard Bounces (permanent), Soft Bounces (temporary), \"Marked as Spam\" contacts, and long-unengaged contacts, then suppress them."
+    ]},
+    { heading:"Best practices", bullets:[
+      "Segment & send smartly — more frequency to engaged, less/removal for inactive, separate messaging for new vs repeat customers.",
+      "Optimize content — clear subject lines (avoid \"FREE\"/\"ACT NOW\"), include live text (not image-only), compress images.",
+      "Monitor: Google Postmaster Tools (spam complaints/IP reputation), MxToolbox (authentication), your ESP's reporting by domain (Gmail/Yahoo/Outlook)."
+    ]},
+    { heading:"5 extra tips", bullets:[
+      "Limit links as much as possible.",
+      "Compress images to reduce file size.",
+      "Encourage subscribers to add you to contacts, mark as important, move to primary, or reply.",
+      "Constantly test the best send day/time.",
+      "Use plain-text emails more — better deliverability AND conversions."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-popup-optimization", category:"other",
+  title:"Pop-up Optimization",
+  summary:"If your pop-up isn't converting at least 4-5% of traffic, that's where the work starts — offer beats everything else.",
+  source:"Pillar #3 (Never Stop Optimizing Your Pop-up) + Pillar #9 (A/B Testing → Pop-ups)",
+  sections:[
+    { heading:"Baseline & top mistakes", bullets:[
+      "Aim for at least a 5% pop-up conversion rate on both mobile and desktop.",
+      "Top 3 mistakes: the offer is weak, the triggers are off, asking for too much."
+    ]},
+    { heading:"What to A/B test — 4 elements", bullets:[
+      "Offer — by far the biggest needle-mover ($ off, % off, free shipping, etc).",
+      "Triggers — what makes the pop-up appear; timing plays a huge role in opt-in rate.",
+      "Design — button colors, lifestyle vs product-in-use photos, sizing, formatting.",
+      "Copy — should be extremely simple and convey the offer clearly, without fluff."
+    ]},
+    { heading:"Offer types to test", bullets:[
+      "Static Discount ($20 OFF) — better for high-AOV products.",
+      "% Discount — better for low-AOV products.",
+      "FREE Gift/Product — use high-margin products.",
+      "FREE Shipping — always works.",
+      "Giveaway — low buying intent, less recommended.",
+      "Cashback — great, underutilized option.",
+      "Access to exclusive community — good for bigger brands with authority."
+    ]},
+    { heading:"Trigger recommendations", bullets:[
+      "Mobile: 8-20 sec time delay, 60-80% scroll distance.",
+      "Desktop: exit-intent (primary), plus optional 8-20 sec delay / 60-80% scroll.",
+      "The biggest differences come from testing extremes (e.g. 4-sec vs 12-sec delay)."
+    ]},
+    { heading:"Test BOTH metrics", bullets:[
+      "Test opt-in rate AND lead-to-conversion rate (the % of opt-ins who go on to place an order).",
+      "Some offers raise opt-in % but lower lead-to-conversion % (e.g. giveaways) — that's less efficient/profitable overall."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-zero-party-data", category:"other",
+  title:"Zero-Party Data (ZPD)",
+  summary:"Data customers willingly share — more accurate than tracked data, and the key lever for hyper-personalization.",
+  source:"Pillar #4 — Collecting Zero-Party Data",
+  sections:[
+    { heading:"What it is", bullets:[
+      "ZPD comes directly from customers (vs first-party = behavioral tracking, third-party = external sources).",
+      "Examples: quiz responses, survey answers, pop-up form selections, preference-center inputs."
+    ]},
+    { heading:"Why it matters", bullets:[
+      "Enables hyper-personalization by revealing pain points, motivations, and preferences.",
+      "A massive list with 0% conversion doesn't drive results — signups don't matter, conversions do.",
+      "Even a 4% uplift in welcome-flow conversion (typical after ZPD implementation) can add $48k+/year for a $100k/month brand."
+    ]},
+    { heading:"Best questions to ask", bullets:[
+      "\"What's your biggest goal right now?\"",
+      "\"What's most important to you when choosing [product]?\"",
+      "Real examples: a skincare brand asks about skin concern (acne/aging/dryness) → tailored follow-ups; a supplement brand asks about main goal (energy/immunity/sleep) → tailored content + product suggestions."
+    ]},
+    { heading:"Where to use it", bullets:[
+      "Email (flows & campaigns) — personalize welcome-series product recs, objection handling, advanced segmentation.",
+      "Paid ads & creatives — stronger hooks, right USPs, address common objections in ad copy.",
+      "Website & CRO — adjust product-page copy and landing pages to match collected priorities.",
+      "UX & personalization — reduce decision fatigue, custom recommendations, better upsells/cross-sells.",
+      "Content strategy — more relevant social/blog content, more efficient nurturing.",
+      "Product development — align new launches with preferences, spot gaps in the product line."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-design-optimization", category:"other",
+  title:"Design & Optimization Over Aesthetics",
+  summary:"The Above-The-Fold section is the most important module in the email — optimization beats a pretty design that doesn't convert.",
+  source:"Pillar #8 — Focus on Optimization Over Aesthetics",
+  sections:[
+    { heading:"Above-the-fold is everything", bullets:[
+      "ATF is your hook (think FB ads) — people need to understand the offer/angle within 3 seconds.",
+      "Headline, first subheadline, and first CTA should all be ATF.",
+      "Don't waste real estate — most people skim through emails."
+    ]},
+    { heading:"Loading time & images", bullets:[
+      "Slow-loading emails hurt conversions AND deliverability (heavy emails are less likely to land in the inbox).",
+      "Compress image slices with tools like Tinypng.com."
+    ]},
+    { heading:"Mobile & dark mode", bullets:[
+      "If the email is graphic-based, use large enough fonts (text in images isn't responsive).",
+      "Optimize color contrast for dark mode: use transparent PNGs, add a white outline glow to a black logo, and be mindful of how colors change in dark mode.",
+      "Use plenty of white space — cramped emails aren't readable and get closed."
+    ]},
+    { heading:"Non-negotiable", bullets:["TEST THE EMAIL ON YOUR PHONE before sending — Klaviyo's own preview can be misleading and every device/inbox provider renders differently."] },
+    { heading:"Last words", bullets:[
+      "High-performing brands are mobile-friendly, with clear CTAs, optimized ATF, and streamlined, conversion-first layouts.",
+      "Overly complex or slow-loading designs hurt engagement, especially on mobile.",
+      "Functionality and UX come first — but the email should still reflect the brand's identity."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-ab-testing-framework", category:"other",
+  title:"A/B Testing Framework — Core Principles",
+  summary:"Always test with a hypothesis, define the KPI, track everything, change one variable, and skip low-leverage tests.",
+  source:"Pillar #9 — Have a Solid A/B Testing Framework",
+  sections:[
+    { heading:"Always have a hypothesis", bullets:["A/B testing for its own sake wastes time. Have a goal + hypothesis first (e.g. \"our pop-up offer is 15% off, if we raise it to 20-25% I expect the opt-in rate to increase — let's test it\")."] },
+    { heading:"Define your KPI", bullets:[
+      "Not every test should target placed-order rate — sometimes the goal is a \"vanity metric\" that indirectly matters.",
+      "Depending on the test, define whether you're maximizing: Placed Order Rate, Click Rate, Open Rate, or Opt-in Rate."
+    ]},
+    { heading:"Track your results", bullets:[
+      "\"What gets measured gets managed\" — write down results for future reference, especially when running multiple tests simultaneously.",
+      "Keep a simple Google Sheet with tabs for: Pop-ups, Flows, Campaigns."
+    ]},
+    { heading:"Test one variable at a time", bullets:["Changing multiple variables in one test makes it impossible to pinpoint the actual needle-mover.", "Wait until you reach statistical significance before drawing conclusions."] },
+    { heading:"Don't waste time on low-leverage tests", bullets:["Every component CAN be A/B tested (button colors, a 4-day vs 5-day delay, one word in a pop-up) — but some differences are so marginal they'll never reach significance and aren't worth the time."] }
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-subject-line-testing", category:"other",
+  title:"Subject Line A/B Testing in High-Impact Flows",
+  summary:"A simple, high-leverage test — run it consistently on the flows with the most traffic.",
+  source:"Pillar #9 — Have a Solid A/B Testing Framework",
+  sections:[
+    { heading:"Where to focus", bullets:["Welcome series", "Abandoned checkout", "Post-purchase"] },
+    { heading:"Why it's a favorite test", bullets:["Extremely simple to set up and can yield great results — no excuses, run subject-line A/B tests consistently on these flows."] }
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-ai-email-marketing", category:"other",
+  title:"Using AI in Email Marketing",
+  summary:"Four reusable prompt workflows: customer research, brand-voice training, high-converting copy, and subject-line optimization.",
+  source:"Bonus #1 — How To Utilize AI in Email Marketing",
+  sections:[
+    { heading:"AI for customer research", bullets:[
+      "Prerequisites: a dataset of customer feedback (Amazon reviews, surveys, support tickets), clarity on product/industry, proper prospect/customer segmentation.",
+      "Amazon-review prompt: \"Above you can see a bunch of 5-star reviews for our PRODUCT. Please summarize the 10 most common things customers say — the benefits they experience particularly.\"",
+      "Persona prompt: \"Describe the customer who would buy [product]. Describe their age, looks, what they wear, what they do for a living, hobbies, common pain points during the day, what they secretly desire, and a day in their life.\""
+    ]},
+    { heading:"AI for maintaining brand congruency", bullets:[
+      "Prerequisites: brand identity doc, website/social copy, 100+ past subject lines with open rates.",
+      "Analysis prompt: ask AI to analyze tone/style, language patterns, emotional impact, audience engagement, and values/messaging from the provided assets, then conclude with actionable do's/don'ts and 2-3 example copy snippets.",
+      "Lock-in prompt: \"You are an expert eCommerce email copywriter and marketer for the brand {BRAND NAME}. You will always respond in this specific tone of voice and style when writing email copy.\""
+    ]},
+    { heading:"AI for writing high-converting copy", bullets:[
+      "Prompt: \"Act as an email copywriter and write a 50-75 word design email with this angle: {{ANGLE}}. At the end, slip the pitch to our product in a subtle and smooth way.\"",
+      "Writing guidelines to include: 1-2 sentences per paragraph, engaging copy, 5th-grade reading level, 4-7 word headlines/subheadlines, match the brand's tone assets, no filler words, avoid: unveil, discover, unlock, unravel, dive into, bliss, embrace, embark, unleash, elevate."
+    ]},
+    { heading:"AI for subject line optimization", bullets:[
+      "Needs: 250+ past subject lines with open rates.",
+      "Prompt: analyze what drives success in high performers (emotional triggers, word count, phrasing, themes — intrigue/urgency/clarity) and what to avoid in low performers (vague language, excessive length, overly salesy tone), then summarize into actionable guidelines."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-email-beyond-revenue", category:"other",
+  title:"Email As a Tool Beyond Revenue Generation",
+  summary:"Email's true value extends into acquisition, product development, retention diagnosis, and customer experience.",
+  source:"Bonus #2 — Email As a Tool Beyond Revenue Generation",
+  sections:[
+    { heading:"Supporting acquisition", bullets:[
+      "A bigger email list means more revenue extracted via returning-customer sales.",
+      "Feed Zero-Party Data (interests, preferences, objections, use cases) to paid media teams.",
+      "Run UGC campaigns/contests to gather high-converting ad creatives.",
+      "Survey high-LTV segments on where they came from, why they bought, and what made them stay.",
+      "Use email for cross-brand partnerships/co-promos to build bigger lists and share insights."
+    ]},
+    { heading:"Product management", bullets:[
+      "Surveys — what customers want next, what's missing, what needs improvement.",
+      "ZPD — track preferences and recurring pain points.",
+      "Beta-testing programs via flows/campaigns to invite top customers to try new SKUs.",
+      "Segmentation by LTV — learn what top customers consistently buy vs ignore.",
+      "Post-purchase feedback loops with specific, product-led questions."
+    ]},
+    { heading:"Retention diagnosis", bullets:[
+      "Analyze post-purchase behavior and SKU-level drop-off.",
+      "Run post-purchase surveys: did it meet expectations, anything missing?",
+      "Mine reviews via automated scraping/tag analysis for common complaints.",
+      "Monitor NPS with triggered quarterly surveys.",
+      "Spotlight segment-level issues when retention fails for one demo/cohort."
+    ]},
+    { heading:"Customer experience", bullets:[
+      "Preemptive support — send emails before common issues occur (shipping delays, returns info).",
+      "Surprise & delight — random loyalty rewards, hand-written emails, early access.",
+      "UGC curation — ask for and showcase reviews/testimonials/real usage.",
+      "Product education — PDFs, tutorials, demo videos post-purchase.",
+      "Build community — share stories, highlight customers, invite interaction.",
+      "Communicate clearly to avoid CX breakdowns across the journey."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-subscription-growth-churn", category:"other",
+  title:"Why Subscriptions Matter & How to Track Churn Signals",
+  summary:"Subscriptions are the most powerful lever for predictable, compounding growth — treat churn as a measurable system, not guesswork.",
+  source:"Bonus #3 — Increase Subscription Rates & Decrease Churn",
+  sections:[
+    { heading:"Why subscriptions should be a core growth priority", bullets:[
+      "Predictable revenue reduces reliance on constantly acquiring new customers.",
+      "Higher LTV — a subscriber is worth 2-5x more than a one-time buyer, giving room to outspend competitors on paid media.",
+      "Better retention — email/SMS are far more effective when built around subscription milestones (renewals, upgrades, loyalty rewards).",
+      "More engaged customers — subscribers are long-term brand participants, not just repeat buyers.",
+      "Email = control — unlike paid channels, you own the communication line to reduce churn and win back former subscribers directly."
+    ]},
+    { heading:"Track the right churn signals", bullets:[
+      "Churn by cohort — are customers cancelling after month 1? 3? 6?",
+      "Top cancellation reasons — collect via preference center or Typeform.",
+      "Click rates on \"skip\", \"swap\", or \"pause\" CTAs.",
+      "Time between orders (late reorders = future churn signal).",
+      "Subscriber LTV vs one-time buyer LTV (30/60/90-day view).",
+      "Segment subscribers by cancellation reason and build flows around those specific objections — that's where the retention lift lives."
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-klaviyo-account-audit", category:"other",
+  title:"Klaviyo Account Audit: Technical, SMS, List Growth & Integrations",
+  summary:"The full checklist beyond flows/campaigns/deliverability — technical setup, SMS compliance, sign-up forms, integrations, and cost control.",
+  source:"Bonus #4 — How To Audit Your Klaviyo Account Like a Pro",
+  sections:[
+    { heading:"Core technical setup", bullets:[
+      "Using Smart Send Time?",
+      "CSS optimization enabled?",
+      "Apple Privacy setting excluded from attribution?",
+      "Viewed Product + Added to Cart events working?",
+      "Anonymous tracking enabled?"
+    ]},
+    { heading:"SMS", bullets:[
+      "Company info and avatar added.",
+      "Opt-out language and quiet hours configured.",
+      "Smart Send Time + fair attribution window.",
+      "Short links used.",
+      "At least one subscribe keyword set up.",
+      "Mobile TOS live, opt-in disclaimer properly linked.",
+      "Red flag: using an SMS platform outside Klaviyo = higher cost + weaker segmentation."
+    ]},
+    { heading:"Sign-up forms (list growth)", bullets:[
+      "Pop-up: mobile + desktop versions, a strong offer (mystery discount or tiered incentive), smart display triggers, excluded from sensitive pages (e.g. checkout).",
+      "Form quality: compelling headline/copy, SMS opt-in with tap-to-text on mobile, multi-step format for ZPD, proper list routing to newsletter.",
+      "Follow-up: welcome email/SMS triggered correctly, ZPD used to tailor the follow-up."
+    ]},
+    { heading:"3rd party integrations", bullets:[
+      "Are reviews, helpdesk, loyalty, and UGC platforms connected?",
+      "Are events from these tools actually used in flows/segmentation?",
+      "Best practice: use reviews in winback + welcome flows, use loyalty tiers to personalize campaigns, use support data to suppress unhappy users."
+    ]},
+    { heading:"List cleaning & cost optimization", bullets:[
+      "Are you on the right Klaviyo tier for current usage?",
+      "Are you suppressing unengaged profiles?",
+      "Are you sending long SMS/MMS with weak ROI?",
+      "Are you paying for a pop-up tool when Klaviyo can do the job?"
+    ]}
+  ]
+});
+KNOWLEDGE_ARTICLES.push({
+  id:"kb-revenue-drop-diagnosis", category:"other",
+  title:"Why Your Email Revenue Is Dropping (Diagnostic Checklist)",
+  summary:"Email can't save a poor product, bad acquisition, or a disengaged audience — 10 checks to run when revenue slips.",
+  source:"Bonus #5 — Why Your Email Revenue Is Dropping (And How To Fix It)",
+  sections:[
+    { heading:"1-2. Not a vacuum, and a burnt-out list", bullets:[
+      "Email is a retention channel, not an acquisition one — if acquisition slows, email revenue follows. Ask: is traffic/first-time-customer volume down? Are flows/campaigns still reaching enough high-intent users?",
+      "Squeezing a burnt list (more frequency, more promos, more discounts) works briefly but isn't sustainable — watch for dipping opens, flatlining revenue-per-email, and over-reliance on discounts. Fix by re-engaging top engaged segments (30D/60D) and adding value beyond promotions."
+    ]},
+    { heading:"3-4. Product & assortment issues", bullets:[
+      "Some products (mattresses, couches, luxury watches) aren't built for high repeat rates — that's OK, but low repeat rates in a naturally-replenishable market are a red flag. Build retention around the real product lifecycle instead of forcing flows.",
+      "If the product line hasn't evolved, best customers have no reason to return — launch complementary SKUs, survey for what's wanted next, promote bundles/limited drops."
+    ]},
+    { heading:"5-7. Wrong customers, quality, and channel shift", bullets:[
+      "Discount-hunters are rarely loyal — track CLV of discount vs non-discount purchasers and repurchase rate by acquisition source; refine front-end offers/ad hooks to attract value-aligned buyers.",
+      "Slipped product quality (formula/material changes, sourcing issues, unmet expectations) breaks trust — survey VIPs and churned customers, use email to reinforce quality transparently.",
+      "Expanding to Amazon/retail/wholesale can just shift DTC revenue elsewhere, not lose it — differentiate the DTC experience and use email to drive people back to it."
+    ]},
+    { heading:"8-9. Deliverability & measurement", bullets:[
+      "Dropped deliverability from poor hygiene, irrelevant sends, or misconfiguration — audit spam/bounce/unsubscribe trends, send to engaged segments only, verify SPF/DKIM/DMARC, remove unengaged regularly.",
+      "Sometimes it's attribution, not revenue — Apple privacy skews open/click data, attribution windows may be wrong, pop-ups may lack lead-to-sale tracking. Track: 60D LTV, lead-to-conversion rate, flow CRs (especially welcome & abandoned), and % returning-customer revenue YoY."
+    ]},
+    { heading:"10. Stale strategy", bullets:[
+      "Sending the same campaigns as a year ago bores the list — people want content, education, social proof, behind-the-scenes, launches, and community stories, not just discounts.",
+      "Track: 2-4x campaigns/week, a mix of promotional/educational/testimonial/value-add content, and test plain-text founder notes for re-engagement."
+    ]},
+    { heading:"Where to start an audit", bullets:["How's your traffic?", "Are your flows working?", "Are you sending enough value-led campaigns?", "Is your list clean?", "Are you attracting the right buyers?"] }
+  ]
+});
+function findArticle(id){ for(var i=0;i<KNOWLEDGE_ARTICLES.length;i++){ if(KNOWLEDGE_ARTICLES[i].id===id) return KNOWLEDGE_ARTICLES[i]; } return null; }
+function articlesByCategory(cat){ return cat==="all" ? KNOWLEDGE_ARTICLES.slice() : KNOWLEDGE_ARTICLES.filter(function(a){ return a.category===cat; }); }
+function knowledgeCategoryLabel(id){
+  var c = KNOWLEDGE_CATEGORIES.filter(function(x){ return x.id===id; })[0];
+  return c ? c.label : id;
+}
+
 /* Discount Codes — user: "generator indywidualnych kodów rabatowych...
    Żadnej logiki, na razie tylko front end to zaprezentowania". Bez
    seedowych paczek (nie ma sensownych przykładów bez realnej generacji
@@ -6899,6 +7779,7 @@ var state = { brand:"neutral", category:"all", section:"components", emailFlow:"
   flowCategory:"all",
   skillCategory:"all",
   liquidCategory:"all",
+  knowledgeCategory:"all",
   dmMonth:"",
   // user: "wrzuć też filtrowanie brandów/Client. Zeby mozna było zawezic
   // dla jakich klientow widzimy obecnie harmonogram" — mapa brandKey->bool,
@@ -10272,6 +11153,7 @@ function renderPrimaryNav(){
   byId("navCountLiquid").textContent = LIQUID_SNIPPETS.length;
   byId("navCountDiscounts").textContent = DISCOUNT_BATCHES.length;
   byId("navCountSchedule").textContent = DM_ENTRIES.length;
+  byId("navCountKnowledge").textContent = KNOWLEDGE_ARTICLES.length;
   nav.querySelectorAll("[data-nav]").forEach(function(btn){
     var target = btn.getAttribute("data-nav");
     var active = state.section===target;
@@ -10294,7 +11176,8 @@ var NAV_GROUPS = [
   { id:"direct", label:"Direct Marketing", sections:["schedule"] },
   { id:"ai", label:"AI", sections:["skills"] },
   { id:"services", label:"Services", sections:["discounts"] },
-  { id:"reporting", label:"Reporting", sections:["reports"] }
+  { id:"reporting", label:"Reporting", sections:["reports"] },
+  { id:"knowledge", label:"Knowledge Base", sections:["knowledge"] }
 ];
 function groupForSection(section){
   return NAV_GROUPS.filter(function(g){ return g.sections.indexOf(section)!==-1; })[0] || null;
@@ -10336,7 +11219,7 @@ function syncNavGroupVisibility(){
    Repository) — pokazujemy WYŁĄCZNIE ten, który pasuje do state.section,
    pozostałe dwa czyścimy i chowamy. */
 function renderNavCats(){
-  var wraps = { components: byId("navCatsComponents"), emails: byId("navCatsEmails"), flows: byId("navCatsFlows"), skills: byId("navCatsSkills"), liquid: byId("navCatsLiquid") };
+  var wraps = { components: byId("navCatsComponents"), emails: byId("navCatsEmails"), flows: byId("navCatsFlows"), skills: byId("navCatsSkills"), liquid: byId("navCatsLiquid"), knowledge: byId("navCatsKnowledge") };
   Object.keys(wraps).forEach(function(key){
     var wrap = wraps[key];
     if(!wrap) return;
@@ -10415,6 +11298,16 @@ function renderNavCats(){
         if(n===0 && state.liquidCategory!==c.id) return;
         catBtn(c.label, n, state.liquidCategory===c.id, function(){
           state.liquidCategory=c.id; state.page=1; renderAll();
+        });
+      });
+    } else if(key==="knowledge"){
+      catBtn("All", KNOWLEDGE_ARTICLES.length, state.knowledgeCategory==="all", function(){
+        state.knowledgeCategory="all"; state.page=1; renderAll();
+      });
+      KNOWLEDGE_CATEGORIES.forEach(function(c){
+        var n = articlesByCategory(c.id).length;
+        catBtn(c.label, n, state.knowledgeCategory===c.id, function(){
+          state.knowledgeCategory=c.id; state.page=1; renderAll();
         });
       });
     }
@@ -11255,6 +12148,67 @@ function openSnippetDetail(snippetId){
 }
 function closeLiquidOverlay(){ byId("liquidOverlay").classList.remove("open"); urlOpenLiquidId = null; syncUrlFromState(); }
 
+/* ================================================================
+   KNOWLEDGE BASE — user: "Stwórz w aplikacji nową kategorię Knowledge
+   Base i wrzuć do niej opisane wszystkie praktyki" (z PDF-a o email
+   marketingu od Laya Consulting). WYŁĄCZNIE do czytania — ta sama
+   architektura co Liquid Snippets (kategorie/karta/popup), ale bez
+   formularza add/edit/delete i bez cardMenuHtml/urlOpenXId (user nie
+   prosił o możliwość dopisywania własnych artykułów, dane statyczne —
+   patrz KNOWLEDGE_ARTICLES). ================================================================ */
+function renderKnowledgeGrid(){
+  var q = state.searchQuery;
+  var fullList = articlesByCategory(state.knowledgeCategory).filter(function(a){
+    return matchesSearch([a.title, a.id, a.summary], q);
+  });
+  var page = paginateList(fullList);
+  byId("gridTitle").textContent = state.knowledgeCategory==="all" ? "All articles" : knowledgeCategoryLabel(state.knowledgeCategory);
+  byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " article" : " articles");
+  var grid = byId("cardGrid"); grid.innerHTML = "";
+  if(fullList.length===0){
+    grid.innerHTML = '<p class="drawer-empty" style="grid-column:1/-1; padding:36px">No articles here yet.</p>';
+    renderPagination(1);
+    return;
+  }
+  page.items.forEach(function(a){
+    var el = document.createElement("div"); el.className = "card flow-card";
+    el.innerHTML =
+      '<div class="flow-card-top">'+
+        '<p class="flow-card-cat">'+esc(knowledgeCategoryLabel(a.category))+'</p>'+
+        '<p class="flow-card-title">'+esc(a.title)+'</p>'+
+        '<p class="flow-card-desc">'+esc(a.summary||"")+'</p>'+
+      '</div>'+
+      '<div class="flow-card-foot">'+
+        '<button class="btn small" data-kb-open="'+esc(a.id)+'" style="flex:1">Open</button>'+
+      '</div>';
+    grid.appendChild(el);
+  });
+  grid.querySelectorAll("[data-kb-open]").forEach(function(btn){
+    btn.addEventListener("click", function(){ openKnowledgeDetail(btn.getAttribute("data-kb-open")); });
+  });
+  renderPagination(page.totalPages);
+}
+function openKnowledgeDetail(articleId){
+  var a = findArticle(articleId);
+  if(!a) return;
+  byId("knowledgeTitle").textContent = a.title;
+  function sec(title, inner){ return inner ? '<div class="flow-sec"><h4>'+esc(title)+'</h4>'+inner+'</div>' : ""; }
+  function list(arr){
+    if(!arr || !arr.length) return "";
+    return '<ul class="flow-list">'+arr.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join("")+'</ul>';
+  }
+  byId("knowledgeMetaPanel").innerHTML =
+    '<div class="flow-meta-grid" style="grid-template-columns:1fr">'+
+      '<div class="flow-meta-item"><div class="k">Category</div><div class="v">'+esc(knowledgeCategoryLabel(a.category))+'</div></div>'+
+      '<div class="flow-meta-item"><div class="k">Source</div><div class="v">'+esc(a.source||"")+'</div></div>'+
+    '</div>';
+  byId("knowledgeBody").innerHTML =
+    (a.summary ? '<p style="font-size:14.5px; color:var(--ink-muted); line-height:1.6; margin:0 0 20px">'+esc(a.summary)+'</p>' : "")+
+    (a.sections||[]).map(function(s){ return sec(s.heading, list(s.bullets)); }).join("");
+  byId("knowledgeOverlay").classList.add("open");
+}
+function closeKnowledgeOverlay(){ byId("knowledgeOverlay").classList.remove("open"); }
+
 var liquidForm = { editId: null, draft: null };
 function uniqueSnippetKey(base){
   var key = base, n = 2;
@@ -11907,7 +12861,10 @@ var SECTION_META = {
   discounts:  { title:"Discount Codes", search:"Search batches…", primary:"add-discount", stack:false },
   // user: "generator raportów miesięcznych... na razie sam front end" —
   // jednoekranowe narzędzie jak DM Schedule/Brand Kit, nie listing.
-  reports:    { title:"Monthly Reports", search:null, primary:null, stack:false }
+  reports:    { title:"Monthly Reports", search:null, primary:null, stack:false },
+  // user: "Stwórz w aplikacji nową kategorię Knowledge Base" — listing jak
+  // Liquid Snippets, ale primary:null (WYŁĄCZNIE do czytania, bez "Add").
+  knowledge:  { title:"Knowledge Base", search:"Search articles…", primary:null, stack:false }
 };
 function syncSectionChrome(){
   var meta = SECTION_META[state.section] || SECTION_META.components;
@@ -12297,6 +13254,7 @@ function renderGrid(){
   if(state.section==="skills"){ renderSkillGrid(); return; }
   if(state.section==="liquid"){ renderSnippetGrid(); return; }
   if(state.section==="discounts"){ renderDiscountGrid(); return; }
+  if(state.section==="knowledge"){ renderKnowledgeGrid(); return; }
   if(state.section==="emails"){ renderEmailGrid(); return; }
   var b = brand();
   var q = state.searchQuery;
@@ -13278,6 +14236,8 @@ bindOverlayBackdropClose("skillFormOverlay", closeSkillForm);
 /* ---- Liquid Snippets ---- */
 byId("liquidClose").addEventListener("click", closeLiquidOverlay);
 bindOverlayBackdropClose("liquidOverlay", closeLiquidOverlay);
+byId("knowledgeClose").addEventListener("click", closeKnowledgeOverlay);
+bindOverlayBackdropClose("knowledgeOverlay", closeKnowledgeOverlay);
 byId("liquidCopyBtn").addEventListener("click", function(){
   var s = liquidOpenId && findSnippet(liquidOpenId);
   if(!s) return;
