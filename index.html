@@ -231,6 +231,11 @@
   .nav-cat-btn:hover{background:var(--surface-2); color:var(--ink)}
   .nav-cat-btn[aria-pressed="true"]{color:var(--ink); font-weight:500}
   .nav-cat-btn .n{font-size:10.5px; color:var(--ink-faint); font-variant-numeric:tabular-nums; flex:none}
+  .nav-filters{padding-left:14px; border-left:1px solid var(--line); margin:2px 0 6px 23px; display:flex; flex-direction:column; gap:2px}
+  .nav-filters:empty{display:none; border:none; margin:0}
+  .nav-filters .nav-filter-title{font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); margin:10px 0 4px; padding:0 10px}
+  .nav-filters .nav-filter-title:first-child{margin-top:4px}
+  .nav-filters .bf-checkbox{padding:4px 10px; font-size:13px}
 
   /* ============================================================
      TOPBAR — user: "header ma być jak wczesniej czyli logo po lewej -
@@ -661,7 +666,7 @@
      realnie się wybiera: branża, kanały, liczba etapów. */
   .flow-card{display:flex; flex-direction:column; gap:0}
   .flow-card-top{padding:16px 16px 0}
-  .flow-card-cat{font-size:12px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint)}
+  .flow-card-cat{font-size:10px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint)}
   .flow-card-title{font-weight:500; font-size:15px; line-height:1.3; margin:6px 0 0}
   .flow-card-desc{font-size:13.5px; color:var(--ink-muted); line-height:1.5; margin:8px 0 0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden}
   .flow-card-meta{display:flex; flex-wrap:wrap; gap:6px; padding:14px 16px 0}
@@ -1436,6 +1441,10 @@
         <span class="nav-label">Skills</span><span class="n" id="navCountSkills"></span>
       </button>
       <div class="nav-cats is-collapsed" id="navCatsSkills" role="group" aria-label="Skill categories"></div>
+      <!-- user: "w kategorii Skills, w zaznaczonym miejscu na sidebarze
+           dodaj filtry, pierwszym filtrem będzie Brand... a drugi to
+           Industries" — zbudowane i renderowane w renderSkillFilters(). -->
+      <div class="nav-filters" id="navFiltersSkills" role="group" aria-label="Skill filters"></div>
     </div>
 
     <div class="nav-group" data-navgroup="services">
@@ -2138,9 +2147,16 @@
     </div>
     <div class="modal-footer-bar" style="display:flex; align-items:center; justify-content:space-between; gap:16px">
       <div id="knowledgeReadersBar" style="font-size:12.5px; color:var(--ink-muted); display:flex; align-items:center; gap:8px; flex-wrap:wrap"></div>
-      <button class="btn small kb-read-btn" id="knowledgeReadBtn" type="button" aria-pressed="false" style="flex:none">
-        <span class="kb-read-checkbox" aria-hidden="true"></span>Mark as reviewed
-      </button>
+      <div style="display:flex; align-items:center; gap:8px; flex:none">
+        <!-- user: "Dodaj jeszcze opcję dodania +1 do lekcji" — sama akcja
+             co przycisk na karcie (renderKnowledgeGrid), tylko w widoku
+             szczegółów; obie strony wołają toggleArticleUpvote i syncują
+             się nawzajem (patrz syncKnowledgeUpvoteBtn). -->
+        <button class="btn ghost small" id="knowledgeUpvoteBtn" type="button" aria-pressed="false" title="Mark this lesson as valuable">&#9650; <span id="knowledgeUpvoteCount">0</span></button>
+        <button class="btn small kb-read-btn" id="knowledgeReadBtn" type="button" aria-pressed="false" style="flex:none">
+          <span class="kb-read-checkbox" aria-hidden="true"></span>Mark as reviewed
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -6979,6 +6995,12 @@ var KNOWLEDGE_CATEGORIES = [
   { id:"direct", label:"Direct Marketing" },
   { id:"other", label:"Other" }
 ];
+// user: "Dodaj w źródle całego pdfa do pobrania, z którego czerpałeś
+// wiedzę" — jeden wspólny plik dla WSZYSTKICH 36 lekcji (to jedno źródłowe
+// PDF), nie osobny per artykuł. null = link się nie pokazuje (patrz
+// openKnowledgeDetail) dopóki plik faktycznie nie wyląduje w
+// mailerQ-repo/assets/kb/ — świadomie NIE wskazujemy na nieistniejący plik.
+var KNOWLEDGE_SOURCE_PDF_URL = null;
 var KNOWLEDGE_ARTICLES = [];
 var KB_DATE = "2026-08-24";
 
@@ -8052,6 +8074,10 @@ var state = { brand:"neutral", category:"all", section:"components", emailFlow:"
   // wszystkich marek jako true). Stan przeglądania jak crmFilter/dmMonth —
   // nie zapisywane w localStorage.
   dmClientFilter:{},
+  // user: "w kategorii Skills... dodaj filtry, pierwszym filtrem będzie
+  // Brand... a drugi to Industries" — sam wzorzec co dmClientFilter (klucz
+  // NIEOBECNY/true = widoczny, false = odznaczony/ukryty).
+  skillBrandFilter:{}, skillIndustryFilter:{},
   // Który z 3 wariantów headera/stopki marki (patrz BRANDS[key].header2Code
   // itd.) ma wejść do skompilowanego maila — wybierane w oknie Podgląd
   // (patrz previewHeaderVariantSelect/previewFooterVariantSelect), globalnie
@@ -11465,6 +11491,7 @@ function renderPrimaryNav(){
   renderTopbarGroups();
   syncNavGroupVisibility();
   renderNavCats();
+  renderSkillFilters();
 }
 // user: "Mają się tam pojawić głównej kategorie Composer; Marketing
 // Automation; Direct Marketing; AI; Services; Reporting. Klikając w nie
@@ -12126,11 +12153,56 @@ function skillEyebrowLabel(s){
   var b = skillBrandLabel(s.brand);
   return b ? cat+" - "+b : cat;
 }
+// Industry pochodzi z marki, do której przypisany jest skill (BRANDS[key].industry)
+// — skill bez brandu ("" — narzędzia cross-client) nie należy do żadnej
+// branży i zawsze przechodzi filtr industry, niezależnie od zaznaczeń.
+function skillIndustryOf(s){
+  var b = s.brand && BRANDS[s.brand];
+  return b ? b.industry : "";
+}
+function skillBrandFilterAllows(s){
+  return state.skillBrandFilter[s.brand||""] !== false;
+}
+function skillIndustryFilterAllows(s){
+  var ind = skillIndustryOf(s);
+  if(!ind) return true;
+  return state.skillIndustryFilter[ind] !== false;
+}
+function renderSkillFilters(){
+  var wrap = byId("navFiltersSkills");
+  if(!wrap) return;
+  if(state.section!=="skills"){ wrap.innerHTML = ""; return; }
+  var html = '<p class="nav-filter-title">Brand</p>';
+  html += BRAND_ORDER.slice().sort(function(a,b){ return (BRANDS[a].short||BRANDS[a].name).localeCompare(BRANDS[b].short||BRANDS[b].name); }).map(function(k){
+    var checked = state.skillBrandFilter[k] !== false;
+    return '<label class="bf-checkbox"><input type="checkbox" data-skill-brand-filter="'+esc(k)+'"'+(checked?' checked':'')+'>'+esc(BRANDS[k].short||BRANDS[k].name)+'</label>';
+  }).join("");
+  html += '<p class="nav-filter-title">Industries</p>';
+  html += INDUSTRIES.map(function(ind){
+    var checked = state.skillIndustryFilter[ind.id] !== false;
+    return '<label class="bf-checkbox"><input type="checkbox" data-skill-industry-filter="'+esc(ind.id)+'"'+(checked?' checked':'')+'>'+esc(ind.label)+'</label>';
+  }).join("");
+  wrap.innerHTML = html;
+  wrap.querySelectorAll("[data-skill-brand-filter]").forEach(function(input){
+    input.addEventListener("change", function(){
+      state.skillBrandFilter[input.getAttribute("data-skill-brand-filter")] = input.checked;
+      state.page = 1;
+      renderGrid();
+    });
+  });
+  wrap.querySelectorAll("[data-skill-industry-filter]").forEach(function(input){
+    input.addEventListener("change", function(){
+      state.skillIndustryFilter[input.getAttribute("data-skill-industry-filter")] = input.checked;
+      state.page = 1;
+      renderGrid();
+    });
+  });
+}
 function renderSkillGrid(){
   var q = state.searchQuery;
   var fullList = skillsByCategory(state.skillCategory).filter(function(s){
     return matchesSearch([s.label, s.id, s.desc, skillBrandLabel(s.brand)], q);
-  });
+  }).filter(skillBrandFilterAllows).filter(skillIndustryFilterAllows);
   var page = paginateList(fullList);
   byId("gridTitle").textContent = state.skillCategory==="all" ? "All skills" : skillCategoryLabel(state.skillCategory);
   byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " skill" : " skills");
@@ -12503,6 +12575,38 @@ function toggleArticleRead(articleId){
   }
   return nowRead;
 }
+// user: "Dodaj jeszcze opcję dodania +1 do lekcji, taka lekcja może zbierać
+// plusy a sam listing sortuje się wg ilości plusów. Ilość plusów oznacza,
+// że coś było bardzo wartościowe dla kogoś" — DOKŁADNIE ten sam wzorzec co
+// isArticleRead/usersWhoReadArticle/toggleArticleRead powyżej, tylko dla
+// users/{uid}.knowledgeUpvoteIds (patrz window.MQUsers.setLessonUpvote).
+function isArticleUpvoted(articleId){
+  var entry = currentUserDirectoryEntry();
+  return !!(entry && entry.knowledgeUpvoteIds && entry.knowledgeUpvoteIds.indexOf(articleId)!==-1);
+}
+function articleUpvoteCount(articleId){
+  return MQ_USER_DIRECTORY.filter(function(u){ return u.knowledgeUpvoteIds && u.knowledgeUpvoteIds.indexOf(articleId)!==-1; }).length;
+}
+function toggleArticleUpvote(articleId){
+  if(!MQ_CURRENT_USER){ showToast("Zaloguj się, żeby oceniać lekcje"); return null; }
+  var entry = currentUserDirectoryEntry();
+  if(!entry){
+    entry = { uid:MQ_CURRENT_USER.uid, email:MQ_CURRENT_USER.email, displayName:MQ_CURRENT_USER.displayName, photoURL:MQ_CURRENT_USER.photoURL, knowledgeUpvoteIds:[] };
+    MQ_USER_DIRECTORY.push(entry);
+  }
+  if(!entry.knowledgeUpvoteIds) entry.knowledgeUpvoteIds = [];
+  var idx = entry.knowledgeUpvoteIds.indexOf(articleId);
+  var nowUpvoted;
+  if(idx===-1){ entry.knowledgeUpvoteIds.push(articleId); nowUpvoted = true; }
+  else { entry.knowledgeUpvoteIds.splice(idx,1); nowUpvoted = false; }
+  if(window.MQUsers && window.MQUsers.setLessonUpvote){
+    window.MQUsers.setLessonUpvote(MQ_CURRENT_USER.uid, articleId, nowUpvoted).catch(function(err){
+      console.error("Nie udało się zapisać głosu:", err);
+      showToast("Nie udało się zapisać — sprawdź połączenie");
+    });
+  }
+  return nowUpvoted;
+}
 function fmtKbDate(iso){
   if(!iso) return "";
   var d = new Date(iso+"T00:00:00");
@@ -12521,6 +12625,10 @@ function renderKnowledgeGrid(){
       (state.knowledgeReadFilter==="all" ||
        (state.knowledgeReadFilter==="read" ? isArticleRead(a.id) : !isArticleRead(a.id)));
   });
+  // user: "sam listing sortuje się wg ilości plusów" — malejąco po liczbie
+  // głosów; Array#sort jest stabilny (ES2019+), więc remisy (w tym same
+  // zera) zachowują dotychczasową kolejność zamiast się tasować.
+  fullList.sort(function(a,b){ return articleUpvoteCount(b.id) - articleUpvoteCount(a.id); });
   var page = paginateList(fullList);
   byId("gridTitle").textContent = state.knowledgeCategory==="all" ? "All lessons" : knowledgeCategoryLabel(state.knowledgeCategory);
   byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " lesson" : " lessons");
@@ -12541,11 +12649,20 @@ function renderKnowledgeGrid(){
       '</div>'+
       '<div class="flow-card-foot">'+
         '<button class="btn small" data-kb-open="'+esc(a.id)+'" style="flex:1">Open</button>'+
+        '<button class="btn ghost small" data-kb-upvote="'+esc(a.id)+'" aria-pressed="'+(isArticleUpvoted(a.id)?"true":"false")+'" style="flex:none" title="Mark this lesson as valuable">&#9650; '+articleUpvoteCount(a.id)+'</button>'+
       '</div>';
     grid.appendChild(el);
   });
   grid.querySelectorAll("[data-kb-open]").forEach(function(btn){
     btn.addEventListener("click", function(){ openKnowledgeDetail(btn.getAttribute("data-kb-open")); });
+  });
+  grid.querySelectorAll("[data-kb-upvote]").forEach(function(btn){
+    btn.addEventListener("click", function(e){
+      e.stopPropagation();
+      toggleArticleUpvote(btn.getAttribute("data-kb-upvote"));
+      renderKnowledgeGrid();
+      if(knowledgeOpenArticleId) syncKnowledgeUpvoteBtn(knowledgeOpenArticleId);
+    });
   });
   renderPagination(page.totalPages);
 }
@@ -12592,6 +12709,13 @@ function syncKnowledgeReadBtn(articleId){
   if(!btn) return;
   btn.setAttribute("aria-pressed", isArticleRead(articleId) ? "true" : "false");
 }
+function syncKnowledgeUpvoteBtn(articleId){
+  var btn = byId("knowledgeUpvoteBtn");
+  if(!btn) return;
+  btn.setAttribute("aria-pressed", isArticleUpvoted(articleId) ? "true" : "false");
+  var countEl = byId("knowledgeUpvoteCount");
+  if(countEl) countEl.textContent = articleUpvoteCount(articleId);
+}
 var knowledgeOpenArticleId = null;
 function openKnowledgeDetail(articleId){
   var a = findArticle(articleId);
@@ -12609,7 +12733,7 @@ function openKnowledgeDetail(articleId){
       '<div class="flow-meta-item"><div class="k">Category</div><div class="v">'+esc(knowledgeCategoryLabel(a.category))+'</div></div>'+
       '<div class="flow-meta-item"><div class="k">Added</div><div class="v">'+esc(fmtKbDate(a.dateAdded))+'</div></div>'+
       '<div class="flow-meta-item"><div class="k">Status</div><div class="v">'+(read?"Reviewed":"Not reviewed")+'</div></div>'+
-      '<div class="flow-meta-item"><div class="k">Source</div><div class="v">'+esc(a.source||"")+'</div></div>'+
+      '<div class="flow-meta-item"><div class="k">Source</div><div class="v">'+esc(a.source||"")+(KNOWLEDGE_SOURCE_PDF_URL ? ' · <a href="'+esc(KNOWLEDGE_SOURCE_PDF_URL)+'" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline">Download full PDF</a>' : '')+'</div></div>'+
     '</div>';
   byId("knowledgeBody").innerHTML =
     (a.image ? '<img src="'+esc(a.image)+'" alt="" style="width:100%; border-radius:var(--radius-card); margin:0 0 20px; display:block">' : "")+
@@ -12617,6 +12741,7 @@ function openKnowledgeDetail(articleId){
     (a.sections||[]).map(function(s){ return sec(s.heading, list(s.bullets)); }).join("");
   byId("knowledgeReadersBar").innerHTML = knowledgeReadersHtml(articleId);
   syncKnowledgeReadBtn(articleId);
+  syncKnowledgeUpvoteBtn(articleId);
   byId("knowledgeOverlay").classList.add("open");
 }
 function closeKnowledgeOverlay(){
@@ -14674,6 +14799,16 @@ byId("knowledgeReadBtn").addEventListener("click", function(){
   });
   if(state.section==="knowledge") renderKnowledgeReadFilterRow();
 });
+byId("knowledgeUpvoteBtn").addEventListener("click", function(){
+  if(!knowledgeOpenArticleId) return;
+  toggleArticleUpvote(knowledgeOpenArticleId);
+  syncKnowledgeUpvoteBtn(knowledgeOpenArticleId);
+  // Karta na liście pokazuje tę samą liczbę plusów i sortuje się po niej —
+  // odświeżamy ją od razu, żeby po zamknięciu popupu lista była aktualna
+  // (closeKnowledgeOverlay i tak woła renderGrid, to tylko dla spójności
+  // w trakcie, gdyby ktoś zerknął na listing bez zamykania popupu).
+  if(state.section==="knowledge") renderKnowledgeGrid();
+});
 byId("liquidCopyBtn").addEventListener("click", function(){
   var s = liquidOpenId && findSnippet(liquidOpenId);
   if(!s) return;
@@ -16724,6 +16859,17 @@ window.MQUsers = {
   setLessonRead(uid, articleId, read){
     return updateDoc(usersDocRef(uid), {
       knowledgeReadIds: read ? arrayUnion(articleId) : arrayRemove(articleId),
+      updatedAt: Date.now()
+    });
+  },
+  // user: "Dodaj jeszcze opcję dodania +1 do lekcji, taka lekcja może
+  // zbierać plusy... Ilość plusów oznacza, że coś było bardzo wartościowe
+  // dla kogoś" — dokładnie ten sam wzorzec co setLessonRead powyżej: własne
+  // pole na users/{uid}, arrayUnion/arrayRemove atomowe, liczba plusów =
+  // liczba userów z tym articleId w tablicy (patrz usersWhoUpvotedArticle).
+  setLessonUpvote(uid, articleId, upvoted){
+    return updateDoc(usersDocRef(uid), {
+      knowledgeUpvoteIds: upvoted ? arrayUnion(articleId) : arrayRemove(articleId),
       updatedAt: Date.now()
     });
   }
