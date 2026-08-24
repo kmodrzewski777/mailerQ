@@ -2575,6 +2575,26 @@ var BRANDS = {
     h1Size:32, h2Size:22, h3Size:18, h4Size:15, bodySize:16,
     bodyRadius:"20px", componentGap:"24px", contentPadding:"40px", boxPadding:"0px", logoWidth:"140px", logoAlt:"Foodify", btnPrimarySize:15, btnPrimaryPadding:"14px 32px",
     inferred:false, custom:false
+  },
+  // Tokeny wyciągnięte wprost z realnego, skompilowanego maila e-Kwiaty
+  // ("Nadal szukasz idealnego bukietu?") wklejonego przez usera — user:
+  // "Zaciągnij maila, zrób z niego master szablon dla brandu e-Kwiaty."
+  // accent = zielony pasek górny (marka), accent2 = fioletowy z paska
+  // zaufania/przycisków "Zobacz" na produktach.
+  ekwiaty: {
+    name:"e-Kwiaty", short:"e-Kwiaty", industry:"ecommerce", crmPlatform:"klaviyo",
+    mailWidth:"600px", outerBg:"#f1f2f3",
+    bg:"#ffffff", surface:"#f1f2f3", surface2:"#EDEAF5",
+    text:"#000000", muted:"#888888", faint:"#888888",
+    border:"#EFEFEF",
+    brandColor:"#63AB01", accent:"#63AB01", accentOn:"#ffffff", accent2:"#554678",
+    btnPrimaryBg:"#000000", btnPrimaryText:"#ffffff", btnPrimaryRadius:"0px", btnPrimaryWeight:"700", btnPrimaryTransform:"none",
+    btnSecondaryBg:"#554678", btnSecondaryText:"#ffffff", btnSecondaryBorder:"none", btnSecondaryRadius:"0px", btnSecondaryWeight:"700", btnSecondaryPadding:"14px 40px", btnSecondarySize:14,
+    radius:"0px", cardBorder:false,
+    fontBody:"Helvetica, Arial, sans-serif", fontHeading:"Helvetica, Arial, sans-serif", fontMono:"'Courier New', monospace", headingWeight:"700",
+    h1Size:28, h2Size:24, h3Size:20, h4Size:18, bodySize:16,
+    bodyRadius:"0px", componentGap:"24px", contentPadding:"20px", boxPadding:"0px", logoWidth:"250px", logoAlt:"e-Kwiaty", btnPrimarySize:16, btnPrimaryPadding:"20px 90px",
+    inferred:false, custom:false
   }
 };
 /* Faza B: nagłówki per poziom (H1-H4), tekst secondary, 3 style przycisku —
@@ -2659,7 +2679,7 @@ function withDerivedStyleDefaults(d){
   return d;
 }
 Object.keys(BRANDS).forEach(function(k){ withDerivedStyleDefaults(BRANDS[k]); });
-var BRAND_ORDER = ["neutral","zeronest","berty","pstryk","foodify"];
+var BRAND_ORDER = ["neutral","zeronest","berty","pstryk","foodify","ekwiaty"];
 var CATEGORY_LABELS = { ecommerce:"E-commerce", usluga:"Service" };
 
 /* ================================================================
@@ -3113,6 +3133,41 @@ var READY_EMAILS = [
 ];
 function findEmail(id){ for(var i=0;i<READY_EMAILS.length;i++){ if(READY_EMAILS[i].id===id) return READY_EMAILS[i]; } return null; }
 function emailsByFlow(flow){ return flow==="all" ? READY_EMAILS : READY_EMAILS.filter(function(e){ return e.flow===flow; }); }
+
+// user: "Zaciągnij maila, zrób z niego master szablon dla brandu e-Kwiaty" —
+// 1:1 odwzorowanie TREŚCI realnego, skompilowanego maila e-Kwiaty ("Nadal
+// szukasz idealnego bukietu?"). Header/footer NIE są tu — to własność
+// brandu (BRANDS.ekwiaty.headerCode/footerCode, patrz seedBrandHeaderFooter
+// wyżej), wchodzą do KAŻDEGO maila automatycznie przez compileEmailHtml.
+// Reszta złożona z istniejących komponentów biblioteki (hero-title-only x2,
+// product-feed-2up-no-price x2 = 4 produkty w 2 wierszach, dokładnie jak w
+// oryginale) + jednego nowego (ekwiaty-intro-list-cta, patrz COMPONENTS —
+// paragraf+bullet pointy+paragraf+button jako jedna spójna całość, bez
+// gotowego odpowiednika w bibliotece). componentValues niosą PRAWDZIWĄ
+// treść/URL-e z wklejonego maila, nie placeholdery.
+READY_EMAILS.push({
+  id:"ekwiaty-bouquet-occasion-guide", flow:"promo-flash-sale", label:"e-Kwiaty — Bouquet Occasion Guide",
+  desc:"An occasion-based bouquet guide (intro, emoji bullet list, closing paragraph, CTA) followed by a 4-product catalog grid. Brand header/footer (e-Kwiaty) come from the Brand Kit automatically.",
+  note:"1:1 recreation of a real e-Kwiaty broadcast — master template for the e-Kwiaty brand",
+  componentIds:["hero-title-only","ekwiaty-intro-list-cta","hero-title-only","product-feed-2up-no-price","product-feed-2up-no-price"],
+  componentValues:[
+    { NAGLOWEK:"Nadal szukasz idealnego bukietu? 💐" },
+    { AKAPIT_WSTEPNY:"Nie wiesz, który bukiet wybrać, aby idealnie pasował do okazji? Każdy kwiat i kolor niesie ze sobą znaczenie:",
+      EMOJI_1:"🌹", SLOWO_KLUCZOWE_1:"rocznica", OPIS_1:"– czerwone lub różowe róże, symbol miłości i namiętności,",
+      EMOJI_2:"🌸", SLOWO_KLUCZOWE_2:"urodziny i imieniny", OPIS_2:"– kolorowe gerbery lub margaretki, wyrażają radość i pozytywną energię,",
+      EMOJI_3:"🌼", SLOWO_KLUCZOWE_3:"gratulacje", OPIS_3:"– żółte lub pomarańczowe gerbery i róże, oznaczają sukces i dumę,",
+      EMOJI_4:"🤍", SLOWO_KLUCZOWE_4:"przeprosiny", OPIS_4:"– róże albo delikatne bukiety o jasnych barwach, symbolizują szczerość i skruchę.",
+      AKAPIT_KONCOWY:"Niezależnie od okazji, znajdziesz u nas bukiety, które z pewnością zrobią wrażenie na obdarowanej osobie.",
+      URL_CTA:"https://www.e-kwiaty.pl/oferta/2-wszystkie-kompozycje.html", TEKST_CTA:"Sprawdź" },
+    { NAGLOWEK:"Sprawdź nasze propozycje:" },
+    { P1_NAZWA:"Bukiet od 5 do 200 róż", P1_URL:"https://www.e-kwiaty.pl/kwiaty/1423-bukiet-od-5-do-200-roz.html", P1_IMAGE:"https://www.e-kwiaty.pl/ekwiaty/_images/v/ft/1423-vfttfj-ijncd.jpg",
+      P2_NAZWA:"Bukiet Babie lato", P2_URL:"https://www.e-kwiaty.pl/kwiaty/2558-bukiet-babie-lato.html", P2_IMAGE:"https://www.e-kwiaty.pl/ekwiaty/_images/q/ud/2558-qudoay-ynbxd.jpg",
+      TEKST_ZOBACZ:"Zobacz" },
+    { P1_NAZWA:"Bukiet Pastelowy szept", P1_URL:"https://www.e-kwiaty.pl/kwiaty/2532-bukiet-pastelowy-szept.html", P1_IMAGE:"https://www.e-kwiaty.pl/ekwiaty/_images/o/ja/2532-ojaqcr-ygold.jpg",
+      P2_NAZWA:"Bukiet Słodki pocałunek", P2_URL:"https://www.e-kwiaty.pl/kwiaty/1445-bukiet-slodki-pocalunek.html", P2_IMAGE:"https://www.e-kwiaty.pl/ekwiaty/_images/l/aw/1445-lawgke-cmbcd.jpg",
+      TEKST_ZOBACZ:"Zobacz" }
+  ]
+});
 
 /* ================================================================
    MAŁE POMOCNIKI DO PODGLĄDU KART W SIATCE — preview(b) to celowo
@@ -3995,6 +4050,53 @@ function zeronestFooterCode(b){
 '</mj-section>'
   );
 }
+/* Odwzorowanie 1:1 realnego, skompilowanego maila e-Kwiaty ("Nadal szukasz
+   idealnego bukietu?") wklejonego przez usera — user: "Zaciągnij maila,
+   zrób z niego master szablon dla brandu e-Kwiaty. Przygotuj najpierw
+   komponenty... top bar + logo -> header". Ten sam wzorzec co
+   zeronestFooterCode: header/stopka są WŁASNOŚCIĄ BRANDU (headerCode/
+   footerCode, wstrzykiwane automatycznie przez compileEmailHtml do
+   KAŻDEGO maila), NIE osobnymi pozycjami w Components/componentIds —
+   inaczej [[URL_LOGO]]/link wypisz-się wychodziłyby zdublowane (złapane
+   przez test-assertions.js "expected exactly 1"). logoSrc kopiuje
+   dokładnie tę samą logikę co defaultHeaderCode (crmLogoUrl > [[URL_LOGO]]). */
+function ekwiatyHeaderCode(b){
+  var logoSrc = b.crmLogoUrl ? "{{brand.crmLogoUrl}}" : "[[URL_LOGO]]";
+  return (
+'<mj-section background-color="{{brand.accent}}" padding="6px {{brand.contentPadding}}" css-class="mj-gutter">\n'+
+'  <mj-text align="center" font-size="12px" line-height="18px" color="{{brand.accentOn}}" font-family="{{brand.fontBody}}" font-weight="700" letter-spacing="0.5px" text-transform="uppercase" padding="0px">[[TOP_BAR_TEKST_POGRUBIONY]] <span style="font-weight:400;">[[TOP_BAR_TEKST_ZWYKLY]]</span></mj-text>\n'+
+'</mj-section>\n'+
+'<mj-section padding="20px {{brand.contentPadding}} 10px" css-class="mj-gutter">\n'+
+'  <mj-image src="'+logoSrc+'" href="[[URL_STRONA_GLOWNA]]" alt="{{brand.logoAlt}}" width="{{brand.logoWidth}}" align="center" padding="0px" css-class="mj-logo"></mj-image>\n'+
+'</mj-section>'
+  );
+}
+function ekwiatyFooterCode(b){
+  return (
+'<mj-section background-color="{{brand.surface2}}" padding="24px {{brand.contentPadding}} 8px" css-class="mj-gutter">\n'+
+'  <mj-column width="33.33%" padding="0px 6px">\n'+
+'    <mj-text align="center" font-size="28px" padding="0px 0px 8px">📦</mj-text>\n'+
+'    <mj-text align="center" font-size="12px" line-height="1.4" color="{{brand.accent2}}" font-family="{{brand.fontBody}}" padding="0px">[[USP_1]]</mj-text>\n'+
+'  </mj-column>\n'+
+'  <mj-column width="33.33%" padding="0px 6px">\n'+
+'    <mj-text align="center" font-size="28px" padding="0px 0px 8px">🤝</mj-text>\n'+
+'    <mj-text align="center" font-size="12px" line-height="1.4" color="{{brand.accent2}}" font-family="{{brand.fontBody}}" padding="0px">[[USP_2]]</mj-text>\n'+
+'  </mj-column>\n'+
+'  <mj-column width="33.33%" padding="0px 6px">\n'+
+'    <mj-text align="center" font-size="28px" padding="0px 0px 8px">💐</mj-text>\n'+
+'    <mj-text align="center" font-size="12px" line-height="1.4" color="{{brand.accent2}}" font-family="{{brand.fontBody}}" padding="0px">[[USP_3]]</mj-text>\n'+
+'  </mj-column>\n'+
+'</mj-section>\n'+
+'<mj-section padding="24px {{brand.contentPadding}} 0px" css-class="mj-gutter">\n'+
+'  <mj-text font-size="13px" color="{{brand.text}}" font-family="{{brand.fontBody}}" line-height="1.6" padding="0px">Masz pytania? Skontaktuj się z nami.<br />Telefonicznie: <a href="tel:[[TELEFON]]" style="color:{{brand.accent2}};text-decoration:underline;">[[TELEFON]]</a><br />Mailowo: <a href="mailto:[[EMAIL]]" style="color:{{brand.accent2}};text-decoration:underline;">[[EMAIL]]</a><br />[[GODZINY_PRACY]]</mj-text>\n'+
+'  <mj-divider border-color="{{brand.border}}" border-width="1px" padding="20px 0px 0px"></mj-divider>\n'+
+'  <mj-text font-size="11px" color="{{brand.faint}}" font-family="{{brand.fontBody}}" padding="16px 0px 0px">Otrzymujesz ten e-mail, ponieważ wyraziłeś/aś zgodę na otrzymywanie od nas komunikacji marketingowej. Jeśli nie chcesz otrzymywać kolejnych wiadomości &ndash; <a href="{{brand.unsubscribeLink}}" style="color:{{brand.faint}};">wypisz się</a>.</mj-text>\n'+
+'  <mj-divider border-color="{{brand.border}}" border-width="1px" padding="16px 0px 0px"></mj-divider>\n'+
+'  <mj-text font-size="12px" color="{{brand.faint}}" font-family="{{brand.fontBody}}" padding="16px 0px 0px"><a href="[[URL_KONTAKT]]" style="color:{{brand.faint}};text-decoration:underline;">Kontakt</a>&nbsp;&nbsp;&nbsp;<a href="[[URL_REGULAMIN]]" style="color:{{brand.faint}};text-decoration:underline;">Regulamin</a>&nbsp;&nbsp;&nbsp;[[NAZWA_MARKI]]&nbsp;{{ "now" | date: "%Y" }}</mj-text>\n'+
+'  <mj-text font-size="11px" color="{{brand.faint}}" font-family="{{brand.fontBody}}" padding="8px 0px 20px">Podmiotem odpowiedzialnym za niniejszą wiadomość jest [[PELNA_NAZWA_SPOLKI]], [[ADRES]], NIP: [[NIP]], REGON: [[REGON]].</mj-text>\n'+
+'</mj-section>'
+  );
+}
 (function seedBrandHeaderFooter(){
   BRANDS.neutral.headerCode = defaultHeaderCode(BRANDS.neutral, "center");
   BRANDS.neutral.footerCode = defaultFooterCode(BRANDS.neutral, "minimal");
@@ -4006,6 +4108,8 @@ function zeronestFooterCode(b){
   BRANDS.pstryk.footerCode = defaultFooterCode(BRANDS.pstryk, "apps");
   BRANDS.foodify.headerCode = defaultHeaderCode(BRANDS.foodify, "center");
   BRANDS.foodify.footerCode = defaultFooterCode(BRANDS.foodify, "minimal");
+  BRANDS.ekwiaty.headerCode = ekwiatyHeaderCode(BRANDS.ekwiaty);
+  BRANDS.ekwiaty.footerCode = ekwiatyFooterCode(BRANDS.ekwiaty);
   // Warianty 2/3 — puste na start dla wszystkich wbudowanych marek,
   // user dopisuje je w Brand Kit (patrz defaultBrandDraft dla nowych marek).
   BRAND_ORDER.forEach(function(key){
@@ -4742,6 +4846,47 @@ COMPONENTS.push({
 '  <mj-text font-size="11px" color="{{brand.muted}}" font-weight="500" font-family="{{brand.fontBody}}" padding="0px 0px 20px"><a href="[[URL_STRONA]]" style="color:{{brand.muted}};text-decoration:none;">&copy; [[NAZWA_MARKI]]&nbsp;{{ "now" | date: "%Y" }}</a></mj-text>\n'+
 '  <mj-text font-size="12px" color="{{brand.muted}}" font-family="{{brand.fontBody}}" padding="0px 0px 10px">Otrzymujesz ten e-mail, ponieważ wyraziłeś/aś zgodę na otrzymywanie od nas komunikacji marketingowej. Jeśli nie chcesz otrzymywać kolejnych wiadomości &ndash; <a href="{% manage_subscription_preferences_url %}" style="color:{{brand.muted}};text-decoration:underline;">wypisz się</a>.</mj-text>\n'+
 '  <mj-text font-size="10px" color="{{brand.faint}}" font-family="{{brand.fontBody}}" padding="0px">[[PELNA_NAZWA_SPOLKI]], wpisana do rejestru przedsiębiorców prowadzonego przez [[SAD_REJONOWY]], pod numerem KRS: [[KRS]], NIP: [[NIP]], REGON: [[REGON]], z siedzibą w [[MIASTO]], [[ADRES]].<br /><br />Dane są chronione zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 roku (RODO).</mj-text>\n'+
+'</mj-section>'); }
+});
+
+// ---------- E-KWIATY — treść 1:1 odwzorowana z realnego, skompilowanego
+// maila wklejonego przez usera ("Nadal szukasz idealnego bukietu?"), user:
+// "Zaciągnij maila, zrób z niego master szablon dla brandu e-Kwiaty."
+// h1/product feed użyte z już istniejących komponentów biblioteki
+// (hero-title-only, product-feed-2up-no-price x2) — patrz nowy wpis w
+// READY_EMAILS. Header/footer NIE są tu (jako category:"header"/"footer"
+// w Components) — w tej appce to własność BRANDU (headerCode/footerCode,
+// patrz ekwiatyHeaderCode/ekwiatyFooterCode i seedBrandHeaderFooter,
+// dokładnie ten sam wzorzec co realny footer Zeronesta/zeronestFooterCode)
+// i wchodzą do KAŻDEGO maila automatycznie przez compileEmailHtml —
+// dublowanie ich jeszcze raz jako komponent w componentIds dawałoby
+// dwa loga/dwa linki wypisz-się (złapane przez test-assertions.js).
+COMPONENTS.push({
+  id:"ekwiaty-intro-list-cta", category:"benefit", source:"e-Kwiaty",
+  label:"Intro + Bullet List + CTA", desc:"An intro paragraph, an emoji bullet list (e.g. occasion → flower meaning), a closing paragraph and a full-width button — for explainer/guide content before a catalog or offer.",
+  preview:function(b){ return frame(b,
+    '<div style="font-size:10px;margin-bottom:6px;color:'+b.text+'">Nie wiesz, który bukiet wybrać?</div>'+
+    '<div style="font-size:9.5px;line-height:1.7;color:'+b.text+'">🌹 <strong>rocznica</strong> &ndash; róże<br>🌸 <strong>urodziny</strong> &ndash; gerbery</div>'+
+    '<div style="font-size:9.5px;margin:6px 0;color:'+b.muted+'">Znajdziesz u nas bukiety na każdą okazję.</div>'+
+    mpBtn(b,"Sprawdź")
+  ); },
+  code:function(b){ return (
+'<mj-section padding="10px {{brand.contentPadding}}" css-class="mj-gutter">\n'+
+'  <mj-text font-family="{{brand.fontBody}}" color="{{brand.text}}" font-size="{{brand.bodySize}}px" line-height="{{brand.bodyLineHeight}}" padding="0px" css-class="mj-body">[[AKAPIT_WSTEPNY]]</mj-text>\n'+
+'</mj-section>\n'+
+'<mj-section padding="10px {{brand.contentPadding}}" css-class="mj-gutter">\n'+
+'<mj-raw><ul style="margin:0;padding:0;list-style:none;font-family:{{brand.fontBody}};font-size:{{brand.bodySize}}px;color:{{brand.text}};line-height:1.7;">\n'+
+'  <li style="margin-bottom:6px;">[[EMOJI_1]] <strong>[[SLOWO_KLUCZOWE_1]]</strong> [[OPIS_1]]</li>\n'+
+'  <li style="margin-bottom:6px;">[[EMOJI_2]] <strong>[[SLOWO_KLUCZOWE_2]]</strong> [[OPIS_2]]</li>\n'+
+'  <li style="margin-bottom:6px;">[[EMOJI_3]] <strong>[[SLOWO_KLUCZOWE_3]]</strong> [[OPIS_3]]</li>\n'+
+'  <li>[[EMOJI_4]] <strong>[[SLOWO_KLUCZOWE_4]]</strong> [[OPIS_4]]</li>\n'+
+'</ul></mj-raw>\n'+
+'</mj-section>\n'+
+'<mj-section padding="10px {{brand.contentPadding}}" css-class="mj-gutter">\n'+
+'  <mj-text font-family="{{brand.fontBody}}" color="{{brand.text}}" font-size="{{brand.bodySize}}px" line-height="{{brand.bodyLineHeight}}" padding="0px" css-class="mj-body">[[AKAPIT_KONCOWY]]</mj-text>\n'+
+'</mj-section>\n'+
+'<mj-section padding="10px {{brand.contentPadding}} 20px" css-class="mj-gutter">\n'+
+'  <mj-button href="[[URL_CTA]]" align="center" padding="{{brand.btnPrimaryPadding}}" width="100%" text-transform="{{brand.btnPrimaryTransform}}" font-weight="{{brand.btnPrimaryWeight}}" border-radius="{{brand.btnPrimaryRadius}}" font-family="{{brand.fontBody}}" font-size="{{brand.btnPrimarySize}}px" background-color="{{brand.btnPrimaryBg}}" color="{{brand.btnPrimaryText}}" css-class="mj-btn-primary">[[TEKST_CTA]]</mj-button>\n'+
 '</mj-section>'); }
 });
 
