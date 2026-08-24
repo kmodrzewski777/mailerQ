@@ -789,6 +789,20 @@
      jest czarny (border/background:var(--ink)) — TU nadpisujemy tylko
      stan aria-pressed="true" na wyszarzały. */
   .kb-read-btn[aria-pressed="true"]{background:var(--surface-2); border-color:var(--line-strong); color:var(--ink-muted)}
+  /* user, drugi raz: "checkboxa nie widać" — poprzednia wersja
+     wstrzykiwała SVG z JS do pustego <span>, które z jakiegoś powodu
+     renderowało się niewidocznie. TU checkbox to zwykły kwadrat +
+     ::after (haczyk), sterowane WYŁĄCZNIE stanem aria-pressed w CSS —
+     zero JS-owego wstrzykiwania ikony, więc nie ma czego "nie
+     wyrenderować". border-color:currentColor, więc dopasowuje się
+     automatycznie do koloru tekstu przycisku w obu stanach (biały na
+     czarnym / ciemnoszary na jasnoszarym). Haczyk na sztywno w
+     var(--paper) — tło pod nim jest zawsze ciemne (currentColor w obu
+     stanach przycisku), więc jasny haczyk ma kontrast niezależnie od
+     stanu. */
+  .kb-read-checkbox{display:inline-block; width:15px; height:15px; border:1.5px solid currentColor; border-radius:4px; margin-right:7px; position:relative; vertical-align:-3px; flex:none}
+  .kb-read-btn[aria-pressed="true"] .kb-read-checkbox{background:currentColor}
+  .kb-read-btn[aria-pressed="true"] .kb-read-checkbox::after{content:""; position:absolute; left:4px; top:0px; width:4px; height:8px; border:solid var(--paper); border-width:0 2px 2px 0; transform:rotate(40deg)}
   .btn-preview{border:none; background:transparent; color:var(--ink-muted); font-size:13.5px; text-decoration:underline; padding:0}
 
   /* ---------- build list drawer ---------- */
@@ -2100,26 +2114,33 @@
      akcją, w przeciwieństwie do liquidOverlay powyżej. user, drugi raz:
      "dodaj system odznaczania w tym popupie w prawym górnym rogu
      'Zapoznałem się'... gdy to kliknę zaznacza się checkbox, zmienia się
-     kolor z czarnego obiektu na taki wyszarzały" — #knowledgeReadBtn,
-     .btn (domyślnie czarny) + aria-pressed="true" (patrz CSS .kb-read-btn)
-     do wyszarzenia. Ikonka checkboxa (pusty kwadrat/haczyk) w
-     data-kb-read-icon aktualizowana w JS (syncKnowledgeReadBtn). -->
+     kolor z czarnego obiektu na taki wyszarzały" — potem, trzeci raz:
+     "Przycisk 'Zapoznałem się' - ma być po angielsku + checkboxa nie
+     widać. Po drugie ma być na dole na sticky barze... Kto się z tym
+     zapoznał też po angielsku i również w sekcji z przyciskiem" —
+     #knowledgeReadBtn i #knowledgeReadersBar żyją teraz w
+     .modal-footer-bar (ten sam sticky wzorzec co liquidOverlay), nie w
+     modal-head. Checkbox to teraz .kb-read-checkbox (kwadrat + ::after
+     haczyk sterowane WYŁĄCZNIE przez CSS na aria-pressed, patrz niżej w
+     <style>), nie SVG wstrzykiwany z JS — poprzednia wersja renderowała
+     się niewidocznie. -->
 <div class="overlay" id="knowledgeOverlay" role="dialog" aria-modal="true">
   <div class="modal" style="max-width:1040px">
     <div class="modal-head">
       <h3 id="knowledgeTitle"></h3>
-      <span style="display:flex; align-items:center; gap:8px">
-        <button class="btn small kb-read-btn" id="knowledgeReadBtn" type="button" aria-pressed="false">
-          <span data-kb-read-icon style="display:inline-flex; margin-right:6px"></span>Zapoznałem się
-        </button>
-        <button class="modal-close" id="knowledgeClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
-      </span>
+      <button class="modal-close" id="knowledgeClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="flow-detail-grid">
         <div class="flow-detail-main" id="knowledgeBody"></div>
         <aside class="flow-detail-side" id="knowledgeMetaPanel"></aside>
       </div>
+    </div>
+    <div class="modal-footer-bar" style="display:flex; align-items:center; justify-content:space-between; gap:16px">
+      <div id="knowledgeReadersBar" style="font-size:12.5px; color:var(--ink-muted); display:flex; align-items:center; gap:8px; flex-wrap:wrap"></div>
+      <button class="btn small kb-read-btn" id="knowledgeReadBtn" type="button" aria-pressed="false" style="flex:none">
+        <span class="kb-read-checkbox" aria-hidden="true"></span>Mark as reviewed
+      </button>
     </div>
   </div>
 </div>
@@ -6956,7 +6977,7 @@ LIQUID_SNIPPETS.push({
 var KNOWLEDGE_CATEGORIES = [
   { id:"automation", label:"Marketing Automation" },
   { id:"direct", label:"Direct Marketing" },
-  { id:"other", label:"Pozostałe" }
+  { id:"other", label:"Other" }
 ];
 var KNOWLEDGE_ARTICLES = [];
 var KB_DATE = "2026-08-24";
@@ -6968,24 +6989,24 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Zdecydowana większość konwersji z flowa powitalnego zapada w pierwszych 24 godzinach — cała energia idzie w mail #1, reszta sekwencji to już tylko dogrywka.",
   source:"Pillar #5 — Core Flow Infrastructure",
   sections:[
-    { heading:"O co chodzi", bullets:[
+    { heading:"What it's about", bullets:[
       "Flow powitalny to ciąg maili, który uruchamia się automatycznie, gdy ktoś zapisze się na listę — najczęściej przez pop-up z rabatem.",
       "To pierwszy kontakt marki z kimś, kto właśnie okazał realne zainteresowanie — moment, w którym intencja zakupowa jest najwyższa w całej relacji z tym subskrybentem."
     ]},
-    { heading:"Po co to stosować", bullets:[
+    { heading:"Why use it", bullets:[
       "Bo intencja zakupowa gaśnie bardzo szybko. Ktoś, kto zostawił e-mail w zamian za rabat, ma w głowie konkretną potrzebę TERAZ — jeśli nie dostanie od razu jasnego, prostego kroku do zakupu, zdąży kupić gdzie indziej (Amazon, konkurencja) albo po prostu zapomnieć.",
       "Większość marek przecenia rolę \"nurtowania\" — długiego, powolnego budowania relacji przez storytelling i testimoniale rozłożone na wiele maili. W praktyce to nie ta dźwignia, na której warto się skupiać na starcie."
     ]},
-    { heading:"Jakie efekty to daje", bullets:[
+    { heading:"What results it delivers", bullets:[
       "Dobrze zoptymalizowany mail #1 (mocny subject, jasny CTA, natychmiastowy dostęp do rabatu) potrafi samodzielnie odpowiadać za większość całej konwersji flowa powitalnego.",
       "Zebranie danych zero-party już na etapie zapisu (patrz osobna lekcja o ZPD) pozwala spersonalizować kolejne maile i realnie podnieść konwersję — nawet kilka punktów procentowych w tym miejscu przekłada się na realne, policzalne pieniądze w skali roku."
     ]},
-    { heading:"3 rzeczy, które realnie robią różnicę", bullets:[
+    { heading:"3 things that actually move the needle", bullets:[
       "Optymalizacja maila #1 — to on generuje większość konwersji. Testuj subject line, ofertę i CTA bez taryfy ulgowej.",
       "Testowanie pop-upu — słaby pop-up to mniej osób wchodzących do flowa w ogóle, więc żaden, nawet najlepszy flow tego nie odrobi.",
       "Zbieranie danych zero-party przy zapisie — nawet jedno proste pytanie (\"Jaki jest Twój największy problem?\") pozwala potem segmentować i personalizować treść."
     ]},
-    { heading:"Sprawdzona struktura sekwencji", bullets:[
+    { heading:"Proven sequence structure", bullets:[
       "Mail 1 — powitanie + kod rabatowy z pop-upu. Nie komplikuj, zadaniem tego maila jest jak najszybciej przekazać kod.",
       "Mail 2 — poznaj zespół/założycieli, misja i wartości marki, USP-y (co nas wyróżnia), czego się spodziewać dalej.",
       "Mail 3 — dowód społeczny: opinie, historie sukcesu, PR, nagrody, współprace z influencerami. Jeśli zebrałeś dane zero-party, to właśnie tu warto wprowadzić warunkowe rozgałęzienia treści.",
@@ -6993,7 +7014,7 @@ KNOWLEDGE_ARTICLES.push({
       "Mail 5 — ostatnia szansa na rabat + FAQ/obsługa obiekcji (dlatego warto, żeby kod był dynamiczny, z realnym terminem ważności).",
       "Mail 6+ — pogłębiona edukacja produktowa/marki; można tu wykorzystać najlepiej działające kampanie, które już wysłałeś."
     ]},
-    { heading:"Najczęstsze błędy", bullets:[
+    { heading:"Common mistakes", bullets:[
       "Smart Sending włączony — potrafi zablokować kluczowe maile przed dotarciem do nowych subskrybentów.",
       "Double opt-in włączony bez potrzeby — tworzy niepotrzebne tarcie i obniża liczbę zapisów.",
       "Brak presji czasu — bez limitowanej w czasie zachęty ludzie odkładają zakup na później.",
@@ -7008,20 +7029,20 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Ktoś odwiedził stronę, ale nie obejrzał żadnego konkretnego produktu — ten flow buduje świadomość marki i delikatnie prowadzi dalej w lejek.",
   source:"Pillar #5 — Core Flow Infrastructure",
   sections:[
-    { heading:"O co chodzi", bullets:[
+    { heading:"What it's about", bullets:[
       "To flow dla osób, które pojawiły się na stronie (np. zostawiły e-mail w pop-upie), ale nie zdążyły przejść dalej — nie obejrzały konkretnego produktu, nie dodały niczego do koszyka.",
       "W przeciwieństwie do porzucenia produktu czy koszyka, nie masz tu żadnego sygnału o konkretnym zainteresowaniu — działasz na ogólnym poziomie marki."
     ]},
-    { heading:"Po co to stosować", bullets:[
+    { heading:"Why use it", bullets:[
       "Bez tego flowa ta grupa po prostu wypada z lejka — masz ich adres, ale nic więcej się z nim nie dzieje.",
       "To okazja, żeby edukować i budować świadomość marki, zanim ktoś w ogóle zdąży poznać ofertę na tyle, by zainteresować się jednym produktem."
     ]},
-    { heading:"Jakie efekty to daje", bullets:[
+    { heading:"What results it delivers", bullets:[
       "Delikatnie, bez nachalności, popycha odbiorcę dalej w lejek sprzedażowy — od \"słyszałem o marce\" do \"wiem, co konkretnie mnie interesuje\".",
       "Dobrze skonstruowany, buduje pierwsze zaufanie zanim pojawi się jakakolwiek presja zakupowa."
     ]},
-    { heading:"Cel i długość", bullets:["Cel: edukować, budować świadomość marki i prowadzić dalej w lejek.", "Długość: 2–5 maili."] },
-    { heading:"Sekwencja", bullets:[
+    { heading:"Goal & length", bullets:["Cel: edukować, budować świadomość marki i prowadzić dalej w lejek.", "Długość: 2–5 maili."] },
+    { heading:"Sequence", bullets:[
       "Mail 1 — pokaż popularne produkty, dotknij unikalnych korzyści, które mogą skłonić do zakupu (darmowa dostawa od X, naturalne składniki, mniej kalorii itp.).",
       "Mail 2 — postaw na dowód społeczny, podkreśl unikalne USP-y lub misję firmy."
     ]}
@@ -7033,24 +7054,24 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Ktoś obejrzał konkretny produkt i wyszedł — to najlepszy moment, żeby przypomnieć DOKŁADNIE o tym, co go zainteresowało, bez przeładowywania maila.",
   source:"Pillar #5 — Core Flow Infrastructure",
   sections:[
-    { heading:"O co chodzi", bullets:[
+    { heading:"What it's about", bullets:[
       "W odróżnieniu od odejścia ze strony, tu masz konkretny sygnał — wiesz, jaki produkt (lub produkty) ktoś oglądał, więc możesz zbudować naprawdę trafną komunikację."
     ]},
-    { heading:"Po co to stosować", bullets:[
+    { heading:"Why use it", bullets:[
       "To ciepły trop — ktoś już zainwestował uwagę w konkretny produkt, więc szansa na konwersję jest wyraźnie wyższa niż w komunikacji ogólnej.",
       "Bez przypomnienia większość tych osób po prostu zapomni, że w ogóle coś oglądała."
     ]},
-    { heading:"Jakie efekty to daje", bullets:[
+    { heading:"What results it delivers", bullets:[
       "Prosty, trafny przypominacz o oglądanym produkcie regularnie odzyskuje część ruchu, który inaczej wyparowałby bezpowrotnie.",
       "Pokazanie szerszego kontekstu marki (dowód społeczny, USP) w kolejnym mailu buduje zaufanie potrzebne do domknięcia decyzji."
     ]},
-    { heading:"Cel i długość", bullets:["Cel: przypomnieć o oglądanych produktach, ich USP-ach i poprowadzić dalej w kierunku koszyka/zakupu.", "Długość: 2–5 maili."] },
-    { heading:"Sekwencja", bullets:[
+    { heading:"Goal & length", bullets:["Cel: przypomnieć o oglądanych produktach, ich USP-ach i poprowadzić dalej w kierunku koszyka/zakupu.", "Długość: 2–5 maili."] },
+    { heading:"Sequence", bullets:[
       "Mail 1 — proste przypomnienie oglądanych produktów. Nie komplikuj — to ma być czytelny, prosty sygnał \"hej, patrzyłeś na to\".",
       "Mail 2 — kontekst i USP-y CAŁEJ marki (nie tylko oglądanego produktu): dowód społeczny, testimoniale, recenzje, prasa. Tu też możesz już zaproponować zachętę.",
       "Mail 3 — wprowadź zachętę, jeśli nie zrobiłeś tego wcześniej, albo dodaj presję czasu do już zaproponowanej oferty."
     ]},
-    { heading:"Najczęstsze błędy", bullets:[
+    { heading:"Common mistakes", bullets:[
       "Tracking \"Viewed Product\" wyłączony na stronie — bez tego flow w ogóle się nie uruchomi.",
       "Smart Sending włączony.",
       "Brak presji czasu.",
@@ -7065,19 +7086,19 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Produkty leżą już w koszyku — to nie to samo, co porzucone podejście do checkoutu, i wymaga innej, łagodniejszej sekwencji.",
   source:"Pillar #5 — Core Flow Infrastructure",
   sections:[
-    { heading:"O co chodzi", bullets:[
+    { heading:"What it's about", bullets:[
       "Ktoś dodał produkty do koszyka, ale nie ruszył jeszcze w stronę płatności — to wcześniejszy etap niż porzucony checkout i wymaga innego tonu."
     ]},
-    { heading:"Po co to stosować", bullets:[
+    { heading:"Why use it", bullets:[
       "Koszyk z produktami to bardzo mocny sygnał zainteresowania — dużo mocniejszy niż samo przeglądanie strony czy produktu.",
       "To jeden z najbardziej opłacalnych automatów w e-commerce, bo trafia dokładnie w moment, w którym ktoś był blisko decyzji."
     ]},
-    { heading:"Jakie efekty to daje", bullets:[
+    { heading:"What results it delivers", bullets:[
       "Odzyskuje realną, mierzalną część przychodu, który inaczej po prostu by przepadł.",
       "Dobrze poprowadzona sekwencja (przypomnienie → kontekst/dowód społeczny → oferta) domyka wahających się klientów bez konieczności agresywnego rabatowania od pierwszego maila."
     ]},
-    { heading:"Cel i długość", bullets:["Cel: przypomnieć o produktach w koszyku i popchnąć w stronę zakupu. To NIE jest ten sam flow, co porzucony checkout.", "Długość: 3–6 maili."] },
-    { heading:"Sekwencja", bullets:[
+    { heading:"Goal & length", bullets:["Cel: przypomnieć o produktach w koszyku i popchnąć w stronę zakupu. To NIE jest ten sam flow, co porzucony checkout.", "Długość: 3–6 maili."] },
+    { heading:"Sequence", bullets:[
       "Mail 1 — przypomnienie, że w koszyku czekają produkty; wspomnij korzyści, np. darmową dostawę od kwoty X.",
       "Mail 2 — produkty wciąż czekają w koszyku; dołóż testimoniale, żeby delikatnie popchnąć w dobrą stronę.",
       "Mail 3 — rabat wyłącznie dla nowych klientów (nie dla powracających), dowód społeczny/sekcja \"polecane przez\", inne rekomendacje produktowe z dynamicznym blokiem."
@@ -7090,20 +7111,20 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Często #1 albo #2 pod względem generowanego przychodu automat w całej appce — ale też ten, w którym najwięcej marek popełnia te same, kosztowne błędy.",
   source:"Pillar #5 — Core Flow Infrastructure",
   sections:[
-    { heading:"O co chodzi", bullets:[
+    { heading:"What it's about", bullets:[
       "Ktoś dotarł aż do checkoutu — wpisał dane, był o krok od finalizacji zamówienia — i z jakiegoś powodu nie dokończył. To najgorętszy możliwy trop w całym e-commerce.",
       "Większość porzuceń checkoutu nie ma nic wspólnego z ceną. Ludzie po prostu się rozpraszają: dzieci, praca, brak karty pod ręką, życie wchodzi w drogę."
     ]},
-    { heading:"Po co to stosować", bullets:[
+    { heading:"Why use it", bullets:[
       "Bo to jest moment najwyższej intencji zakupowej w całej podróży klienta — dosłownie sekundy dzieliły tę osobę od zakupu.",
       "Bez tego flowa tracisz systematycznie realny, powtarzalny przychód — dla wielu marek to druga, a czasem wręcz pierwsza najbardziej dochodowa automatyzacja w koncie."
     ]},
-    { heading:"Jakie efekty to daje", bullets:[
+    { heading:"What results it delivers", bullets:[
       "Skuteczny flow potrafi odzyskać znaczącą część porzuconych zamówień, jeśli zadziała się w pierwszych 24–36 godzinach.",
       "Odpowiednie tagowanie i wykluczenie z kampanii chroni przed sprzecznymi komunikatami i marnowaniem miejsca w skrzynce odbiorcy na coś innego niż domknięcie TEJ konkretnej transakcji."
     ]},
-    { heading:"Cel i długość", bullets:["Cel: ten sam co porzucony koszyk, ale możesz działać zdecydowanie mocniej i szybciej.", "Długość: co najmniej 4 maile, zwykle 4–6."] },
-    { heading:"O czym pamiętać budując tę sekwencję", bullets:[
+    { heading:"Goal & length", bullets:["Cel: ten sam co porzucony koszyk, ale możesz działać zdecydowanie mocniej i szybciej.", "Długość: co najmniej 4 maile, zwykle 4–6."] },
+    { heading:"What to keep in mind when building this sequence", bullets:[
       "Otaguj osobę na wejściu do flowa i wyklucz ją z kampanii; zdejmij tag dopiero po przejściu całej sekwencji.",
       "Dodaj kroki SMS-owe (mniej, jeśli to klient powracający).",
       "Klientom powracającym nie proponuj rabatu w tym flow — dostosuj język tak, by pokazać, że wiesz, że to już nie pierwszy zakup.",
@@ -7111,13 +7132,13 @@ KNOWLEDGE_ARTICLES.push({
       "Nie dawaj procentowej zniżki zbyt szybko — pierwsze 2 maile mają być czystym przypomnieniem, bez żadnej oferty.",
       "Rozdziel flow warunkowo według wartości koszyka — inaczej traktujesz koszyk niskiej, a inaczej wysokiej wartości."
     ]},
-    { heading:"Sekwencja", bullets:[
+    { heading:"Sequence", bullets:[
       "Mail 1 — proste przypomnienie, koniecznie z dynamicznymi blokami produktowymi.",
       "Mail 2 — dowód społeczny (testimoniale, PR, influencerzy, UGC) + USP-y i korzyści marki/produktu.",
       "Mail 3 — pokaż plan ratalny (buy now, pay later) ALBO rabat, jeśli to nowy klient.",
       "Mail 4 — ostatnia szansa na zachętę + FAQ/obsługa obiekcji."
     ]},
-    { heading:"7 błędów, które kosztują najwięcej", bullets:[
+    { heading:"7 mistakes that cost the most", bullets:[
       "1. Brak wykluczenia z innych kampanii — kolidujące komunikaty obniżają skuteczność i rozpraszają uwagę od domknięcia transakcji. Otaguj na wejściu, zdejmij tag po zakończeniu całej sekwencji.",
       "2. Zbyt mało agresywne działanie w pierwszych 24 godzinach — większość odzysków dzieje się w oknie 24–36h. Wyślij co najmniej 2 maile w tym czasie, maksymalnie zoptymalizowane (mocny subject, jasne CTA, presja czasu), a SMS potraktuj jako dodatkowy, szybki kanał kontaktu.",
       "3. Brak SMS-a — email działa, ale SMS jest widziany niemal natychmiast. Nowym klientom wyślij 1–2 SMS-y w pierwszych 24h, powracającym mniej (już znają markę); wykorzystaj SMS do wzmocnienia presji czasu.",
@@ -7134,25 +7155,25 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Zakup to nie koniec relacji, tylko jej początek — ten flow zamienia jednorazowego kupującego w kogoś, kto wraca, poleca i zostaje ambasadorem marki.",
   source:"Pillar #5 — Core Flow Infrastructure",
   sections:[
-    { heading:"O co chodzi", bullets:[
+    { heading:"What it's about", bullets:[
       "To najdłuższy i najbardziej rozbudowany flow z całej infrastruktury — pokrywa całą podróż od momentu złożenia zamówienia, przez jego realizację, aż po budowanie lojalności długoterminowej.",
       "Działa na dwóch niezależnych wyzwalaczach: \"Zamówienie złożone\" (natychmiast po zakupie) i \"Zamówienie zrealizowane\" (gdy paczka faktycznie wychodzi/dociera)."
     ]},
-    { heading:"Po co to stosować", bullets:[
+    { heading:"Why use it", bullets:[
       "Bo pozyskanie nowego klienta jest zwykle dużo droższe niż utrzymanie już istniejącego — ten flow to najtańsza dostępna dźwignia do zwiększenia wartości klienta w czasie (LTV).",
       "Redukuje żal pokupny (buyer's remorse), zwiększa satysfakcję z produktu i naturalnie prowadzi do kolejnego zakupu, zamiast zostawiać klienta samego sobie po jednej transakcji."
     ]},
-    { heading:"Jakie efekty to daje", bullets:[
+    { heading:"What results it delivers", bullets:[
       "Realnie zmniejsza liczbę zwrotów (dzięki edukacji produktowej) i podnosi satysfakcję klienta.",
       "Systematycznie zwiększa LTV przez dobrze wyczucie upselle/cross-selle z presją czasu, zamiast jednorazowej, przypadkowej próby dosprzedaży.",
       "Buduje bazę do zbierania recenzji/UGC i poleceń — czyli tańszego pozyskania kolejnych klientów przez dowód społeczny i program poleceń."
     ]},
-    { heading:"Cel i długość", bullets:["Cel: zmniejszyć żal pokupny, zbudować ekscytację, zwiększyć satysfakcję z produktu, sprzedać dodatkowo (upsell/cross-sell) i zamienić pierwszorazowego kupującego w stałego klienta.", "Długość: 4–12 maili."] },
-    { heading:"Wyzwalacz: Zamówienie złożone", bullets:[
+    { heading:"Goal & length", bullets:["Cel: zmniejszyć żal pokupny, zbudować ekscytację, zwiększyć satysfakcję z produktu, sprzedać dodatkowo (upsell/cross-sell) i zamienić pierwszorazowego kupującego w stałego klienta.", "Długość: 4–12 maili."] },
+    { heading:"Trigger: Order Placed", bullets:[
       "Mail 1 (natychmiast) — podziękowanie za zakup + zaproszenie do kanałów social media.",
       "Mail 2 (po 30 min – 1h) — natychmiastowy upsell/cross-sell z bardzo dobrą, ograniczoną czasowo ofertą — zwiększa LTV jeszcze zanim paczka opuści magazyn."
     ]},
-    { heading:"Wyzwalacz: Zamówienie zrealizowane", bullets:[
+    { heading:"Trigger: Order Fulfilled", bullets:[
       "Mail 1 — historie sukcesu i to, co wyróżnia produkt na tle rynku — redukuje żal pokupny.",
       "Mail 2 — edukacja produktowa (jak korzystać, jak dbać) — daje najlepsze możliwe efekty użytkowania, czyli mniej zwrotów i bardziej zadowolonych klientów.",
       "Mail 3 — cross-sell/up-sell powiązanych produktów z presją czasu, zwiększa LTV.",
@@ -7170,16 +7191,16 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Najbardziej wartościowi klienci zasługują na inne traktowanie niż reszta listy — ten flow buduje z nich prawdziwych ambasadorów marki.",
   source:"Pillar #5 — Core Flow Infrastructure",
   sections:[
-    { heading:"O co chodzi", bullets:[
+    { heading:"What it's about", bullets:[
       "To krótki, celowany flow dla segmentu najbardziej wartościowych klientów (najczęściej definiowanego przez wydaną kwotę lub liczbę zamówień)."
     ]},
-    { heading:"Po co to stosować", bullets:[
+    { heading:"Why use it", bullets:[
       "Ci klienci już generują nieproporcjonalnie dużą część przychodu — brak jakiegokolwiek wyróżnienia to zmarnowana okazja do jeszcze mocniejszego związania ich z marką.",
       "Poczucie bycia wyjątkowym klientem zwiększa lojalność i skłonność do polecania marki dalej."
     ]},
-    { heading:"Jakie efekty to daje", bullets:["Zwiększa LTV najbardziej wartościowego segmentu i naturalnie zamienia go w ambasadorów marki, którzy polecają ją dalej."] },
-    { heading:"Cel i długość", bullets:["Cel: zwiększyć LTV i liczbę ambasadorów marki — to Twoi najcenniejsi klienci, traktuj ich odpowiednio.", "Długość: 3–5 maili."] },
-    { heading:"Sekwencja", bullets:[
+    { heading:"What results it delivers", bullets:["Zwiększa LTV najbardziej wartościowego segmentu i naturalnie zamienia go w ambasadorów marki, którzy polecają ją dalej."] },
+    { heading:"Goal & length", bullets:["Cel: zwiększyć LTV i liczbę ambasadorów marki — to Twoi najcenniejsi klienci, traktuj ich odpowiednio.", "Długość: 3–5 maili."] },
+    { heading:"Sequence", bullets:[
       "Mail 1 — daj znać, że są wyjątkowi/VIP, jasno wypisz przywileje VIP, ewentualnie pokaż większy rabat, na który mogą liczyć.",
       "Mail 2 — przypomnienie oferty + blok popularnych produktów."
     ]}
@@ -7191,16 +7212,16 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Klient, który przestał kupować, nie zniknął na zawsze — ale generyczne \"wróć do nas\" go nie przekona. Potrzebuje realnego powodu.",
   source:"Pillar #5 — Core Flow Infrastructure",
   sections:[
-    { heading:"O co chodzi", bullets:[
+    { heading:"What it's about", bullets:[
       "To flow dla klientów, którzy kiedyś kupowali, ale przestali być aktywni — celem jest przypomnienie o marce i realne, konkretne skłonienie do powrotu."
     ]},
-    { heading:"Po co to stosować", bullets:[
+    { heading:"Why use it", bullets:[
       "Odzyskanie uśpionego klienta jest zwykle tańsze niż pozyskanie zupełnie nowego — ten klient już zna markę i produkt, brakuje mu tylko bodźca.",
       "Bez tego flowa uśpieni klienci po prostu zostają uśpieni na zawsze."
     ]},
-    { heading:"Jakie efekty to daje", bullets:["Realnie odzyskuje część utraconej bazy klientów i podnosi ich LTV w dłuższym horyzoncie."] },
-    { heading:"Cel i długość", bullets:["Cel: odzyskać utraconych klientów i zwiększyć LTV.", "Długość: 3–7 maili."] },
-    { heading:"Sekwencja", bullets:[
+    { heading:"What results it delivers", bullets:["Realnie odzyskuje część utraconej bazy klientów i podnosi ich LTV w dłuższym horyzoncie."] },
+    { heading:"Goal & length", bullets:["Cel: odzyskać utraconych klientów i zwiększyć LTV.", "Długość: 3–7 maili."] },
+    { heading:"Sequence", bullets:[
       "Mail 1 — łagodne przypomnienie o sobie: dajesz znać, że zauważyłeś nieobecność. Jeśli masz coś nowego (np. nowe produkty), to dobry moment, by je pokazać — możesz od razu zaproponować rabat na powrót.",
       "Mail 2 — przypomnienie zachęty z maila 1, ale z większą presją czasu; pokaż INNE produkty niż w mailu 1 (jeśli tam były bestsellery, tu pokaż nowości) i wzmocnij mocnym dowodem społecznym.",
       "Mail 3 — mocna presja czasu, można dołożyć unikalne argumenty jakościowe."
@@ -7213,23 +7234,23 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Dla produktów zużywalnych — zamiast czekać, aż klient sam pomyśli o zamówieniu, przypomnij mu w idealnym momencie, wyliczonym z realnego cyklu użytkowania.",
   source:"Pillar #5 — Core Flow Infrastructure",
   sections:[
-    { heading:"O co chodzi", bullets:[
+    { heading:"What it's about", bullets:[
       "Dotyczy tylko produktów konsumowalnych/zużywalnych — kosmetyków, suplementów, żywności itp. — gdzie da się realistycznie oszacować, kiedy klientowi kończy się zapas."
     ]},
-    { heading:"Po co to stosować", bullets:[
+    { heading:"Why use it", bullets:[
       "Bez tego flowa klient musi sam pamiętać o zamówieniu — a większość po prostu zapomni, mimo że produkt naprawdę mu się podobał.",
       "To jeden z najbardziej przewidywalnych, cyklicznych źródeł powtarzalnego przychodu, jakie może mieć marka konsumowalna."
     ]},
-    { heading:"Jakie efekty to daje", bullets:["Systematycznie zwiększa LTV i częstotliwość zamówień bez konieczności ciągłego wymyślania nowych promocji — działa niemal automatycznie w tle."] },
-    { heading:"Cel i długość", bullets:["Cel: przypomnieć o uzupełnieniu zapasów = zwiększyć LTV.", "Długość: 3–5 maili."] },
-    { heading:"Zasady budowania", bullets:[
+    { heading:"What results it delivers", bullets:["Systematycznie zwiększa LTV i częstotliwość zamówień bez konieczności ciągłego wymyślania nowych promocji — działa niemal automatycznie w tle."] },
+    { heading:"Goal & length", bullets:["Cel: przypomnieć o uzupełnieniu zapasów = zwiększyć LTV.", "Długość: 3–5 maili."] },
+    { heading:"Setup principles", bullets:[
       "Skup się wyłącznie na SKU nadających się do ponownego zakupu — pomiń jednorazowe produkty typu meble.",
       "Ustaw triggery na podstawie realnego cyklu użytkowania danego produktu — np. jeśli produkt kończy się po 30 dniach, flow powinien wystartować ok. dnia 25. Można też wykorzystać predictive analytics w Klaviyo.",
       "Analizuj dane — różne produkty mają różne okna zużycia, bazuj na historycznych danych zakupowych, nie na zgadywaniu.",
       "Buduj napięcie stopniowo — nie czekaj, aż produkt się całkowicie skończy, wysyłaj przypomnienia z wyprzedzeniem.",
       "Nie komplikuj — grupuj podobne SKU, skup się na produktach z najwyższym wskaźnikiem ponownego zakupu (zasada 80/20)."
     ]},
-    { heading:"Sekwencja i przykładowy harmonogram", bullets:[
+    { heading:"Sequence & example schedule", bullets:[
       "Dynamiczne bloki produktowe — pokazujące dokładnie to, co klient zamówił ostatnio, żeby ułatwić ponowne zamówienie.",
       "Presja i niedobór — realne stany magazynowe budują pilność (\"Zostały już tylko 3 sztuki\").",
       "Sekwencja przypomnień, żeby klient na pewno nie zapomniał: dzień 25 — \"Kończy się zapas? Uzupełnij teraz\", dzień 30 — \"Czas na uzupełnienie\", dzień 35 — \"Ostatnia szansa, zanim zabraknie\"."
@@ -7242,18 +7263,18 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Nie każdy adres na liście jest warty utrzymywania — pozbycie się martwego balastu poprawia deliverability i obniża rachunek za Klaviyo.",
   source:"Pillar #5 — Core Flow Infrastructure",
   sections:[
-    { heading:"O co chodzi", bullets:[
+    { heading:"What it's about", bullets:[
       "To krótki flow, który systematycznie usuwa (lub wygasza) subskrybentów, którzy od dawna nie wykazują żadnego zaangażowania — nie otwierają, nie klikają, nie kupują."
     ]},
-    { heading:"Po co to stosować", bullets:[
+    { heading:"Why use it", bullets:[
       "Wysyłanie do martwej części listy nie generuje sprzedaży, za to realnie szkodzi reputacji nadawcy — im więcej ignorowanych maili, tym gorsza deliverability CAŁEJ bazy, także tej aktywnej.",
       "Nieaktywni subskrybenci wciąż liczą się do limitu kontaktów w Klaviyo — utrzymywanie ich to płacenie za balast, który nigdy nie zamieni się w przychód."
     ]},
-    { heading:"Jakie efekty to daje", bullets:[
+    { heading:"What results it delivers", bullets:[
       "Poprawia ogólną deliverability konta — mniej ignorowanych/martwych adresów oznacza lepsze wskaźniki zaangażowania w oczach dostawców poczty (Gmail, Outlook).",
       "Realnie obniża miesięczny koszt Klaviyo, bo płacisz za rozmiar bazy kontaktów, nie za jej jakość."
     ]},
-    { heading:"Cel i długość", bullets:["Cel: pozbyć się nieaktywnych, wyczyścić listę, obniżyć rachunek za Klaviyo i poprawić deliverability.", "Długość: 1–2 maile."] }
+    { heading:"Goal & length", bullets:["Cel: pozbyć się nieaktywnych, wyczyścić listę, obniżyć rachunek za Klaviyo i poprawić deliverability.", "Długość: 1–2 maile."] }
   ]
 });
 KNOWLEDGE_ARTICLES.push({
@@ -7262,10 +7283,10 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Recenzje to jeden z najtańszych sposobów budowania dowodu społecznego — trzeba tylko o nie systematycznie poprosić w dobrym momencie.",
   source:"Pillar #5 — Core Flow Infrastructure",
   sections:[
-    { heading:"O co chodzi", bullets:["Krótki flow uruchamiany po zakupie (zwykle po dostawie), którego jedynym celem jest zebranie recenzji."] },
-    { heading:"Po co to stosować", bullets:["Klienci rzadko zostawiają recenzję samodzielnie, bez przypomnienia — nawet zadowoleni. Trzeba o to systematycznie poprosić w dobrym momencie."] },
-    { heading:"Jakie efekty to daje", bullets:["Buduje bank dowodu społecznego (recenzje, oceny, zdjęcia), który potem można wykorzystać w kampaniach, na stronie produktu i w innych flowach."] },
-    { heading:"Cel i długość", bullets:["Cel: zebrać recenzje na potrzeby dowodu społecznego.", "Długość: 1–3 maile."] }
+    { heading:"What it's about", bullets:["Krótki flow uruchamiany po zakupie (zwykle po dostawie), którego jedynym celem jest zebranie recenzji."] },
+    { heading:"Why use it", bullets:["Klienci rzadko zostawiają recenzję samodzielnie, bez przypomnienia — nawet zadowoleni. Trzeba o to systematycznie poprosić w dobrym momencie."] },
+    { heading:"What results it delivers", bullets:["Buduje bank dowodu społecznego (recenzje, oceny, zdjęcia), który potem można wykorzystać w kampaniach, na stronie produktu i w innych flowach."] },
+    { heading:"Goal & length", bullets:["Cel: zebrać recenzje na potrzeby dowodu społecznego.", "Długość: 1–3 maile."] }
   ]
 });
 KNOWLEDGE_ARTICLES.push({
@@ -7274,10 +7295,10 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Prosty, spersonalizowany gest, który klienci zapamiętują — niewielkim kosztem podnosi LTV i buduje emocjonalną więź z marką.",
   source:"Pillar #5 — Core Flow Infrastructure",
   sections:[
-    { heading:"O co chodzi", bullets:["Krótki flow uruchamiany wokół urodzin klienta (wymaga wcześniejszego zebrania tej daty, np. przez formularz preferencji lub zero-party data)."] },
-    { heading:"Po co to stosować", bullets:["To jeden z niewielu momentów, w których marka może dotrzeć z komunikacją całkowicie niepromocyjną, a mimo to skłaniającą do zakupu — bo jest osobista i oczekiwana."] },
-    { heading:"Jakie efekty to daje", bullets:["Zwiększa LTV przez spersonalizowane oferty i buduje pozytywne, emocjonalne skojarzenia z marką, niezależne od typowej komunikacji sprzedażowej."] },
-    { heading:"Cel i długość", bullets:["Cel: zwiększyć LTV przez spersonalizowane oferty.", "Długość: 1–3 maile."] }
+    { heading:"What it's about", bullets:["Krótki flow uruchamiany wokół urodzin klienta (wymaga wcześniejszego zebrania tej daty, np. przez formularz preferencji lub zero-party data)."] },
+    { heading:"Why use it", bullets:["To jeden z niewielu momentów, w których marka może dotrzeć z komunikacją całkowicie niepromocyjną, a mimo to skłaniającą do zakupu — bo jest osobista i oczekiwana."] },
+    { heading:"What results it delivers", bullets:["Zwiększa LTV przez spersonalizowane oferty i buduje pozytywne, emocjonalne skojarzenia z marką, niezależne od typowej komunikacji sprzedażowej."] },
+    { heading:"Goal & length", bullets:["Cel: zwiększyć LTV przez spersonalizowane oferty.", "Długość: 1–3 maile."] }
   ]
 });
 KNOWLEDGE_ARTICLES.push({
@@ -7286,32 +7307,32 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Subskrypcja to nie produkt do sprzedania w jednym mailu, tylko styl życia, który trzeba sprzedać. A cichy churn zwykle da się przewidzieć i zatrzymać, zanim się wydarzy.",
   source:"Bonus #3 — Increase Subscription Rates & Decrease Churn",
   sections:[
-    { heading:"O co chodzi", bullets:[
+    { heading:"What it's about", bullets:[
       "To zestaw trzech powiązanych automatów specyficznych dla modeli subskrypcyjnych: zoptymalizowany pod subskrypcję flow powitalny, konwersja jednorazowych kupujących w subskrybentów po zakupie oraz przypomnienia przed obciążeniem karty i flow odzyskiwania anulowanych subskrypcji."
     ]},
-    { heading:"Po co to stosować", bullets:[
+    { heading:"Why use it", bullets:[
       "Standardowy flow powitalny sprzedaje PRODUKT. Tu trzeba sprzedać sam MODEL subskrypcji — oszczędność, wygodę, elastyczność — bo to on odpowiada za powtarzalny przychód.",
       "Ktoś, kto już raz kupił jednorazowo, zna i ufa produktowi — to najłatwiejszy możliwy moment, żeby przekonać go do przejścia na subskrypcję, zanim ten moment minie.",
       "Większość churnu dzieje się po cichu — nie dlatego, że produkt jest zły, tylko dlatego, że marka nie odezwała się w porę, zanim klient zdążył zmienić zdanie."
     ]},
-    { heading:"Jakie efekty to daje", bullets:[
+    { heading:"What results it delivers", bullets:[
       "Subskrybent jest wart 2–5 razy więcej niż jednorazowy kupujący — to bezpośrednio przekłada się na wyższe LTV i stabilniejszy, przewidywalny przychód miesięczny.",
       "Przypomnienia przed obciążeniem budują zaufanie i realnie obniżają liczbę anulowań \"z zaskoczenia\" — klient czuje kontrolę zamiast poczucia, że został wciągnięty w coś na siłę.",
       "Dobrze zaprojektowany winback dla anulowanych subskrybentów regularnie odzyskuje część bazy, która inaczej zostałaby stracona na zawsze."
     ]},
-    { heading:"Flow powitalny pod subskrypcję — pierwsze 3 maile", bullets:[
+    { heading:"Subscription welcome flow — first 3 emails", bullets:[
       "Mail 1 — przedstaw model subskrypcji i jego realną wartość: oszczędności, wygoda, przywileje, elastyczność.",
       "Mail 2 — dowód społeczny: testimoniale, UGC, cytaty od długoletnich subskrybentów.",
       "Mail 3 — obsługa obiekcji: \"czy mogę zawiesić?\", \"co jeśli nie potrzebuję tego co miesiąc?\", \"czy mi się to znudzi?\".",
       "Wykorzystaj dane behawioralne/zero-party do personalizacji: jeśli ktoś wybrał \"oszczędności\" jako priorytet, akcentuj korzyści finansowe; jeśli \"wygodę\", akcentuj brak konieczności pamiętania o zamówieniu.",
       "Cel całej sekwencji: sprawić, żeby subskrypcja była postrzegana jako domyślny wybór, a nie dodatkowy upsell."
     ]},
-    { heading:"Konwersja jednorazowych kupujących po zakupie", bullets:[
+    { heading:"Converting one-time buyers post-purchase", bullets:[
       "Podziel flow posprzedażowy na dwie ścieżki: subskrybenci vs. jednorazowi kupujący.",
       "Dla jednorazowych kupujących wyślij 2–3 kolejne maile pokazujące: ile mogą oszczędzić na kolejnych zamówieniach, jak łatwo zasubskrybować w jedno kliknięcie, jak elastyczne jest zarządzanie subskrypcją.",
       "Dodaj przypomnienie o ponownym zamówieniu ok. 20.–30. dnia, sformułowane jako: \"Kończy się zapas? Zamów jako subskrypcję i oszczędź 15%\"."
     ]},
-    { heading:"Redukcja churnu: przypomnienia przed obciążeniem i winback", bullets:[
+    { heading:"Reducing churn: pre-charge reminders & winback", bullets:[
       "Przypomnienia przed obciążeniem — wysyłaj 3–5 dni przed odnowieniem, z komunikatami typu: \"Twoje kolejne [produkt] już prawie w drodze, chcesz pominąć albo zamienić?\" lub \"Szybkie przypomnienie: dostawa w poniedziałek. Wszystko gra?\".",
       "Winback dla anulowanych subskrybentów — sekwencja rozłożona na 30–45 dni: przypomnienie, czego brakuje bez subskrypcji → oferta powrotu (mocna na wartość, lekka na rabaty) → informacja o ulepszeniach produktu/nowościach → testimoniale od osób, które wróciły.",
       "Nie kończ na \"Przykro nam, że odchodzisz\" — daj konkretny powód, żeby wrócić."
@@ -7324,17 +7345,17 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Zanim zaczniesz optymalizować pojedyncze flowy, sprawdź, czy w ogóle masz komplet — brakujący automat w lejku to dziura, przez którą wycieka przychód każdego dnia.",
   source:"Bonus #4 — How To Audit Your Klaviyo Account Like a Pro",
   sections:[
-    { heading:"O co chodzi", bullets:["To pełna lista automatów, jaką powinien mieć każdy dojrzały koncie e-commerce, pogrupowana według etapu lejka — od pierwszego kontaktu, przez odzyskiwanie porzuconych zakupów, aż po utrzymanie i lojalność."] },
-    { heading:"Po co to stosować", bullets:["Flowy działają 24/7 jako automatyczny silnik sprzedażowy — jeśli w lejku brakuje choćby jednego kluczowego ogniwa, ten fragment przychodu po prostu nigdy się nie wydarza, a nikt tego nie zauważa, bo nie ma z czym porównać."] },
-    { heading:"Jakie efekty to daje", bullets:["Systematyczny audyt na tej liście pozwala szybko wychwycić luki w infrastrukturze i uzupełnić je, zanim staną się realnym, długoterminowym kosztem."] },
-    { heading:"Etap: przed zakupem", bullets:["Flow powitalny", "Powiadomienie o powrocie na stan (back-in-stock)", "Alert o niskim stanie magazynowym", "Alert o obniżce ceny"] },
-    { heading:"Etap: odzyskiwanie porzuconych ścieżek", bullets:["Odejście ze strony (site abandonment)", "Porzucenie przeglądania (browse abandonment)", "Porzucony koszyk", "Porzucony checkout"] },
-    { heading:"Etap: po zakupie i retencja", bullets:[
+    { heading:"What it's about", bullets:["To pełna lista automatów, jaką powinien mieć każdy dojrzały koncie e-commerce, pogrupowana według etapu lejka — od pierwszego kontaktu, przez odzyskiwanie porzuconych zakupów, aż po utrzymanie i lojalność."] },
+    { heading:"Why use it", bullets:["Flowy działają 24/7 jako automatyczny silnik sprzedażowy — jeśli w lejku brakuje choćby jednego kluczowego ogniwa, ten fragment przychodu po prostu nigdy się nie wydarza, a nikt tego nie zauważa, bo nie ma z czym porównać."] },
+    { heading:"What results it delivers", bullets:["Systematyczny audyt na tej liście pozwala szybko wychwycić luki w infrastrukturze i uzupełnić je, zanim staną się realnym, długoterminowym kosztem."] },
+    { heading:"Stage: pre-purchase", bullets:["Flow powitalny", "Powiadomienie o powrocie na stan (back-in-stock)", "Alert o niskim stanie magazynowym", "Alert o obniżce ceny"] },
+    { heading:"Stage: purchase recovery", bullets:["Odejście ze strony (site abandonment)", "Porzucenie przeglądania (browse abandonment)", "Porzucony koszyk", "Porzucony checkout"] },
+    { heading:"Stage: post-purchase & retention", bullets:[
       "Potwierdzenie zamówienia i wysyłki", "Edukacja po dostawie", "Prośba o recenzję", "Flow ponownego zakupu",
       "Flow uzupełnienia zapasów", "Lojalność, kamienie milowe, UGC, zaproszenia do programu partnerskiego",
       "Ryzyko odejścia (churn risk)", "Odzyskiwanie nieaktywnych/utraconych klientów (winback)", "Zwroty i reklamacje"
     ]},
-    { heading:"Na co zwrócić uwagę przy każdym flow", bullets:[
+    { heading:"What to check on every flow", bullets:[
       "Czy flow jest w pełni skonfigurowany — bez dziur w lejku?",
       "Czy najważniejsze flowy (powitalny, porzucony checkout) są A/B testowane?",
       "Czy dane zero-party są zbierane i realnie wykorzystywane do personalizacji treści?"
@@ -7347,10 +7368,10 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Standardowe flowy w trybie BFCM brzmią nie na miejscu — trzeba je celowo przyspieszyć i podbić presją, zanim ruch skoczy w górę.",
   source:"Bonus #6 — The Ultimate BFCM Email Strategy",
   sections:[
-    { heading:"O co chodzi", bullets:["To zestaw zmian, jakie warto wprowadzić w istniejących flowach na czas Black Friday/Cyber Monday — te same automaty, ale przyspieszone i dostosowane do wyższej presji czasu, jaka panuje w tym okresie."] },
-    { heading:"Po co to stosować", bullets:["Standardowe opóźnienia i generyczne komunikaty flowów nie pasują do tempa BFCM — ruch jest wyższy, konkurencja mocniejsza, a klienci oczekują natychmiastowej reakcji na swoje działania."] },
-    { heading:"Jakie efekty to daje", bullets:["Skrócone opóźnienia i podbita presja czasowa realnie zwiększają skuteczność odzyskiwania porzuconych koszyków/checkoutów właśnie wtedy, gdy ruch (a więc i potencjalny przychód) jest najwyższy w roku."] },
-    { heading:"Co zaktualizować", bullets:[
+    { heading:"What it's about", bullets:["To zestaw zmian, jakie warto wprowadzić w istniejących flowach na czas Black Friday/Cyber Monday — te same automaty, ale przyspieszone i dostosowane do wyższej presji czasu, jaka panuje w tym okresie."] },
+    { heading:"Why use it", bullets:["Standardowe opóźnienia i generyczne komunikaty flowów nie pasują do tempa BFCM — ruch jest wyższy, konkurencja mocniejsza, a klienci oczekują natychmiastowej reakcji na swoje działania."] },
+    { heading:"What results it delivers", bullets:["Skrócone opóźnienia i podbita presja czasowa realnie zwiększają skuteczność odzyskiwania porzuconych koszyków/checkoutów właśnie wtedy, gdy ruch (a więc i potencjalny przychód) jest najwyższy w roku."] },
+    { heading:"What to update", bullets:[
       "Flow powitalny — szybciej zamieniaj nowe zapisy w kupujących, z komunikacją dopasowaną do BFCM.",
       "Porzucony koszyk i checkout — dodaj presję czasu, przypomnienia o promocji, skróć opóźnienia (np. 1h, 4h, 12h zamiast standardowych odstępów).",
       "Flow posprzedażowy — przygotuj klientów pod upselle, prezenty i polecenia.",
@@ -7367,21 +7388,21 @@ KNOWLEDGE_ARTICLES.push({
   summary:"3–4 kampanie tygodniowo utrzymują markę w pamięci odbiorcy bez wywoływania zmęczenia — ale liczy się nie tylko częstotliwość, tylko realny balans treści.",
   source:"Pillar #6 i #7 — Balanced Email Calendar / Campaign Cadence",
   sections:[
-    { heading:"O co chodzi", bullets:["To zasada planowania kampanii tak, żeby regularna komunikacja nie zamieniła się ani w ciszę, ani w spam — z jasno określoną częstotliwością i świadomym mixem typów treści."] },
-    { heading:"Po co to stosować", bullets:[
+    { heading:"What it's about", bullets:["To zasada planowania kampanii tak, żeby regularna komunikacja nie zamieniła się ani w ciszę, ani w spam — z jasno określoną częstotliwością i świadomym mixem typów treści."] },
+    { heading:"Why use it", bullets:[
       "Zbyt dużo maili promocyjnych uczy odbiorców, że kupują od Ciebie wyłącznie w trakcie promocji — poza nimi przestają otwierać skrzynkę pod kątem marki.",
       "Treści edukacyjne, poradniki, historie klientów i aktualizacje z bloga budują wartość poza samą sprzedażą i pozycjonują markę jako eksperta w swojej dziedzinie, nie tylko sprzedawcę."
     ]},
-    { heading:"Jakie efekty to daje", bullets:[
+    { heading:"What results it delivers", bullets:[
       "Regularne, dobrze wyczucie w czasie wysyłki korelują z wyższą sprzedażą i większą lojalnością — badania i praktyka pokazują, że częste, ale przemyślane touchpointy działają lepiej niż sporadyczne, duże kampanie.",
       "Komunikacja budująca poczucie wspólnoty wzmacnia więź z klientami i realnie zwiększa zaangażowanie oraz liczbę powtórnych zakupów."
     ]},
-    { heading:"Optymalny rytm", bullets:[
+    { heading:"Optimal cadence", bullets:[
       "Stały rytm 3–4 maili tygodniowo utrzymuje markę \"top of mind\" i podnosi open rate oraz CTR.",
       "Powyżej 6 maili tygodniowo ryzykujesz przytłoczenie odbiorców i wzrost liczby wypisów.",
       "Zbyt rzadka wysyłka to utracone okazje sprzedażowe; zbyt częsta prowadzi do zmęczenia mailowego i wypisów."
     ]},
-    { heading:"Zasady dobrego kalendarza", bullets:[
+    { heading:"Rules for a good calendar", bullets:[
       "Treść ma być skanowalna — krótkie, jednotematyczne maile działają lepiej niż długie, wielowątkowe. Zwięzłość poprawia retencję i obniża liczbę wypisów.",
       "Różnorodność treści — uporządkowany kalendarz utrzymuje spójność i dobry mix treści, gdzie każdy mail ma jasny cel w lejku sprzedażowym, unikając \"zmęczenia sprzedażą\". Pozycjonuje markę jednocześnie jako dostawcę produktu i źródło wartościowej wiedzy."
     ]}
@@ -7393,13 +7414,13 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Mail tekstowy vs. graficzny to jeden z najbardziej niedocenianych testów w e-commerce — wyniki potrafią naprawdę zaskoczyć.",
   source:"Pillar #9 — A/B Testing Framework",
   sections:[
-    { heading:"O co chodzi", bullets:["To testowanie formatu i elementów pojedynczej kampanii — od formy wizualnej po konkretne moduły treści, jakie się w niej znajdują."] },
-    { heading:"Po co to stosować", bullets:["Wiele marek automatycznie zakłada, że graficzny, mocno zaprojektowany mail zawsze wygrywa z prostym, tekstowym — a to założenie rzadko jest weryfikowane realnym testem."] },
-    { heading:"Jakie efekty to daje", bullets:[
+    { heading:"What it's about", bullets:["To testowanie formatu i elementów pojedynczej kampanii — od formy wizualnej po konkretne moduły treści, jakie się w niej znajdują."] },
+    { heading:"Why use it", bullets:["Wiele marek automatycznie zakłada, że graficzny, mocno zaprojektowany mail zawsze wygrywa z prostym, tekstowym — a to założenie rzadko jest weryfikowane realnym testem."] },
+    { heading:"What results it delivers", bullets:[
       "Mail tekstowy jest łatwiejszy w produkcji, zwykle ma lepszą deliverability i brzmi bardziej autentycznie/szczerze — szczególnie przy promocjach warto sprawdzić go w starciu z wersją graficzną.",
       "Testowanie konkretnych modułów treści (dowód społeczny, wyróżnienie produktu, tabela porównawcza, wykresy, gwarancje, wzmianki prasowe, dynamiczne bloki) pokazuje, które elementy realnie konwertują u Twojej konkretnej publiczności."
     ]},
-    { heading:"Jak to testować", bullets:[
+    { heading:"How to test it", bullets:[
       "Zestaw kampanię graficzną naprzeciw tekstowej, szczególnie przy promocjach — sprawdź to na własnej marce, wyniki bywają zaskakujące.",
       "Testuj moduły treści pojedynczo: dowód społeczny, wyróżnienie produktu, tabele porównawcze, wykresy, gwarancje, prasę, dynamiczne bloki.",
       "Zmieniaj jedną zmienną na raz — to jedyny sposób, żeby wiedzieć, co realnie odpowiada za różnicę w wynikach."
@@ -7412,11 +7433,11 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Prosty test, ale trzeba go prowadzić z jasnym celem — maksymalizacją open rate, nie sprzedaży, i z pominięciem promocji czasowych.",
   source:"Pillar #9 — A/B Testing Framework",
   sections:[
-    { heading:"O co chodzi", bullets:["To testowanie, w jakim dniu tygodnia i o jakiej porze dnia dana kampania osiąga najlepszy open rate u konkretnej publiczności."] },
-    { heading:"Po co to stosować", bullets:["Optymalny moment wysyłki różni się między branżami i grupami odbiorców — to, co działa u konkurencji, niekoniecznie zadziała identycznie u Ciebie."] },
-    { heading:"Jakie efekty to daje", bullets:["Znalezienie optymalnego okna wysyłkowego realnie podnosi open rate bez zmiany treści czy oferty — czysty efekt lepszego wyczucia czasu."] },
-    { heading:"Co warto testować", bullets:["Poniedziałki?", "Weekendy?", "Rano?", "Późne popołudnie?", "Wieczorem?"] },
-    { heading:"Ważna zasada", bullets:["Nie testuj dnia/godziny przy promocjach ograniczonych czasowo lub wyprzedażach typu flash sale — tam presja czasu i tak dyktuje moment wysyłki."] }
+    { heading:"What it's about", bullets:["To testowanie, w jakim dniu tygodnia i o jakiej porze dnia dana kampania osiąga najlepszy open rate u konkretnej publiczności."] },
+    { heading:"Why use it", bullets:["Optymalny moment wysyłki różni się między branżami i grupami odbiorców — to, co działa u konkurencji, niekoniecznie zadziała identycznie u Ciebie."] },
+    { heading:"What results it delivers", bullets:["Znalezienie optymalnego okna wysyłkowego realnie podnosi open rate bez zmiany treści czy oferty — czysty efekt lepszego wyczucia czasu."] },
+    { heading:"What's worth testing", bullets:["Poniedziałki?", "Weekendy?", "Rano?", "Późne popołudnie?", "Wieczorem?"] },
+    { heading:"Important rule", bullets:["Nie testuj dnia/godziny przy promocjach ograniczonych czasowo lub wyprzedażach typu flash sale — tam presja czasu i tak dyktuje moment wysyłki."] }
   ]
 });
 KNOWLEDGE_ARTICLES.push({
@@ -7425,16 +7446,16 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Gotowy prompt, który za jednym zamachem buduje pełny, zbalansowany kalendarz na cały miesiąc — z uwzględnieniem świąt i sezonowych okazji.",
   source:"Bonus #1 — How To Utilize AI in Email Marketing",
   sections:[
-    { heading:"O co chodzi", bullets:["To gotowy do użycia prompt, który zamienia opis marki i kilka parametrów w pełny, chronologiczny kalendarz kampanii na wybrany miesiąc."] },
-    { heading:"Po co to stosować", bullets:["Ręczne planowanie kalendarza od zera zajmuje sporo czasu i łatwo pominąć sezonowe okazje albo popaść w jednostajność — AI potrafi to przyspieszyć, jeśli dostanie odpowiedni kontekst."] },
-    { heading:"Jakie efekty to daje", bullets:["Daje gotową, uporządkowaną strukturę kalendarza zgodną z zasadą balansu promocja/wartość, którą później trzeba jedynie dopracować pod realny głos marki."] },
-    { heading:"Czego potrzebujesz, zanim zaczniesz", bullets:["Opisu marki (produkty, USP-y, grupa docelowa).", "Wytycznych dotyczących tonu głosu marki (formalny, swobodny, bezpośredni itd.)."] },
-    { heading:"Struktura promptu", bullets:[
+    { heading:"What it's about", bullets:["To gotowy do użycia prompt, który zamienia opis marki i kilka parametrów w pełny, chronologiczny kalendarz kampanii na wybrany miesiąc."] },
+    { heading:"Why use it", bullets:["Ręczne planowanie kalendarza od zera zajmuje sporo czasu i łatwo pominąć sezonowe okazje albo popaść w jednostajność — AI potrafi to przyspieszyć, jeśli dostanie odpowiedni kontekst."] },
+    { heading:"What results it delivers", bullets:["Daje gotową, uporządkowaną strukturę kalendarza zgodną z zasadą balansu promocja/wartość, którą później trzeba jedynie dopracować pod realny głos marki."] },
+    { heading:"What you need before you start", bullets:["Opisu marki (produkty, USP-y, grupa docelowa).", "Wytycznych dotyczących tonu głosu marki (formalny, swobodny, bezpośredni itd.)."] },
+    { heading:"Prompt structure", bullets:[
       "Poproś AI o rolę eksperta strategii mailingowej i pełny kalendarz na konkretny miesiąc dla konkretnej marki.",
       "Podaj: kontekst marki, głos marki, częstotliwość (X maili/tydzień), zasadę balansu promocja/wartość, i zastrzeżenie \"żadnych kodów rabatowych/wyprzedaży/współprac/premier produktów, chyba że wskażę inaczej\".",
       "Dla każdego konceptu maila poproś o: konkretną datę, jasny koncept/temat, typ/kategorię maila, szczegółowy fokus treściowy (kąt, historia, element edukacyjny), kluczowy przekaz dla klienta."
     ]},
-    { heading:"O czym poprosić dodatkowo", bullets:[
+    { heading:"What else to ask for", bullets:[
       "Uwzględnienie świąt i okazji sezonowych pasujących do marki — zarówno popularnych (np. Walentynki), jak i niszowych (np. \"Dzień bikini\" dla marki strojów kąpielowych).",
       "Adresowanie potencjalnych obiekcji klienta tam, gdzie to pasuje.",
       "Nacisk na storytelling, edukację i budowanie więzi emocjonalnej.",
@@ -7442,7 +7463,7 @@ KNOWLEDGE_ARTICLES.push({
       "Zwięzłe maile skupione na jednym, jasnym przekazie.",
       "Strategiczne wplecenie dowodu społecznego oraz maili tekstowych (np. osobista notka od założyciela)."
     ]},
-    { heading:"Zapamiętaj", bullets:["Nie ma jednej \"świętej\" strategii — kieruj się zdrowym rozsądkiem co do tego, co zadziała na TĘ konkretną publiczność, i pilnuj, żeby AI trzymało autentyczny głos marki przez cały kalendarz."] }
+    { heading:"Remember", bullets:["Nie ma jednej \"świętej\" strategii — kieruj się zdrowym rozsądkiem co do tego, co zadziała na TĘ konkretną publiczność, i pilnuj, żeby AI trzymało autentyczny głos marki przez cały kalendarz."] }
   ]
 });
 KNOWLEDGE_ARTICLES.push({
@@ -7451,11 +7472,11 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Kampanie to nie tylko promocje — dla marek subskrypcyjnych to narzędzie edukacji, konwersji i budowania poczucia przynależności do klubu.",
   source:"Bonus #3 — Increase Subscription Rates & Decrease Churn",
   sections:[
-    { heading:"O co chodzi", bullets:["To pojedyncze wysyłki (nie automaty) zaprojektowane specjalnie po to, żeby wspierać model subskrypcyjny — zamiast klasycznej promocji z rabatem."] },
-    { heading:"Po co to stosować", bullets:["Model subskrypcyjny wymaga ciągłej edukacji i budowania poczucia przynależności — jednorazowy flow powitalny tego nie załatwi, potrzebna jest regularna komunikacja kampaniowa podtrzymująca tę narrację."] },
-    { heading:"Jakie efekty to daje", bullets:["Dobrze zaprojektowane kampanie subskrypcyjne edukują nowych subskrybentów, domykają sprzedaż u jednorazowych kupujących i budują długoterminowe zaangażowanie — sprawiają, że subskrypcja czuje się jak klub, nie jak zobowiązanie."] },
-    { heading:"Co robią te kampanie", bullets:["Edukują nowych subskrybentów.", "Sprzedają subskrypcję jednorazowym kupującym.", "Budują długoterminowe zaangażowanie."] },
-    { heading:"Pomysły na tematy, które konwertują", bullets:[
+    { heading:"What it's about", bullets:["To pojedyncze wysyłki (nie automaty) zaprojektowane specjalnie po to, żeby wspierać model subskrypcyjny — zamiast klasycznej promocji z rabatem."] },
+    { heading:"Why use it", bullets:["Model subskrypcyjny wymaga ciągłej edukacji i budowania poczucia przynależności — jednorazowy flow powitalny tego nie załatwi, potrzebna jest regularna komunikacja kampaniowa podtrzymująca tę narrację."] },
+    { heading:"What results it delivers", bullets:["Dobrze zaprojektowane kampanie subskrypcyjne edukują nowych subskrybentów, domykają sprzedaż u jednorazowych kupujących i budują długoterminowe zaangażowanie — sprawiają, że subskrypcja czuje się jak klub, nie jak zobowiązanie."] },
+    { heading:"What these campaigns do", bullets:["Edukują nowych subskrybentów.", "Sprzedają subskrypcję jednorazowym kupującym.", "Budują długoterminowe zaangażowanie."] },
+    { heading:"Subject ideas that convert", bullets:[
       "\"Dlaczego 90% naszych klientów subskrybuje po pierwszym zamówieniu\"",
       "\"Przywileje subskrybenta, o których mogłeś nie wiedzieć\"",
       "\"Jak wygląda bycie członkiem od 6 miesięcy\"",
@@ -7470,17 +7491,17 @@ KNOWLEDGE_ARTICLES.push({
   summary:"To, co warto sprawdzić w kampaniach podczas przeglądu konta — częstotliwość, mix treści, segmentację i design pod konwersję.",
   source:"Bonus #4 — How To Audit Your Klaviyo Account Like a Pro",
   sections:[
-    { heading:"O co chodzi", bullets:["To lista kontrolna do systematycznego przeglądu jakości i skuteczności pojedynczych kampanii wysyłanych z konta."] },
-    { heading:"Po co to stosować", bullets:["Kampanie odpowiadają za krótkoterminowe skoki przychodu i utrzymują markę widoczną w skrzynce — ale bez regularnego audytu łatwo osunąć się w rutynę, która przestaje działać."] },
-    { heading:"Jakie efekty to daje", bullets:["Regularny przegląd pozwala wychwycić słabe punkty (za rzadka wysyłka, zły mix treści, brak testów) zanim odbiją się realnie na wynikach sprzedaży."] },
-    { heading:"Częstotliwość i mix", bullets:[
+    { heading:"What it's about", bullets:["To lista kontrolna do systematycznego przeglądu jakości i skuteczności pojedynczych kampanii wysyłanych z konta."] },
+    { heading:"Why use it", bullets:["Kampanie odpowiadają za krótkoterminowe skoki przychodu i utrzymują markę widoczną w skrzynce — ale bez regularnego audytu łatwo osunąć się w rutynę, która przestaje działać."] },
+    { heading:"What results it delivers", bullets:["Regularny przegląd pozwala wychwycić słabe punkty (za rzadka wysyłka, zły mix treści, brak testów) zanim odbiją się realnie na wynikach sprzedaży."] },
+    { heading:"Frequency & mix", bullets:[
       "Czy wysyłasz 2–4 razy w tygodniu?",
       "Czy masz zbalansowany mix: promocja, edukacja, premiera produktu, dowód społeczny?",
       "Czy design jest mobile-first i zoptymalizowany pod konwersję?",
       "Czy CTA jest widoczne bez przewijania (above the fold)?",
       "Czy wdrożone są testy A/B?"
     ]},
-    { heading:"Segmentacja i harmonogram", bullets:["Czy używasz aktywnych segmentów (30/60/90 dni)?", "Czy wykluczasz osoby odbijające maile, zgłaszające spam i nieotwierające?"] }
+    { heading:"Segmentation & scheduling", bullets:["Czy używasz aktywnych segmentów (30/60/90 dni)?", "Czy wykluczasz osoby odbijające maile, zgłaszające spam i nieotwierające?"] }
   ]
 });
 KNOWLEDGE_ARTICLES.push({
@@ -7489,19 +7510,19 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Nie potrzeba 12 różnych promocji — 1–3 przemyślane, świadome marży oferty odpowiadają za ok. 80% sukcesu całego Black Friday.",
   source:"Bonus #6 — The Ultimate BFCM Email Strategy",
   sections:[
-    { heading:"O co chodzi", bullets:["To proces świadomego wyboru głównej oferty (lub kilku ofert) na Black Friday/Cyber Monday, dopasowanej do realnych stanów magazynowych i marż, zamiast improwizowania w ostatniej chwili."] },
-    { heading:"Po co to stosować", bullets:[
+    { heading:"What it's about", bullets:["To proces świadomego wyboru głównej oferty (lub kilku ofert) na Black Friday/Cyber Monday, dopasowanej do realnych stanów magazynowych i marż, zamiast improwizowania w ostatniej chwili."] },
+    { heading:"Why use it", bullets:[
       "Większość marek przekombinowuje ofertę BFCM — mnożenie promocji zamiast klarowności tylko dezorientuje klienta i utrudnia komunikację.",
       "Stan magazynowy powinien dyktować strategię, nie odwrotnie — promowanie tego, czego nie ma na stanie, albo czego jest za dużo, to prosta droga do strat."
     ]},
-    { heading:"Jakie efekty to daje", bullets:["Podejście oparte o marżę pozwala jednocześnie zwiększyć sprzedaż w najgorętszym okresie roku i nie oddać przy tym zbyt dużej części zysku."] },
-    { heading:"Zanim wybierzesz ofertę — zacznij od magazynu", bullets:[
+    { heading:"What results it delivers", bullets:["Podejście oparte o marżę pozwala jednocześnie zwiększyć sprzedaż w najgorętszym okresie roku i nie oddać przy tym zbyt dużej części zysku."] },
+    { heading:"Before you pick an offer — start with inventory", bullets:[
       "Postaw na SKU o wysokiej marży.",
       "Prognozuj popyt na podstawie wyników poprzednich BFCM.",
       "Nie dopuść do przezapasu ani niedoboru bestsellerów.",
       "Podejście oparte na marży ma dyktować progi rabatowe, bundle'e i strukturę oferty — traktuj magazyn jako ograniczenie, nie coś, o czym pomyślisz na końcu."
     ]},
-    { heading:"Sprawdzone struktury ofert", bullets:[
+    { heading:"Proven offer structures", bullets:[
       "Rabat na cały sklep — łatwy do komunikacji, ale może mocno uderzyć w marżę, jeśli nie jest dobrze przemyślany; dobry dla marek o wyrównanych marżach na produktach.",
       "Rabaty progowe (np. 10% od 200 zł, 15% od 400 zł, 20% od 600 zł) — zachęcają do wyższej wartości koszyka, ale trudniejsze w komunikacji.",
       "Rabat procentowy lub kwotowy — prosty i zrozumiały; psychologicznie 40% off zwykle działa lepiej niż 40 zł off przy produkcie za 100 zł.",
@@ -7521,30 +7542,30 @@ KNOWLEDGE_ARTICLES.push({
   summary:"W BFCM wysyła się więcej niż zwykle wydaje się komfortowe — i to naprawdę działa, jeśli design i segmentacja są dopięte.",
   source:"Bonus #6 — The Ultimate BFCM Email Strategy",
   sections:[
-    { heading:"O co chodzi", bullets:["To praktyczny plan działania na tydzień BFCM: kiedy zacząć komunikację, ile wysyłać dziennie, jak zaprojektować maile pod konwersję i na które segmenty postawić w trakcie i po wyprzedaży."] },
-    { heading:"Po co to stosować", bullets:["Większość marek wysyła w BFCM zbyt mało — a to właśnie ten krótki okres decyduje nierzadko o wyniku całego kwartału, więc warto działać odważniej niż zwykle."] },
-    { heading:"Jakie efekty to daje", bullets:["Skoordynowany kalendarz + design nastawiony na konwersję + celowana segmentacja realnie maksymalizują przychód w oknie, w którym uwaga klientów jest najwyższa, ale i konkurencja najostrzejsza."] },
-    { heading:"Rekomendowany rytm wysyłek", bullets:[
+    { heading:"What it's about", bullets:["To praktyczny plan działania na tydzień BFCM: kiedy zacząć komunikację, ile wysyłać dziennie, jak zaprojektować maile pod konwersję i na które segmenty postawić w trakcie i po wyprzedaży."] },
+    { heading:"Why use it", bullets:["Większość marek wysyła w BFCM zbyt mało — a to właśnie ten krótki okres decyduje nierzadko o wyniku całego kwartału, więc warto działać odważniej niż zwykle."] },
+    { heading:"What results it delivers", bullets:["Skoordynowany kalendarz + design nastawiony na konwersję + celowana segmentacja realnie maksymalizują przychód w oknie, w którym uwaga klientów jest najwyższa, ale i konkurencja najostrzejsza."] },
+    { heading:"Recommended send cadence", bullets:[
       "Zacznij budować napięcie 2–3 tygodnie przed BFCM.",
       "Uruchom wcześniejszy dostęp w poniedziałek tygodnia BFCM.",
       "W czwartek, piątek i poniedziałek wysyłaj 2x dziennie (rano i po południu).",
       "Wpleć maile tekstowe od założyciela pomiędzy standardowe kampanie graficzne."
     ]},
-    { heading:"Typy kampanii i wyczucie czasu", bullets:[
+    { heading:"Campaign types & timing", bullets:[
       "Maile graficzne — do dużych ogłoszeń i startów promocji, z wyrazistą grafiką i czytelnym CTA.",
       "Maile tekstowe — do pilnych aktualizacji lub osobistych wiadomości od założyciela; wyróżniają się na tle morza graficznych maili BFCM.",
       "Rano — duże ogłoszenia ofert.",
       "Popołudnie — przypomnienia i budowanie presji czasu.",
       "Wieczorem — łapanie klientów kupujących w ostatniej chwili."
     ]},
-    { heading:"Jak się wyróżnić", bullets:[
+    { heading:"How to stand out", bullets:[
       "Subject line: emoji z umiarem, konkretne szczegóły oferty (\"50% ZNIŻKI NA WSZYSTKO\"), presja czasu (\"ZOSTAŁY 4 GODZINY\").",
       "Personalizacja: imię i historia zakupów, rekomendacje na podstawie zachowań przeglądania.",
       "Elementy interaktywne: liczniki odliczające czas, animowane GIF-y, treści interaktywne (np. \"zdrap i odkryj rabat\").",
       "Ekskluzywność: oferty \"tylko dla VIP\", kody dostępu do specjalnych promocji.",
       "Spójność między kanałami: dopasuj przekaz do social mediów i strony, kieruj ruch na live shopping/flash sale."
     ]},
-    { heading:"Zasady designu pod konwersję", bullets:[
+    { heading:"Design principles for conversion", bullets:[
       "Duże, czytelne CTA nad linią zgięcia (above the fold).",
       "Layout mobile-first — większość otwarć będzie na telefonie.",
       "Bez górnego paska nawigacji — celem nie jest przeglądanie strony, tylko konkretna akcja.",
@@ -7552,7 +7573,7 @@ KNOWLEDGE_ARTICLES.push({
       "Zoptymalizuj pod tryb ciemny lub postaw na szablon oparty o obraz, jeśli to prostsze.",
       "Testuj wygląd wcześniej w Gmailu, Outlooku i na urządzeniach mobilnych."
     ]},
-    { heading:"4 segmenty, na które warto postawić", bullets:[
+    { heading:"4 segments worth focusing on", bullets:[
       "Zaangażowani, którzy nie kupili — adresuj potencjalne obiekcje, zaproponuj przedłużoną ofertę.",
       "Klienci pierwszorazowi z BFCM — skup się na retencji i zwiększaniu LTV.",
       "Klienci powracający, którzy kupili w BFCM — nagradzaj lojalność, zachęcaj do polecania.",
@@ -7566,16 +7587,16 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Większość marek milknie zaraz po Black Friday — to właśnie wtedy, w grudniu, wygrywają ci, którzy zostają w kontakcie i budują drugi zakup.",
   source:"Bonus #6 — The Ultimate BFCM Email Strategy",
   sections:[
-    { heading:"O co chodzi", bullets:["To plan działania na okres tuż po BFCM — zarówno powrót do normalnego rytmu wysyłek, jak i celowa strategia zamiany jednorazowych kupujących z Black Friday w stałych klientów."] },
-    { heading:"Po co to stosować", bullets:["Klient pozyskany w BFCM to często klient wrażliwy na cenę, przyciągnięty rabatem — bez świadomego planu na kolejne tygodnie łatwo go stracić po jednym zakupie."] },
-    { heading:"Jakie efekty to daje", bullets:["Systematyczna nurtura w oknie 30–90 dni po Black Friday realnie zwiększa odsetek klientów, którzy dokonują drugiego zakupu — czyli zamienia jednorazowy skok przychodu w trwalszy wzrost bazy klientów."] },
-    { heading:"Co robić w grudniu", bullets:[
+    { heading:"What it's about", bullets:["To plan działania na okres tuż po BFCM — zarówno powrót do normalnego rytmu wysyłek, jak i celowa strategia zamiany jednorazowych kupujących z Black Friday w stałych klientów."] },
+    { heading:"Why use it", bullets:["Klient pozyskany w BFCM to często klient wrażliwy na cenę, przyciągnięty rabatem — bez świadomego planu na kolejne tygodnie łatwo go stracić po jednym zakupie."] },
+    { heading:"What results it delivers", bullets:["Systematyczna nurtura w oknie 30–90 dni po Black Friday realnie zwiększa odsetek klientów, którzy dokonują drugiego zakupu — czyli zamienia jednorazowy skok przychodu w trwalszy wzrost bazy klientów."] },
+    { heading:"What to do in December", bullets:[
       "Wracaj do normalnej częstotliwości wysyłek stopniowo, przez 1–2 tygodnie.",
       "Wstrzymaj się z nowymi wyprzedażami przez 1–2 tygodnie — skup się na treści wartościowej: korzyściach produktowych i historiach klientów.",
       "Wyślij spersonalizowane podziękowania do osób, które kupiły w BFCM — ewentualnie z drobną nagrodą lojalnościową lub ekskluzywną treścią.",
       "Wróć do standardowych flowów — usuń z nich treści specyficzne dla BFCM, upewnij się, że flow posprzedażowy jest dopasowany pod nowych klientów."
     ]},
-    { heading:"Strategia ponownego zakupu (30–90 dni)", bullets:[
+    { heading:"Repurchase strategy (30-90 days)", bullets:[
       "Wydziel segment nowych klientów z BFCM, dodatkowo podziel go według kategorii lub wartości zakupu.",
       "Zbuduj sekwencję nurtującą: treści edukacyjne o zakupionych produktach, wskazówki, jak wyciągnąć z nich najwięcej, wprowadzenie do produktów komplementarnych.",
       "Zaproponuj zachęty do drugiego zakupu: ekskluzywne rabaty \"dla nowych klientów\", gratis przy kolejnym zamówieniu, wcześniejszy dostęp do nowości.",
@@ -7591,10 +7612,10 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Marki z najlepszym e-mail marketingiem znają swoich klientów na wylot — to najmniej efektowny, ale najbardziej fundamentalny krok w całej strategii.",
   source:"Pillar #1 — Understand Your Customers to the Tee",
   sections:[
-    { heading:"O co chodzi", bullets:["To systematyczne poznawanie zachowań, bolączek, pragnień i motywacji odbiorców — fundament, na którym opiera się cała reszta strategii mailingowej: segmentacja, personalizacja, dobór treści."] },
-    { heading:"Po co to stosować", bullets:["Różnica między marketingiem, który konwertuje, a takim, który nie konwertuje, to przede wszystkim to, JAK DOBRZE rozumiesz swojego klienta — nie kreatywność samego maila."] },
-    { heading:"Jakie efekty to daje", bullets:["Głębokie zrozumienie klienta pozwala trafnie dobierać segmentację i treść, dzięki czemu komunikacja realnie rezonuje z odbiorcą, zamiast być generycznym przekazem \"do wszystkich\"."] },
-    { heading:"Gdzie szukać informacji o kliencie", bullets:["Biblioteka reklam Facebooka", "Zapisanie się na listę mailingową konkurencji", "Twoje recenzje (Shopify + Amazon)", "Recenzje konkurencji (Shopify + Amazon)", "Quora/Reddit", "ChatGPT"] }
+    { heading:"What it's about", bullets:["To systematyczne poznawanie zachowań, bolączek, pragnień i motywacji odbiorców — fundament, na którym opiera się cała reszta strategii mailingowej: segmentacja, personalizacja, dobór treści."] },
+    { heading:"Why use it", bullets:["Różnica między marketingiem, który konwertuje, a takim, który nie konwertuje, to przede wszystkim to, JAK DOBRZE rozumiesz swojego klienta — nie kreatywność samego maila."] },
+    { heading:"What results it delivers", bullets:["Głębokie zrozumienie klienta pozwala trafnie dobierać segmentację i treść, dzięki czemu komunikacja realnie rezonuje z odbiorcą, zamiast być generycznym przekazem \"do wszystkich\"."] },
+    { heading:"Where to find customer info", bullets:["Biblioteka reklam Facebooka", "Zapisanie się na listę mailingową konkurencji", "Twoje recenzje (Shopify + Amazon)", "Recenzje konkurencji (Shopify + Amazon)", "Quora/Reddit", "ChatGPT"] }
   ]
 });
 KNOWLEDGE_ARTICLES.push({
@@ -7603,53 +7624,53 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Deliverability to fakt, że maile faktycznie trafiają do skrzynki odbiorczej — nie tylko \"zostają dostarczone\". Napraw to najpierw, zanim zajmiesz się czymkolwiek innym.",
   source:"Pillar #2 — Keep an Eye on Deliverability at All Times",
   sections:[
-    { heading:"O co chodzi", bullets:[
+    { heading:"What it's about", bullets:[
       "Deliverability określa, jaki odsetek wysłanych maili faktycznie trafia do zakładki Główna/Odebrane, a nie do spamu. Przykład: 10 000 wysłanych maili, 8 500 dociera do skrzynki = 85% deliverability."
     ]},
-    { heading:"Po co to stosować", bullets:[
+    { heading:"Why use it", bullets:[
       "Więcej maili w skrzynce odbiorczej to bezpośrednio więcej sprzedaży — jeśli mail nie dotrze, nic innego (design, oferta, copy) już się nie liczy.",
       "Trafianie do spamu to realna strata pieniędzy — jeśli nawet 10% listy ląduje w spamie, to ogromna dziura w przychodzie.",
       "Zbyt wiele zgłoszeń jako spam może skłonić dostawców poczty (Gmail, Outlook) do blokowania kolejnych wysyłek z całej domeny."
     ]},
-    { heading:"Jakie efekty to daje", bullets:["Nawet 5-punktowa poprawa wskaźnika trafiania do skrzynki potrafi przełożyć się na tysiące złotych dodatkowego przychodu miesięcznie — to jedna z najbardziej niedocenianych dźwigni w całym e-mail marketingu."] },
-    { heading:"1. Reputacja nadawcy", bullets:[
+    { heading:"What results it delivers", bullets:["Nawet 5-punktowa poprawa wskaźnika trafiania do skrzynki potrafi przełożyć się na tysiące złotych dodatkowego przychodu miesięcznie — to jedna z najbardziej niedocenianych dźwigni w całym e-mail marketingu."] },
+    { heading:"1. Sender reputation", bullets:[
       "To jak zdolność kredytowa dla Twoich maili — im lepsza historia, tym więcej skrzynek odbiorczych osiągasz.",
       "Na reputację wpływają: zaangażowanie (otwarcia, kliknięcia, odpowiedzi), zgłoszenia spamu, wskaźnik odbić.",
       "Jeśli zbyt wiele osób usuwa maile bez otwierania, dostawcy poczty uznają treść za nieistotną i zaczynają kierować kolejne wysyłki prosto do spamu.",
       "Napraw to: regularnie czyść listę z nieaktywnych/fałszywych adresów i stawiaj na treść wysokiej jakości utrzymującą zaangażowanie."
     ]},
-    { heading:"2. Uwierzytelnianie i konfiguracja techniczna", bullets:[
+    { heading:"2. Authentication & technical setup", bullets:[
       "Dostawcy poczty (Gmail, Outlook, Yahoo) chcą mieć pewność, że jesteś prawdziwym nadawcą — bez odpowiedniego uwierzytelniania maile wyglądają podejrzanie.",
       "SPF potwierdza, że mail został wysłany z zatwierdzonego serwera.",
       "DKIM dodaje cyfrowy podpis potwierdzający, że treść nie została zmodyfikowana po drodze.",
       "DMARC informuje dostawców poczty, co zrobić z mailami, które nie przeszły uwierzytelnienia.",
       "Skonfiguruj wszystkie trzy protokoły (można to zweryfikować narzędziami typu MXToolbox), żeby zapobiec podszywaniu się pod domenę i podnieść wiarygodność nadawcy."
     ]},
-    { heading:"3. Dedykowana, własna domena wysyłkowa", bullets:[
+    { heading:"3. Dedicated custom sending domain", bullets:[
       "Wysyłka z generycznej domeny ESP (np. marka@klaviyomail.com) szkodzi zaufaniu i deliverability, bo współdzielisz domenę z innymi, obcymi markami.",
       "Własna domena daje pełną kontrolę nad reputacją nadawcy (zamiast polegać na ESP), zmniejsza ryzyko oflagowania jako spam i pozwala w pełni skonfigurować SPF/DKIM/DMARC.",
       "Skonfiguruj dedykowaną domenę wysyłkową w swoim ESP (np. Klaviyo)."
     ]},
-    { heading:"4. Domena vs. subdomena", bullets:[
+    { heading:"4. Domain vs. sub-domain", bullets:[
       "Domena główna (marka.pl) — zwykle strona www; subdomena (email.marka.pl) — wysyłka mailingowa.",
       "Subdomena oddziela komunikację marketingową od transakcyjnej, chroni reputację domeny głównej i zmniejsza ryzyko, że WSZYSTKIE maile trafią razem do spamu w razie problemu z jedną kategorią wysyłek."
     ]},
-    { heading:"5. Zaangażowanie i jakość treści", bullets:[
+    { heading:"5. Engagement & content quality", bullets:[
       "Dostawcy poczty śledzą zachowanie użytkowników, żeby zdecydować, czy Twoje maile należą do skrzynki, czy do spamu.",
       "Pozytywne sygnały: otwarcie maila, kliknięcia w linki, przeniesienie do innego folderu.",
       "Negatywne sygnały: ignorowanie (brak otwarć/kliknięć), natychmiastowe usuwanie, oznaczanie jako spam.",
       "Warto testować wersję tekstową kontra graficzną — czasem mail bazujący na tekście osiąga lepsze zaangażowanie i lepszą deliverability."
     ]},
-    { heading:"Największe błędy deliverability", bullets:[
+    { heading:"Biggest deliverability mistakes", bullets:[
       "Wysyłanie zbyt wielu maili do niezaangażowanych subskrybentów — brak reakcji przez 3–6 miesięcy powinien skutkować wygaszeniem częstotliwości lub kampanią reaktywacyjną przed ostatecznym wyciszeniem.",
       "Zaniedbana higiena listy — stare, nieprawidłowe adresy generują odbicia, które sygnalizują dostawcom poczty brak dbałości o jakość bazy. Czyść listę co miesiąc: rozdziel twarde odbicia (trwały problem — literówki, nieistniejące konta), miękkie odbicia (tymczasowy problem — pełna skrzynka, błąd serwera), kontakty, które zgłosiły spam, oraz długo nieaktywnych — i wygaś ich z listy."
     ]},
-    { heading:"Dobre praktyki na co dzień", bullets:[
+    { heading:"Everyday best practices", bullets:[
       "Segmentuj i wysyłaj mądrze — częściej do zaangażowanych, rzadziej (lub wcale) do nieaktywnych, osobna komunikacja dla nowych i powracających klientów.",
       "Optymalizuj treść — jasne, niespamowe subject line'y (unikaj słów typu \"FREE\"/\"ACT NOW\"), dołączaj żywy tekst (nie tylko obraz), kompresuj grafiki.",
       "Monitoruj metryki: Google Postmaster Tools (zgłoszenia spamu, reputacja IP), MxToolbox (weryfikacja uwierzytelniania), raportowanie w samym ESP z podziałem na domenę (Gmail/Yahoo/Outlook) — spadek open rate tylko na jednej domenie zwykle wskazuje na konkretny, punktowy problem z reputacją."
     ]},
-    { heading:"5 dodatkowych wskazówek", bullets:[
+    { heading:"5 extra tips", bullets:[
       "Ogranicz liczbę linków w mailu do minimum.",
       "Kompresuj grafiki, żeby zmniejszyć wagę wiadomości.",
       "Zachęcaj odbiorców do dodania adresu do kontaktów, oznaczenia jako ważny, przeniesienia do głównej zakładki albo odpowiedzi.",
@@ -7664,20 +7685,20 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Pop-up to fundament całej maszyny mailingowej — jeśli konwertuje poniżej 4–5%, żaden inny element strategii nie odrobi tej straty.",
   source:"Pillar #3 (Never Stop Optimizing Your Pop-up) + Pillar #9 (A/B Testing → Pop-ups)",
   sections:[
-    { heading:"O co chodzi", bullets:["Pop-up to główne narzędzie zbierania nowych zapisów na listę — jego skuteczność bezpośrednio decyduje o tym, jak szybko rośnie i jak dobrze konwertuje cała baza mailingowa."] },
-    { heading:"Po co to stosować", bullets:["Niski wskaźnik zapisów oznacza dużo niższy przychód z e-maila — mniej osób wchodzi do flowów, lista rośnie wolniej, a cała reszta strategii ma mniejszą bazę do działania."] },
-    { heading:"Jakie efekty to daje", bullets:["Dobrze zoptymalizowany pop-up (5%+ konwersji) potrafi samodzielnie odpowiadać za znaczącą część wzrostu listy i pierwszego kontaktu z marką — to jedna z najbardziej opłacalnych rzeczy do testowania."] },
-    { heading:"Baza i najczęstsze błędy", bullets:[
+    { heading:"What it's about", bullets:["Pop-up to główne narzędzie zbierania nowych zapisów na listę — jego skuteczność bezpośrednio decyduje o tym, jak szybko rośnie i jak dobrze konwertuje cała baza mailingowa."] },
+    { heading:"Why use it", bullets:["Niski wskaźnik zapisów oznacza dużo niższy przychód z e-maila — mniej osób wchodzi do flowów, lista rośnie wolniej, a cała reszta strategii ma mniejszą bazę do działania."] },
+    { heading:"What results it delivers", bullets:["Dobrze zoptymalizowany pop-up (5%+ konwersji) potrafi samodzielnie odpowiadać za znaczącą część wzrostu listy i pierwszego kontaktu z marką — to jedna z najbardziej opłacalnych rzeczy do testowania."] },
+    { heading:"Baseline & top mistakes", bullets:[
       "Celuj w minimum 5% konwersji, zarówno na mobile, jak i desktopie.",
       "Trzy najczęstsze błędy: słaba oferta, źle dobrane triggery, proszenie o zbyt dużo danych naraz."
     ]},
-    { heading:"4 elementy do testowania — od najważniejszego", bullets:[
+    { heading:"4 elements to test — starting with the most important", bullets:[
       "Oferta — zdecydowanie największa dźwignia ($ off, % off, darmowa dostawa itd.).",
       "Triggery — to, co uruchamia pop-up, mocno wpływa na wskaźnik zapisów; liczy się dobre wyczucie momentu.",
       "Design — mniej istotny niż oferta i triggery, ale warto testować kolory przycisków, zdjęcia, rozmiar okna.",
       "Copy — w większości przypadków treść pop-upu powinna być prosta i bezpośrednia, więc testuje się ją jako ostatnią."
     ]},
-    { heading:"Rodzaje ofert do testowania", bullets:[
+    { heading:"Offer types to test", bullets:[
       "Rabat kwotowy (np. 20 zł off) — lepiej sprawdza się przy produktach o wysokim AOV.",
       "Rabat procentowy — lepiej sprawdza się przy produktach o niskim AOV.",
       "Darmowy gratis/produkt — wykorzystuj produkty o wysokiej marży.",
@@ -7686,12 +7707,12 @@ KNOWLEDGE_ARTICLES.push({
       "Cashback — świetna, wciąż niedoceniana opcja.",
       "Dostęp do ekskluzywnej społeczności — dobrze sprawdza się przy większych markach z autorytetem."
     ]},
-    { heading:"Triggery — mobile vs. desktop", bullets:[
+    { heading:"Triggers — mobile vs. desktop", bullets:[
       "Mobile: opóźnienie czasowe 8–20 sekund, dystans przewijania 60–80%.",
       "Desktop: przede wszystkim exit-intent, opcjonalnie opóźnienie czasowe 8–20 sekund lub przewijanie 60–80%.",
       "Największe różnice w wynikach dają testy skrajności (np. 4 sekundy vs. 12 sekund opóźnienia)."
     ]},
-    { heading:"Testuj oba wskaźniki naraz", bullets:[
+    { heading:"Test both metrics at once", bullets:[
       "Zawsze sprawdzaj zarówno wskaźnik zapisów, jak i lead-to-conversion rate — czyli odsetek zapisanych osób, które faktycznie złożyły zamówienie.",
       "Niektóre oferty (np. konkursy) podnoszą samą liczbę zapisów, ale obniżają jakość leadów — ostatecznie taki pop-up jest mniej opłacalny, mimo lepszego wskaźnika opt-in."
     ]}
@@ -7703,25 +7724,25 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Dane, które klient chętnie sam Ci przekazuje, są dokładniejsze i cenniejsze niż jakiekolwiek dane śledzone w tle — a większość marek wciąż ich nie wykorzystuje.",
   source:"Pillar #4 — Collecting Zero-Party Data",
   sections:[
-    { heading:"O co chodzi", bullets:[
+    { heading:"What it's about", bullets:[
       "Dane zero-party to informacje, które klient dobrowolnie Ci przekazuje — w odróżnieniu od danych first-party (śledzenie zachowania) czy third-party (źródła zewnętrzne).",
       "Przykłady: odpowiedzi na quizy, wyniki ankiet, wybory w formularzu pop-up, ustawienia w centrum preferencji."
     ]},
-    { heading:"Po co to stosować", bullets:[
+    { heading:"Why use it", bullets:[
       "Ponieważ dane te są przekazane dobrowolnie, są dokładniejsze i cenniejsze niż dane zbierane w tle poprzez śledzenie zachowania.",
       "Sama liczba zapisów na listę nie ma znaczenia — liczy się konwersja. Lista ogromna, ale bez konwersji, nie napędza żadnego biznesu."
     ]},
-    { heading:"Jakie efekty to daje", bullets:[
+    { heading:"What results it delivers", bullets:[
       "ZPD odblokowuje hiperpersonalizację, ujawniając realne bolączki, motywacje i preferencje klientów, dzięki czemu maile faktycznie trafiają w potrzeby, a nie brzmią jak generyczny blast.",
       "Nawet 4-punktowy wzrost konwersji flowa powitalnego (typowy efekt po wdrożeniu ZPD) potrafi dołożyć znaczącą kwotę dodatkowego przychodu rocznie przy marce robiącej 100 tys. zł/miesiąc obrotu."
     ]},
-    { heading:"Jakie pytania warto zadawać", bullets:[
+    { heading:"What questions are worth asking", bullets:[
       "\"Jaki jest Twój największy cel w tym momencie?\"",
       "\"Co jest dla Ciebie najważniejsze przy wyborze [produktu]?\"",
       "Dzięki tym pytaniom możesz: dopasować sekwencje mailowe do konkretnej odpowiedzi, segmentować głębiej (cena, jakość, zrównoważony rozwój, inne priorytety) i rekomendować trafniejsze produkty.",
       "Przykład: marka kosmetyczna pyta \"Jaki jest Twój największy problem skórny?\" (trądzik, starzenie, suchość) → kolejne maile pokazują dopasowane produkty. Marka suplementów pyta o główny cel (energia, odporność, sen) → klient dostaje treść i rekomendacje dopasowane do odpowiedzi."
     ]},
-    { heading:"Gdzie wykorzystać zebrane dane", bullets:[
+    { heading:"Where to use the data you collect", bullets:[
       "E-mail (flowy i kampanie) — personalizacja rekomendacji produktowych w flowie powitalnym, obsługa konkretnych obiekcji, zaawansowana segmentacja pod dopasowane oferty.",
       "Reklamy płatne i kreacje — mocniejsze hooki reklamowe, właściwe USP w komunikacji (np. \"idealne dla zapracowanych mam\" vs. \"idealne dla sportowców\"), adresowanie realnych obiekcji w treści reklam.",
       "Strona i CRO — dopasowanie opisów produktów i landing page'y do priorytetów klientów zebranych z danych ZPD.",
@@ -7737,25 +7758,25 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Sekcja Above-The-Fold to najważniejszy moduł całego maila — masz dosłownie 3 sekundy, żeby przekazać, o co w ogóle chodzi.",
   source:"Pillar #8 — Focus on Optimization Over Aesthetics",
   sections:[
-    { heading:"O co chodzi", bullets:["To zestaw zasad, które sprawiają, że mail realnie konwertuje na urządzeniach mobilnych i w różnych klientach pocztowych — priorytetem jest funkcjonalność, nie sama estetyka."] },
-    { heading:"Po co to stosować", bullets:[
+    { heading:"What it's about", bullets:["To zestaw zasad, które sprawiają, że mail realnie konwertuje na urządzeniach mobilnych i w różnych klientach pocztowych — priorytetem jest funkcjonalność, nie sama estetyka."] },
+    { heading:"Why use it", bullets:[
       "Piękny design robi wrażenie, ale to optymalizacja decyduje o wynikach — przeładowany lub wolno ładujący się mail traci uwagę, zanim odbiorca w ogóle zrozumie ofertę.",
       "Odbiorcy w większości skanują maile wzrokiem, nie czytają ich linia po linii — jeśli sedno nie jest jasne od razu, tracisz uwagę."
     ]},
-    { heading:"Jakie efekty to daje", bullets:["Marki nastawione na optymalizację mają wyraźnie lepsze wskaźniki konwersji na mobile, niższe wskaźniki porzuceń przez zbyt długi czas ładowania i lepszą deliverability dzięki lżejszym plikom."] },
-    { heading:"Above-the-fold to najważniejszy moduł", bullets:[
+    { heading:"What results it delivers", bullets:["Marki nastawione na optymalizację mają wyraźnie lepsze wskaźniki konwersji na mobile, niższe wskaźniki porzuceń przez zbyt długi czas ładowania i lepszą deliverability dzięki lżejszym plikom."] },
+    { heading:"Above-the-fold is the most important module", bullets:[
       "Sekcja ATF to Twój hak (myśl jak przy reklamach na Facebooku) — odbiorca musi zrozumieć ofertę/kąt w ciągu pierwszych 3 sekund.",
       "Nagłówek, pierwszy podnagłówek i pierwsze CTA powinny mieścić się powyżej linii zgięcia.",
       "Nie marnuj cennej przestrzeni — większość ludzi tylko skanuje maile wzrokiem."
     ]},
-    { heading:"Czas ładowania i grafiki", bullets:["Wolno ładujące się maile obniżają konwersję i pogarszają deliverability (zbyt ciężki mail ma mniejsze szanse trafić do skrzynki).", "Kompresuj grafiki narzędziami typu Tinypng.com."] },
-    { heading:"Mobile i tryb ciemny", bullets:[
+    { heading:"Load time & images", bullets:["Wolno ładujące się maile obniżają konwersję i pogarszają deliverability (zbyt ciężki mail ma mniejsze szanse trafić do skrzynki).", "Kompresuj grafiki narzędziami typu Tinypng.com."] },
+    { heading:"Mobile & dark mode", bullets:[
       "Jeśli mail jest graficzny, upewnij się, że czcionki w projekcie są wystarczająco duże — tekst na obrazku nie jest responsywny.",
       "Zadbaj o czytelność w trybie ciemnym: transparentne PNG, biały outline/glow wokół czarnego logo, świadome dopasowanie kolorystyki.",
       "Zostaw dużo światła — przeładowany mail jest nieczytelny i szybciej trafia do kosza."
     ]},
-    { heading:"Zasada absolutnie nienegocjowalna", bullets:["Zawsze przetestuj mail na własnym telefonie przed wysyłką — podgląd w samym Klaviyo bywa mylący, a każdy klient pocztowy renderuje mail nieco inaczej."] },
-    { heading:"Podsumowanie", bullets:["Najlepsze marki mają maile mobile-friendly, z czytelnymi CTA, dopracowaną sekcją above-the-fold i uproszczonym layoutem nastawionym na konwersję — bez rezygnowania z tożsamości wizualnej marki."] }
+    { heading:"One absolutely non-negotiable rule", bullets:["Zawsze przetestuj mail na własnym telefonie przed wysyłką — podgląd w samym Klaviyo bywa mylący, a każdy klient pocztowy renderuje mail nieco inaczej."] },
+    { heading:"Summary", bullets:["Najlepsze marki mają maile mobile-friendly, z czytelnymi CTA, dopracowaną sekcją above-the-fold i uproszczonym layoutem nastawionym na konwersję — bez rezygnowania z tożsamości wizualnej marki."] }
   ]
 });
 KNOWLEDGE_ARTICLES.push({
@@ -7764,17 +7785,17 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Zawsze testuj z hipotezą, jasnym KPI, jedną zmienną na raz — i nie trać czasu na testy, które nigdy nie osiągną istotności statystycznej.",
   source:"Pillar #9 — Have a Solid A/B Testing Framework",
   sections:[
-    { heading:"O co chodzi", bullets:["To zestaw zasad porządkujących sposób prowadzenia testów A/B w całej strategii mailingowej — od pop-upów, przez flowy, po kampanie."] },
-    { heading:"Po co to stosować", bullets:["Testowanie dla samego testowania to strata czasu i energii — bez jasnej hipotezy i celu łatwo wyciągnąć błędne wnioski albo w ogóle nigdy ich nie wyciągnąć."] },
-    { heading:"Jakie efekty to daje", bullets:["Systematyczny, dobrze udokumentowany proces testowania buduje z czasem bibliotekę sprawdzonej wiedzy o tym, co konkretnie działa u Twojej publiczności — zamiast pojedynczych, niepowiązanych obserwacji."] },
-    { heading:"Zawsze miej hipotezę", bullets:["Zanim zaczniesz test, sformułuj cel i hipotezę. Przykład: obecna oferta w pop-upie to 15% rabatu — hipoteza brzmi \"jeśli podniosę do 20-25%, wskaźnik zapisów wzrośnie, sprawdźmy to\"."] },
-    { heading:"Zdefiniuj swoje KPI", bullets:[
+    { heading:"What it's about", bullets:["To zestaw zasad porządkujących sposób prowadzenia testów A/B w całej strategii mailingowej — od pop-upów, przez flowy, po kampanie."] },
+    { heading:"Why use it", bullets:["Testowanie dla samego testowania to strata czasu i energii — bez jasnej hipotezy i celu łatwo wyciągnąć błędne wnioski albo w ogóle nigdy ich nie wyciągnąć."] },
+    { heading:"What results it delivers", bullets:["Systematyczny, dobrze udokumentowany proces testowania buduje z czasem bibliotekę sprawdzonej wiedzy o tym, co konkretnie działa u Twojej publiczności — zamiast pojedynczych, niepowiązanych obserwacji."] },
+    { heading:"Always have a hypothesis", bullets:["Zanim zaczniesz test, sformułuj cel i hipotezę. Przykład: obecna oferta w pop-upie to 15% rabatu — hipoteza brzmi \"jeśli podniosę do 20-25%, wskaźnik zapisów wzrośnie, sprawdźmy to\"."] },
+    { heading:"Define your KPI", bullets:[
       "Nie każdy test ma bezpośrednio maksymalizować wskaźnik złożonych zamówień — czasem celem jest poprawa \"metryki próżności\", która pośrednio na niego wpływa.",
       "Zależnie od testu, jasno zdefiniuj, co maksymalizujesz: wskaźnik złożonych zamówień, click rate, open rate czy opt-in rate."
     ]},
-    { heading:"Zapisuj wyniki", bullets:["\"To, co się mierzy, tym się zarządza\" — przy równoległym prowadzeniu wielu testów zapisuj wyniki na bieżąco. Prosty arkusz z zakładkami Pop-upy / Flowy / Kampanie w zupełności wystarczy."] },
-    { heading:"Testuj jedną zmienną na raz", bullets:["Zmiana kilku elementów naraz uniemożliwia wskazanie, co realnie odpowiada za różnicę w wynikach.", "Poczekaj na istotność statystyczną, zanim wyciągniesz jakiekolwiek wnioski."] },
-    { heading:"Nie testuj wszystkiego", bullets:["Teoretycznie można testować każdy pojedynczy element strategii — ale niektóre różnice są tak marginalne, że osiągnięcie istotności statystycznej zajęłoby wieczność. Skup się na testach o realnie wysokiej dźwigni."] }
+    { heading:"Track your results", bullets:["\"To, co się mierzy, tym się zarządza\" — przy równoległym prowadzeniu wielu testów zapisuj wyniki na bieżąco. Prosty arkusz z zakładkami Pop-upy / Flowy / Kampanie w zupełności wystarczy."] },
+    { heading:"Test one variable at a time", bullets:["Zmiana kilku elementów naraz uniemożliwia wskazanie, co realnie odpowiada za różnicę w wynikach.", "Poczekaj na istotność statystyczną, zanim wyciągniesz jakiekolwiek wnioski."] },
+    { heading:"Don't test everything", bullets:["Teoretycznie można testować każdy pojedynczy element strategii — ale niektóre różnice są tak marginalne, że osiągnięcie istotności statystycznej zajęłoby wieczność. Skup się na testach o realnie wysokiej dźwigni."] }
   ]
 });
 KNOWLEDGE_ARTICLES.push({
@@ -7783,11 +7804,11 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Prosty w konfiguracji, wysokiej dźwigni test — warto prowadzić go regularnie właśnie tam, gdzie płynie najwięcej ruchu.",
   source:"Pillar #9 — Have a Solid A/B Testing Framework",
   sections:[
-    { heading:"O co chodzi", bullets:["To testowanie różnych wersji subject line'a w pierwszych mailach najważniejszych, najbardziej ruchowych flowów."] },
-    { heading:"Po co to stosować", bullets:["To jeden z najprostszych do skonfigurowania testów, a jednocześnie potrafi realnie wpłynąć na wyniki całej strategii mailingowej — bo dotyczy flowów, przez które przechodzi najwięcej osób."] },
-    { heading:"Jakie efekty to daje", bullets:["Regularne testowanie subject line'ów w tych konkretnych flowach systematycznie podnosi open rate w miejscach, gdzie ma to największe przełożenie na przychód."] },
-    { heading:"Gdzie się skupić", bullets:["Seria powitalna", "Porzucony checkout", "Flow posprzedażowy"] },
-    { heading:"Dlaczego warto go prowadzić na stałe", bullets:["To bardzo prosty do wdrożenia test, który może dać naprawdę duże efekty — warto prowadzić go regularnie, bez wymówek."] }
+    { heading:"What it's about", bullets:["To testowanie różnych wersji subject line'a w pierwszych mailach najważniejszych, najbardziej ruchowych flowów."] },
+    { heading:"Why use it", bullets:["To jeden z najprostszych do skonfigurowania testów, a jednocześnie potrafi realnie wpłynąć na wyniki całej strategii mailingowej — bo dotyczy flowów, przez które przechodzi najwięcej osób."] },
+    { heading:"What results it delivers", bullets:["Regularne testowanie subject line'ów w tych konkretnych flowach systematycznie podnosi open rate w miejscach, gdzie ma to największe przełożenie na przychód."] },
+    { heading:"Where to focus", bullets:["Seria powitalna", "Porzucony checkout", "Flow posprzedażowy"] },
+    { heading:"Why it's worth running consistently", bullets:["To bardzo prosty do wdrożenia test, który może dać naprawdę duże efekty — warto prowadzić go regularnie, bez wymówek."] }
   ]
 });
 KNOWLEDGE_ARTICLES.push({
@@ -7796,24 +7817,24 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Cztery gotowe do użycia procesy promptowania: badanie klienta, trening głosu marki, pisanie konwertującego copy i optymalizacja subject line'ów.",
   source:"Bonus #1 — How To Utilize AI in Email Marketing",
   sections:[
-    { heading:"O co chodzi", bullets:["To zestaw sprawdzonych promptów, które przyspieszają cztery konkretne obszary pracy: research klienta, utrzymanie spójnego głosu marki, pisanie copy oraz optymalizację subject line'ów."] },
-    { heading:"Po co to stosować", bullets:["AI potrafi znacząco przyspieszyć research, planowanie i pisanie — ale tylko przy odpowiednich promptach i danych wejściowych. Bez tego generuje generyczne, mało trafne treści."] },
-    { heading:"Jakie efekty to daje", bullets:["Pozwala tworzyć wysokokonwertujące maile w ułamku czasu potrzebnego na ręczną pracę, przy zachowaniu spójności z realnym głosem i danymi marki."] },
-    { heading:"AI do badania klienta", bullets:[
+    { heading:"What it's about", bullets:["To zestaw sprawdzonych promptów, które przyspieszają cztery konkretne obszary pracy: research klienta, utrzymanie spójnego głosu marki, pisanie copy oraz optymalizację subject line'ów."] },
+    { heading:"Why use it", bullets:["AI potrafi znacząco przyspieszyć research, planowanie i pisanie — ale tylko przy odpowiednich promptach i danych wejściowych. Bez tego generuje generyczne, mało trafne treści."] },
+    { heading:"What results it delivers", bullets:["Pozwala tworzyć wysokokonwertujące maile w ułamku czasu potrzebnego na ręczną pracę, przy zachowaniu spójności z realnym głosem i danymi marki."] },
+    { heading:"AI for customer research", bullets:[
       "Potrzebujesz: zbioru opinii klientów (recenzje z Amazon, ankiety, zgłoszenia do supportu), jasności co do produktu i branży, dobrze posegmentowanych danych (prospekci vs. klienci).",
       "Prompt do analizy recenzji: \"Powyżej znajdują się 5-gwiazdkowe recenzje naszego PRODUKTU. Podsumuj 10 najczęściej wymienianych rzeczy, które klienci opisują jako korzyści, których doświadczają.\"",
       "Prompt do budowy persony: \"Opisz klienta, który kupiłby [produkt]. Opisz jego wiek, wygląd, ubiór, zawód, hobby, najczęstsze bolączki w ciągu dnia, to, czego skrycie pragnie, i jego typowy dzień.\""
     ]},
-    { heading:"AI do utrzymania spójności marki", bullets:[
+    { heading:"AI for maintaining brand consistency", bullets:[
       "Potrzebujesz: dokumentu tożsamości marki, treści ze strony i social mediów, min. 100 wcześniejszych subject line'ów z open rate'ami.",
       "Poproś AI o analizę tonu (formalny/nieformalny, poważny/żartobliwy), wzorców językowych, emocji, jakie wywołuje treść, sposobu zwracania się do odbiorcy oraz kluczowych wartości i przekazów — a na końcu o konkretne wytyczne \"co robić\" i \"czego unikać\" plus 2–3 przykłady zgodnego copy.",
       "Zablokuj ten głos w kolejnych promptach: \"Jesteś ekspertem copywritingu e-commerce dla marki {NAZWA MARKI}. Zawsze odpowiadasz w tym konkretnym tonie i stylu przy pisaniu treści mailowych.\""
     ]},
-    { heading:"AI do pisania konwertującego copy", bullets:[
+    { heading:"AI for writing converting copy", bullets:[
       "Przykładowy prompt: \"Jako copywriter napisz 50–75-wyrazowy mail w formacie graficznym z kątem: {{KĄT}}. Na końcu subtelnie i płynnie wpleć pitch produktu.\"",
       "Wytyczne warte dołączenia: 1–2 zdania na akapit, angażujący język, poziom 5. klasy szkoły podstawowej pod względem prostoty, nagłówki i podnagłówki na 4–7 słów, ton głosu zgodny z materiałami marki, bez zbędnych słów-wypełniaczy."
     ]},
-    { heading:"AI do optymalizacji subject line'ów", bullets:[
+    { heading:"AI for subject line optimization", bullets:[
       "Potrzebujesz: 250+ wcześniejszych subject line'ów z open rate'ami.",
       "Poproś AI o wskazanie, co odpowiada za sukces najlepszych subject line'ów (triggery emocjonalne, liczba słów, frazowanie, powtarzające się motywy — intryga, presja czasu, jasność), a czego unikać w najsłabszych (niejasny język, zbyt duża długość, nadmiernie sprzedażowy ton), i podsumowanie w formie konkretnych wytycznych."
     ]}
@@ -7825,31 +7846,31 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Prawdziwa wartość e-maila wykracza daleko poza sprzedaż — to również akwizycja, rozwój produktu, diagnoza retencji i obsługa klienta.",
   source:"Bonus #2 — Email As a Tool Beyond Revenue Generation",
   sections:[
-    { heading:"O co chodzi", bullets:["To spojrzenie na e-mail marketing jako na źródło danych i wsparcia dla innych działów firmy, nie tylko jako kanał sprzedażowy."] },
-    { heading:"Po co to stosować", bullets:["Traktowanie e-maila wyłącznie jako kanału przychodowego pomija ogromną część jego realnej wartości — dane, jakie generuje, mogą realnie wspierać akwizycję, rozwój produktu i obsługę klienta."] },
-    { heading:"Jakie efekty to daje", bullets:["Zamienia dział e-mail marketingu w źródło praktycznej wiedzy dla całej firmy — nie tylko generatora sprzedaży, ale realnego wsparcia strategicznego dla reklam, produktu i customer experience."] },
-    { heading:"Wsparcie akwizycji", bullets:[
+    { heading:"What it's about", bullets:["To spojrzenie na e-mail marketing jako na źródło danych i wsparcia dla innych działów firmy, nie tylko jako kanał sprzedażowy."] },
+    { heading:"Why use it", bullets:["Traktowanie e-maila wyłącznie jako kanału przychodowego pomija ogromną część jego realnej wartości — dane, jakie generuje, mogą realnie wspierać akwizycję, rozwój produktu i obsługę klienta."] },
+    { heading:"What results it delivers", bullets:["Zamienia dział e-mail marketingu w źródło praktycznej wiedzy dla całej firmy — nie tylko generatora sprzedaży, ale realnego wsparcia strategicznego dla reklam, produktu i customer experience."] },
+    { heading:"Supporting acquisition", bullets:[
       "Im większa lista mailingowa, tym więcej przychodu można wyciągnąć z powracających klientów.",
       "Dane zero-party — przekazuj zainteresowania, preferencje produktowe, obiekcje i use case'y zespołom od płatnych reklam.",
       "Zbieranie UGC — kampanie i konkursy UGC dostarczają konwertujących materiałów kreatywnych do reklam.",
       "Ankiety wśród segmentów o wysokim LTV — pytaj najlepszych klientów, skąd przyszli, dlaczego kupili i co ich zatrzymało.",
       "Współprace międzymarkowe — wykorzystaj e-mail do wspólnych promocji z komplementarnymi markami, budowania większych list i wymiany insightów."
     ]},
-    { heading:"Wsparcie rozwoju produktu", bullets:[
+    { heading:"Supporting product development", bullets:[
       "Ankiety — pytaj klientów, co chcieliby zobaczyć dalej, czego brakuje, co wymaga poprawy.",
       "ZPD — śledź preferencje i powtarzające się bolączki.",
       "Programy testów beta — wykorzystaj flowy lub kampanie do zaproszenia najlepszych klientów do testowania nowych SKU.",
       "Segmentacja według LTV — sprawdź, co konsekwentnie kupują (a co ignorują) najlepsi klienci.",
       "Pętle feedbacku — maile posprzedażowe z konkretnymi, produktowymi pytaniami."
     ]},
-    { heading:"Diagnoza retencji", bullets:[
+    { heading:"Retention diagnosis", bullets:[
       "Analiza porzuceń na poziomie produktu — patrz na zachowanie posprzedażowe i wyniki poszczególnych SKU.",
       "Ankiety posprzedażowe — czy produkt spełnił oczekiwania? Czegoś brakowało?",
       "Analiza recenzji — automatyczne skanowanie i tagowanie, żeby wychwycić powtarzające się skargi.",
       "Monitorowanie NPS — cykliczne (np. kwartalne) ankiety mierzące nastroje klientów.",
       "Wykrywanie problemów na poziomie segmentu — jeśli retencja spada w jednej grupie demograficznej lub kohorcie, e-mail potrafi to szybko uwidocznić."
     ]},
-    { heading:"Doświadczenie klienta (CX)", bullets:[
+    { heading:"Customer experience (CX)", bullets:[
       "Wsparcie wyprzedzające — wysyłaj maile ZANIM pojawi się typowy problem (np. informacja o opóźnieniach w dostawie, zasady zwrotów).",
       "Miłe zaskoczenia — losowe nagrody lojalnościowe, odręczne wiadomości, wcześniejszy dostęp.",
       "Kuracja UGC — zbieraj i pokazuj recenzje, testimoniale, realne przykłady użytkowania.",
@@ -7865,17 +7886,17 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Subskrypcje to najsilniejsza dźwignia do przewidywalnego, kumulującego się wzrostu — a churn przestaje być zgadywanką, gdy zaczyna się go realnie mierzyć.",
   source:"Bonus #3 — Increase Subscription Rates & Decrease Churn",
   sections:[
-    { heading:"O co chodzi", bullets:["To dwie powiązane rzeczy: strategiczne uzasadnienie, dlaczego model subskrypcyjny w ogóle warto rozwijać, oraz konkretny zestaw metryk, które pozwalają traktować churn jako mierzalny system, a nie domysł."] },
-    { heading:"Po co to stosować", bullets:[
+    { heading:"What it's about", bullets:["To dwie powiązane rzeczy: strategiczne uzasadnienie, dlaczego model subskrypcyjny w ogóle warto rozwijać, oraz konkretny zestaw metryk, które pozwalają traktować churn jako mierzalny system, a nie domysł."] },
+    { heading:"Why use it", bullets:[
       "Przychód subskrypcyjny zmniejsza zależność od ciągłego pozyskiwania nowych klientów każdego miesiąca — ta stabilność pozwala skalować się z większą pewnością.",
       "Subskrybent jest wart 2–5 razy więcej niż jednorazowy kupujący — ten dodatkowy margines daje przestrzeń, żeby przelicytować konkurencję w płatnych mediach.",
       "E-mail i SMS działają dużo skuteczniej, gdy są zbudowane wokół kamieni milowych subskrypcji (odnowienia, upgrade'y, nagrody lojalnościowe) niż wokół pojedynczych, oderwanych kampanii."
     ]},
-    { heading:"Jakie efekty to daje", bullets:[
+    { heading:"What results it delivers", bullets:[
       "W przeciwieństwie do kanałów płatnych, e-mail daje pełną kontrolę nad linią komunikacji z subskrybentem — pozwala bezpośrednio obniżać churn, zwiększać liczbę upgrade'ów i odzyskiwać byłych subskrybentów.",
       "Segmentowanie subskrybentów według konkretnego powodu anulowania i budowanie flowów wokół tych obiekcji to miejsce, w którym realnie rodzi się poprawa retencji."
     ]},
-    { heading:"Metryki, które warto śledzić", bullets:[
+    { heading:"Metrics worth tracking", bullets:[
       "Churn według kohorty — czy klienci anulują po 1. miesiącu? 3.? 6.?",
       "Najczęstsze powody anulowania — zbierane przez centrum preferencji lub np. Typeform.",
       "Click rate na CTA \"pomiń\", \"zamień\", \"zawieś\".",
@@ -7890,10 +7911,10 @@ KNOWLEDGE_ARTICLES.push({
   summary:"Pełna checklista poza flowami, kampaniami i deliverability — konfiguracja techniczna, SMS, formularze zapisu, integracje i kontrola kosztów.",
   source:"Bonus #4 — How To Audit Your Klaviyo Account Like a Pro",
   sections:[
-    { heading:"O co chodzi", bullets:["To checklista pokrywająca całą resztę konta Klaviyo, która nie mieści się w kategoriach flowów, kampanii czy deliverability — fundamenty techniczne, kanał SMS, wzrost listy i higienę kosztową."] },
-    { heading:"Po co to stosować", bullets:["Zła konfiguracja techniczna prowadzi do niedokładnego raportowania, popsutych flowów i przegapionych okazji — a często zostaje niezauważona miesiącami, bo nie objawia się w oczywisty sposób."] },
-    { heading:"Jakie efekty to daje", bullets:["Regularny przegląd tych obszarów pozwala wychwycić realne, gotowe do naprawienia straty — zarówno w jakości danych/atrybucji, jak i w bezpośrednich, comiesięcznych kosztach narzędzia."] },
-    { heading:"Podstawowa konfiguracja techniczna", bullets:[
+    { heading:"What it's about", bullets:["To checklista pokrywająca całą resztę konta Klaviyo, która nie mieści się w kategoriach flowów, kampanii czy deliverability — fundamenty techniczne, kanał SMS, wzrost listy i higienę kosztową."] },
+    { heading:"Why use it", bullets:["Zła konfiguracja techniczna prowadzi do niedokładnego raportowania, popsutych flowów i przegapionych okazji — a często zostaje niezauważona miesiącami, bo nie objawia się w oczywisty sposób."] },
+    { heading:"What results it delivers", bullets:["Regularny przegląd tych obszarów pozwala wychwycić realne, gotowe do naprawienia straty — zarówno w jakości danych/atrybucji, jak i w bezpośrednich, comiesięcznych kosztach narzędzia."] },
+    { heading:"Core technical setup", bullets:[
       "Czy używasz Smart Send Time?",
       "Czy optymalizacja CSS jest włączona?",
       "Czy ustawienie prywatności Apple jest wykluczone z atrybucji?",
@@ -7909,17 +7930,17 @@ KNOWLEDGE_ARTICLES.push({
       "Czy regulamin mobilny (Mobile TOS) jest aktywny, a informacja o zgodzie poprawnie podlinkowana?",
       "Uwaga: korzystanie z platformy SMS poza Klaviyo oznacza zwykle wyższe koszty i słabszą segmentację."
     ]},
-    { heading:"Formularze zapisu (wzrost listy)", bullets:[
+    { heading:"Sign-up forms (list growth)", bullets:[
       "Pop-up: wersje mobile i desktop, mocna oferta (tajemniczy rabat lub oferta progowa), sprytne triggery wyświetlania, wykluczenie z wrażliwych podstron (np. checkout).",
       "Jakość formularza: przekonujący nagłówek i treść, opt-in SMS z opcją tap-to-text na mobile, format wieloetapowy pod zbieranie danych zero-party, poprawne kierowanie zapisów do właściwej listy.",
       "Follow-up: poprawnie wyzwolony mail/SMS powitalny, wykorzystanie ZPD do personalizacji kolejnej komunikacji."
     ]},
-    { heading:"Integracje zewnętrzne", bullets:[
+    { heading:"3rd party integrations", bullets:[
       "Czy platformy recenzji, helpdesku, lojalności i UGC są podłączone?",
       "Czy zdarzenia z tych narzędzi są realnie wykorzystywane w flowach lub segmentacji?",
       "Dobre praktyki: wykorzystuj recenzje w flowach winback i powitalnych, poziomy lojalności do personalizacji kampanii, dane z obsługi klienta do wykluczania niezadowolonych klientów z komunikacji sprzedażowej."
     ]},
-    { heading:"Czyszczenie listy i kontrola kosztów", bullets:[
+    { heading:"List cleaning & cost control", bullets:[
       "Czy jesteś na właściwym planie cenowym Klaviyo dla aktualnej wielkości bazy?",
       "Czy wygaszasz nieaktywne profile?",
       "Czy wysyłasz długie SMS-y/MMS-y o niskim ROI?",
@@ -7933,30 +7954,30 @@ KNOWLEDGE_ARTICLES.push({
   summary:"E-mail nie uratuje słabego produktu, złej akwizycji ani wypalonej listy — ale dobrze zdiagnozowany problem zwykle da się odwrócić.",
   source:"Bonus #5 — Why Your Email Revenue Is Dropping (And How To Fix It)",
   sections:[
-    { heading:"O co chodzi", bullets:["To zestaw dziesięciu najczęstszych przyczyn spadku przychodu z e-maila — od problemów z akwizycją, przez jakość produktu, po błędy w pomiarze wyników."] },
-    { heading:"Po co to stosować", bullets:["Wielu marketerów szuka przyczyny spadku wyłącznie w samym e-mailu (design, copy, oferta), podczas gdy realny problem często leży zupełnie gdzie indziej — w akwizycji, produkcie albo w sposobie mierzenia wyników."] },
-    { heading:"Jakie efekty to daje", bullets:["Systematyczne przejście przez tę listę pozwala szybko wykluczyć fałszywe tropy i skupić energię na tym, co realnie odpowiada za spadek — zamiast na wpół losowo zmieniać kolejne elementy kampanii."] },
-    { heading:"1–2. E-mail nie działa w próżni, a lista bywa wypalona", bullets:[
+    { heading:"What it's about", bullets:["To zestaw dziesięciu najczęstszych przyczyn spadku przychodu z e-maila — od problemów z akwizycją, przez jakość produktu, po błędy w pomiarze wyników."] },
+    { heading:"Why use it", bullets:["Wielu marketerów szuka przyczyny spadku wyłącznie w samym e-mailu (design, copy, oferta), podczas gdy realny problem często leży zupełnie gdzie indziej — w akwizycji, produkcie albo w sposobie mierzenia wyników."] },
+    { heading:"What results it delivers", bullets:["Systematyczne przejście przez tę listę pozwala szybko wykluczyć fałszywe tropy i skupić energię na tym, co realnie odpowiada za spadek — zamiast na wpół losowo zmieniać kolejne elementy kampanii."] },
+    { heading:"1-2. Email doesn't exist in a vacuum, and lists get burnt out", bullets:[
       "E-mail to kanał retencyjny, nie akwizycyjny — jeśli spowalnia akwizycja, e-mail podąża za nią z opóźnieniem. Sprawdź, czy masz mniej ruchu lub nowych klientów z płatnych/organicznych źródeł i czy flowy/kampanie wciąż trafiają do wystarczająco dużej grupy osób o wysokiej intencji.",
       "Gdy akwizycja zwalnia, wiele marek próbuje \"wycisnąć\" więcej z listy: podnosi częstotliwość, mnoży promocje, pogłębia rabaty — to działa przez chwilę, ale nie jest zrównoważone. Sygnały ostrzegawcze: spadający open rate, spłaszczający się przychód na mail, rosnąca zależność od rabatów. Napraw: skup się na reaktywacji najbardziej zaangażowanych segmentów (np. Engaged 30D/60D), odetnij martwy balast, dawaj wartość poza samą promocją."
     ]},
-    { heading:"3–4. Produkt nie jest zaprojektowany pod retencję / brak nowości", bullets:[
+    { heading:"3-4. The product isn't built for retention / no new launches", bullets:[
       "Niektóre produkty (materace, kanapy, zegarki premium) z natury nie mają wysokiego wskaźnika powtórnych zakupów — to normalne. Ale jeśli działasz w branży produktów zużywalnych, a mimo to masz niski repeat rate, to realny sygnał ostrzegawczy. Napraw: zbuduj strategię retencji dopasowaną do cyklu życia produktu, postaw na flowy posprzedażowe, przypomnienia o uzupełnieniu zapasów i UGC; jeśli produkt naprawdę nie jest \"pod flowy\", zamiast tego optymalizuj pod wysokie LTV z pierwszego zakupu.",
       "Jeśli asortyment się nie rozwija, najlepsi klienci nie mają powodu wracać. Wiele marek utyka, bo nie wprowadza komplementarnych SKU ani nie buduje skutecznych bundli. Napraw: wypuszczaj produkty rozszerzające zastosowania, prowadź ankiety o tym, czego klienci potrzebują dalej, promuj bundle i limitowane edycje przez e-mail."
     ]},
-    { heading:"5–7. Nie ci klienci, spadek jakości, kanibalizacja kanałów", bullets:[
+    { heading:"5-7. Wrong customers, quality drop, channel cannibalization", bullets:[
       "Łowcy okazji rzadko są lojalni. Jeśli zbyt mocno oparłeś się o rabaty lub niskie ceny wejścia, mogłeś przyciągnąć bazę o zerowym LTV. Śledź: CLV klientów rabatowych vs. bezrabatowych oraz wskaźnik ponownych zakupów według źródła pozyskania. Doprecyzuj ofertę wejściową i hooki reklamowe, żeby przyciągać klientów dopasowanych wartościowo do marki.",
       "Jeśli jakość produktu spadła, zaufanie spada razem z nią, a klienci odchodzą. Przykłady: zmiana receptury/materiału, problemy z dostawcami, niespełnione obietnice po agresywnym marketingu. Napraw: zapytaj VIP-ów i klientów, którzy odeszli, wykorzystaj e-mail do wzmocnienia zaufania (treści \"za kulisami\", transparentność dostawców, wskazówki pielęgnacyjne).",
       "Jeśli doszedł Amazon, sprzedaż detaliczna lub hurtowa, część przychodu od powracających klientów mogła się po prostu przenieść, a nie zniknąć. Przykład: klienci kupują teraz na Amazonie zamiast w Twoim Shopify — retencja \"wygląda\" na gorszą, ale jest tylko rozproszona. Napraw: wyróżnij doświadczenie DTC (ekskluzywne SKU, przywileje lojalnościowe), wykorzystaj e-mail, żeby kierować ruch z powrotem do własnego sklepu."
     ]},
-    { heading:"8–9. Deliverability i błędy w pomiarze", bullets:[
+    { heading:"8-9. Deliverability & measurement errors", bullets:[
       "Słaba higiena listy, nietrafione wysyłki lub błędy techniczne = mniej osób w ogóle widzi Twoje maile. Zrób audyt deliverability: trendy spamu/odbić/wypisów, wysyłkę wyłącznie do zaangażowanych segmentów, uwierzytelnianie (SPF, DKIM, DMARC), regularne usuwanie nieaktywnych profili.",
       "Czasem problemem nie jest przychód, tylko atrybucja. Częste problemy: prywatność Apple zaburzająca dane o otwarciach/kliknięciach, nieprawidłowe okna atrybucji, brak śledzenia lead-to-sale dla pop-upów. Śledź: LTV w oknie 60 dni, wskaźnik lead-to-conversion, CR kluczowych flowów (zwłaszcza powitalnego i porzuconych), % przychodu od powracających klientów rok do roku."
     ]},
-    { heading:"10. Zbyt zastała strategia", bullets:[
+    { heading:"10. A too-stale strategy", bullets:[
       "Jeśli wysyłasz te same kampanie co rok temu, Twoja lista prawdopodobnie się znudziła. Ludzie nie chcą wyłącznie rabatów — chcą treści, edukacji, dowodu społecznego, kulis marki, premier, historii społeczności. Śledź: wysyłkę 2–4 kampanii tygodniowo, mix treści promocyjnych/edukacyjnych/testimonialowych/wartościowych, testuj maile tekstowe od założyciela pod kątem reaktywacji."
     ]},
-    { heading:"Od czego zacząć audyt", bullets:["Jak wygląda ruch?", "Czy flowy działają poprawnie?", "Czy wysyłasz wystarczająco dużo kampanii budujących wartość?", "Czy lista jest czysta?", "Czy przyciągasz właściwych kupujących?"] }
+    { heading:"Where to start the audit", bullets:["Jak wygląda ruch?", "Czy flowy działają poprawnie?", "Czy wysyłasz wystarczająco dużo kampanii budujących wartość?", "Czy lista jest czysta?", "Czy przyciągasz właściwych kupujących?"] }
   ]
 });
 function findArticle(id){ for(var i=0;i<KNOWLEDGE_ARTICLES.length;i++){ if(KNOWLEDGE_ARTICLES[i].id===id) return KNOWLEDGE_ARTICLES[i]; } return null; }
@@ -12482,19 +12503,17 @@ function toggleArticleRead(articleId){
   }
   return nowRead;
 }
-function kbLessonWord(n){
-  // Polska odmiana: 1 lekcja, 2-4 lekcje, 5+ (i 12-14) lekcji.
-  if(n===1) return "lekcja";
-  var mod10 = n%10, mod100 = n%100;
-  if(mod10>=2 && mod10<=4 && !(mod100>=12 && mod100<=14)) return "lekcje";
-  return "lekcji";
-}
 function fmtKbDate(iso){
   if(!iso) return "";
   var d = new Date(iso+"T00:00:00");
   if(isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString("pl-PL", { day:"numeric", month:"long", year:"numeric" });
+  return d.toLocaleDateString("en-GB", { day:"numeric", month:"long", year:"numeric" });
 }
+// user, trzeci raz: "wszystko ma być po angielsku oprócz opisu lekcji" —
+// CAŁE chrome sekcji (tytuły/przyciski/etykiety/filtry) wraca na angielski;
+// tylko treść lekcji (title/summary/sections[].bullets) zostaje po polsku
+// (patrz KNOWLEDGE_ARTICLES). Wcześniejsza decyzja "cała sekcja po polsku"
+// została jawnie cofnięta tym poleceniem.
 function renderKnowledgeGrid(){
   var q = state.searchQuery;
   var fullList = articlesByCategory(state.knowledgeCategory).filter(function(a){
@@ -12503,11 +12522,11 @@ function renderKnowledgeGrid(){
        (state.knowledgeReadFilter==="read" ? isArticleRead(a.id) : !isArticleRead(a.id)));
   });
   var page = paginateList(fullList);
-  byId("gridTitle").textContent = state.knowledgeCategory==="all" ? "Wszystkie lekcje" : knowledgeCategoryLabel(state.knowledgeCategory);
-  byId("gridCount").textContent = fullList.length + " " + kbLessonWord(fullList.length);
+  byId("gridTitle").textContent = state.knowledgeCategory==="all" ? "All lessons" : knowledgeCategoryLabel(state.knowledgeCategory);
+  byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " lesson" : " lessons");
   var grid = byId("cardGrid"); grid.innerHTML = "";
   if(fullList.length===0){
-    grid.innerHTML = '<p class="drawer-empty" style="grid-column:1/-1; padding:36px">Brak lekcji spełniających ten filtr.</p>';
+    grid.innerHTML = '<p class="drawer-empty" style="grid-column:1/-1; padding:36px">No lessons match this filter.</p>';
     renderPagination(1);
     return;
   }
@@ -12516,12 +12535,12 @@ function renderKnowledgeGrid(){
     var el = document.createElement("div"); el.className = "card flow-card";
     el.innerHTML =
       '<div class="flow-card-top">'+
-        '<p class="flow-card-cat">'+esc(knowledgeCategoryLabel(a.category))+(read?' · <span style="color:var(--ink-faint)">Zapoznano</span>':'')+'</p>'+
+        '<p class="flow-card-cat">'+esc(knowledgeCategoryLabel(a.category))+(read?' · <span style="color:var(--ink-faint)">Reviewed</span>':'')+'</p>'+
         '<p class="flow-card-title">'+esc(a.title)+'</p>'+
         '<p class="flow-card-desc">'+esc(a.summary||"")+'</p>'+
       '</div>'+
       '<div class="flow-card-foot">'+
-        '<button class="btn small" data-kb-open="'+esc(a.id)+'" style="flex:1">Otwórz</button>'+
+        '<button class="btn small" data-kb-open="'+esc(a.id)+'" style="flex:1">Open</button>'+
       '</div>';
     grid.appendChild(el);
   });
@@ -12540,8 +12559,8 @@ function renderKnowledgeReadFilterRow(){
   var all = KNOWLEDGE_ARTICLES.length;
   var readCount = KNOWLEDGE_ARTICLES.filter(function(a){ return isArticleRead(a.id); }).length;
   var counts = { all:all, unread:all-readCount, read:readCount };
-  var filters = [["all","Wszystkie"],["unread","Nie zapoznano"],["read","Zapoznano"]];
-  row.innerHTML = '<span style="font-size:12.5px; color:var(--ink-faint)">Postęp:</span>'+
+  var filters = [["all","All"],["unread","Not reviewed"],["read","Reviewed"]];
+  row.innerHTML = '<span style="font-size:12.5px; color:var(--ink-faint)">Progress:</span>'+
     filters.map(function(f){
       var active = state.knowledgeReadFilter===f[0];
       return '<button type="button" data-kb-read-filter="'+f[0]+'" aria-pressed="'+(active?"true":"false")+'" style="font-size:12.5px; font-weight:500; padding:5px 11px; border-radius:999px; border:1px solid '+(active?'var(--ink)':'var(--line-strong)')+'; background:'+(active?'var(--ink)':'transparent')+'; color:'+(active?'var(--paper)':'var(--ink-muted)')+'; cursor:pointer; line-height:1">'+esc(f[1])+' ('+counts[f[0]]+')</button>';
@@ -12555,24 +12574,23 @@ function renderKnowledgeReadFilterRow(){
     });
   });
 }
+// user, trzeci raz: "Kto się z tym zapoznał... również w sekcji z
+// przyciskiem Zapoznałem się" — kompaktowy, poziomy pasek w
+// .modal-footer-bar (#knowledgeReadersBar), nie osobna sekcja w
+// scrollującym body jak wcześniej.
 function knowledgeReadersHtml(articleId){
   var readers = usersWhoReadArticle(articleId);
-  if(!readers.length) return '<p style="font-size:13px; color:var(--ink-faint); margin:0">Nikt jeszcze się nie zapoznał.</p>';
-  return '<div style="display:flex; flex-direction:column; gap:10px">'+
+  if(!readers.length) return '<span>No one has reviewed this yet.</span>';
+  return '<span>Reviewed by:</span>'+
     readers.map(function(u){
       var name = u.displayName || [u.firstName,u.lastName].filter(Boolean).join(" ") || u.email;
-      return '<div style="display:flex; align-items:center; gap:9px">'+avatarHtml(u,24)+'<span style="font-size:13.5px">'+esc(name)+'</span></div>';
-    }).join("")+
-  '</div>';
+      return '<span style="display:inline-flex; align-items:center; gap:5px">'+avatarHtml(u,20)+esc(name)+'</span>';
+    }).join("");
 }
 function syncKnowledgeReadBtn(articleId){
   var btn = byId("knowledgeReadBtn");
   if(!btn) return;
-  var read = isArticleRead(articleId);
-  btn.setAttribute("aria-pressed", read ? "true" : "false");
-  btn.querySelector("[data-kb-read-icon]").innerHTML = read
-    ? '<svg width="14" height="14" viewBox="0 -960 960 960" fill="currentColor"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>'
-    : '<svg width="14" height="14" viewBox="0 -960 960 960" fill="none" stroke="currentColor" stroke-width="60"><rect x="180" y="180" width="600" height="600" rx="60"/></svg>';
+  btn.setAttribute("aria-pressed", isArticleRead(articleId) ? "true" : "false");
 }
 var knowledgeOpenArticleId = null;
 function openKnowledgeDetail(articleId){
@@ -12588,22 +12606,22 @@ function openKnowledgeDetail(articleId){
   var read = isArticleRead(articleId);
   byId("knowledgeMetaPanel").innerHTML =
     '<div class="flow-meta-grid" style="grid-template-columns:1fr">'+
-      '<div class="flow-meta-item"><div class="k">Kategoria</div><div class="v">'+esc(knowledgeCategoryLabel(a.category))+'</div></div>'+
-      '<div class="flow-meta-item"><div class="k">Dodano</div><div class="v">'+esc(fmtKbDate(a.dateAdded))+'</div></div>'+
-      '<div class="flow-meta-item"><div class="k">Status</div><div class="v">'+(read?"Zapoznano":"Nie zapoznano")+'</div></div>'+
-      '<div class="flow-meta-item"><div class="k">Źródło</div><div class="v">'+esc(a.source||"")+'</div></div>'+
+      '<div class="flow-meta-item"><div class="k">Category</div><div class="v">'+esc(knowledgeCategoryLabel(a.category))+'</div></div>'+
+      '<div class="flow-meta-item"><div class="k">Added</div><div class="v">'+esc(fmtKbDate(a.dateAdded))+'</div></div>'+
+      '<div class="flow-meta-item"><div class="k">Status</div><div class="v">'+(read?"Reviewed":"Not reviewed")+'</div></div>'+
+      '<div class="flow-meta-item"><div class="k">Source</div><div class="v">'+esc(a.source||"")+'</div></div>'+
     '</div>';
   byId("knowledgeBody").innerHTML =
     (a.image ? '<img src="'+esc(a.image)+'" alt="" style="width:100%; border-radius:var(--radius-card); margin:0 0 20px; display:block">' : "")+
     (a.summary ? '<p style="font-size:14.5px; color:var(--ink-muted); line-height:1.6; margin:0 0 20px">'+esc(a.summary)+'</p>' : "")+
-    (a.sections||[]).map(function(s){ return sec(s.heading, list(s.bullets)); }).join("")+
-    sec("Kto już się zapoznał", knowledgeReadersHtml(articleId));
+    (a.sections||[]).map(function(s){ return sec(s.heading, list(s.bullets)); }).join("");
+  byId("knowledgeReadersBar").innerHTML = knowledgeReadersHtml(articleId);
   syncKnowledgeReadBtn(articleId);
   byId("knowledgeOverlay").classList.add("open");
 }
 function closeKnowledgeOverlay(){
   byId("knowledgeOverlay").classList.remove("open");
-  // Karta na liście (badge "Zapoznano", filtr Nie zapoznano/Zapoznano) ma
+  // Karta na liście (badge "Reviewed", filtr Not reviewed/Reviewed) ma
   // odzwierciedlić ewentualną zmianę statusu dokonaną wewnątrz popupu.
   if(state.section==="knowledge"){ renderGrid(); renderKnowledgeReadFilterRow(); }
 }
@@ -14645,17 +14663,13 @@ byId("knowledgeReadBtn").addEventListener("click", function(){
   if(!knowledgeOpenArticleId) return;
   var nowRead = toggleArticleRead(knowledgeOpenArticleId);
   syncKnowledgeReadBtn(knowledgeOpenArticleId);
-  // Odświeża sekcję "Kto już się zapoznał" (self właśnie doszedł/zniknął z
-  // listy) oraz "Status" w panelu bocznym, bez zamykania i ponownego
-  // otwierania całego popupu.
-  byId("knowledgeBody").querySelectorAll(".flow-sec").forEach(function(el){
-    if(el.querySelector("h4") && el.querySelector("h4").textContent==="Kto już się zapoznał"){
-      el.innerHTML = "<h4>Kto już się zapoznał</h4>"+knowledgeReadersHtml(knowledgeOpenArticleId);
-    }
-  });
+  // Odświeża pasek "Reviewed by" (self właśnie doszedł/zniknął z listy)
+  // oraz "Status" w panelu bocznym, bez zamykania i ponownego otwierania
+  // całego popupu.
+  byId("knowledgeReadersBar").innerHTML = knowledgeReadersHtml(knowledgeOpenArticleId);
   byId("knowledgeMetaPanel").querySelectorAll(".flow-meta-item").forEach(function(el){
     if(el.querySelector(".k") && el.querySelector(".k").textContent==="Status"){
-      el.querySelector(".v").textContent = nowRead ? "Zapoznano" : "Nie zapoznano";
+      el.querySelector(".v").textContent = nowRead ? "Reviewed" : "Not reviewed";
     }
   });
   if(state.section==="knowledge") renderKnowledgeReadFilterRow();
