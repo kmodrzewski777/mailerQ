@@ -1329,8 +1329,11 @@
        wcześniej"). Marka/konto/Settings przeniesione do .topbar wyżej —
        .nav niesie już tylko destynacje biblioteki. -->
   <nav class="nav" id="appNav" aria-label="Main">
-    <!-- user: "LIBRARY w sidebarze usuń" — jedna grupa nie potrzebuje już
-         własnego nagłówka, .nav ma tylko te 4 destynacje. -->
+    <!-- user: "podziel itemy na kategorie... i ułóż to też w takiej
+         kolejności" — sześć nazwanych grup, w podanej kolejności.
+         .nav-group-title już istniał w CSS (z wcześniejszej iteracji
+         designu), tylko nieużywany w markupie — teraz wraca do gry. -->
+    <p class="nav-group-title">Composer</p>
     <button class="nav-item" type="button" data-nav="components">
       <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M659.08-460.77 461.54-658.31l197.54-197.53 197.53 197.53-197.53 197.54Zm-506.77-66.92v-280h280v280h-280Zm375.38 375.38v-280h280v280h-280Zm-375.38 0v-280h280v280h-280Zm60-435.38h160v-160h-160v160Zm447.77 43.38 113-113-113-113-113 113 113 113Zm-72.39 332h160v-160h-160v160Zm-375.38 0h160v-160h-160v160Z"/></svg>
       <span class="nav-label">Components</span><span class="n" id="navCountComponents"></span>
@@ -1341,16 +1344,28 @@
       <span class="nav-label">E-mails</span><span class="n" id="navCountEmails"></span>
     </button>
     <div class="nav-cats is-collapsed" id="navCatsEmails" role="group" aria-label="E-mail categories"></div>
+    <!-- user: "do przechowywania kodów liquid" — ta sama architektura co
+         Skills/Flow Repository. -->
+    <button class="nav-item" type="button" data-nav="liquid">
+      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M320-242 80-482l240-240 57 57-184 184 183 183-56 56Zm320 0-56-56 183-183-184-184 57-57 240 240-240 240Z"/></svg>
+      <span class="nav-label">Liquid Snippets</span><span class="n" id="navCountLiquid"></span>
+    </button>
+    <div class="nav-cats is-collapsed" id="navCatsLiquid" role="group" aria-label="Liquid snippet categories"></div>
 
-    <!-- user (najpierw): "obie jako pełnoprawne destynacje, nie podpunkty
-         biblioteki" — potem, po zobaczeniu na żywo: "flow repo i dm
-         schedule też są w library a nie automation" — więc bez osobnego
-         nagłówka grupy, ale WCIĄŻ osobne, pełnoprawne pozycje nav. -->
+    <p class="nav-group-title">Marketing Automation</p>
     <button class="nav-item" type="button" data-nav="flows">
       <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M450-100v-174.23q0-55.23-16.23-84.54-16.23-29.31-45.77-55.69l42.77-42.77q12.77 11.77 25.5 27.35Q469-414.31 480-396.84q12.85-21.7 29.65-40.04 16.81-18.35 34.89-34.66 44.15-39.61 74.38-95.23 30.23-55.62 30.7-177.92l-73 73-42.77-42.16L680-860l146.15 146.15L784-671.69l-74.39-73.77q-.46 138.77-37.65 206.19-37.19 67.42-86.5 112.35-33.15 30.15-54.31 59.38Q510-338.31 510-274.23V-100h-60ZM259.15-634.15q-4.38-20.39-6.26-50.54-1.89-30.16-2.5-60.77L176-671.69l-42.15-42.16L280-860l146.15 146.15-42.77 42.16-73-72.39q-.38 27.16 1.81 52.39t5.35 43.54l-58.39 14Z"/></svg>
       <span class="nav-label">Automation Flows</span><span class="n" id="navCountFlows"></span>
     </button>
     <div class="nav-cats is-collapsed" id="navCatsFlows" role="group" aria-label="Flow categories"></div>
+
+    <p class="nav-group-title">Direct Marketing</p>
+    <button class="nav-item" type="button" data-nav="schedule">
+      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M212.31-100Q182-100 161-121q-21-21-21-51.31v-535.38Q140-738 161-759q21-21 51.31-21h55.38v-84.61h61.54V-780h303.08v-84.61h60V-780h55.38Q778-780 799-759q21 21 21 51.31v535.38Q820-142 799-121q-21 21-51.31 21H212.31Zm0-60h535.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-375.38H200v375.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM200-607.69h560v-100q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H212.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v100Z"/></svg>
+      <span class="nav-label">Schedule</span><span class="n" id="navCountSchedule"></span>
+    </button>
+
+    <p class="nav-group-title">AI</p>
     <!-- user: "Dodaj kolejną kategorię - udostępnianie skilli do Claude" —
          nowa sekcja, ta sama architektura co Flow Repository (własne
          kategorie, karta, formularz, bez Mail Stacka). -->
@@ -1359,17 +1374,8 @@
       <span class="nav-label">Skills</span><span class="n" id="navCountSkills"></span>
     </button>
     <div class="nav-cats is-collapsed" id="navCatsSkills" role="group" aria-label="Skill categories"></div>
-    <!-- user: "do przechowywania kodów liquid" — ta sama architektura co
-         Skills/Flow Repository. -->
-    <button class="nav-item" type="button" data-nav="liquid">
-      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M320-242 80-482l240-240 57 57-184 184 183 183-56 56Zm320 0-56-56 183-183-184-184 57-57 240 240-240 240Z"/></svg>
-      <span class="nav-label">Liquid Snippets</span><span class="n" id="navCountLiquid"></span>
-    </button>
-    <div class="nav-cats is-collapsed" id="navCatsLiquid" role="group" aria-label="Liquid snippet categories"></div>
-    <button class="nav-item" type="button" data-nav="schedule">
-      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M212.31-100Q182-100 161-121q-21-21-21-51.31v-535.38Q140-738 161-759q21-21 51.31-21h55.38v-84.61h61.54V-780h303.08v-84.61h60V-780h55.38Q778-780 799-759q21 21 21 51.31v535.38Q820-142 799-121q-21 21-51.31 21H212.31Zm0-60h535.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-375.38H200v375.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM200-607.69h560v-100q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H212.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v100Z"/></svg>
-      <span class="nav-label">DM Schedule</span><span class="n" id="navCountSchedule"></span>
-    </button>
+
+    <p class="nav-group-title">Services</p>
     <!-- user: "generator indywidualnych kodów rabatowych... Żadnej logiki,
          na razie tylko front end do zaprezentowania" — lista paczek kodów +
          formularz; dwa pola (warunki użycia, kampanie) świadomie
@@ -1379,6 +1385,8 @@
       <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M336-480q-45 0-76.5-31.5T228-588q0-45 31.5-76.5T336-696q45 0 76.5 31.5T444-588q0 45-31.5 76.5T336-480Zm0-72q15 0 25.5-10.5T372-588q0-15-10.5-25.5T336-624q-15 0-25.5 10.5T300-588q0 15 10.5 25.5T336-552ZM624-264q-45 0-76.5-31.5T516-372q0-45 31.5-76.5T624-480q45 0 76.5 31.5T732-372q0 45-31.5 76.5T624-264Zm0-72q15 0 25.5-10.5T660-372q0-15-10.5-25.5T624-408q-15 0-25.5 10.5T588-372q0 15 10.5 25.5T624-336ZM252-216l-72-72 528-528 72 72-528 528Z"/></svg>
       <span class="nav-label">Discount Codes</span><span class="n" id="navCountDiscounts"></span>
     </button>
+
+    <p class="nav-group-title">Reporting</p>
     <!-- user: "generator raportów miesięcznych dla klienta... na razie sam
          front end bez żadnej logiki" — wybór klienta+miesiąca, Generate
          pokazuje placeholder ("coming soon"), bez żadnej realnej treści
@@ -11508,7 +11516,7 @@ var SECTION_META = {
   flows:      { title:"Automation Flows", search:"Search flows…", primary:"add-flow", stack:false },
   skills:     { title:"Skills", search:"Search skills…", primary:"add-skill", stack:false },
   liquid:     { title:"Liquid Snippets", search:"Search snippets…", primary:"add-liquid", stack:false },
-  schedule:   { title:"DM Schedule", search:null, primary:null, stack:false },
+  schedule:   { title:"Schedule", search:null, primary:null, stack:false },
   brandkit:   { title:"Brand Kit", search:null, primary:null, stack:false },
   // user: "generator indywidualnych kodów rabatowych" — listing jak każda
   // inna biblioteka (Skills/Liquid), więc noGrid=false, search widoczny.
@@ -14709,7 +14717,7 @@ window.MQPublicCalendar = async function(token){
     byId("dmShareBtn").style.display = "none";
     byId("filterbar").style.display = "none";
     var fb = document.querySelector(".feedback-fab"); if(fb) fb.style.display = "none";
-    byId("gridTitle").textContent = "DM Schedule";
+    byId("gridTitle").textContent = "Schedule";
     byId("gridCount").textContent = DM_ENTRIES.length + (DM_ENTRIES.length===1 ? " send" : " sends");
     byId("cardGrid").style.display = "none";
     byId("gridPagination").style.display = "none";
