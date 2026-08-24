@@ -156,7 +156,7 @@
 
   .nav{
     position:sticky; top:var(--topbar-h); align-self:start; height:calc(100vh - var(--topbar-h)); box-sizing:border-box;
-    background:var(--surface); border-right:1px solid var(--line);
+    background:var(--surface);
     display:flex; flex-direction:column; gap:2px; padding:16px 12px 12px; overflow-y:auto;
   }
   .app.nav-collapsed .nav-label,
@@ -231,10 +231,10 @@
   .nav-cat-btn:hover{background:var(--surface-2); color:var(--ink)}
   .nav-cat-btn[aria-pressed="true"]{color:var(--ink); font-weight:500}
   .nav-cat-btn .n{font-size:10.5px; color:var(--ink-faint); font-variant-numeric:tabular-nums; flex:none}
-  .nav-filters{padding-left:14px; border-left:1px solid var(--line); margin:2px 0 6px 23px; display:flex; flex-direction:column; gap:2px}
-  .nav-filters:empty{display:none; border:none; margin:0}
-  .nav-filters .nav-filter-title{font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); margin:10px 0 4px; padding:0 10px}
-  .nav-filters .nav-filter-title:first-child{margin-top:4px}
+  .nav-filters{margin:18px 0 6px 23px; display:flex; flex-direction:column; gap:2px}
+  .nav-filters:empty{display:none; margin:0}
+  .nav-filters .nav-filter-title{font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); margin:0 0 4px; padding:0 10px}
+  .nav-filters .nav-filter-title:not(:first-child){margin-top:12px}
   .nav-filters .bf-checkbox{padding:4px 10px; font-size:13px}
 
   /* ============================================================
@@ -247,7 +247,7 @@
      przypinały się POD paskiem, nie pod nim. */
   .topbar{
     position:sticky; top:0; z-index:40; background:var(--paper);
-    border-bottom:1px solid var(--line); height:var(--topbar-h); box-sizing:border-box;
+    height:var(--topbar-h); box-sizing:border-box;
   }
   .topbar-inner{
     max-width:1400px; height:100%; margin:0 auto; padding:0 24px; box-sizing:border-box;
@@ -290,7 +290,7 @@
      kreska urywałaby się w połowie szerokości na szerokich ekranach. */
   .page-head{
     position:sticky; top:var(--topbar-h); z-index:25; background:var(--paper);
-    border-bottom:1px solid var(--line); padding:14px 24px;
+    padding:14px 24px;
   }
   .page-head-inner{display:flex; align-items:center; gap:14px; flex-wrap:wrap}
   .page-head-titles{display:flex; align-items:baseline; gap:10px; min-width:0}
@@ -319,7 +319,7 @@
      Platform, tak jak było wcześniej" — .search-row to jeden wiersz:
      wyszukiwarka flex:1 po lewej, filtr CRM (Platform) flex:none po prawej. */
   .filterbar{
-    padding:10px 24px; border-bottom:1px solid var(--line); background:var(--paper);
+    padding:10px 24px; background:var(--paper);
   }
   .search-row{display:flex; align-items:center; gap:16px}
   .filterbar .crm-filter-row{flex-wrap:wrap; flex:none}
@@ -357,7 +357,7 @@
     position:sticky; top:var(--topbar-h); align-self:start;
     min-height:calc(100vh - var(--topbar-h)); max-height:calc(100vh - var(--topbar-h));
     box-sizing:border-box; width:100%;
-    background:var(--surface); border-left:1px solid var(--line);
+    background:var(--surface);
     display:flex; flex-direction:column; overflow-y:auto; overscroll-behavior:contain;
   }
   /* Na wąskim ekranie dock wraca do bycia overlay-em (patrz media query) i
@@ -581,8 +581,8 @@
   .search-input-wrap{position:relative; flex:1; min-width:0}
   .search-input-wrap svg{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--ink-faint); pointer-events:none}
   .search-input{
-    width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:12px;
-    padding:10px 14px 10px 36px; font-size:13.5px; font-family:inherit; background:var(--surface); color:var(--ink);
+    width:100%; box-sizing:border-box; border:1px solid transparent; border-radius:12px;
+    padding:10px 14px 10px 36px; font-size:13.5px; font-family:inherit; background:var(--surface-2); color:var(--ink);
   }
   .pagination{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:28px}
   .page-btn{
@@ -2151,8 +2151,12 @@
         <!-- user: "Dodaj jeszcze opcję dodania +1 do lekcji" — sama akcja
              co przycisk na karcie (renderKnowledgeGrid), tylko w widoku
              szczegółów; obie strony wołają toggleArticleUpvote i syncują
-             się nawzajem (patrz syncKnowledgeUpvoteBtn). -->
-        <button class="btn ghost small" id="knowledgeUpvoteBtn" type="button" aria-pressed="false" title="Mark this lesson as valuable">&#9650; <span id="knowledgeUpvoteCount">0</span></button>
+             się nawzajem (patrz syncKnowledgeUpvoteBtn). user, drugi raz:
+             "zamiast tego trójkącika i liczby... ma być po prostu przycisk
+             +1. A ilość punktów wartości ma być w popupie po prawej
+             stronie" — sam przycisk bez licznika (patrz knowledgeMetaPanel
+             w openKnowledgeDetail, wiersz "Value points"). -->
+        <button class="btn ghost small" id="knowledgeUpvoteBtn" type="button" aria-pressed="false" title="Mark this article as valuable">+1</button>
         <button class="btn small kb-read-btn" id="knowledgeReadBtn" type="button" aria-pressed="false" style="flex:none">
           <span class="kb-read-checkbox" aria-hidden="true"></span>Mark as reviewed
         </button>
@@ -12173,7 +12177,13 @@ function renderSkillFilters(){
   if(!wrap) return;
   if(state.section!=="skills"){ wrap.innerHTML = ""; return; }
   var html = '<p class="nav-filter-title">Brand</p>';
-  html += BRAND_ORDER.slice().sort(function(a,b){ return (BRANDS[a].short||BRANDS[a].name).localeCompare(BRANDS[b].short||BRANDS[b].name); }).map(function(k){
+  // user: "'No brand' to nie jest brand - ma się nie pokazywać NIGDZIE
+  // oprócz dropdown w Brand Kicie" — "neutral" to marka-placeholder
+  // (biały label do podglądu bez klienta), której żaden skill nigdy
+  // faktycznie nie ma jako s.brand (skille używają "" na brak przypisania,
+  // nie "neutral") — wykluczona z tej listy filtrów jako semantycznie
+  // niepasująca, nie tylko kosmetycznie.
+  html += BRAND_ORDER.filter(function(k){ return k!=="neutral"; }).sort(function(a,b){ return (BRANDS[a].short||BRANDS[a].name).localeCompare(BRANDS[b].short||BRANDS[b].name); }).map(function(k){
     var checked = state.skillBrandFilter[k] !== false;
     return '<label class="bf-checkbox"><input type="checkbox" data-skill-brand-filter="'+esc(k)+'"'+(checked?' checked':'')+'>'+esc(BRANDS[k].short||BRANDS[k].name)+'</label>';
   }).join("");
@@ -12630,11 +12640,11 @@ function renderKnowledgeGrid(){
   // zera) zachowują dotychczasową kolejność zamiast się tasować.
   fullList.sort(function(a,b){ return articleUpvoteCount(b.id) - articleUpvoteCount(a.id); });
   var page = paginateList(fullList);
-  byId("gridTitle").textContent = state.knowledgeCategory==="all" ? "All lessons" : knowledgeCategoryLabel(state.knowledgeCategory);
-  byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " lesson" : " lessons");
+  byId("gridTitle").textContent = state.knowledgeCategory==="all" ? "All articles" : knowledgeCategoryLabel(state.knowledgeCategory);
+  byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " article" : " articles");
   var grid = byId("cardGrid"); grid.innerHTML = "";
   if(fullList.length===0){
-    grid.innerHTML = '<p class="drawer-empty" style="grid-column:1/-1; padding:36px">No lessons match this filter.</p>';
+    grid.innerHTML = '<p class="drawer-empty" style="grid-column:1/-1; padding:36px">No articles match this filter.</p>';
     renderPagination(1);
     return;
   }
@@ -12649,7 +12659,7 @@ function renderKnowledgeGrid(){
       '</div>'+
       '<div class="flow-card-foot">'+
         '<button class="btn small" data-kb-open="'+esc(a.id)+'" style="flex:1">Open</button>'+
-        '<button class="btn ghost small" data-kb-upvote="'+esc(a.id)+'" aria-pressed="'+(isArticleUpvoted(a.id)?"true":"false")+'" style="flex:none" title="Mark this lesson as valuable">&#9650; '+articleUpvoteCount(a.id)+'</button>'+
+        '<button class="btn ghost small" data-kb-upvote="'+esc(a.id)+'" aria-pressed="'+(isArticleUpvoted(a.id)?"true":"false")+'" style="flex:none" title="Mark this article as valuable">+1</button>'+
       '</div>';
     grid.appendChild(el);
   });
@@ -12659,7 +12669,11 @@ function renderKnowledgeGrid(){
   grid.querySelectorAll("[data-kb-upvote]").forEach(function(btn){
     btn.addEventListener("click", function(e){
       e.stopPropagation();
-      toggleArticleUpvote(btn.getAttribute("data-kb-upvote"));
+      // user: "jak wcisne przycisk +1 to ma sie pokazac hint ze pomyslnie
+      // oznaczylem ta lekcje jako wartościowa" — toast tylko przy DODANIU
+      // głosu (nowUpvoted===true), nie przy jego cofnięciu.
+      var nowUpvoted = toggleArticleUpvote(btn.getAttribute("data-kb-upvote"));
+      if(nowUpvoted) showToast("Marked this article as valuable");
       renderKnowledgeGrid();
       if(knowledgeOpenArticleId) syncKnowledgeUpvoteBtn(knowledgeOpenArticleId);
     });
@@ -12709,12 +12723,14 @@ function syncKnowledgeReadBtn(articleId){
   if(!btn) return;
   btn.setAttribute("aria-pressed", isArticleRead(articleId) ? "true" : "false");
 }
+// user, drugi raz: "ilość punktów wartości ma być w popupie po prawej
+// stronie" — sam licznik żyje teraz WYŁĄCZNIE w panelu meta (#knowledgeValuePoints),
+// przycisk (karta i pasek stopki) to już tylko czyste "+1" bez liczby.
 function syncKnowledgeUpvoteBtn(articleId){
   var btn = byId("knowledgeUpvoteBtn");
-  if(!btn) return;
-  btn.setAttribute("aria-pressed", isArticleUpvoted(articleId) ? "true" : "false");
-  var countEl = byId("knowledgeUpvoteCount");
-  if(countEl) countEl.textContent = articleUpvoteCount(articleId);
+  if(btn) btn.setAttribute("aria-pressed", isArticleUpvoted(articleId) ? "true" : "false");
+  var valueEl = byId("knowledgeValuePoints");
+  if(valueEl) valueEl.textContent = articleUpvoteCount(articleId);
 }
 var knowledgeOpenArticleId = null;
 function openKnowledgeDetail(articleId){
@@ -12733,6 +12749,7 @@ function openKnowledgeDetail(articleId){
       '<div class="flow-meta-item"><div class="k">Category</div><div class="v">'+esc(knowledgeCategoryLabel(a.category))+'</div></div>'+
       '<div class="flow-meta-item"><div class="k">Added</div><div class="v">'+esc(fmtKbDate(a.dateAdded))+'</div></div>'+
       '<div class="flow-meta-item"><div class="k">Status</div><div class="v">'+(read?"Reviewed":"Not reviewed")+'</div></div>'+
+      '<div class="flow-meta-item"><div class="k">Value points</div><div class="v" id="knowledgeValuePoints">'+articleUpvoteCount(articleId)+'</div></div>'+
       '<div class="flow-meta-item"><div class="k">Source</div><div class="v">'+esc(a.source||"")+(KNOWLEDGE_SOURCE_PDF_URL ? ' · <a href="'+esc(KNOWLEDGE_SOURCE_PDF_URL)+'" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline">Download full PDF</a>' : '')+'</div></div>'+
     '</div>';
   byId("knowledgeBody").innerHTML =
@@ -12743,9 +12760,15 @@ function openKnowledgeDetail(articleId){
   syncKnowledgeReadBtn(articleId);
   syncKnowledgeUpvoteBtn(articleId);
   byId("knowledgeOverlay").classList.add("open");
+  // user: "Otwarcie dowolnego popupu... ma dodawać odpowiedni parametr do
+  // URLa. Skopiowanie go i wklejenie w okno przeglądarki ma otworzyć
+  // dokładnie ten popup" — sam wzorzec co urlOpenComponentId/urlOpenFlowId
+  // itd. (patrz syncUrlFromState/restoreStateFromUrl).
+  urlOpenArticleId = articleId; syncUrlFromState();
 }
 function closeKnowledgeOverlay(){
   byId("knowledgeOverlay").classList.remove("open");
+  urlOpenArticleId = null; syncUrlFromState();
   // Karta na liście (badge "Reviewed", filtr Not reviewed/Reviewed) ma
   // odzwierciedlić ewentualną zmianę statusu dokonaną wewnątrz popupu.
   if(state.section==="knowledge"){ renderGrid(); renderKnowledgeReadFilterRow(); }
@@ -14801,7 +14824,8 @@ byId("knowledgeReadBtn").addEventListener("click", function(){
 });
 byId("knowledgeUpvoteBtn").addEventListener("click", function(){
   if(!knowledgeOpenArticleId) return;
-  toggleArticleUpvote(knowledgeOpenArticleId);
+  var nowUpvoted = toggleArticleUpvote(knowledgeOpenArticleId);
+  if(nowUpvoted) showToast("Marked this article as valuable");
   syncKnowledgeUpvoteBtn(knowledgeOpenArticleId);
   // Karta na liście pokazuje tę samą liczbę plusów i sortuje się po niej —
   // odświeżamy ją od razu, żeby po zamknięciu popupu lista była aktualna
@@ -15375,6 +15399,7 @@ var urlOpenFlowId = null;
 var urlOpenSkillId = null;
 var urlOpenLiquidId = null;
 var urlOpenDiscountId = null;
+var urlOpenArticleId = null;
 function syncUrlFromState(){
   // Publiczny link do kalendarza NIE może się sam przepisać na zwykły URL
   // appki — inaczej pierwszy render skasowałby ?dmshare= z paska adresu i
@@ -15390,6 +15415,8 @@ function syncUrlFromState(){
     params.set("skillcat", state.skillCategory||"all");
   } else if(state.section==="liquid"){
     params.set("liquidcat", state.liquidCategory||"all");
+  } else if(state.section==="knowledge"){
+    params.set("knowledgecat", state.knowledgeCategory||"all");
   } else if(state.section==="schedule"){
     if(state.dmMonth) params.set("month", state.dmMonth);
   } else if(state.section==="discounts" || state.section==="reports"){
@@ -15406,6 +15433,7 @@ function syncUrlFromState(){
   if(urlOpenSkillId) params.set("skillid", urlOpenSkillId);
   if(urlOpenLiquidId) params.set("liquidid", urlOpenLiquidId);
   if(urlOpenDiscountId) params.set("discountid", urlOpenDiscountId);
+  if(urlOpenArticleId) params.set("article", urlOpenArticleId);
   var qs = params.toString();
   history.replaceState(null, "", location.pathname + (qs ? "?"+qs : ""));
 }
@@ -15426,49 +15454,57 @@ function restoreStateFromUrl(){
   var skillId = params.get("skillid");
   var liquidId = params.get("liquidid");
   var discountId = params.get("discountid");
-  var changed = false;
+  var articleId = params.get("article");
+  // user: "Otwarcie dowolnego popupu... ma dodawać odpowiedni parametr do
+  // URLa... obecnie to się nie dzieje" — realny root-cause bug: to naprawdę
+  // JEDNO wywołanie tej funkcji w całej appce (patrz MQBoot), więc render
+  // po jej zakończeniu i tak zawsze następuje w wywołującym (nie trzeba już
+  // renderować WARUNKOWO stąd — dawne "if(changed) renderAll()" usunięte).
   if(section==="emails"){
-    state.section = "emails"; changed = true;
+    state.section = "emails";
     if(flow && EMAIL_FLOWS.some(function(f){ return f.id===flow; })){ state.emailFlow = flow; }
   } else if(section==="components"){
-    state.section = "components"; changed = true;
+    state.section = "components";
     if(category && (category==="all" || CATEGORIES.some(function(c){ return c.id===category; }))){ state.category = category; }
   } else if(section==="brandkit"){
     // Brand Kit jest teraz stroną, więc ma własny, dzielony adres —
     // otwieramy go na AKTUALNIE wybranej marce (klucz marki i tak jedzie
     // osobno w state.brand, nie w URL-u).
     openBrandForm("edit", state.brand);
-    changed = false;
   } else if(section==="flows"){
-    state.section = "flows"; changed = true;
+    state.section = "flows";
     var flowCat = params.get("flowcat");
     if(flowCat && (flowCat==="all" || FLOW_CATEGORIES.some(function(c){ return c.id===flowCat; }))) state.flowCategory = flowCat;
   } else if(section==="skills"){
-    state.section = "skills"; changed = true;
+    state.section = "skills";
     var skillCat = params.get("skillcat");
     if(skillCat && (skillCat==="all" || SKILL_CATEGORIES.some(function(c){ return c.id===skillCat; }))) state.skillCategory = skillCat;
   } else if(section==="liquid"){
-    state.section = "liquid"; changed = true;
+    state.section = "liquid";
     var liquidCat = params.get("liquidcat");
     if(liquidCat && (liquidCat==="all" || LIQUID_CATEGORIES.some(function(c){ return c.id===liquidCat; }))) state.liquidCategory = liquidCat;
+  } else if(section==="knowledge"){
+    state.section = "knowledge";
+    var knowledgeCat = params.get("knowledgecat");
+    if(knowledgeCat && (knowledgeCat==="all" || KNOWLEDGE_CATEGORIES.some(function(c){ return c.id===knowledgeCat; }))) state.knowledgeCategory = knowledgeCat;
   } else if(section==="schedule"){
-    state.section = "schedule"; changed = true;
+    state.section = "schedule";
     var month = params.get("month");
     if(month && /^\d{4}-\d{2}$/.test(month)) state.dmMonth = month;
     initDmMonth();
   } else if(section==="discounts"){
-    state.section = "discounts"; changed = true;
+    state.section = "discounts";
   } else if(section==="reports"){
-    state.section = "reports"; changed = true;
+    state.section = "reports";
   }
-  if(search){ state.searchQuery = search; byId("searchInput").value = search; changed = true; }
-  if(changed) renderAll();
+  if(search){ state.searchQuery = search; byId("searchInput").value = search; }
   if(componentId && findComp(componentId)) openComponentEditor(componentId, null);
   else if(emailId && findEmail(emailId)) openEmailPreview(emailId);
   else if(flowId && findFlow(flowId)) openFlowDetail(flowId);
   else if(skillId && findSkill(skillId)) openSkillDetail(skillId);
   else if(liquidId && findSnippet(liquidId)) openSnippetDetail(liquidId);
   else if(discountId && findDiscountBatch(discountId)) openDiscountDetail(discountId);
+  else if(articleId && findArticle(articleId)) openKnowledgeDetail(articleId);
 }
 function renderAll(){
   renderSwatches(); renderPrimaryNav(); renderFilterBar(); renderCrmFilterRow();
@@ -16543,12 +16579,18 @@ window.MQBoot = async function(user){
   }
   if(remote && remote.priv) applyBackupPayload(remote.priv);
   if(repairOrphanedComponentCategories()) saveToStorage();
-  renderAll();
-  // user: "nie da sie konkretnej podstrony nawet komuś przekazać" — dopiero
-  // TU dane (COMPONENTS/READY_EMAILS/CATEGORIES) są na pewno załadowane,
-  // więc dopiero teraz można bezpiecznie sprawdzić, czy URL wskazuje na
-  // konkretną kategorię/komponent/mail i to odtworzyć.
+  // user: "nie da sie konkretnej podstrony nawet komuś przekazać" — dane
+  // (COMPONENTS/READY_EMAILS/CATEGORIES) są już na pewno załadowane, więc
+  // bezpiecznie odczytujemy URL TERAZ. user, drugi raz: "obecnie to się nie
+  // dzieje" — realny bug: renderAll() woła syncUrlFromState() na końcu,
+  // które PRZED tą poprawką wołało się PIERWSZE (na jeszcze domyślnym
+  // state), więc replaceState nadpisywało wklejony URL (np.
+  // ?section=flows&flowid=X) na sam domyślny ?section=components&category=all
+  // ZANIM restoreStateFromUrl zdążyło przeczytać location.search — link
+  // do konkretnego popupu ginął, zanim ktokolwiek zdążył go odczytać.
+  // restoreStateFromUrl() musi więc biec PRZED pierwszym renderAll(), nie po.
   restoreStateFromUrl();
+  renderAll();
   if(!remoteErrored && !sharedExisted) saveToStorage(); // zasiewa wspólną bibliotekę TYLKO gdy jeszcze nie istniała
   if(remoteErrored) showToast("Couldn't reach the database — showing your last local copy", "error");
   // Katalog użytkowników — potrzebny do wskazania osoby odpowiedzialnej za
