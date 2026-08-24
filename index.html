@@ -1523,7 +1523,7 @@
          najpierw na Marketing Automation / Direct Marketing / pozostałe.
          Potem potwórz pomniejsze rozdziały." — WYŁĄCZNIE do czytania (bez
          add/edit, jak reszta bibliotek), statyczne dane (patrz
-         KNOWLEDGE_ARTICLES). -->
+         KNOWLEDGE_HINTS). -->
     <div class="nav-group" data-navgroup="knowledge">
       <button class="nav-item" type="button" data-nav="knowledge">
         <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q134 0 227 93t93 227q0 134-93 227t-227 93Zm0-80q100 0 170-70t70-170q0-100-70-170t-170-70q-100 0-170 70t-70 170q0 100 70 170t170 70Zm-40-120v-240h80v240h-80Zm40-320q17 0 28.5-11.5T520-720q0-17-11.5-28.5T480-760q-17 0-28.5 11.5T440-720q0 17 11.5 28.5T480-680Z"/></svg>
@@ -2215,13 +2215,13 @@
       <div style="display:flex; align-items:center; gap:8px; flex:none">
         <!-- user: "Dodaj jeszcze opcję dodania +1 do lekcji" — sama akcja
              co przycisk na karcie (renderKnowledgeGrid), tylko w widoku
-             szczegółów; obie strony wołają toggleArticleUpvote i syncują
+             szczegółów; obie strony wołają toggleHintUpvote i syncują
              się nawzajem (patrz syncKnowledgeUpvoteBtn). user, drugi raz:
              "zamiast tego trójkącika i liczby... ma być po prostu przycisk
              +1. A ilość punktów wartości ma być w popupie po prawej
              stronie" — sam przycisk bez licznika (patrz knowledgeMetaPanel
              w openKnowledgeDetail, wiersz "Value points"). -->
-        <button class="btn ghost small" id="knowledgeUpvoteBtn" type="button" aria-pressed="false" title="Mark this article as valuable">+1</button>
+        <button class="btn ghost small" id="knowledgeUpvoteBtn" type="button" aria-pressed="false" title="Mark this hint as valuable">+1</button>
         <button class="btn small kb-read-btn" id="knowledgeReadBtn" type="button" aria-pressed="false" style="flex:none">
           <span class="kb-read-checkbox" aria-hidden="true"></span>Mark as reviewed
         </button>
@@ -7070,11 +7070,11 @@ var KNOWLEDGE_CATEGORIES = [
 // openKnowledgeDetail) dopóki plik faktycznie nie wyląduje w
 // mailerQ-repo/assets/kb/ — świadomie NIE wskazujemy na nieistniejący plik.
 var KNOWLEDGE_SOURCE_PDF_URL = null;
-var KNOWLEDGE_ARTICLES = [];
+var KNOWLEDGE_HINTS = [];
 var KB_DATE = "2026-08-24";
 
 // ---------- MARKETING AUTOMATION (Flows automatyczne) ----------
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-welcome-flow", category:"automation", dateAdded:KB_DATE,
   title:"Seria powitalna",
   summary:"Zdecydowana większość konwersji z flowa powitalnego zapada w pierwszych 24 godzinach — cała energia idzie w mail #1, reszta sekwencji to już tylko dogrywka.",
@@ -7114,7 +7114,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-site-abandonment", category:"automation", dateAdded:KB_DATE,
   title:"Odejście ze strony (Site Abandonment)",
   summary:"Ktoś odwiedził stronę, ale nie obejrzał żadnego konkretnego produktu — ten flow buduje świadomość marki i delikatnie prowadzi dalej w lejek.",
@@ -7139,7 +7139,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-product-abandonment", category:"automation", dateAdded:KB_DATE,
   title:"Porzucenie przeglądania produktu (Browse Abandonment)",
   summary:"Ktoś obejrzał konkretny produkt i wyszedł — to najlepszy moment, żeby przypomnieć DOKŁADNIE o tym, co go zainteresowało, bez przeładowywania maila.",
@@ -7171,7 +7171,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-abandoned-cart", category:"automation", dateAdded:KB_DATE,
   title:"Porzucony koszyk (Abandoned Cart)",
   summary:"Produkty leżą już w koszyku — to nie to samo, co porzucone podejście do checkoutu, i wymaga innej, łagodniejszej sekwencji.",
@@ -7196,7 +7196,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-abandoned-checkout", category:"automation", dateAdded:KB_DATE, image:"assets/kb/flow-tagging.jpg",
   title:"Porzucony checkout (Abandoned Checkout)",
   summary:"Często #1 albo #2 pod względem generowanego przychodu automat w całej appce — ale też ten, w którym najwięcej marek popełnia te same, kosztowne błędy.",
@@ -7240,7 +7240,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-post-purchase", category:"automation", dateAdded:KB_DATE,
   title:"Flow posprzedażowy (nowi i powracający klienci)",
   summary:"Zakup to nie koniec relacji, tylko jej początek — ten flow zamienia jednorazowego kupującego w kogoś, kto wraca, poleca i zostaje ambasadorem marki.",
@@ -7276,7 +7276,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-vip-flow", category:"automation", dateAdded:KB_DATE,
   title:"Flow VIP",
   summary:"Najbardziej wartościowi klienci zasługują na inne traktowanie niż reszta listy — ten flow buduje z nich prawdziwych ambasadorów marki.",
@@ -7297,7 +7297,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-winback", category:"automation", dateAdded:KB_DATE, image:"assets/kb/winback-email.jpg",
   title:"Odzyskiwanie klientów (Winback)",
   summary:"Klient, który przestał kupować, nie zniknął na zawsze — ale generyczne \"wróć do nas\" go nie przekona. Potrzebuje realnego powodu.",
@@ -7319,7 +7319,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-replenishment", category:"automation", dateAdded:KB_DATE, image:"assets/kb/replenishment-email.jpg",
   title:"Flow uzupełnienia zapasów (Replenishment)",
   summary:"Dla produktów zużywalnych — zamiast czekać, aż klient sam pomyśli o zamówieniu, przypomnij mu w idealnym momencie, wyliczonym z realnego cyklu użytkowania.",
@@ -7348,7 +7348,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-sunset-unengaged", category:"automation", dateAdded:KB_DATE,
   title:"Wygaszanie nieaktywnych (Sunset Unengaged)",
   summary:"Nie każdy adres na liście jest warty utrzymywania — pozbycie się martwego balastu poprawia deliverability i obniża rachunek za Klaviyo.",
@@ -7368,7 +7368,7 @@ KNOWLEDGE_ARTICLES.push({
     { heading:"Goal & length", bullets:["Cel: pozbyć się nieaktywnych, wyczyścić listę, obniżyć rachunek za Klaviyo i poprawić deliverability.", "Długość: 1–2 maile."] }
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-review-request", category:"automation", dateAdded:KB_DATE,
   title:"Prośba o recenzję (Review Request)",
   summary:"Recenzje to jeden z najtańszych sposobów budowania dowodu społecznego — trzeba tylko o nie systematycznie poprosić w dobrym momencie.",
@@ -7380,7 +7380,7 @@ KNOWLEDGE_ARTICLES.push({
     { heading:"Goal & length", bullets:["Cel: zebrać recenzje na potrzeby dowodu społecznego.", "Długość: 1–3 maile."] }
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-birthday-flow", category:"automation", dateAdded:KB_DATE, image:"assets/kb/birthday-email.jpg",
   title:"Flow urodzinowy (opcjonalny)",
   summary:"Prosty, spersonalizowany gest, który klienci zapamiętują — niewielkim kosztem podnosi LTV i buduje emocjonalną więź z marką.",
@@ -7392,7 +7392,7 @@ KNOWLEDGE_ARTICLES.push({
     { heading:"Goal & length", bullets:["Cel: zwiększyć LTV przez spersonalizowane oferty.", "Długość: 1–3 maile."] }
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-subscription-flows", category:"automation", dateAdded:KB_DATE, image:"assets/kb/subscription-conditional-split.jpg",
   title:"Flowy subskrypcyjne: powitanie, konwersja i redukcja churnu",
   summary:"Subskrypcja to nie produkt do sprzedania w jednym mailu, tylko styl życia, który trzeba sprzedać. A cichy churn zwykle da się przewidzieć i zatrzymać, zanim się wydarzy.",
@@ -7430,7 +7430,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-flow-audit-checklist", category:"automation", dateAdded:KB_DATE,
   title:"Checklist: komplet flowów, które powinny działać w każdym koncie",
   summary:"Zanim zaczniesz optymalizować pojedyncze flowy, sprawdź, czy w ogóle masz komplet — brakujący automat w lejku to dziura, przez którą wycieka przychód każdego dnia.",
@@ -7453,7 +7453,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-bfcm-flows", category:"automation", dateAdded:KB_DATE,
   title:"Aktualizacja flowów pod BFCM",
   summary:"Standardowe flowy w trybie BFCM brzmią nie na miejscu — trzeba je celowo przyspieszyć i podbić presją, zanim ruch skoczy w górę.",
@@ -7473,7 +7473,7 @@ KNOWLEDGE_ARTICLES.push({
 });
 
 // ---------- DIRECT MARKETING (Pojedyncze wysyłki / kampanie) ----------
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-email-calendar-cadence", category:"direct", dateAdded:KB_DATE, image:"assets/kb/email-calendar.jpg",
   title:"Zbalansowany kalendarz mailingowy i rytm wysyłek",
   summary:"3–4 kampanie tygodniowo utrzymują markę w pamięci odbiorcy bez wywoływania zmęczenia — ale liczy się nie tylko częstotliwość, tylko realny balans treści.",
@@ -7499,7 +7499,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-ab-campaigns-elements", category:"direct", dateAdded:KB_DATE, image:"assets/kb/ab-test-results.jpg",
   title:"A/B testowanie kampanii i formatu treści",
   summary:"Mail tekstowy vs. graficzny to jeden z najbardziej niedocenianych testów w e-commerce — wyniki potrafią naprawdę zaskoczyć.",
@@ -7518,7 +7518,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-ab-send-time", category:"direct", dateAdded:KB_DATE,
   title:"A/B testowanie dnia i godziny wysyłki",
   summary:"Prosty test, ale trzeba go prowadzić z jasnym celem — maksymalizacją open rate, nie sprzedaży, i z pominięciem promocji czasowych.",
@@ -7531,7 +7531,7 @@ KNOWLEDGE_ARTICLES.push({
     { heading:"Important rule", bullets:["Nie testuj dnia/godziny przy promocjach ograniczonych czasowo lub wyprzedażach typu flash sale — tam presja czasu i tak dyktuje moment wysyłki."] }
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-ai-calendar-prompt", category:"direct", dateAdded:KB_DATE,
   title:"AI do budowania kalendarza mailingowego",
   summary:"Gotowy prompt, który za jednym zamachem buduje pełny, zbalansowany kalendarz na cały miesiąc — z uwzględnieniem świąt i sezonowych okazji.",
@@ -7557,7 +7557,7 @@ KNOWLEDGE_ARTICLES.push({
     { heading:"Remember", bullets:["Nie ma jednej \"świętej\" strategii — kieruj się zdrowym rozsądkiem co do tego, co zadziała na TĘ konkretną publiczność, i pilnuj, żeby AI trzymało autentyczny głos marki przez cały kalendarz."] }
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-subscription-campaigns", category:"direct", dateAdded:KB_DATE, image:"assets/kb/subscription-campaign-email.jpg",
   title:"Kampanie promujące subskrypcję",
   summary:"Kampanie to nie tylko promocje — dla marek subskrypcyjnych to narzędzie edukacji, konwersji i budowania poczucia przynależności do klubu.",
@@ -7576,7 +7576,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-campaign-audit-checklist", category:"direct", dateAdded:KB_DATE,
   title:"Checklist audytu kampanii w Klaviyo",
   summary:"To, co warto sprawdzić w kampaniach podczas przeglądu konta — częstotliwość, mix treści, segmentację i design pod konwersję.",
@@ -7595,7 +7595,7 @@ KNOWLEDGE_ARTICLES.push({
     { heading:"Segmentation & scheduling", bullets:["Czy używasz aktywnych segmentów (30/60/90 dni)?", "Czy wykluczasz osoby odbijające maile, zgłaszające spam i nieotwierające?"] }
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-bfcm-offers", category:"direct", dateAdded:KB_DATE, image:"assets/kb/bfcm-countdown-email.jpg",
   title:"BFCM: budowanie właściwej oferty",
   summary:"Nie potrzeba 12 różnych promocji — 1–3 przemyślane, świadome marży oferty odpowiadają za ok. 80% sukcesu całego Black Friday.",
@@ -7627,7 +7627,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-bfcm-calendar-design", category:"direct", dateAdded:KB_DATE, image:"assets/kb/bfcm-campaign-calendar.jpg",
   title:"BFCM: kalendarz kampanii, design i segmenty",
   summary:"W BFCM wysyła się więcej niż zwykle wydaje się komfortowe — i to naprawdę działa, jeśli design i segmentacja są dopięte.",
@@ -7672,7 +7672,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-bfcm-post", category:"direct", dateAdded:KB_DATE,
   title:"Po BFCM: retencja i strategia ponownego zakupu",
   summary:"Większość marek milknie zaraz po Black Friday — to właśnie wtedy, w grudniu, wygrywają ci, którzy zostają w kontakcie i budują drugi zakup.",
@@ -7697,7 +7697,7 @@ KNOWLEDGE_ARTICLES.push({
 });
 
 // ---------- POZOSTAŁE (fundamenty, technika, strategia) ----------
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-customer-research", category:"other", dateAdded:KB_DATE,
   title:"Badanie klienta",
   summary:"Marki z najlepszym e-mail marketingiem znają swoich klientów na wylot — to najmniej efektowny, ale najbardziej fundamentalny krok w całej strategii.",
@@ -7709,7 +7709,7 @@ KNOWLEDGE_ARTICLES.push({
     { heading:"Where to find customer info", bullets:["Biblioteka reklam Facebooka", "Zapisanie się na listę mailingową konkurencji", "Twoje recenzje (Shopify + Amazon)", "Recenzje konkurencji (Shopify + Amazon)", "Quora/Reddit", "ChatGPT"] }
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-deliverability", category:"other", dateAdded:KB_DATE, image:"assets/kb/deliverability-score.jpg",
   title:"Fundamenty deliverability",
   summary:"Deliverability to fakt, że maile faktycznie trafiają do skrzynki odbiorczej — nie tylko \"zostają dostarczone\". Napraw to najpierw, zanim zajmiesz się czymkolwiek innym.",
@@ -7770,7 +7770,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-popup-optimization", category:"other", dateAdded:KB_DATE, image:"assets/kb/popup-offer-example.jpg",
   title:"Optymalizacja pop-upu",
   summary:"Pop-up to fundament całej maszyny mailingowej — jeśli konwertuje poniżej 4–5%, żaden inny element strategii nie odrobi tej straty.",
@@ -7809,7 +7809,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-zero-party-data", category:"other", dateAdded:KB_DATE, image:"assets/kb/zero-party-data.jpg",
   title:"Dane zero-party (ZPD)",
   summary:"Dane, które klient chętnie sam Ci przekazuje, są dokładniejsze i cenniejsze niż jakiekolwiek dane śledzone w tle — a większość marek wciąż ich nie wykorzystuje.",
@@ -7843,7 +7843,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-design-optimization", category:"other", dateAdded:KB_DATE,
   title:"Design i optymalizacja ponad estetyką",
   summary:"Sekcja Above-The-Fold to najważniejszy moduł całego maila — masz dosłownie 3 sekundy, żeby przekazać, o co w ogóle chodzi.",
@@ -7870,7 +7870,7 @@ KNOWLEDGE_ARTICLES.push({
     { heading:"Summary", bullets:["Najlepsze marki mają maile mobile-friendly, z czytelnymi CTA, dopracowaną sekcją above-the-fold i uproszczonym layoutem nastawionym na konwersję — bez rezygnowania z tożsamości wizualnej marki."] }
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-ab-testing-framework", category:"other", dateAdded:KB_DATE, image:"assets/kb/scientific-method.jpg",
   title:"Framework testów A/B — zasady fundamentalne",
   summary:"Zawsze testuj z hipotezą, jasnym KPI, jedną zmienną na raz — i nie trać czasu na testy, które nigdy nie osiągną istotności statystycznej.",
@@ -7889,7 +7889,7 @@ KNOWLEDGE_ARTICLES.push({
     { heading:"Don't test everything", bullets:["Teoretycznie można testować każdy pojedynczy element strategii — ale niektóre różnice są tak marginalne, że osiągnięcie istotności statystycznej zajęłoby wieczność. Skup się na testach o realnie wysokiej dźwigni."] }
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-subject-line-testing", category:"other", dateAdded:KB_DATE,
   title:"A/B testowanie subject line'ów w kluczowych flowach",
   summary:"Prosty w konfiguracji, wysokiej dźwigni test — warto prowadzić go regularnie właśnie tam, gdzie płynie najwięcej ruchu.",
@@ -7902,7 +7902,7 @@ KNOWLEDGE_ARTICLES.push({
     { heading:"Why it's worth running consistently", bullets:["To bardzo prosty do wdrożenia test, który może dać naprawdę duże efekty — warto prowadzić go regularnie, bez wymówek."] }
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-ai-email-marketing", category:"other", dateAdded:KB_DATE,
   title:"Wykorzystanie AI w e-mail marketingu",
   summary:"Cztery gotowe do użycia procesy promptowania: badanie klienta, trening głosu marki, pisanie konwertującego copy i optymalizacja subject line'ów.",
@@ -7931,7 +7931,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-email-beyond-revenue", category:"other", dateAdded:KB_DATE,
   title:"E-mail jako narzędzie wykraczające poza sam przychód",
   summary:"Prawdziwa wartość e-maila wykracza daleko poza sprzedaż — to również akwizycja, rozwój produktu, diagnoza retencji i obsługa klienta.",
@@ -7971,7 +7971,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-subscription-growth-churn", category:"other", dateAdded:KB_DATE, image:"assets/kb/subscription-churn-dashboard.jpg",
   title:"Dlaczego subskrypcje się opłacają i jak mierzyć sygnały churnu",
   summary:"Subskrypcje to najsilniejsza dźwignia do przewidywalnego, kumulującego się wzrostu — a churn przestaje być zgadywanką, gdy zaczyna się go realnie mierzyć.",
@@ -7996,7 +7996,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-klaviyo-account-audit", category:"other", dateAdded:KB_DATE,
   title:"Audyt konta Klaviyo: technika, SMS, wzrost listy, integracje",
   summary:"Pełna checklista poza flowami, kampaniami i deliverability — konfiguracja techniczna, SMS, formularze zapisu, integracje i kontrola kosztów.",
@@ -8039,7 +8039,7 @@ KNOWLEDGE_ARTICLES.push({
     ]}
   ]
 });
-KNOWLEDGE_ARTICLES.push({
+KNOWLEDGE_HINTS.push({
   id:"kb-revenue-drop-diagnosis", category:"other", dateAdded:KB_DATE, image:"assets/kb/revenue-attribution-dashboard.jpg",
   title:"Dlaczego spada przychód z e-maila — checklista diagnostyczna",
   summary:"E-mail nie uratuje słabego produktu, złej akwizycji ani wypalonej listy — ale dobrze zdiagnozowany problem zwykle da się odwrócić.",
@@ -8071,8 +8071,8 @@ KNOWLEDGE_ARTICLES.push({
     { heading:"Where to start the audit", bullets:["Jak wygląda ruch?", "Czy flowy działają poprawnie?", "Czy wysyłasz wystarczająco dużo kampanii budujących wartość?", "Czy lista jest czysta?", "Czy przyciągasz właściwych kupujących?"] }
   ]
 });
-function findArticle(id){ for(var i=0;i<KNOWLEDGE_ARTICLES.length;i++){ if(KNOWLEDGE_ARTICLES[i].id===id) return KNOWLEDGE_ARTICLES[i]; } return null; }
-function articlesByCategory(cat){ return cat==="all" ? KNOWLEDGE_ARTICLES.slice() : KNOWLEDGE_ARTICLES.filter(function(a){ return a.category===cat; }); }
+function findHint(id){ for(var i=0;i<KNOWLEDGE_HINTS.length;i++){ if(KNOWLEDGE_HINTS[i].id===id) return KNOWLEDGE_HINTS[i]; } return null; }
+function hintsByCategory(cat){ return cat==="all" ? KNOWLEDGE_HINTS.slice() : KNOWLEDGE_HINTS.filter(function(a){ return a.category===cat; }); }
 function knowledgeCategoryLabel(id){
   var c = KNOWLEDGE_CATEGORIES.filter(function(x){ return x.id===id; })[0];
   return c ? c.label : id;
@@ -8134,7 +8134,7 @@ var state = { brand:"neutral", category:"all", section:"home", emailFlow:"all", 
   // user: "podział lekcji na 'Zapoznałem się' i 'Nie zapoznałem się'" —
   // stan przeglądania jak knowledgeCategory, nie zapisywany osobno (sam
   // status przeczytania żyje w users/{uid}.knowledgeReadIds, patrz
-  // isArticleRead/toggleArticleRead).
+  // isHintRead/toggleHintRead).
   // user, drugi raz: "domyślnym widokiem ma być NOT REVIEWED" — zamiast
   // "all" (patrz też renderKnowledgeReadFilterRow, filtr "All" usunięty
   // z paska, zostają tylko Not reviewed / Reviewed).
@@ -11608,7 +11608,7 @@ function renderPrimaryNav(){
   byId("navCountLiquid").textContent = LIQUID_SNIPPETS.length;
   byId("navCountDiscounts").textContent = DISCOUNT_BATCHES.length;
   byId("navCountSchedule").textContent = DM_ENTRIES.length;
-  byId("navCountKnowledge").textContent = KNOWLEDGE_ARTICLES.length;
+  byId("navCountKnowledge").textContent = KNOWLEDGE_HINTS.length;
   nav.querySelectorAll("[data-nav]").forEach(function(btn){
     var target = btn.getAttribute("data-nav");
     var active = state.section===target;
@@ -11761,11 +11761,11 @@ function renderNavCats(){
         });
       });
     } else if(key==="knowledge"){
-      catBtn("All", KNOWLEDGE_ARTICLES.length, state.knowledgeCategory==="all", function(){
+      catBtn("All", KNOWLEDGE_HINTS.length, state.knowledgeCategory==="all", function(){
         state.knowledgeCategory="all"; state.page=1; renderAll();
       });
       KNOWLEDGE_CATEGORIES.forEach(function(c){
-        var n = articlesByCategory(c.id).length;
+        var n = hintsByCategory(c.id).length;
         catBtn(c.label, n, state.knowledgeCategory===c.id, function(){
           state.knowledgeCategory=c.id; state.page=1; renderAll();
         });
@@ -12667,7 +12667,7 @@ function closeLiquidOverlay(){ byId("liquidOverlay").classList.remove("open"); u
    sobie przejsc". WYŁĄCZNIE do czytania — ta sama architektura co Liquid
    Snippets (kategorie/karta/popup), ale bez formularza add/edit/delete i
    bez cardMenuHtml/urlOpenXId (user nie prosił o możliwość dopisywania
-   własnych artykułów, dane statyczne — patrz KNOWLEDGE_ARTICLES).
+   własnych artykułów, dane statyczne — patrz KNOWLEDGE_HINTS).
    Treść lekcji jest teraz PO POLSKU — cała reszta chrome sekcji
    (przyciski/etykiety/filtry) też, żeby czytelnik nie czytał polskiej
    lekcji w otoczce na wpół po angielsku. Reszta appki zostaje bez zmian
@@ -12682,14 +12682,14 @@ function currentUserDirectoryEntry(){
   if(!MQ_CURRENT_USER) return null;
   return MQ_USER_DIRECTORY.filter(function(u){ return u.uid===MQ_CURRENT_USER.uid; })[0] || null;
 }
-function isArticleRead(articleId){
+function isHintRead(hintId){
   var entry = currentUserDirectoryEntry();
-  return !!(entry && entry.knowledgeReadIds && entry.knowledgeReadIds.indexOf(articleId)!==-1);
+  return !!(entry && entry.knowledgeReadIds && entry.knowledgeReadIds.indexOf(hintId)!==-1);
 }
-function usersWhoReadArticle(articleId){
-  return MQ_USER_DIRECTORY.filter(function(u){ return u.knowledgeReadIds && u.knowledgeReadIds.indexOf(articleId)!==-1; });
+function usersWhoReadHint(hintId){
+  return MQ_USER_DIRECTORY.filter(function(u){ return u.knowledgeReadIds && u.knowledgeReadIds.indexOf(hintId)!==-1; });
 }
-function toggleArticleRead(articleId){
+function toggleHintRead(hintId){
   if(!MQ_CURRENT_USER){ showToast("Zaloguj się, żeby oznaczać lekcje jako przeczytane"); return null; }
   var entry = currentUserDirectoryEntry();
   if(!entry){
@@ -12701,12 +12701,12 @@ function toggleArticleRead(articleId){
     MQ_USER_DIRECTORY.push(entry);
   }
   if(!entry.knowledgeReadIds) entry.knowledgeReadIds = [];
-  var idx = entry.knowledgeReadIds.indexOf(articleId);
+  var idx = entry.knowledgeReadIds.indexOf(hintId);
   var nowRead;
-  if(idx===-1){ entry.knowledgeReadIds.push(articleId); nowRead = true; }
+  if(idx===-1){ entry.knowledgeReadIds.push(hintId); nowRead = true; }
   else { entry.knowledgeReadIds.splice(idx,1); nowRead = false; }
   if(window.MQUsers && window.MQUsers.setLessonRead){
-    window.MQUsers.setLessonRead(MQ_CURRENT_USER.uid, articleId, nowRead).catch(function(err){
+    window.MQUsers.setLessonRead(MQ_CURRENT_USER.uid, hintId, nowRead).catch(function(err){
       console.error("Nie udało się zapisać statusu lekcji:", err);
       showToast("Nie udało się zapisać — sprawdź połączenie");
     });
@@ -12716,16 +12716,16 @@ function toggleArticleRead(articleId){
 // user: "Dodaj jeszcze opcję dodania +1 do lekcji, taka lekcja może zbierać
 // plusy a sam listing sortuje się wg ilości plusów. Ilość plusów oznacza,
 // że coś było bardzo wartościowe dla kogoś" — DOKŁADNIE ten sam wzorzec co
-// isArticleRead/usersWhoReadArticle/toggleArticleRead powyżej, tylko dla
+// isHintRead/usersWhoReadHint/toggleHintRead powyżej, tylko dla
 // users/{uid}.knowledgeUpvoteIds (patrz window.MQUsers.setLessonUpvote).
-function isArticleUpvoted(articleId){
+function isHintUpvoted(hintId){
   var entry = currentUserDirectoryEntry();
-  return !!(entry && entry.knowledgeUpvoteIds && entry.knowledgeUpvoteIds.indexOf(articleId)!==-1);
+  return !!(entry && entry.knowledgeUpvoteIds && entry.knowledgeUpvoteIds.indexOf(hintId)!==-1);
 }
-function articleUpvoteCount(articleId){
-  return MQ_USER_DIRECTORY.filter(function(u){ return u.knowledgeUpvoteIds && u.knowledgeUpvoteIds.indexOf(articleId)!==-1; }).length;
+function hintUpvoteCount(hintId){
+  return MQ_USER_DIRECTORY.filter(function(u){ return u.knowledgeUpvoteIds && u.knowledgeUpvoteIds.indexOf(hintId)!==-1; }).length;
 }
-function toggleArticleUpvote(articleId){
+function toggleHintUpvote(hintId){
   if(!MQ_CURRENT_USER){ showToast("Zaloguj się, żeby oceniać lekcje"); return null; }
   var entry = currentUserDirectoryEntry();
   if(!entry){
@@ -12733,12 +12733,12 @@ function toggleArticleUpvote(articleId){
     MQ_USER_DIRECTORY.push(entry);
   }
   if(!entry.knowledgeUpvoteIds) entry.knowledgeUpvoteIds = [];
-  var idx = entry.knowledgeUpvoteIds.indexOf(articleId);
+  var idx = entry.knowledgeUpvoteIds.indexOf(hintId);
   var nowUpvoted;
-  if(idx===-1){ entry.knowledgeUpvoteIds.push(articleId); nowUpvoted = true; }
+  if(idx===-1){ entry.knowledgeUpvoteIds.push(hintId); nowUpvoted = true; }
   else { entry.knowledgeUpvoteIds.splice(idx,1); nowUpvoted = false; }
   if(window.MQUsers && window.MQUsers.setLessonUpvote){
-    window.MQUsers.setLessonUpvote(MQ_CURRENT_USER.uid, articleId, nowUpvoted).catch(function(err){
+    window.MQUsers.setLessonUpvote(MQ_CURRENT_USER.uid, hintId, nowUpvoted).catch(function(err){
       console.error("Nie udało się zapisać głosu:", err);
       showToast("Nie udało się zapisać — sprawdź połączenie");
     });
@@ -12754,32 +12754,32 @@ function fmtKbDate(iso){
 // user, trzeci raz: "wszystko ma być po angielsku oprócz opisu lekcji" —
 // CAŁE chrome sekcji (tytuły/przyciski/etykiety/filtry) wraca na angielski;
 // tylko treść lekcji (title/summary/sections[].bullets) zostaje po polsku
-// (patrz KNOWLEDGE_ARTICLES). Wcześniejsza decyzja "cała sekcja po polsku"
+// (patrz KNOWLEDGE_HINTS). Wcześniejsza decyzja "cała sekcja po polsku"
 // została jawnie cofnięta tym poleceniem.
 function renderKnowledgeGrid(){
   var q = state.searchQuery;
   // user, drugi raz: "domyślnym widokiem ma być NOT REVIEWED. All nie jest
   // potrzebne" — filtr ma już tylko 2 stany (unread/read, patrz
   // renderKnowledgeReadFilterRow), więc bez gałęzi "all".
-  var fullList = articlesByCategory(state.knowledgeCategory).filter(function(a){
+  var fullList = hintsByCategory(state.knowledgeCategory).filter(function(a){
     return matchesSearch([a.title, a.id, a.summary], q) &&
-      (state.knowledgeReadFilter==="read" ? isArticleRead(a.id) : !isArticleRead(a.id));
+      (state.knowledgeReadFilter==="read" ? isHintRead(a.id) : !isHintRead(a.id));
   });
   // user: "sam listing sortuje się wg ilości plusów" — malejąco po liczbie
   // głosów; Array#sort jest stabilny (ES2019+), więc remisy (w tym same
   // zera) zachowują dotychczasową kolejność zamiast się tasować.
-  fullList.sort(function(a,b){ return articleUpvoteCount(b.id) - articleUpvoteCount(a.id); });
+  fullList.sort(function(a,b){ return hintUpvoteCount(b.id) - hintUpvoteCount(a.id); });
   var page = paginateList(fullList);
-  byId("gridTitle").textContent = state.knowledgeCategory==="all" ? "All articles" : knowledgeCategoryLabel(state.knowledgeCategory);
-  byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " article" : " articles");
+  byId("gridTitle").textContent = state.knowledgeCategory==="all" ? "All hints" : knowledgeCategoryLabel(state.knowledgeCategory);
+  byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " hint" : " hints");
   var grid = byId("cardGrid"); grid.innerHTML = "";
   if(fullList.length===0){
-    grid.innerHTML = '<p class="drawer-empty" style="grid-column:1/-1; padding:36px">No articles match this filter.</p>';
+    grid.innerHTML = '<p class="drawer-empty" style="grid-column:1/-1; padding:36px">No hints match this filter.</p>';
     renderPagination(1);
     return;
   }
   page.items.forEach(function(a){
-    var read = isArticleRead(a.id);
+    var read = isHintRead(a.id);
     var el = document.createElement("div"); el.className = "card flow-card";
     el.innerHTML =
       '<div class="flow-card-top">'+
@@ -12790,7 +12790,7 @@ function renderKnowledgeGrid(){
       // user, drugi raz: "Przycisk +1 ma się nie pojawiać na widgecie. Jak
       // ktoś ma dać temu +1 skoro jeszcze się nie zapoznał" — +1 zostaje
       // WYŁĄCZNIE w popupie szczegółów (obok "Mark as reviewed"), karta ma
-      // już tylko "Open". Sortowanie listingu po articleUpvoteCount (patrz
+      // już tylko "Open". Sortowanie listingu po hintUpvoteCount (patrz
       // wyżej) zostaje — po prostu bez widocznego licznika na karcie.
       '<div class="flow-card-foot">'+
         '<button class="btn small" data-kb-open="'+esc(a.id)+'" style="flex:1">Open</button>'+
@@ -12813,8 +12813,8 @@ function renderKnowledgeGrid(){
 function renderKnowledgeReadFilterRow(){
   var row = byId("crmFilterRow");
   if(!row) return;
-  var all = KNOWLEDGE_ARTICLES.length;
-  var readCount = KNOWLEDGE_ARTICLES.filter(function(a){ return isArticleRead(a.id); }).length;
+  var all = KNOWLEDGE_HINTS.length;
+  var readCount = KNOWLEDGE_HINTS.filter(function(a){ return isHintRead(a.id); }).length;
   var counts = { unread:all-readCount, read:readCount };
   var filters = [["unread","Not reviewed"],["read","Reviewed"]];
   row.innerHTML = '<span style="font-size:12.5px; color:var(--ink-faint)">Progress:</span>'+
@@ -12835,8 +12835,8 @@ function renderKnowledgeReadFilterRow(){
 // przyciskiem Zapoznałem się" — kompaktowy, poziomy pasek w
 // .modal-footer-bar (#knowledgeReadersBar), nie osobna sekcja w
 // scrollującym body jak wcześniej.
-function knowledgeReadersHtml(articleId){
-  var readers = usersWhoReadArticle(articleId);
+function knowledgeReadersHtml(hintId){
+  var readers = usersWhoReadHint(hintId);
   if(!readers.length) return '<span>No one has reviewed this yet.</span>';
   return '<span>Reviewed by:</span>'+
     readers.map(function(u){
@@ -12844,57 +12844,57 @@ function knowledgeReadersHtml(articleId){
       return '<span style="display:inline-flex; align-items:center; gap:5px">'+avatarHtml(u,20)+esc(name)+'</span>';
     }).join("");
 }
-function syncKnowledgeReadBtn(articleId){
+function syncKnowledgeReadBtn(hintId){
   var btn = byId("knowledgeReadBtn");
   if(!btn) return;
-  btn.setAttribute("aria-pressed", isArticleRead(articleId) ? "true" : "false");
+  btn.setAttribute("aria-pressed", isHintRead(hintId) ? "true" : "false");
 }
 // user, drugi raz: "ilość punktów wartości ma być w popupie po prawej
 // stronie" — sam licznik żyje teraz WYŁĄCZNIE w panelu meta (#knowledgeValuePoints),
 // przycisk (karta i pasek stopki) to już tylko czyste "+1" bez liczby.
-function syncKnowledgeUpvoteBtn(articleId){
+function syncKnowledgeUpvoteBtn(hintId){
   var btn = byId("knowledgeUpvoteBtn");
-  if(btn) btn.setAttribute("aria-pressed", isArticleUpvoted(articleId) ? "true" : "false");
+  if(btn) btn.setAttribute("aria-pressed", isHintUpvoted(hintId) ? "true" : "false");
   var valueEl = byId("knowledgeValuePoints");
-  if(valueEl) valueEl.textContent = articleUpvoteCount(articleId);
+  if(valueEl) valueEl.textContent = hintUpvoteCount(hintId);
 }
-var knowledgeOpenArticleId = null;
-function openKnowledgeDetail(articleId){
-  var a = findArticle(articleId);
+var knowledgeOpenHintId = null;
+function openKnowledgeDetail(hintId){
+  var a = findHint(hintId);
   if(!a) return;
-  knowledgeOpenArticleId = articleId;
+  knowledgeOpenHintId = hintId;
   byId("knowledgeTitle").textContent = a.title;
   function sec(title, inner){ return inner ? '<div class="flow-sec"><h4>'+esc(title)+'</h4>'+inner+'</div>' : ""; }
   function list(arr){
     if(!arr || !arr.length) return "";
     return '<ul class="flow-list">'+arr.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join("")+'</ul>';
   }
-  var read = isArticleRead(articleId);
+  var read = isHintRead(hintId);
   byId("knowledgeMetaPanel").innerHTML =
     '<div class="flow-meta-grid" style="grid-template-columns:1fr">'+
       '<div class="flow-meta-item"><div class="k">Category</div><div class="v">'+esc(knowledgeCategoryLabel(a.category))+'</div></div>'+
       '<div class="flow-meta-item"><div class="k">Added</div><div class="v">'+esc(fmtKbDate(a.dateAdded))+'</div></div>'+
       '<div class="flow-meta-item"><div class="k">Status</div><div class="v">'+(read?"Reviewed":"Not reviewed")+'</div></div>'+
-      '<div class="flow-meta-item"><div class="k">Value points</div><div class="v" id="knowledgeValuePoints">'+articleUpvoteCount(articleId)+'</div></div>'+
+      '<div class="flow-meta-item"><div class="k">Value points</div><div class="v" id="knowledgeValuePoints">'+hintUpvoteCount(hintId)+'</div></div>'+
       '<div class="flow-meta-item"><div class="k">Source</div><div class="v">'+esc(a.source||"")+(KNOWLEDGE_SOURCE_PDF_URL ? ' · <a href="'+esc(KNOWLEDGE_SOURCE_PDF_URL)+'" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline">Download full PDF</a>' : '')+'</div></div>'+
     '</div>';
   byId("knowledgeBody").innerHTML =
     (a.image ? '<img src="'+esc(a.image)+'" alt="" style="width:100%; border-radius:var(--radius-card); margin:0 0 20px; display:block">' : "")+
     (a.summary ? '<p style="font-size:14.5px; color:var(--ink-muted); line-height:1.6; margin:0 0 20px">'+esc(a.summary)+'</p>' : "")+
     (a.sections||[]).map(function(s){ return sec(s.heading, list(s.bullets)); }).join("");
-  byId("knowledgeReadersBar").innerHTML = knowledgeReadersHtml(articleId);
-  syncKnowledgeReadBtn(articleId);
-  syncKnowledgeUpvoteBtn(articleId);
+  byId("knowledgeReadersBar").innerHTML = knowledgeReadersHtml(hintId);
+  syncKnowledgeReadBtn(hintId);
+  syncKnowledgeUpvoteBtn(hintId);
   byId("knowledgeOverlay").classList.add("open");
   // user: "Otwarcie dowolnego popupu... ma dodawać odpowiedni parametr do
   // URLa. Skopiowanie go i wklejenie w okno przeglądarki ma otworzyć
   // dokładnie ten popup" — sam wzorzec co urlOpenComponentId/urlOpenFlowId
   // itd. (patrz syncUrlFromState/restoreStateFromUrl).
-  urlOpenArticleId = articleId; syncUrlFromState();
+  urlOpenHintId = hintId; syncUrlFromState();
 }
 function closeKnowledgeOverlay(){
   byId("knowledgeOverlay").classList.remove("open");
-  urlOpenArticleId = null; syncUrlFromState();
+  urlOpenHintId = null; syncUrlFromState();
   // Karta na liście (badge "Reviewed", filtr Not reviewed/Reviewed) ma
   // odzwierciedlić ewentualną zmianę statusu dokonaną wewnątrz popupu.
   if(state.section==="knowledge"){ renderGrid(); renderKnowledgeReadFilterRow(); }
@@ -13262,7 +13262,7 @@ var HOME_TILES = [
     count:null },
   { section:"knowledge", label:"Knowledge Base", desc:"Practical, real-world lessons distilled from a marketing-automation playbook.",
     icon:'M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q134 0 227 93t93 227q0 134-93 227t-227 93Zm0-80q100 0 170-70t70-170q0-100-70-170t-170-70q-100 0-170 70t-70 170q0 100 70 170t170 70Zm-40-120v-240h80v240h-80Zm40-320q17 0 28.5-11.5T520-720q0-17-11.5-28.5T480-760q-17 0-28.5 11.5T440-720q0 17 11.5 28.5T480-680Z',
-    count:function(){ return KNOWLEDGE_ARTICLES.length; } }
+    count:function(){ return KNOWLEDGE_HINTS.length; } }
 ];
 function renderHomePage(){
   var stats = [
@@ -13271,7 +13271,7 @@ function renderHomePage(){
     ["Reference flows", FLOWS.length],
     ["Brands in Brand Kit", BRAND_ORDER.length],
     ["Skills", SKILLS.length],
-    ["Knowledge Base articles", KNOWLEDGE_ARTICLES.length]
+    ["Knowledge Base hints", KNOWLEDGE_HINTS.length]
   ];
   byId("homeStats").innerHTML = stats.map(function(s){
     return '<div><div class="home-stat-n">'+s[1]+'</div><div class="home-stat-label">'+esc(s[0])+'</div></div>';
@@ -13633,7 +13633,7 @@ var SECTION_META = {
   reports:    { title:"Monthly Reports", search:null, primary:null, stack:false },
   // user: "Stwórz w aplikacji nową kategorię Knowledge Base" — listing jak
   // Liquid Snippets, ale primary:null (WYŁĄCZNIE do czytania, bez "Add").
-  knowledge:  { title:"Knowledge Base", search:"Search articles…", primary:null, stack:false }
+  knowledge:  { title:"Knowledge Base", search:"Search hints…", primary:null, stack:false }
 };
 function syncSectionChrome(){
   var meta = SECTION_META[state.section] || SECTION_META.components;
@@ -15018,13 +15018,13 @@ bindOverlayBackdropClose("liquidOverlay", closeLiquidOverlay);
 byId("knowledgeClose").addEventListener("click", closeKnowledgeOverlay);
 bindOverlayBackdropClose("knowledgeOverlay", closeKnowledgeOverlay);
 byId("knowledgeReadBtn").addEventListener("click", function(){
-  if(!knowledgeOpenArticleId) return;
-  var nowRead = toggleArticleRead(knowledgeOpenArticleId);
-  syncKnowledgeReadBtn(knowledgeOpenArticleId);
+  if(!knowledgeOpenHintId) return;
+  var nowRead = toggleHintRead(knowledgeOpenHintId);
+  syncKnowledgeReadBtn(knowledgeOpenHintId);
   // Odświeża pasek "Reviewed by" (self właśnie doszedł/zniknął z listy)
   // oraz "Status" w panelu bocznym, bez zamykania i ponownego otwierania
   // całego popupu.
-  byId("knowledgeReadersBar").innerHTML = knowledgeReadersHtml(knowledgeOpenArticleId);
+  byId("knowledgeReadersBar").innerHTML = knowledgeReadersHtml(knowledgeOpenHintId);
   byId("knowledgeMetaPanel").querySelectorAll(".flow-meta-item").forEach(function(el){
     if(el.querySelector(".k") && el.querySelector(".k").textContent==="Status"){
       el.querySelector(".v").textContent = nowRead ? "Reviewed" : "Not reviewed";
@@ -15033,10 +15033,10 @@ byId("knowledgeReadBtn").addEventListener("click", function(){
   if(state.section==="knowledge") renderKnowledgeReadFilterRow();
 });
 byId("knowledgeUpvoteBtn").addEventListener("click", function(){
-  if(!knowledgeOpenArticleId) return;
-  var nowUpvoted = toggleArticleUpvote(knowledgeOpenArticleId);
-  if(nowUpvoted) showToast("Marked this article as valuable");
-  syncKnowledgeUpvoteBtn(knowledgeOpenArticleId);
+  if(!knowledgeOpenHintId) return;
+  var nowUpvoted = toggleHintUpvote(knowledgeOpenHintId);
+  if(nowUpvoted) showToast("Marked this hint as valuable");
+  syncKnowledgeUpvoteBtn(knowledgeOpenHintId);
   // Karta na liście pokazuje tę samą liczbę plusów i sortuje się po niej —
   // odświeżamy ją od razu, żeby po zamknięciu popupu lista była aktualna
   // (closeKnowledgeOverlay i tak woła renderGrid, to tylko dla spójności
@@ -15609,7 +15609,7 @@ var urlOpenFlowId = null;
 var urlOpenSkillId = null;
 var urlOpenLiquidId = null;
 var urlOpenDiscountId = null;
-var urlOpenArticleId = null;
+var urlOpenHintId = null;
 function syncUrlFromState(){
   // Publiczny link do kalendarza NIE może się sam przepisać na zwykły URL
   // appki — inaczej pierwszy render skasowałby ?dmshare= z paska adresu i
@@ -15645,7 +15645,7 @@ function syncUrlFromState(){
   if(urlOpenSkillId) params.set("skillid", urlOpenSkillId);
   if(urlOpenLiquidId) params.set("liquidid", urlOpenLiquidId);
   if(urlOpenDiscountId) params.set("discountid", urlOpenDiscountId);
-  if(urlOpenArticleId) params.set("article", urlOpenArticleId);
+  if(urlOpenHintId) params.set("hint", urlOpenHintId);
   var qs = params.toString();
   history.replaceState(null, "", location.pathname + (qs ? "?"+qs : ""));
 }
@@ -15666,7 +15666,7 @@ function restoreStateFromUrl(){
   var skillId = params.get("skillid");
   var liquidId = params.get("liquidid");
   var discountId = params.get("discountid");
-  var articleId = params.get("article");
+  var hintId = params.get("hint");
   // user: "Otwarcie dowolnego popupu... ma dodawać odpowiedni parametr do
   // URLa... obecnie to się nie dzieje" — realny root-cause bug: to naprawdę
   // JEDNO wywołanie tej funkcji w całej appce (patrz MQBoot), więc render
@@ -15718,7 +15718,7 @@ function restoreStateFromUrl(){
   else if(skillId && findSkill(skillId)) openSkillDetail(skillId);
   else if(liquidId && findSnippet(liquidId)) openSnippetDetail(liquidId);
   else if(discountId && findDiscountBatch(discountId)) openDiscountDetail(discountId);
-  else if(articleId && findArticle(articleId)) openKnowledgeDetail(articleId);
+  else if(hintId && findHint(hintId)) openKnowledgeDetail(hintId);
 }
 function renderAll(){
   renderSwatches(); renderPrimaryNav(); renderFilterBar(); renderCrmFilterRow();
@@ -17112,9 +17112,9 @@ window.MQUsers = {
   // zaznaczających RÓŻNE lekcje w tym samym momencie nie nadepnie sobie na
   // tablicę. "kto się zapoznał" (avatary w szczegółach lekcji) czyta się
   // z MQUsers.listAll(), które i tak już jest wołane przy starcie appki.
-  setLessonRead(uid, articleId, read){
+  setLessonRead(uid, hintId, read){
     return updateDoc(usersDocRef(uid), {
-      knowledgeReadIds: read ? arrayUnion(articleId) : arrayRemove(articleId),
+      knowledgeReadIds: read ? arrayUnion(hintId) : arrayRemove(hintId),
       updatedAt: Date.now()
     });
   },
@@ -17122,10 +17122,10 @@ window.MQUsers = {
   // zbierać plusy... Ilość plusów oznacza, że coś było bardzo wartościowe
   // dla kogoś" — dokładnie ten sam wzorzec co setLessonRead powyżej: własne
   // pole na users/{uid}, arrayUnion/arrayRemove atomowe, liczba plusów =
-  // liczba userów z tym articleId w tablicy (patrz usersWhoUpvotedArticle).
-  setLessonUpvote(uid, articleId, upvoted){
+  // liczba userów z tym hintId w tablicy (patrz usersWhoUpvotedHint).
+  setLessonUpvote(uid, hintId, upvoted){
     return updateDoc(usersDocRef(uid), {
-      knowledgeUpvoteIds: upvoted ? arrayUnion(articleId) : arrayRemove(articleId),
+      knowledgeUpvoteIds: upvoted ? arrayUnion(hintId) : arrayRemove(hintId),
       updatedAt: Date.now()
     });
   }
