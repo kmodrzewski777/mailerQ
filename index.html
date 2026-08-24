@@ -1059,7 +1059,7 @@
      artefaktu). Sekcja zostaje widoczna jako zapowiedź, ale w pełni
      nieaktywna, dopóki nie będzie realnej ścieżki wywołania AI. */
   textarea.code:disabled{opacity:.55; cursor:not-allowed; resize:none}
-  .bf-field input[type="text"], .bf-field input[type="number"], .bf-field input[type="datetime-local"], .bf-field input[type="email"], .bf-field input[type="password"], .bf-field select{
+  .bf-field input[type="text"], .bf-field input[type="number"], .bf-field input[type="datetime-local"], .bf-field input[type="date"], .bf-field input[type="month"], .bf-field input[type="email"], .bf-field input[type="password"], .bf-field select{
     border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:13.5px;
     background:var(--surface); color:var(--ink); font-family:inherit; width:100%; box-sizing:border-box;
   }
@@ -1068,8 +1068,11 @@
      jedyny realny "hak" na markowy pomarańcz zamiast systemowego
      niebieskiego, bo sam POPUP kalendarza (w odróżnieniu od samego pola)
      jest renderowany przez system/przeglądarkę i poza tym nie da się go
-     ostylować z poziomu CSS. */
-  .bf-field input[type="datetime-local"]{ accent-color:var(--accent-strong); color-scheme:light }
+     ostylować z poziomu CSS. date/month dopisane przy okazji Discount
+     Codes/Monthly Reports — dawniej ta reguła obejmowała tylko
+     datetime-local, więc zwykłe pola date (patrz DM Schedule) i nowe
+     pola month renderowały się bez markowego akcentu. */
+  .bf-field input[type="datetime-local"], .bf-field input[type="date"], .bf-field input[type="month"]{ accent-color:var(--accent-strong); color-scheme:light }
   .bf-color-swatch:focus-visible{ outline:2px solid var(--accent); outline-offset:1px }
   /* user: "miałeś zlikwidować WSZĘDZIE ten styl pogrubienia każdych
      inputów. ma być 1px i nie czarny tylko lekko ciemniejszy od obecnego"
@@ -1083,6 +1086,7 @@
      własne, wyżej wyspecyfikowane reguły) dostaje TĘ SAMĄ, spokojną
      obwódkę: 1px, o jeden odcień ciemniejszy niż domyślny --line. */
   input[type="text"]:focus, input[type="number"]:focus, input[type="datetime-local"]:focus,
+  input[type="date"]:focus, input[type="month"]:focus,
   input[type="email"]:focus, input[type="password"]:focus, input[type="search"]:focus,
   textarea:focus, select:focus{ outline:none; border-color:var(--line-strong) }
   .bf-color-field{display:flex; align-items:center; gap:6px}
@@ -1366,6 +1370,24 @@
       <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M212.31-100Q182-100 161-121q-21-21-21-51.31v-535.38Q140-738 161-759q21-21 51.31-21h55.38v-84.61h61.54V-780h303.08v-84.61h60V-780h55.38Q778-780 799-759q21 21 21 51.31v535.38Q820-142 799-121q-21 21-51.31 21H212.31Zm0-60h535.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-375.38H200v375.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM200-607.69h560v-100q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H212.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v100Z"/></svg>
       <span class="nav-label">DM Schedule</span><span class="n" id="navCountSchedule"></span>
     </button>
+    <!-- user: "generator indywidualnych kodów rabatowych... Żadnej logiki,
+         na razie tylko front end do zaprezentowania" — lista paczek kodów +
+         formularz; dwa pola (warunki użycia, kampanie) świadomie
+         zablokowane (patrz renderDiscountFormFields), sam CRUD działa jak
+         w każdej innej sekcji appki. -->
+    <button class="nav-item" type="button" data-nav="discounts">
+      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M336-480q-45 0-76.5-31.5T228-588q0-45 31.5-76.5T336-696q45 0 76.5 31.5T444-588q0 45-31.5 76.5T336-480Zm0-72q15 0 25.5-10.5T372-588q0-15-10.5-25.5T336-624q-15 0-25.5 10.5T300-588q0 15 10.5 25.5T336-552ZM624-264q-45 0-76.5-31.5T516-372q0-45 31.5-76.5T624-480q45 0 76.5 31.5T732-372q0 45-31.5 76.5T624-264Zm0-72q15 0 25.5-10.5T660-372q0-15-10.5-25.5T624-408q-15 0-25.5 10.5T588-372q0 15 10.5 25.5T624-336ZM252-216l-72-72 528-528 72 72-528 528Z"/></svg>
+      <span class="nav-label">Discount Codes</span><span class="n" id="navCountDiscounts"></span>
+    </button>
+    <!-- user: "generator raportów miesięcznych dla klienta... na razie sam
+         front end bez żadnej logiki" — wybór klienta+miesiąca, Generate
+         pokazuje placeholder ("coming soon"), bez żadnej realnej treści
+         raportu. Osobna, jednoekranowa strona (jak DM Schedule/Brand Kit),
+         nie listing. -->
+    <button class="nav-item" type="button" data-nav="reports">
+      <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M320-240h320v-80H320v80Zm0-160h320v-80H320v80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z"/></svg>
+      <span class="nav-label">Monthly Reports</span>
+    </button>
   </nav>
 
   <div class="work">
@@ -1389,6 +1411,7 @@
         <button class="btn small" id="addFlowRepoBtn" type="button" style="display:none">Add Flow</button>
         <button class="btn small" id="addSkillBtn" type="button" style="display:none">Add Skill</button>
         <button class="btn small" id="addLiquidBtn" type="button" style="display:none">Add Snippet</button>
+        <button class="btn small" id="addDiscountBtn" type="button" style="display:none">Generate codes</button>
         <button class="btn ghost small" id="dockToggle" type="button" aria-expanded="false" aria-controls="drawer">
           Mail Stack<span class="dock-pill" id="dockCount">0</span>
         </button>
@@ -1655,6 +1678,29 @@
         </div>
         <div class="dm-owner-row" id="dmOwnerRow"></div>
         <div class="dm-grid" id="dmGrid"></div>
+      </div>
+      <!-- Generator raportów miesięcznych — user: "wybieramy klienta,
+           wybieramy miesiąc i klikamy generuj. Na razie sam front end bez
+           żadnej logiki". Generate pokazuje jawny placeholder, nie
+           prawdziwy raport — nie ma tu żadnej logiki liczącej cokolwiek. -->
+      <div id="reportGenPage" style="display:none">
+        <div class="bf-group" style="max-width:640px">
+          <p class="bf-group-title">Generate a monthly client report</p>
+          <div class="bf-row">
+            <div class="bf-field">
+              <label for="reportGenClient">Client</label>
+              <select id="reportGenClient"></select>
+            </div>
+            <div class="bf-field">
+              <label for="reportGenMonth">Month</label>
+              <input type="month" id="reportGenMonth">
+            </div>
+          </div>
+          <div class="bf-actions" style="justify-content:flex-start; border-top:none; padding-top:14px; margin-top:0">
+            <button class="btn small" type="button" id="reportGenBtn">Generate report</button>
+          </div>
+        </div>
+        <div id="reportGenResult" style="display:none; max-width:640px; margin-top:16px"></div>
       </div>
     </main>
   </div>
@@ -1957,6 +2003,50 @@
     <div class="modal-footer-bar" style="gap:8px">
       <button class="btn ghost small" type="button" id="liquidFormCancel" style="flex:1">Cancel</button>
       <button class="btn small" type="button" id="liquidFormSave" style="flex:1">Save snippet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Szczegóły paczki kodów rabatowych — ten sam wzorzec co Skills/Liquid
+     Snippets wyżej. -->
+<div class="overlay" id="discountOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:1040px">
+    <div class="modal-head">
+      <h3 id="discountTitle"></h3>
+      <span style="display:flex; align-items:center; gap:4px">
+        <div class="card-menu-wrap" id="discountDetailMenuWrap" data-card-menu-kind="discount" data-card-menu-id="">
+          <button type="button" class="icon-btn card-menu-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More options"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-189.23q-24.75 0-42.37-17.63Q420-224.48 420-249.23q0-24.75 17.63-42.38 17.62-17.62 42.37-17.62 24.75 0 42.37 17.62Q540-273.98 540-249.23q0 24.75-17.63 42.37-17.62 17.63-42.37 17.63ZM480-420q-24.75 0-42.37-17.63Q420-455.25 420-480q0-24.75 17.63-42.37Q455.25-540 480-540q24.75 0 42.37 17.63Q540-504.75 540-480q0 24.75-17.63 42.37Q504.75-420 480-420Zm0-230.77q-24.75 0-42.37-17.62Q420-686.02 420-710.77q0-24.75 17.63-42.37 17.62-17.63 42.37-17.63 24.75 0 42.37 17.63Q540-735.52 540-710.77q0 24.75-17.63 42.38-17.62 17.62-42.37 17.62Z"/></svg></button>
+          <ul class="card-menu" role="menu" style="display:none">
+            <li class="card-menu-item" role="menuitem" data-card-menu-edit>Edit</li>
+            <li class="card-menu-item danger" role="menuitem" data-card-menu-delete>Delete</li>
+          </ul>
+        </div>
+        <button class="modal-close" id="discountClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+      </span>
+    </div>
+    <div class="modal-body">
+      <div class="flow-detail-grid">
+        <div class="flow-detail-main" id="discountBody"></div>
+        <aside class="flow-detail-side" id="discountMetaPanel"></aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Generate/Edit Discount Code Batch — ten sam wzorzec co Add/Edit
+     Skill/Liquid Snippet wyżej. -->
+<div class="overlay" id="discountFormOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-head">
+      <h3 id="discountFormTitle">Generate discount codes</h3>
+      <button class="modal-close" id="discountFormClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <form id="discountForm" class="brand-form"></form>
+    </div>
+    <div class="modal-footer-bar" style="gap:8px">
+      <button class="btn ghost small" type="button" id="discountFormCancel" style="flex:1">Cancel</button>
+      <button class="btn small" type="button" id="discountFormSave" style="flex:1">Generate codes</button>
     </div>
   </div>
 </div>
@@ -6513,6 +6603,12 @@ LIQUID_SNIPPETS.push({
   createdBy:"Maximus", updatedAt:"2026-08-21T12:00:00.000Z", updatedBy:"Maximus"
 });
 
+/* Discount Codes — user: "generator indywidualnych kodów rabatowych...
+   Żadnej logiki, na razie tylko front end to zaprezentowania". Bez
+   seedowych paczek (nie ma sensownych przykładów bez realnej generacji
+   kodów) — pusta lista, wypełniana wyłącznie przez usera. */
+var DISCOUNT_BATCHES = [];
+
 /* ================================================================
    HARMONOGRAM DIRECT MARKETINGU — user: "harmonogram wysyłek Direct
    Marketingowych. Obecnie korzystamy z ClickUpa. Nie chcemy tam wpuszczać
@@ -6864,6 +6960,11 @@ function buildBackupPayload(){
     // wspólna/dzielona biblioteka co Flow Repository/Skills.
     deletedBuiltinLiquidIds: DELETED_BUILTIN_LIQUID_IDS,
     customLiquidSnippets: LIQUID_SNIPPETS.filter(function(s){ return s.custom; }),
+    // Discount Codes — user: "generator indywidualnych kodów rabatowych".
+    // Brak seedowych/wbudowanych paczek (zawsze custom:true), więc nie ma
+    // tu odpowiednika deletedBuiltinXIds — usunięcie po prostu znika z
+    // tablicy, tak jak przy zwykłym CRUD.
+    customDiscountBatches: DISCOUNT_BATCHES,
     dmEntries: DM_ENTRIES
   };
 }
@@ -6990,6 +7091,11 @@ function applyBackupPayload(payload){
       if(!findSnippet(cl.id)) LIQUID_SNIPPETS.push(Object.assign({}, cl, { custom:true }));
     });
   }
+  if(payload.customDiscountBatches){
+    payload.customDiscountBatches.forEach(function(cd){
+      if(!findDiscountBatch(cd.id)) DISCOUNT_BATCHES.push(Object.assign({}, cd, { custom:true }));
+    });
+  }
   // Harmonogram podmieniany w CAŁOŚCI (nie scalany per-wpis) — to jedna,
   // wspólna tablica, a nie katalog z wbudowanym seedem jak komponenty.
   if(payload.dmEntries) DM_ENTRIES = payload.dmEntries;
@@ -7005,7 +7111,7 @@ var mqSaveTimer = null;
 // WSZYSTKO razem (bez podziału) — to czysto lokalna kopia zapasowa
 // przeglądarki, nie ma tu ryzyka konfliktu między osobami.
 var MQ_PRIVATE_KEYS = ["buildList","currentBrand","headerVariant","footerVariant","favoriteComponents","favoriteEmails"];
-var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds","deletedBuiltinFlowIds","customFlows","deletedBuiltinSkillIds","customSkills","deletedBuiltinLiquidIds","customLiquidSnippets","dmEntries"];
+var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds","deletedBuiltinFlowIds","customFlows","deletedBuiltinSkillIds","customSkills","deletedBuiltinLiquidIds","customLiquidSnippets","customDiscountBatches","dmEntries"];
 function splitBackupPayload(full){
   var priv = {}, shared = {};
   MQ_PRIVATE_KEYS.forEach(function(k){ priv[k] = full[k]; });
@@ -9891,6 +9997,7 @@ function renderPrimaryNav(){
   byId("navCountFlows").textContent = FLOWS.length;
   byId("navCountSkills").textContent = SKILLS.length;
   byId("navCountLiquid").textContent = LIQUID_SNIPPETS.length;
+  byId("navCountDiscounts").textContent = DISCOUNT_BATCHES.length;
   byId("navCountSchedule").textContent = DM_ENTRIES.length;
   nav.querySelectorAll("[data-nav]").forEach(function(btn){
     var target = btn.getAttribute("data-nav");
@@ -10918,6 +11025,240 @@ function deleteSnippet(id){
 }
 
 /* ================================================================
+   DISCOUNT CODES — generator paczek indywidualnych kodów rabatowych.
+   user: "Żadnej logiki, na razie tylko front end to zaprezentowania" —
+   CRUD (dodaj/lista/szczegóły/usuń) działa jak w każdej innej sekcji, ale
+   NIE MA tu żadnej prawdziwej generacji kodów (żadnego algorytmu, żadnej
+   integracji z CRM) — "Generate codes" tylko zapisuje METADANE paczki.
+   Dwa pola (warunki użycia / kampanie automatyczne) są świadomie
+   zablokowane — ten sam wzorzec co "AI Support" w edytorze komponentu
+   (patrz #editAiSupportGroup): w pełni zaprojektowane w UI, ale
+   nieaktywne, dopóki nie będzie realnej logiki za nimi.
+   ================================================================ */
+var discountOpenId = null;
+function findDiscountBatch(id){ for(var i=0;i<DISCOUNT_BATCHES.length;i++){ if(DISCOUNT_BATCHES[i].id===id) return DISCOUNT_BATCHES[i]; } return null; }
+function formatDiscountDate(isoDate){
+  if(!isoDate) return "";
+  var d = new Date(isoDate+"T00:00:00");
+  if(isNaN(d.getTime())) return isoDate;
+  return d.toLocaleDateString("en-GB", { day:"numeric", month:"short", year:"numeric" });
+}
+function discountDateRangeLabel(b){
+  if(!b.validFrom && !b.validUntil) return "";
+  return "Valid "+(b.validFrom ? formatDiscountDate(b.validFrom) : "no start date")+" – "+(b.validUntil ? formatDiscountDate(b.validUntil) : "no end date");
+}
+function renderDiscountGrid(){
+  var q = state.searchQuery;
+  var fullList = DISCOUNT_BATCHES.filter(function(b){
+    return matchesSearch([b.name, b.id, b.prefix, b.desc], q);
+  });
+  var page = paginateList(fullList);
+  byId("gridTitle").textContent = "Discount code batches";
+  byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " batch" : " batches");
+  var grid = byId("cardGrid"); grid.innerHTML = "";
+  if(fullList.length===0){
+    grid.innerHTML = '<p class="drawer-empty" style="grid-column:1/-1; padding:36px">No code batches yet — click “Generate codes” to create one.</p>';
+    renderPagination(1);
+    return;
+  }
+  page.items.forEach(function(b){
+    var el = document.createElement("div"); el.className = "card flow-card";
+    var range = discountDateRangeLabel(b);
+    el.innerHTML =
+      '<div class="flow-card-top">'+
+        '<p class="flow-card-cat">'+esc(b.prefix||"—")+' · '+esc(b.quantity||0)+' codes</p>'+
+        '<div class="card-name-row"><p class="flow-card-title">'+esc(b.name)+'</p>'+cardMenuHtml("discount", b.id)+'</div>'+
+        '<p class="flow-card-desc">'+esc(b.desc||"")+'</p>'+
+      '</div>'+
+      (range ? '<p class="card-compat-text" style="padding:0 16px 10px">'+esc(range)+'</p>' : '')+
+      '<div class="flow-card-foot">'+
+        '<button class="btn small" data-discount-open="'+esc(b.id)+'" style="flex:1">Open</button>'+
+      '</div>';
+    grid.appendChild(el);
+  });
+  grid.querySelectorAll("[data-discount-open]").forEach(function(btn){
+    btn.addEventListener("click", function(){ openDiscountDetail(btn.getAttribute("data-discount-open")); });
+  });
+  renderPagination(page.totalPages);
+}
+function openDiscountDetail(id){
+  var b = findDiscountBatch(id);
+  if(!b) return;
+  discountOpenId = id;
+  byId("discountTitle").textContent = b.name;
+  var meta = [
+    ["Prefix", b.prefix],
+    ["Quantity", b.quantity ? String(b.quantity) : ""],
+    ["Valid from", formatDiscountDate(b.validFrom)],
+    ["Valid until", formatDiscountDate(b.validUntil)],
+    ["Created by", displayNameOf(b.createdBy)]
+  ].filter(function(p){ return p[1]; });
+  function sec(title, inner){ return inner ? '<div class="flow-sec"><h4>'+esc(title)+'</h4>'+inner+'</div>' : ""; }
+  byId("discountMetaPanel").innerHTML =
+    '<div class="flow-meta-grid">'+
+      meta.map(function(p){ return '<div class="flow-meta-item"><div class="k">'+esc(p[0])+'</div><div class="v">'+esc(p[1])+'</div></div>'; }).join("")+
+    '</div>';
+  byId("discountBody").innerHTML =
+    sec("Description", b.desc ? '<p>'+esc(b.desc)+'</p>' : "")+
+    sec("Usage conditions", '<p class="drawer-empty">Coming soon — usage conditions aren’t configurable yet.</p>')+
+    sec("Used in automated campaigns", '<p class="drawer-empty">Coming soon — campaign linking isn’t available yet.</p>');
+  byId("discountDetailMenuWrap").setAttribute("data-card-menu-id", id);
+  byId("discountOverlay").classList.add("open");
+  urlOpenDiscountId = id; syncUrlFromState();
+}
+function closeDiscountOverlay(){ byId("discountOverlay").classList.remove("open"); urlOpenDiscountId = null; syncUrlFromState(); }
+
+var discountForm = { editId: null, draft: null };
+function uniqueDiscountKey(base){
+  var key = base, n = 2;
+  while(findDiscountBatch(key)){ key = base + "-" + n; n++; }
+  return key;
+}
+function emptyDiscountDraft(){
+  return { name:"", prefix:"", quantity:100, validFrom:"", validUntil:"", desc:"" };
+}
+function openDiscountForm(existing){
+  discountForm.editId = existing ? existing.id : null;
+  discountForm.draft = existing ? {
+    name: existing.name||"", prefix: existing.prefix||"", quantity: existing.quantity||100,
+    validFrom: existing.validFrom||"", validUntil: existing.validUntil||"", desc: existing.desc||""
+  } : emptyDiscountDraft();
+  byId("discountFormTitle").textContent = existing ? "Edit code batch" : "Generate discount codes";
+  renderDiscountFormFields();
+  byId("discountFormOverlay").classList.add("open");
+}
+function closeDiscountForm(){ byId("discountFormOverlay").classList.remove("open"); }
+function renderDiscountFormFields(){
+  var form = byId("discountForm");
+  var d = discountForm.draft;
+  function field(key, label, placeholder, type){
+    return '<div class="bf-field"><label for="df-'+key+'">'+esc(label)+'</label>'+
+      '<input type="'+(type||"text")+'" id="df-'+key+'" data-df-field="'+key+'" value="'+esc(d[key]!=null?d[key]:"")+'" placeholder="'+esc(placeholder||"")+'"></div>';
+  }
+  function textareaField(key, label, rows){
+    return '<div class="bf-field"><label for="df-'+key+'">'+esc(label)+'</label>'+
+      '<textarea id="df-'+key+'" data-df-field="'+key+'" rows="'+(rows||3)+'">'+esc(d[key]||"")+'</textarea></div>';
+  }
+  // "Coming soon" — user: "warunki użycia kodu (na razie opcja
+  // zablokowana)... możliwość wybrania do jakich kampanii automatycznych
+  // wykorzystywana jest ta paczka kodów (tu też na razie blokada)".
+  var lockedBadge = '<span class="flow-chip" style="margin-left:6px">Coming soon</span>';
+  form.innerHTML =
+    '<div class="bf-group"><div class="bf-row">'+
+      field("name", "Batch name", "e.g. Berty — Black Friday 2026")+
+      field("prefix", "Code prefix", "e.g. BF26-")+
+    '</div>'+
+    '<div class="bf-row">'+
+      field("quantity", "Number of codes", "e.g. 500", "number")+
+    '</div>'+
+    '<div class="bf-row">'+
+      field("validFrom", "Valid from", "", "date")+
+      field("validUntil", "Valid until", "", "date")+
+    '</div></div>'+
+    '<div class="bf-group">'+
+      textareaField("desc", "Description")+
+    '</div>'+
+    '<div class="bf-group">'+
+      '<div class="bf-field"><label>Usage conditions'+lockedBadge+'</label>'+
+        '<textarea disabled rows="3" placeholder="Coming soon — usage conditions aren’t configurable yet."></textarea>'+
+      '</div>'+
+      '<div class="bf-field"><label>Used in automated campaigns'+lockedBadge+'</label>'+
+        '<select disabled><option>Coming soon — campaign linking isn’t available yet</option></select>'+
+      '</div>'+
+    '</div>';
+  form.querySelectorAll("[data-df-field]").forEach(function(el){
+    el.addEventListener("input", function(){
+      var key = el.getAttribute("data-df-field");
+      d[key] = el.type==="number" ? (el.value==="" ? "" : +el.value) : el.value;
+    });
+  });
+  enhanceAllSelects(form);
+}
+function saveDiscountForm(){
+  var d = discountForm.draft;
+  var name = (d.name||"").trim();
+  if(!name){ showToast("Enter a batch name"); byId("df-name").focus(); return; }
+  var payload = {
+    name: name, prefix: (d.prefix||"").trim(), quantity: d.quantity || 0,
+    validFrom: d.validFrom||"", validUntil: d.validUntil||"", desc: (d.desc||"").trim(),
+    // Zawsze puste — pola świadomie zablokowane w formularzu, patrz komentarz wyżej.
+    usageConditions: "", linkedCampaigns: []
+  };
+  if(discountForm.editId){
+    var existing = findDiscountBatch(discountForm.editId);
+    if(!existing) return;
+    if(!canManageRecord(existing)){ showToast("You're not the creator of this batch", "error"); return; }
+    return withBtnLoading(byId("discountFormSave"), function(){
+      Object.assign(existing, payload);
+      return saveToStorage().then(function(){
+        closeDiscountForm(); renderAll();
+        if(byId("discountOverlay").classList.contains("open")) openDiscountDetail(existing.id);
+        showToast("Updated “"+name+"”");
+      });
+    });
+  }
+  var requestedId = slugifyKey(name);
+  var finalId = findDiscountBatch(requestedId) ? uniqueDiscountKey(requestedId) : requestedId;
+  return withBtnLoading(byId("discountFormSave"), function(){
+    DISCOUNT_BATCHES.push(Object.assign({ id: finalId, custom:true, createdBy: currentUserStamp(), createdAt: new Date().toISOString() }, payload));
+    state.section = "discounts";
+    return saveToStorage().then(function(){
+      closeDiscountForm(); renderAll();
+      showToast("Generated batch “"+name+"”");
+    });
+  });
+}
+function deleteDiscountBatch(id){
+  var b = findDiscountBatch(id);
+  if(!b) return;
+  if(!canManageRecord(b)){ showToast("You're not the creator of this batch", "error"); return; }
+  DISCOUNT_BATCHES = DISCOUNT_BATCHES.filter(function(x){ return x.id!==id; });
+  saveToStorage().then(function(){
+    if(discountOpenId===id) closeDiscountOverlay();
+    renderAll();
+    showToast("Batch deleted");
+  });
+}
+
+/* ================================================================
+   MONTHLY REPORTS — generator raportów miesięcznych dla klienta. user:
+   "wybieramy klienta, wybieramy miesiąc i klikamy generuj. Na razie sam
+   front end bez żadnej logiki" — Generate pokazuje jawny placeholder
+   ("coming soon"), NIE prawdziwy raport; nic tu nie liczy ani nie
+   eksportuje żadnych realnych danych.
+   ================================================================ */
+function renderReportGenChrome(){
+  var sel = byId("reportGenClient");
+  // Wypełniane RAZ (zabezpieczone .options.length) — enhanceSelect
+  // opakowuje select w customowy widget przy pierwszym wypełnieniu; kolejne
+  // wejścia na tę stronę zostawiają wcześniejszy wybór usera nietknięty
+  // (żadnej synchronizacji z state.brand — to osobny wybór, "klient
+  // raportu", nie "aktywna marka w edytorze").
+  if(sel && !sel.options.length){
+    sel.innerHTML = BRAND_ORDER.map(function(k){ return '<option value="'+esc(k)+'">'+esc(BRANDS[k].short||BRANDS[k].name)+'</option>'; }).join("");
+    enhanceAllSelects(byId("reportGenPage"));
+  }
+  byId("reportGenResult").style.display = "none";
+}
+function generateMonthlyReport(){
+  var clientKey = byId("reportGenClient").value;
+  var month = byId("reportGenMonth").value;
+  if(!month){ showToast("Pick a month first"); return; }
+  var clientName = (BRANDS[clientKey]||{}).short || clientKey;
+  var monthLabel = (function(){
+    var parts = month.split("-");
+    var d = new Date(+parts[0], +parts[1]-1, 1);
+    return d.toLocaleDateString("en-GB", { month:"long", year:"numeric" });
+  })();
+  byId("reportGenResult").innerHTML =
+    '<div class="flow-sec">'+
+      '<h4>'+esc(clientName)+' — '+esc(monthLabel)+'</h4>'+
+      '<p class="drawer-empty">Coming soon — report generation isn’t available yet. This is a placeholder showing where the finished report will appear.</p>'+
+    '</div>';
+  byId("reportGenResult").style.display = "";
+}
+
+/* ================================================================
    HARMONOGRAM DM — kalendarz miesięczny
    ================================================================ */
 // user: "Widzę tam również informacje kto jest odpowiedzialny za układanie
@@ -11168,27 +11509,37 @@ var SECTION_META = {
   skills:     { title:"Skills", search:"Search skills…", primary:"add-skill", stack:false },
   liquid:     { title:"Liquid Snippets", search:"Search snippets…", primary:"add-liquid", stack:false },
   schedule:   { title:"DM Schedule", search:null, primary:null, stack:false },
-  brandkit:   { title:"Brand Kit", search:null, primary:null, stack:false }
+  brandkit:   { title:"Brand Kit", search:null, primary:null, stack:false },
+  // user: "generator indywidualnych kodów rabatowych" — listing jak każda
+  // inna biblioteka (Skills/Liquid), więc noGrid=false, search widoczny.
+  discounts:  { title:"Discount Codes", search:"Search batches…", primary:"add-discount", stack:false },
+  // user: "generator raportów miesięcznych... na razie sam front end" —
+  // jednoekranowe narzędzie jak DM Schedule/Brand Kit, nie listing.
+  reports:    { title:"Monthly Reports", search:null, primary:null, stack:false }
 };
 function syncSectionChrome(){
   var meta = SECTION_META[state.section] || SECTION_META.components;
   var isBrandKit = state.section==="brandkit";
   var isSchedule = state.section==="schedule";
   var isFlows = state.section==="flows";
+  var isReports = state.section==="reports";
   // Siatka kart obsługuje komponenty, maile I flow — chowamy ją tylko tam,
   // gdzie strona ma zupełnie inną formę (formularz albo kalendarz).
-  var noGrid = isBrandKit || isSchedule;
+  var noGrid = isBrandKit || isSchedule || isReports;
 
   byId("cardGrid").style.display = noGrid ? "none" : "";
   byId("gridPagination").style.display = noGrid ? "none" : "";
   byId("brandKitPage").style.display = isBrandKit ? "" : "none";
   byId("dmWrap").style.display = isSchedule ? "" : "none";
-  // renderGrid() nie biegnie dla Brand Kitu (to nie listing), więc nagłówek
-  // strony trzeba ustawić TU — inaczej zostawał tytuł poprzedniej sekcji.
-  if(isBrandKit){
+  byId("reportGenPage").style.display = isReports ? "" : "none";
+  // renderGrid() nie biegnie dla Brand Kitu/Reports (to nie listing), więc
+  // nagłówek strony trzeba ustawić TU — inaczej zostawał tytuł poprzedniej
+  // sekcji.
+  if(isBrandKit || isReports){
     byId("gridTitle").textContent = meta.title;
     byId("gridCount").textContent = "";
   }
+  if(isReports) renderReportGenChrome();
   // Sticky pasek akcji Brand Kitu siedzi na dole ekranu i kolidował z
   // pływającym przyciskiem Feedback — chowamy go na tej stronie.
   document.body.classList.toggle("brandkit-open", isBrandKit);
@@ -11208,9 +11559,11 @@ function syncSectionChrome(){
   byId("addFlowRepoBtn").style.display = meta.primary==="add-flow" ? "" : "none";
   byId("addSkillBtn").style.display = meta.primary==="add-skill" ? "" : "none";
   byId("addLiquidBtn").style.display = meta.primary==="add-liquid" ? "" : "none";
-  // Filtr CRM zawęża komponenty/maile po platformie — w Brand Kicie nie ma
-  // czego zawężać.
-  byId("crmFilterRow").style.display = isBrandKit ? "none" : "";
+  byId("addDiscountBtn").style.display = meta.primary==="add-discount" ? "" : "none";
+  // Filtr CRM zawęża komponenty/maile po platformie — nie ma zastosowania
+  // w Brand Kicie, w Reports (nie listing) ani w Discount Codes (nie ma
+  // pojęcia platformy CRM).
+  byId("crmFilterRow").style.display = (isBrandKit || isReports || state.section==="discounts") ? "none" : "";
   // Mail Stack dotyczy budowania maila — gdzie indziej jest bez sensu.
   // Na desktopie ta kolumna jest ZAWSZE widoczna (user: "Mail Stack ma być
   // zawsze widoczny - tak jak było wcześniej"), więc tu tylko decydujemy,
@@ -11505,10 +11858,11 @@ document.addEventListener("click", function(e){
       else if(kind==="flow" && typeof openFlowForm==="function") openFlowForm(findFlow(id));
       else if(kind==="skill" && typeof openSkillForm==="function") openSkillForm(findSkill(id));
       else if(kind==="liquid" && typeof openSnippetForm==="function") openSnippetForm(findSnippet(id));
+      else if(kind==="discount" && typeof openDiscountForm==="function") openDiscountForm(findDiscountBatch(id));
       return;
     }
     // Delete
-    var record = kind==="component" ? findComp(id) : kind==="email" ? findEmail(id) : kind==="flow" ? (typeof findFlow==="function" ? findFlow(id) : null) : kind==="skill" ? (typeof findSkill==="function" ? findSkill(id) : null) : (typeof findSnippet==="function" ? findSnippet(id) : null);
+    var record = kind==="component" ? findComp(id) : kind==="email" ? findEmail(id) : kind==="flow" ? (typeof findFlow==="function" ? findFlow(id) : null) : kind==="skill" ? (typeof findSkill==="function" ? findSkill(id) : null) : kind==="liquid" ? (typeof findSnippet==="function" ? findSnippet(id) : null) : (typeof findDiscountBatch==="function" ? findDiscountBatch(id) : null);
     if((kind==="component" || kind==="email") && !canManageRecord(record)){
       showToast("You're not the creator of this "+(kind==="component"?"component":"e-mail"), "error");
       closeAllCardMenus();
@@ -11526,6 +11880,8 @@ document.addEventListener("click", function(e){
         deleteSkill(id);
       } else if(kind==="liquid" && typeof deleteSnippet==="function"){
         deleteSnippet(id);
+      } else if(kind==="discount" && typeof deleteDiscountBatch==="function"){
+        deleteDiscountBatch(id);
       }
     });
     return;
@@ -11537,10 +11893,12 @@ function renderGrid(){
   // gałęzi komponentów i NADPISYWAŁA nagłówek strony ustawiony wcześniej
   // przez syncSectionChrome (tytuł zostawał "Components" na Brand Kicie).
   if(state.section==="brandkit") return;
+  if(state.section==="reports") return; // jednoekranowe narzędzie, nie listing (patrz syncSectionChrome)
   if(state.section==="schedule"){ renderDmCalendar(); return; }
   if(state.section==="flows"){ renderFlowGrid(); return; }
   if(state.section==="skills"){ renderSkillGrid(); return; }
   if(state.section==="liquid"){ renderSnippetGrid(); return; }
+  if(state.section==="discounts"){ renderDiscountGrid(); return; }
   if(state.section==="emails"){ renderEmailGrid(); return; }
   var b = brand();
   var q = state.searchQuery;
@@ -12533,6 +12891,18 @@ byId("liquidFormCancel").addEventListener("click", closeSnippetForm);
 byId("liquidFormSave").addEventListener("click", saveSnippetForm);
 bindOverlayBackdropClose("liquidFormOverlay", closeSnippetForm);
 
+/* ---- Discount Codes ---- */
+byId("discountClose").addEventListener("click", closeDiscountOverlay);
+bindOverlayBackdropClose("discountOverlay", closeDiscountOverlay);
+byId("addDiscountBtn").addEventListener("click", function(){ openDiscountForm(null); });
+byId("discountFormClose").addEventListener("click", closeDiscountForm);
+byId("discountFormCancel").addEventListener("click", closeDiscountForm);
+byId("discountFormSave").addEventListener("click", saveDiscountForm);
+bindOverlayBackdropClose("discountFormOverlay", closeDiscountForm);
+
+/* ---- Monthly Reports ---- */
+byId("reportGenBtn").addEventListener("click", generateMonthlyReport);
+
 /* ---- Harmonogram DM ---- */
 byId("dmPrevMonth").addEventListener("click", function(){ shiftDmMonth(-1); syncUrlFromState(); });
 byId("dmNextMonth").addEventListener("click", function(){ shiftDmMonth(1); syncUrlFromState(); });
@@ -13075,6 +13445,7 @@ var urlOpenEmailId = null;
 var urlOpenFlowId = null;
 var urlOpenSkillId = null;
 var urlOpenLiquidId = null;
+var urlOpenDiscountId = null;
 function syncUrlFromState(){
   // Publiczny link do kalendarza NIE może się sam przepisać na zwykły URL
   // appki — inaczej pierwszy render skasowałby ?dmshare= z paska adresu i
@@ -13092,6 +13463,9 @@ function syncUrlFromState(){
     params.set("liquidcat", state.liquidCategory||"all");
   } else if(state.section==="schedule"){
     if(state.dmMonth) params.set("month", state.dmMonth);
+  } else if(state.section==="discounts" || state.section==="reports"){
+    // brak podkategorii w żadnej z tych dwóch sekcji — sam parametr
+    // section wystarcza, żeby link odtworzył właściwy widok.
   } else {
     params.set("category", state.category||"all");
   }
@@ -13102,6 +13476,7 @@ function syncUrlFromState(){
   if(urlOpenFlowId) params.set("flowid", urlOpenFlowId);
   if(urlOpenSkillId) params.set("skillid", urlOpenSkillId);
   if(urlOpenLiquidId) params.set("liquidid", urlOpenLiquidId);
+  if(urlOpenDiscountId) params.set("discountid", urlOpenDiscountId);
   var qs = params.toString();
   history.replaceState(null, "", location.pathname + (qs ? "?"+qs : ""));
 }
@@ -13121,6 +13496,7 @@ function restoreStateFromUrl(){
   var flowId = params.get("flowid");
   var skillId = params.get("skillid");
   var liquidId = params.get("liquidid");
+  var discountId = params.get("discountid");
   var changed = false;
   if(section==="emails"){
     state.section = "emails"; changed = true;
@@ -13151,6 +13527,10 @@ function restoreStateFromUrl(){
     var month = params.get("month");
     if(month && /^\d{4}-\d{2}$/.test(month)) state.dmMonth = month;
     initDmMonth();
+  } else if(section==="discounts"){
+    state.section = "discounts"; changed = true;
+  } else if(section==="reports"){
+    state.section = "reports"; changed = true;
   }
   if(search){ state.searchQuery = search; byId("searchInput").value = search; changed = true; }
   if(changed) renderAll();
@@ -13159,6 +13539,7 @@ function restoreStateFromUrl(){
   else if(flowId && findFlow(flowId)) openFlowDetail(flowId);
   else if(skillId && findSkill(skillId)) openSkillDetail(skillId);
   else if(liquidId && findSnippet(liquidId)) openSnippetDetail(liquidId);
+  else if(discountId && findDiscountBatch(discountId)) openDiscountDetail(discountId);
 }
 function renderAll(){
   renderSwatches(); renderPrimaryNav(); renderFilterBar(); renderCrmFilterRow();
