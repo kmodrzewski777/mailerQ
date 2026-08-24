@@ -164,9 +164,12 @@
   .app.nav-collapsed .nav-item .n,
   .app.nav-collapsed .nav-cats{display:none}
   .app.nav-collapsed .nav-item{justify-content:center; padding-left:0; padding-right:0}
+  /* user: "za duza przerwa jest miedzy nazwa kategorii a podmiotami w
+     niej. zmniejsz o polowe, zmniejsz ten font size kategorii" — bottom
+     padding (odstęp DO pierwszej pozycji grupy) 6px->3px, font 10.5px->9px. */
   .nav-group-title{
-    font-size:10.5px; font-weight:500; letter-spacing:.09em; text-transform:uppercase;
-    color:var(--ink-faint); padding:16px 10px 6px;
+    font-size:9px; font-weight:500; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--ink-faint); padding:16px 10px 3px;
   }
   .nav-item{
     display:flex; align-items:center; gap:10px; width:100%; box-sizing:border-box;
