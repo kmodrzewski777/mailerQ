@@ -165,11 +165,12 @@
   .app.nav-collapsed .nav-cats{display:none}
   .app.nav-collapsed .nav-item{justify-content:center; padding-left:0; padding-right:0}
   /* user: "za duza przerwa jest miedzy nazwa kategorii a podmiotami w
-     niej. zmniejsz o polowe, zmniejsz ten font size kategorii" — bottom
-     padding (odstęp DO pierwszej pozycji grupy) 6px->3px, font 10.5px->9px. */
+     niej. zmniejsz o polowe, zmniejsz ten font size kategorii" — potem:
+     "zmniejsz dolny padding do zera" — odstęp DO pierwszej pozycji grupy
+     6px->3px->0, font 10.5px->9px. */
   .nav-group-title{
     font-size:9px; font-weight:500; letter-spacing:.09em; text-transform:uppercase;
-    color:var(--ink-faint); padding:16px 10px 3px;
+    color:var(--ink-faint); padding:16px 10px 0;
   }
   .nav-item{
     display:flex; align-items:center; gap:10px; width:100%; box-sizing:border-box;
@@ -200,7 +201,15 @@
   .nav-cats{
     display:flex; flex-direction:column; gap:0; margin:2px 0 6px; padding-left:14px;
     border-left:1px solid var(--line); margin-left:23px;
-    max-height:600px; opacity:1; overflow:hidden;
+    /* user: "w Components mam chyba zdecydowanie mniej kategorii - czemu?
+       brakuje juz takiegos scroll bara tej sekcji" — max-height:600px był
+       tylko sztuczką pod animację rozwijania (0 -> stała duża wartość), ale
+       Components ma 24 kategorie (~800px), więc realnie CIĘŁO listę bez
+       żadnego scrollbara (overflow:hidden) — kategorie po prostu znikały.
+       2000px starcza z zapasem nawet dla dużo dłuższych list; sama
+       sekcja i tak przewija się razem z resztą .nav (ma własny
+       overflow-y:auto), więc nie trzeba tu osobnego, zagnieżdżonego scrolla. */
+    max-height:2000px; opacity:1; overflow:hidden;
     transition:max-height .22s ease, opacity .18s ease, margin .22s ease;
   }
   .nav-cats.is-collapsed{max-height:0; opacity:0; margin-top:0; margin-bottom:0}
