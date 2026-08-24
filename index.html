@@ -3389,9 +3389,22 @@ function resolveCrmUnsubscribeLink(b){
   var custom = b && b.crmUnsubscribeLinks && b.crmUnsubscribeLinks[platform];
   return (custom!=null && custom!=="") ? custom : (CRM_UNSUBSCRIBE_DEFAULTS[platform] || CRM_UNSUBSCRIBE_DEFAULTS.klaviyo);
 }
+// Siatka bezpieczeństwa — user zgłosił realny wysłany mail z nadal
+// dosłownym "{{brand.h2LineHeight}}" w kodzie (patrz komentarz przy
+// applyBackupPayload, prawdziwa przyczyna to lukę w danych marki). Zwykła
+// przeglądarka po cichu ignoruje jedną błędną deklarację CSS, ale
+// sanitizer Gmaila (i pewnie inne skrzynki) potrafi przez to odrzucić
+// CAŁY atrybut style — więc surowy, nierozwiązany token NIGDY nie
+// powinien trafić do realnie wysyłanego kodu, niezależnie od przyczyny
+// braku. Brakujący klucz spada teraz na pusty string (CSS po prostu
+// ignoruje pustą wartość deklaracji — bezpieczna degradacja) zamiast
+// zostawiać dosłowny "{{brand.xxx}}" w środku. console.warn zostaje, żeby
+// luka w danych marki była widoczna przy testowaniu, a nie cicho zamieciona.
 function resolveBrandTokens(mjml, b){
   return mjml.replace(/\{\{\s*brand\.(\w+)\s*\}\}/g, function(m, key){
-    return (key in b && b[key]!=null) ? String(b[key]) : m;
+    if(key in b && b[key]!=null) return String(b[key]);
+    console.warn("resolveBrandTokens: brand is missing '"+key+"' — falling back to empty instead of leaving "+m+" in the compiled code");
+    return "";
   });
 }
 /* Komponenty same w sobie NIE dają odstępu do następnego bloku — ten
@@ -7005,7 +7018,30 @@ var DELETED_BUILTIN_FLOW_IDS = [];
 var DELETED_BUILTIN_SKILL_IDS = [];
 var DELETED_BUILTIN_LIQUID_IDS = [];
 function applyBackupPayload(payload){
-  if(payload.brands) BRANDS = payload.brands;
+  // user zgłosił: "Webinar poprowadzi" wygląda dobrze w podglądzie
+  // Maximusa, ale w realnej skrzynce (Gmail) jest kompletnie
+  // nieostylowany. Przyczyna: {{brand.h2LineHeight}} (i inne pola
+  // *LineHeight) zostawały NIEROZWIĄZANE w skompilowanym kodzie —
+  // resolveBrandTokens (patrz tam) po prostu zostawia surowy token, gdy
+  // klucza brakuje w obiekcie marki. withDerivedStyleDefaults dopisuje
+  // sensowne defaulty dla TAKICH pól (linia 2595, `Object.keys(BRANDS).
+  // forEach(...)`) — ale WYŁĄCZNIE dla 5 zaszytych w kodzie marek
+  // seedowych, PRZED wczytaniem czegokolwiek z Firestore. `BRANDS =
+  // payload.brands` tuż niżej PODMIENIA CAŁY obiekt na to, co faktycznie
+  // zapisano w bazie — jeśli któraś marka (np. Zeronest) miała te pola
+  // zapisane jako brak/null (np. zapisana zanim to pole w ogóle istniało),
+  // podmiana kasowała wcześniejsze defaulty i nic ich już nie odtwarzało.
+  // Przeglądarka po cichu ignoruje jedną złą deklarację CSS (dlatego
+  // podgląd w samym Maximusie i tak wyglądał OK), ale sanitizer Gmaila
+  // najwyraźniej odrzuca cały wpis stylu przy takim tokenie — stąd
+  // kompletnie goły tekst w realnej skrzynce. Fix: dogrywamy te same
+  // defaulty PONOWNIE, na każdej marce, zaraz po wczytaniu z Firestore —
+  // wywołanie jest czysto addytywne (nadpisuje TYLKO pola null/undefined),
+  // więc nic, co user faktycznie ustawił, się nie zmienia.
+  if(payload.brands){
+    BRANDS = payload.brands;
+    Object.keys(BRANDS).forEach(function(k){ withDerivedStyleDefaults(BRANDS[k]); });
+  }
   if(payload.brandOrder) BRAND_ORDER = payload.brandOrder;
   if(payload.deletedBuiltinComponentIds){
     DELETED_BUILTIN_COMPONENT_IDS = payload.deletedBuiltinComponentIds;
