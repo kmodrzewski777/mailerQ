@@ -1398,7 +1398,17 @@
          topbarze (patrz #topbarGroups), dublowanie byłoby zbędne. Każda
          grupa to display:contents (patrz CSS) — strukturalnie niewidoczna
          dla layoutu .nav, więc odstępy między pozycjami W GRUPIE zostają
-         identyczne jak dotąd; is-hidden-group chowa całą grupę na raz. -->
+         identyczne jak dotąd; is-hidden-group chowa całą grupę na raz.
+         user: "widzę przy ładowaniu strony że na sidebarze wiszą wszystkie
+         kategorie główne, które po chwili znikają... Ty je po prostu
+         chowasz, zamiast całkowicie usunąć" — dokładnie tak było:
+         syncNavGroupVisibility() dokłada is-hidden-group dopiero w
+         renderPrimaryNav() (czyli po zalogowaniu do Firebase i wczytaniu
+         danych), więc do tego momentu WSZYSTKIE grupy były widoczne w samym
+         statycznym HTML. Fix: is-hidden-group wpisany na sztywno w markupie
+         dla każdej grupy OPRÓCZ "composer" (domyślna state.section:
+         "components" należy do niej — patrz NAV_GROUPS) — poprawny stan
+         widoczny od PIERWSZEJ klatki, bez czekania na JS. -->
     <div class="nav-group" data-navgroup="composer">
       <button class="nav-item" type="button" data-nav="components">
         <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M659.08-460.77 461.54-658.31l197.54-197.53 197.53 197.53-197.53 197.54Zm-506.77-66.92v-280h280v280h-280Zm375.38 375.38v-280h280v280h-280Zm-375.38 0v-280h280v280h-280Zm60-435.38h160v-160h-160v160Zm447.77 43.38 113-113-113-113-113 113 113 113Zm-72.39 332h160v-160h-160v160Zm-375.38 0h160v-160h-160v160Z"/></svg>
@@ -1417,7 +1427,7 @@
       <div class="nav-cats is-collapsed" id="navCatsLiquid" role="group" aria-label="Liquid snippet categories"></div>
     </div>
 
-    <div class="nav-group" data-navgroup="automation">
+    <div class="nav-group is-hidden-group" data-navgroup="automation">
       <button class="nav-item" type="button" data-nav="flows">
         <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M450-100v-174.23q0-55.23-16.23-84.54-16.23-29.31-45.77-55.69l42.77-42.77q12.77 11.77 25.5 27.35Q469-414.31 480-396.84q12.85-21.7 29.65-40.04 16.81-18.35 34.89-34.66 44.15-39.61 74.38-95.23 30.23-55.62 30.7-177.92l-73 73-42.77-42.16L680-860l146.15 146.15L784-671.69l-74.39-73.77q-.46 138.77-37.65 206.19-37.19 67.42-86.5 112.35-33.15 30.15-54.31 59.38Q510-338.31 510-274.23V-100h-60ZM259.15-634.15q-4.38-20.39-6.26-50.54-1.89-30.16-2.5-60.77L176-671.69l-42.15-42.16L280-860l146.15 146.15-42.77 42.16-73-72.39q-.38 27.16 1.81 52.39t5.35 43.54l-58.39 14Z"/></svg>
         <span class="nav-label">Automation Flows</span><span class="n" id="navCountFlows"></span>
@@ -1425,14 +1435,14 @@
       <div class="nav-cats is-collapsed" id="navCatsFlows" role="group" aria-label="Flow categories"></div>
     </div>
 
-    <div class="nav-group" data-navgroup="direct">
+    <div class="nav-group is-hidden-group" data-navgroup="direct">
       <button class="nav-item" type="button" data-nav="schedule">
         <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M212.31-100Q182-100 161-121q-21-21-21-51.31v-535.38Q140-738 161-759q21-21 51.31-21h55.38v-84.61h61.54V-780h303.08v-84.61h60V-780h55.38Q778-780 799-759q21 21 21 51.31v535.38Q820-142 799-121q-21 21-51.31 21H212.31Zm0-60h535.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-375.38H200v375.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM200-607.69h560v-100q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H212.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v100Z"/></svg>
         <span class="nav-label">Schedule</span><span class="n" id="navCountSchedule"></span>
       </button>
     </div>
 
-    <div class="nav-group" data-navgroup="ai">
+    <div class="nav-group is-hidden-group" data-navgroup="ai">
       <!-- user: "Dodaj kolejną kategorię - udostępnianie skilli do Claude" —
            nowa sekcja, ta sama architektura co Flow Repository (własne
            kategorie, karta, formularz, bez Mail Stacka). -->
@@ -1447,7 +1457,7 @@
       <div class="nav-filters" id="navFiltersSkills" role="group" aria-label="Skill filters"></div>
     </div>
 
-    <div class="nav-group" data-navgroup="services">
+    <div class="nav-group is-hidden-group" data-navgroup="services">
       <!-- user: "generator indywidualnych kodów rabatowych... Żadnej
            logiki, na razie tylko front end do zaprezentowania" — lista
            paczek kodów + formularz; dwa pola (warunki użycia, kampanie)
@@ -1459,7 +1469,7 @@
       </button>
     </div>
 
-    <div class="nav-group" data-navgroup="reporting">
+    <div class="nav-group is-hidden-group" data-navgroup="reporting">
       <!-- user: "generator raportów miesięcznych dla klienta... na razie
            sam front end bez żadnej logiki" — wybór klienta+miesiąca,
            Generate pokazuje placeholder ("coming soon"), bez żadnej
@@ -1478,7 +1488,7 @@
          Potem potwórz pomniejsze rozdziały." — WYŁĄCZNIE do czytania (bez
          add/edit, jak reszta bibliotek), statyczne dane (patrz
          KNOWLEDGE_ARTICLES). -->
-    <div class="nav-group" data-navgroup="knowledge">
+    <div class="nav-group is-hidden-group" data-navgroup="knowledge">
       <button class="nav-item" type="button" data-nav="knowledge">
         <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q134 0 227 93t93 227q0 134-93 227t-227 93Zm0-80q100 0 170-70t70-170q0-100-70-170t-170-70q-100 0-170 70t-70 170q0 100 70 170t170 70Zm-40-120v-240h80v240h-80Zm40-320q17 0 28.5-11.5T520-720q0-17-11.5-28.5T480-760q-17 0-28.5 11.5T440-720q0 17 11.5 28.5T480-680Z"/></svg>
         <span class="nav-label">Knowledge Base</span><span class="n" id="navCountKnowledge"></span>
