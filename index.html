@@ -917,6 +917,14 @@
      (komponent szerszy niż okno, np. dwukolumnowy feed, ma dostać POZIOMY
      scrollbar zamiast po prostu się przycinać bez śladu). */
   #editPreviewBox{height:480px; overflow-x:auto}
+  /* user: "w sekcji Header i Footer, pod MJML Code dodaj nową sekcję
+     'Preview'... każda zmiana w kodzie ma od razu odświeżać podgląd" —
+     sam wzorzec co #editPreviewBox (podgląd pojedynczego komponentu):
+     .modal-preview-box na zewnątrz (padding/tło), mountMjmlIframe
+     (fixedHeight:true) wewnątrz. Patrz renderBfMjmlPreview. */
+  .bf-mjml-preview-label{display:block; font-size:12.5px; font-weight:500; color:var(--ink-muted); margin:12px 0 6px}
+  .bf-mjml-preview-frame{height:320px; overflow-x:auto}
+  .bf-mjml-preview-empty{font-size:12.5px; color:var(--ink-faint); padding:16px; margin:0}
   #editPreviewBox #editPreviewIframeWrap{height:100%}
   .modal-preview-box.email-frame-mode{padding:20px; background:var(--surface-2)}
   .modal.mail-preview-modal{max-width:calc(660px + 88px)}
@@ -10272,35 +10280,50 @@ var BRAND_FIELDS = [
     {key:"mailWidth", label:"Email width", type:"text", unitPx:true},
     {key:"componentGap", label:"Gap between components", type:"text", unitPx:true, responsive:true}
   ]},
+  // user: "w sekcji Header i Footer, pod MJML Code dodaj nową sekcję
+  // 'Preview', na której będziesz renderował live kod z MJML code, każda
+  // zmiana w kodzie ma od razu odświeżać podgląd" — mjmlPreview:true
+  // dokłada podgląd (patrz bfFieldHtml/renderBfMjmlPreview) TYLKO tym 6
+  // polom, nie każdemu textarea w appce (np. komponentów to nie dotyczy —
+  // tam już jest własny, osobny mechanizm podglądu, patrz mountEditPreview).
   { title:"Header", tabs:[
     {title:"Header 1", fields:[
       {key:"headerName", label:"Custom name", type:"text"},
-      {key:"headerCode", label:"MJML code", type:"textarea"}
+      {key:"headerCode", label:"MJML code", type:"textarea", mjmlPreview:true}
     ]},
     {title:"Header 2", fields:[
       {key:"header2Name", label:"Custom name", type:"text"},
-      {key:"header2Code", label:"MJML code", type:"textarea"}
+      {key:"header2Code", label:"MJML code", type:"textarea", mjmlPreview:true}
     ]},
     {title:"Header 3", fields:[
       {key:"header3Name", label:"Custom name", type:"text"},
-      {key:"header3Code", label:"MJML code", type:"textarea"}
+      {key:"header3Code", label:"MJML code", type:"textarea", mjmlPreview:true}
     ]}
   ]},
   { title:"Footer", tabs:[
     {title:"Footer 1", fields:[
       {key:"footerName", label:"Custom name", type:"text"},
-      {key:"footerCode", label:"MJML code", type:"textarea"}
+      {key:"footerCode", label:"MJML code", type:"textarea", mjmlPreview:true}
     ]},
     {title:"Footer 2", fields:[
       {key:"footer2Name", label:"Custom name", type:"text"},
-      {key:"footer2Code", label:"MJML code", type:"textarea"}
+      {key:"footer2Code", label:"MJML code", type:"textarea", mjmlPreview:true}
     ]},
     {title:"Footer 3", fields:[
       {key:"footer3Name", label:"Custom name", type:"text"},
-      {key:"footer3Code", label:"MJML code", type:"textarea"}
+      {key:"footer3Code", label:"MJML code", type:"textarea", mjmlPreview:true}
     ]}
   ]}
 ];
+// Wyliczone z BRAND_FIELDS (wszystkie pola z mjmlPreview:true), nie
+// przepisane na sztywno drugi raz — patrz renderBfMjmlPreview.
+var MJML_PREVIEW_FIELD_KEYS = [];
+BRAND_FIELDS.forEach(function(group){
+  (group.tabs||[]).forEach(function(tab){
+    (tab.fields||[]).forEach(function(f){ if(f.mjmlPreview) MJML_PREVIEW_FIELD_KEYS.push(f.key); });
+  });
+  (group.fields||[]).forEach(function(f){ if(f.mjmlPreview) MJML_PREVIEW_FIELD_KEYS.push(f.key); });
+});
 
 function defaultBrandDraft(){
   var d = {
@@ -10407,6 +10430,7 @@ function closeBrandForm(){
 }
 
 function bfInputId(key){ return "bf-"+key; }
+function bfMjmlPreviewId(key){ return "bf-mjml-preview-"+key; }
 
 /* Pojedyncze pole (współdzielone przez płaski widok grupy, accordion H1-H4
    i zakładki Primary/Secondary/Tertiary — jeden generator HTML-a dla
@@ -10484,6 +10508,12 @@ function bfFieldHtml(f, d, device){
     html += '<input type="number" id="'+bfInputId(f.key)+'" value="'+esc(pxStrToNum(val))+'" data-bf-field-px="'+f.key+'"'+disAttr+'>';
   } else if(f.type==="textarea"){
     html += '<textarea class="code" id="'+bfInputId(f.key)+'" data-bf-field="'+f.key+'" spellcheck="false" style="height:160px;width:100%"'+disAttr+'>'+esc(val||"")+'</textarea>';
+    if(f.mjmlPreview){
+      html += '<label class="bf-mjml-preview-label">Preview</label>'+
+        '<div class="modal-preview-box bf-mjml-preview-frame">'+
+          '<div id="'+bfMjmlPreviewId(f.key)+'" style="height:100%"></div>'+
+        '</div>';
+    }
   } else if(f.type==="color"){
     var colorVal = val || "#ffffff";
     var placeholder = f.optional ? "(none)" : "";
@@ -10598,6 +10628,7 @@ function renderBrandFormFields(){
       brandForm.draft[key] = el.value;
       updateBrandFormPreview();
       if(key==="crmPlatform") updateCrmLogoBadge();
+      if(MJML_PREVIEW_FIELD_KEYS.indexOf(key)!==-1) scheduleBfMjmlPreviewUpdate(key);
     });
   });
   form.querySelectorAll("[data-bf-checkbox]").forEach(function(el){
@@ -10687,6 +10718,9 @@ function renderBrandFormFields(){
     });
   });
   enhanceAllSelects(form);
+  // Wartość startowa podglądu (bez tego pierwsze otwarcie Brand Kitu
+  // pokazywało puste boxy Preview, dopóki user coś nie wpisał).
+  renderAllBfMjmlPreviews();
 }
 
 function draftAsBrand(d){
@@ -10714,6 +10748,35 @@ function updateBrandFormPreview(){
     )
   );
   syncGoogleFontLink(b);
+}
+
+// user: "w sekcji Header i Footer, pod MJML Code dodaj nową sekcję
+// 'Preview', na której będziesz renderował live kod z MJML code, każda
+// zmiana w kodzie ma od razu odświeżać podgląd" — dokładnie ten sam
+// mechanizm co mountEditPreview (podgląd pojedynczego komponentu):
+// noChrome:true bo to izolowany fragment (sam header/stopka), nie cały
+// mail — inaczej compileEmailHtml doklejałby PRAWDZIWY header/stopkę marki
+// NAD/POD tym, co się właśnie edytuje. draftAsBrand(brandForm.draft), nie
+// brand() — podgląd ma odzwierciedlać NIEZAPISANE zmiany kolorów/fontów w
+// tym samym formularzu, nie ostatnio zapisaną wersję marki.
+var bfMjmlPreviewTimers = {};
+function renderBfMjmlPreview(key){
+  var containerId = bfMjmlPreviewId(key);
+  var container = byId(containerId);
+  if(!container) return; // pole spoza aktualnego widoku (np. Mobile — patrz groupHasResponsiveField)
+  var code = brandForm.draft[key];
+  if(!code || !code.trim()){
+    container.innerHTML = '<p class="bf-mjml-preview-empty">Nothing to preview yet — paste or write some MJML code above.</p>';
+    return;
+  }
+  mountMjmlIframe(containerId, code, draftAsBrand(brandForm.draft), { noChrome:true, fixedHeight:true });
+}
+function scheduleBfMjmlPreviewUpdate(key){
+  clearTimeout(bfMjmlPreviewTimers[key]);
+  bfMjmlPreviewTimers[key] = setTimeout(function(){ renderBfMjmlPreview(key); }, 250);
+}
+function renderAllBfMjmlPreviews(){
+  MJML_PREVIEW_FIELD_KEYS.forEach(renderBfMjmlPreview);
 }
 
 function saveBrandForm(asNew, newName){
