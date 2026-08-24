@@ -1294,7 +1294,6 @@
      "ukryj skeleton" kroku. */
   @keyframes skeleton-pulse{0%,100%{opacity:.5}50%{opacity:1}}
   .skeleton-block{background:var(--surface-2); border-radius:6px; animation:skeleton-pulse 1.3s ease-in-out infinite}
-  .skeleton-rail-row{height:14px; margin:11px 4px}
   .skeleton-list-row{height:44px; border-radius:5px; margin-bottom:8px}
   .skeleton-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-card); overflow:hidden}
   .skeleton-card .skeleton-block{border-radius:0}
@@ -8392,6 +8391,23 @@ function applyBackupPayload(payload){
     Object.keys(SEED_BRANDS).forEach(function(k){
       if(BRANDS[k]==null) BRANDS[k] = SEED_BRANDS[k];
     });
+    // user: "nadal widzę klucze zamiast wartości" (e-Kwiaty header/footer)
+    // — Firestore miał zapisany JESZCZE STARSZY snapshot ekwiaty.headerCode/
+    // footerCode (z [[TOKENAMI]]), sprzed poprawki na sztywne wartości.
+    // `BRANDS[k]==null` wyżej łapie tylko CAŁKOWICIE brakującą markę —
+    // markę, która JUŻ ISTNIEJE w payloadzie (choćby z nieaktualną treścią
+    // pola), zostawia bez zmian na zawsze. e-Kwiaty jest w 100% zarządzana
+    // kodem (user nigdy ręcznie nie edytował jej Header 1/Footer 1 w Brand
+    // Kit — cała iteracja szła przez ten czat), więc wymuszamy ZAWSZE
+    // świeże headerCode/footerCode z kodu źródłowego. Celowo NIE robimy
+    // tego dla pozostałych marek (Zeronest/Berty/Pstryk/Foodify/Neutralny)
+    // — tam pole "MJML code" w Brand Kit jest realnie ręcznie edytowalne
+    // (patrz {key:"headerCode", type:"textarea"}), więc wymuszenie
+    // nadpisania mogłoby bezpowrotnie skasować czyjąś ręczną edycję.
+    if(BRANDS.ekwiaty && SEED_BRANDS.ekwiaty){
+      BRANDS.ekwiaty.headerCode = SEED_BRANDS.ekwiaty.headerCode;
+      BRANDS.ekwiaty.footerCode = SEED_BRANDS.ekwiaty.footerCode;
+    }
     Object.keys(BRANDS).forEach(function(k){ withDerivedStyleDefaults(BRANDS[k]); });
   }
   if(payload.brandOrder){
@@ -16081,9 +16097,6 @@ function syncModalScrollLock(){
 // Realne renderCategoryNav/renderFlowNav/renderGrid/renderList nadpisują
 // dokładnie te same kontenery przy pierwszym renderAll() — nie trzeba nic
 // osobno "chować".
-function skeletonRailRowsHtml(widths){
-  return widths.map(function(w){ return '<div class="skeleton-block skeleton-rail-row" style="width:'+w+'"></div>'; }).join("");
-}
 function skeletonCardHtml(){
   return '<div class="skeleton-card">'+
     '<div class="skeleton-block" style="height:150px"></div>'+
@@ -16096,12 +16109,12 @@ function skeletonCardHtml(){
   '</div>';
 }
 function renderSkeletonPlaceholders(){
-  // Kategorie znów żyją w sidebarze (patrz renderNavCats) — domyślna
-  // sekcja startowa to "components", więc to jej kontener dostaje
-  // szkielet; realny render (renderNavCats) go i tak zaraz nadpisze.
-  byId("navCatsComponents").innerHTML = ["64px","88px","72px","96px","70px"].map(function(w){
-    return '<div class="skeleton-block" style="height:22px;width:'+w+';border-radius:6px;margin-bottom:2px"></div>';
-  }).join("");
+  // user: "Czemu w trakcie wczytywania widzę kategorie po lewej stronie?
+  // ma tego nie być" — wcześniej #navCatsComponents dostawał fałszywe
+  // paski udające kategorie, zanim renderNavCats zdążyło je nadpisać
+  // realną listą. Sidebar w trakcie ładowania ma pokazywać WYŁĄCZNIE
+  // pozycje nawigacji (Components/E-mails/...), bez żadnego szkieletu
+  // kategorii pod spodem.
   byId("cardGrid").innerHTML = new Array(8).fill(0).map(skeletonCardHtml).join("");
   byId("listBody").innerHTML = '<div class="skeleton-block skeleton-list-row"></div><div class="skeleton-block skeleton-list-row"></div>';
 }
