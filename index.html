@@ -4090,17 +4090,25 @@ function zeronestFooterCode(b){
    zeronestFooterCode: header/stopka są WŁASNOŚCIĄ BRANDU (headerCode/
    footerCode, wstrzykiwane automatycznie przez compileEmailHtml do
    KAŻDEGO maila), NIE osobnymi pozycjami w Components/componentIds —
-   inaczej [[URL_LOGO]]/link wypisz-się wychodziłyby zdublowane (złapane
-   przez test-assertions.js "expected exactly 1"). logoSrc kopiuje
-   dokładnie tę samą logikę co defaultHeaderCode (crmLogoUrl > [[URL_LOGO]]). */
+   inaczej link wypisz-się wychodziłby zdublowany (złapane przez
+   test-assertions.js "expected exactly 1").
+   user, drugi raz: "Popraw header i footer. Tam nie ma być kluczy tylko
+   statyczne wartości. Pobierz wszystko z maila e-Kwiaty, który Ci
+   wysyłałem." — w przeciwieństwie do zeronestFooterCode (który celowo
+   zostawia edytowalne [[TOKENY]]), TU wszystkie wartości treściowe są
+   na sztywno wzięte z realnego, skompilowanego maila — logo, telefon,
+   e-mail, godziny, linki prawne, pełna nota KRS/NIP/REGON. Jedyny
+   wyjątek: {{brand.crmLogoUrl}}/{{brand.unsubscribeLink}} zostają jako
+   PRAWDZIWE tokeny marki (nie "klucze" widoczne userowi — rozwiązują się
+   zawsze, automatycznie, tak samo jak w defaultHeaderCode/legal wyżej). */
 function ekwiatyHeaderCode(b){
-  var logoSrc = b.crmLogoUrl ? "{{brand.crmLogoUrl}}" : "[[URL_LOGO]]";
+  var logoSrc = b.crmLogoUrl ? "{{brand.crmLogoUrl}}" : "https://sm-cdn.eu/5b8a2xtezhzt7hs2.png";
   return (
 '<mj-section background-color="{{brand.accent}}" padding="6px {{brand.contentPadding}}" css-class="mj-gutter">\n'+
-'  <mj-text align="center" font-size="12px" line-height="18px" color="{{brand.accentOn}}" font-family="{{brand.fontBody}}" font-weight="700" letter-spacing="0.5px" text-transform="uppercase" padding="0px">[[TOP_BAR_TEKST_POGRUBIONY]] <span style="font-weight:400;">[[TOP_BAR_TEKST_ZWYKLY]]</span></mj-text>\n'+
+'  <mj-text align="center" font-size="12px" line-height="18px" color="{{brand.accentOn}}" font-family="{{brand.fontBody}}" font-weight="700" letter-spacing="0.5px" text-transform="uppercase" padding="0px">EKSPRES KWIATOWY <span style="font-weight:400;">JUŻ 20 LAT W POLSCE</span></mj-text>\n'+
 '</mj-section>\n'+
 '<mj-section padding="20px {{brand.contentPadding}} 10px" css-class="mj-gutter">\n'+
-'  <mj-image src="'+logoSrc+'" href="[[URL_STRONA_GLOWNA]]" alt="{{brand.logoAlt}}" width="{{brand.logoWidth}}" align="center" padding="0px" css-class="mj-logo"></mj-image>\n'+
+'  <mj-image src="'+logoSrc+'" href="https://www.e-kwiaty.pl/" alt="{{brand.logoAlt}}" width="{{brand.logoWidth}}" align="center" padding="0px" css-class="mj-logo"></mj-image>\n'+
 '</mj-section>'
   );
 }
@@ -4109,24 +4117,24 @@ function ekwiatyFooterCode(b){
 '<mj-section background-color="{{brand.surface2}}" padding="24px {{brand.contentPadding}} 8px" css-class="mj-gutter">\n'+
 '  <mj-column width="33.33%" padding="0px 6px">\n'+
 '    <mj-text align="center" font-size="28px" padding="0px 0px 8px">📦</mj-text>\n'+
-'    <mj-text align="center" font-size="12px" line-height="1.4" color="{{brand.accent2}}" font-family="{{brand.fontBody}}" padding="0px">[[USP_1]]</mj-text>\n'+
+'    <mj-text align="center" font-size="12px" line-height="1.4" color="{{brand.accent2}}" font-family="{{brand.fontBody}}" padding="0px">Dostawa nawet w 90 minut od złożenia zamówienia</mj-text>\n'+
 '  </mj-column>\n'+
 '  <mj-column width="33.33%" padding="0px 6px">\n'+
 '    <mj-text align="center" font-size="28px" padding="0px 0px 8px">🤝</mj-text>\n'+
-'    <mj-text align="center" font-size="12px" line-height="1.4" color="{{brand.accent2}}" font-family="{{brand.fontBody}}" padding="0px">[[USP_2]]</mj-text>\n'+
+'    <mj-text align="center" font-size="12px" line-height="1.4" color="{{brand.accent2}}" font-family="{{brand.fontBody}}" padding="0px">Ponad 1100 kwiaciarni partnerskich w całej Polsce</mj-text>\n'+
 '  </mj-column>\n'+
 '  <mj-column width="33.33%" padding="0px 6px">\n'+
 '    <mj-text align="center" font-size="28px" padding="0px 0px 8px">💐</mj-text>\n'+
-'    <mj-text align="center" font-size="12px" line-height="1.4" color="{{brand.accent2}}" font-family="{{brand.fontBody}}" padding="0px">[[USP_3]]</mj-text>\n'+
+'    <mj-text align="center" font-size="12px" line-height="1.4" color="{{brand.accent2}}" font-family="{{brand.fontBody}}" padding="0px">Kwiaty układane tuż przed dostawą przez florystów</mj-text>\n'+
 '  </mj-column>\n'+
 '</mj-section>\n'+
 '<mj-section padding="24px {{brand.contentPadding}} 0px" css-class="mj-gutter">\n'+
-'  <mj-text font-size="13px" color="{{brand.text}}" font-family="{{brand.fontBody}}" line-height="1.6" padding="0px">Masz pytania? Skontaktuj się z nami.<br />Telefonicznie: <a href="tel:[[TELEFON]]" style="color:{{brand.accent2}};text-decoration:underline;">[[TELEFON]]</a><br />Mailowo: <a href="mailto:[[EMAIL]]" style="color:{{brand.accent2}};text-decoration:underline;">[[EMAIL]]</a><br />[[GODZINY_PRACY]]</mj-text>\n'+
+'  <mj-text font-size="13px" color="{{brand.text}}" font-family="{{brand.fontBody}}" line-height="1.6" padding="0px">Masz pytania? Skontaktuj się z nami.<br />Telefonicznie: <a href="tel:+48222501415" style="color:{{brand.accent2}};text-decoration:underline;">+48 22 250 14 15</a><br />Mailowo: <a href="mailto:biuro@e-kwiaty.pl" style="color:{{brand.accent2}};text-decoration:underline;">biuro@e-kwiaty.pl</a><br />Pon &ndash; Pt: 8:00 - 20:00 | Sob: 8:00 - 16:00 | Nd: 9:00 - 14:00</mj-text>\n'+
 '  <mj-divider border-color="{{brand.border}}" border-width="1px" padding="20px 0px 0px"></mj-divider>\n'+
 '  <mj-text font-size="11px" color="{{brand.faint}}" font-family="{{brand.fontBody}}" padding="16px 0px 0px">Otrzymujesz ten e-mail, ponieważ wyraziłeś/aś zgodę na otrzymywanie od nas komunikacji marketingowej. Jeśli nie chcesz otrzymywać kolejnych wiadomości &ndash; <a href="{{brand.unsubscribeLink}}" style="color:{{brand.faint}};">wypisz się</a>.</mj-text>\n'+
 '  <mj-divider border-color="{{brand.border}}" border-width="1px" padding="16px 0px 0px"></mj-divider>\n'+
-'  <mj-text font-size="12px" color="{{brand.faint}}" font-family="{{brand.fontBody}}" padding="16px 0px 0px"><a href="[[URL_KONTAKT]]" style="color:{{brand.faint}};text-decoration:underline;">Kontakt</a>&nbsp;&nbsp;&nbsp;<a href="[[URL_REGULAMIN]]" style="color:{{brand.faint}};text-decoration:underline;">Regulamin</a>&nbsp;&nbsp;&nbsp;[[NAZWA_MARKI]]&nbsp;{{ "now" | date: "%Y" }}</mj-text>\n'+
-'  <mj-text font-size="11px" color="{{brand.faint}}" font-family="{{brand.fontBody}}" padding="8px 0px 20px">Podmiotem odpowiedzialnym za niniejszą wiadomość jest [[PELNA_NAZWA_SPOLKI]], [[ADRES]], NIP: [[NIP]], REGON: [[REGON]].</mj-text>\n'+
+'  <mj-text font-size="12px" color="{{brand.faint}}" font-family="{{brand.fontBody}}" padding="16px 0px 0px"><a href="https://www.e-kwiaty.pl/info/kontakt.html" style="color:{{brand.faint}};text-decoration:underline;">Kontakt</a>&nbsp;&nbsp;&nbsp;<a href="https://www.e-kwiaty.pl/info/regulamin-zakupow.html" style="color:{{brand.faint}};text-decoration:underline;">Regulamin</a>&nbsp;&nbsp;&nbsp;e-Kwiaty 2026</mj-text>\n'+
+'  <mj-text font-size="11px" color="{{brand.faint}}" font-family="{{brand.fontBody}}" padding="8px 0px 20px">Podmiotem odpowiedzialnym za niniejszą wiadomość jest Power Investment M.Krzymowski s.j., ul. 3 Maja 7/10, 20-078 Lublin, NIP: 712-288-41-04, REGON: 432721096.</mj-text>\n'+
 '</mj-section>'
   );
 }
@@ -8429,7 +8437,7 @@ var COMPONENT_FIELDS = [
   // type==="select" w renderComponentFormFields/renderEditMetaForm.
   {key:"crmPlatforms", label:"CRM/ESP", type:"crmcheck", options:null}
 ];
-COMPONENT_FIELDS[2].options = CATEGORIES.map(function(c){ return [c.id, c.label]; });
+COMPONENT_FIELDS[2].options = CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).map(function(c){ return [c.id, c.label]; });
 
 /* variants/activeVariantId/defaultCode — draft-level odpowiednik
    editState.activeVariantId/comp.variants w edytorze istniejącego
@@ -8525,7 +8533,7 @@ function renderComponentFormFields(){
       // .options — inaczej rename/dodanie/usunięcie kategorii w Site Settings
       // nie odświeżałoby tej listy aż do przeładowania strony (user: "przeciez
       // ja te kategorie usunąłem + nie ma nowych").
-      var opts = f.key==="category" ? CATEGORIES.map(function(c){ return [c.id, c.label]; }) : f.options;
+      var opts = f.key==="category" ? CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).map(function(c){ return [c.id, c.label]; }) : f.options;
       html += '<select id="cf-'+f.key+'" data-cf-field="'+f.key+'">'+
         opts.map(function(o){ return '<option value="'+o[0]+'"'+(val===o[0]?' selected':'')+'>'+esc(o[1])+'</option>'; }).join("")+
       '</select>';
@@ -9125,7 +9133,7 @@ function renderEditMetaForm(){
     } else if(f.type==="select"){
       // patrz analogiczny komentarz w renderComponentFormFields — ten sam
       // fix, tu dla edycji ISTNIEJĄCEGO komponentu.
-      var opts = f.key==="category" ? CATEGORIES.map(function(c){ return [c.id, c.label]; }) : f.options;
+      var opts = f.key==="category" ? CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).map(function(c){ return [c.id, c.label]; }) : f.options;
       html += '<select id="em-'+f.key+'" data-em-field="'+f.key+'">'+
         opts.map(function(o){ return '<option value="'+o[0]+'"'+(val===o[0]?' selected':'')+'>'+esc(o[1])+'</option>'; }).join("")+
       '</select>';
@@ -10609,7 +10617,10 @@ function renderSwatches(){
   // wiersza (openBrandForm("edit", key)), niezależnie od tego, która jest
   // aktualnie wybrana — nie trzeba już najpierw przełączać marki, żeby ją
   // edytować.
-  menu.innerHTML = BRAND_ORDER.map(function(key){
+  // user: "Brandy w dropdownie Brand Kit - układaj alfabetycznie" — sortowana
+  // KOPIA (slice), BRAND_ORDER sama zostaje nietknięta (używana gdzie indziej,
+  // np. do dogrywania nowych wbudowanych marek przy odtwarzaniu backupu).
+  menu.innerHTML = BRAND_ORDER.slice().sort(function(a,b){ return BRANDS[a].short.localeCompare(BRANDS[b].short); }).map(function(key){
     var b = BRANDS[key];
     var label = b.short + (b.custom ? " (custom)" : "");
     return '<li class="brand-select-option" role="option" data-brand-key="'+key+'" aria-selected="'+(state.brand===key?"true":"false")+'">'+
@@ -11292,7 +11303,7 @@ function renderNavCats(){
       catBtn("All", emailsByFlow("all").length, state.emailFlow==="all", function(){
         state.emailFlow="all"; state.page=1; renderAll();
       });
-      EMAIL_FLOWS.forEach(function(f){
+      EMAIL_FLOWS.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).forEach(function(f){
         catBtn(f.label, emailsByFlow(f.id).length, state.emailFlow===f.id, function(){
           state.emailFlow=f.id; state.page=1; renderAll();
         });
@@ -11594,7 +11605,7 @@ function renderFlowFormFields(){
       // category/industry rozwiązywane NA ŻYWO z FLOW_CATEGORIES/INDUSTRIES
       // (jak "category" w renderComponentFormFields) — user: "Industry ma
       // brać z settingsów przecież".
-      selectField("category", "Category", FLOW_CATEGORIES.map(function(c){ return [c.id, c.label]; }))+
+      selectField("category", "Category", FLOW_CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).map(function(c){ return [c.id, c.label]; }))+
     '</div>'+
     '<div class="bf-row">'+
       selectField("industry", "Industry", INDUSTRIES.map(function(i){ return [i.id, i.label]; }))+
@@ -12023,10 +12034,10 @@ function renderSkillFormFields(){
   form.innerHTML =
     '<div class="bf-group"><div class="bf-row">'+
       textField("label", "Skill name")+
-      selectField("category", "Category", SKILL_CATEGORIES.map(function(c){ return [c.id, c.label]; }))+
+      selectField("category", "Category", SKILL_CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).map(function(c){ return [c.id, c.label]; }))+
     '</div>'+
     '<div class="bf-row">'+
-      selectField("brand", "Brand", [["", "— No specific brand (cross-client) —"]].concat(BRAND_ORDER.map(function(k){ return [k, BRANDS[k].short||BRANDS[k].name]; })))+
+      selectField("brand", "Brand", [["", "— No specific brand (cross-client) —"]].concat(BRAND_ORDER.slice().sort(function(a,c){ return (BRANDS[a].short||BRANDS[a].name).localeCompare(BRANDS[c].short||BRANDS[c].name); }).map(function(k){ return [k, BRANDS[k].short||BRANDS[k].name]; })))+
     '</div></div>'+
     '<div class="bf-group">'+
       textareaField("desc", "What it does")+
@@ -12281,10 +12292,10 @@ function renderSnippetFormFields(){
   form.innerHTML =
     '<div class="bf-group"><div class="bf-row">'+
       textField("label", "Snippet name")+
-      selectField("category", "Category", LIQUID_CATEGORIES.map(function(c){ return [c.id, c.label]; }))+
+      selectField("category", "Category", LIQUID_CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).map(function(c){ return [c.id, c.label]; }))+
     '</div>'+
     '<div class="bf-row">'+
-      selectField("brand", "Brand", [["", "— No specific brand (cross-client) —"]].concat(BRAND_ORDER.map(function(k){ return [k, BRANDS[k].short||BRANDS[k].name]; })))+
+      selectField("brand", "Brand", [["", "— No specific brand (cross-client) —"]].concat(BRAND_ORDER.slice().sort(function(a,c){ return (BRANDS[a].short||BRANDS[a].name).localeCompare(BRANDS[c].short||BRANDS[c].name); }).map(function(k){ return [k, BRANDS[k].short||BRANDS[k].name]; })))+
     '</div></div>'+
     '<div class="bf-group">'+
       textareaField("desc", "What it does")+
@@ -12559,7 +12570,7 @@ function renderReportGenChrome(){
   // (żadnej synchronizacji z state.brand — to osobny wybór, "klient
   // raportu", nie "aktywna marka w edytorze").
   if(sel && !sel.options.length){
-    sel.innerHTML = BRAND_ORDER.map(function(k){ return '<option value="'+esc(k)+'">'+esc(BRANDS[k].short||BRANDS[k].name)+'</option>'; }).join("");
+    sel.innerHTML = BRAND_ORDER.slice().sort(function(a,c){ return (BRANDS[a].short||BRANDS[a].name).localeCompare(BRANDS[c].short||BRANDS[c].name); }).map(function(k){ return '<option value="'+esc(k)+'">'+esc(BRANDS[k].short||BRANDS[k].name)+'</option>'; }).join("");
     enhanceAllSelects(byId("reportGenPage"));
   }
   byId("reportGenResult").style.display = "none";
@@ -12632,7 +12643,7 @@ function renderDmClientFilter(){
   if(!wrap) return;
   var allOn = BRAND_ORDER.every(function(k){ return state.dmClientFilter[k]!==false; });
   byId("dmClientFilterLabel").textContent = allOn ? "All clients" : "Clients: "+BRAND_ORDER.filter(function(k){ return state.dmClientFilter[k]!==false; }).map(function(k){ return BRANDS[k].short||BRANDS[k].name; }).join(", ") || "None";
-  byId("dmClientFilterMenu").innerHTML = BRAND_ORDER.map(function(k){
+  byId("dmClientFilterMenu").innerHTML = BRAND_ORDER.slice().sort(function(a,c){ return (BRANDS[a].short||BRANDS[a].name).localeCompare(BRANDS[c].short||BRANDS[c].name); }).map(function(k){
     var checked = state.dmClientFilter[k]!==false;
     return '<li class="brand-select-option"><label style="display:flex; align-items:center; gap:8px; width:100%; cursor:pointer; margin:0; font-weight:400">'+
       '<input type="checkbox" data-dm-client-check="'+esc(k)+'"'+(checked?' checked':'')+'>'+
@@ -14404,7 +14415,7 @@ function readyEmailOptionsForSelect(){
   // w tej samej kolejności co boczne menu — żeby łatwo znaleźć "ten sam
   // mail, który edytowałem ostatnio".
   var opts = [["", "— Save as new email —"]];
-  EMAIL_FLOWS.forEach(function(f){
+  EMAIL_FLOWS.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).forEach(function(f){
     emailsByFlow(f.id).forEach(function(e){ opts.push([e.id, f.label+" — "+e.label]); });
   });
   return opts;
@@ -14469,7 +14480,7 @@ function renderSaveEmailFormFields(){
       // "flow" options rozwiązywane na żywo z EMAIL_FLOWS zamiast raz
       // zamrożonej tablicy — inaczej rename/dodanie/usunięcie kategorii w
       // Site Settings nie odświeżałoby tej listy aż do przeładowania strony.
-      var opts = f.key==="flow" ? EMAIL_FLOWS.map(function(fl){ return [fl.id, fl.label]; }) : f.options;
+      var opts = f.key==="flow" ? EMAIL_FLOWS.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).map(function(fl){ return [fl.id, fl.label]; }) : f.options;
       html += '<select id="sef-'+f.key+'" data-sef-field="'+f.key+'">'+
         opts.map(function(o){ return '<option value="'+o[0]+'"'+(val===o[0]?' selected':'')+'>'+esc(o[1])+'</option>'; }).join("")+
       '</select>';
