@@ -253,7 +253,8 @@
     max-width:1400px; height:100%; margin:0 auto; padding:0 24px; box-sizing:border-box;
     display:flex; align-items:center; justify-content:space-between; gap:16px;
   }
-  .nav-brand{display:flex; align-items:center; gap:10px; min-width:0}
+  .nav-brand{display:flex; align-items:center; gap:10px; min-width:0; border:none; background:none; padding:0; cursor:pointer; font:inherit; text-align:left}
+  .nav-brand:hover .brand-logo-text{opacity:.75}
   .nav-brand .brand-logo-text{font-size:22px; white-space:nowrap; overflow:hidden}
   /* Drobny druk wersji/daty deployu pod logiem — user: "wersję apki i
      potem dodawaj do wersji jakieś kolejne cyfry" (patrz APP_VERSION w
@@ -673,6 +674,27 @@
   .flow-chip{display:inline-flex; align-items:center; gap:4px; border:1px solid var(--line); border-radius:var(--radius-chip); padding:3px 9px; font-size:10.5px; font-weight:500; color:var(--ink-muted); background:var(--surface)}
   .flow-card-foot{margin-top:auto; padding:14px 16px 16px; display:flex; gap:6px}
   .flow-card-foot .btn{flex:1}
+
+  /* Strona główna (Home) — user: "taki homepage a'la aplikacja SAASowa" —
+     hero z opisem + statystykami na żywo, potem siatka kafelków do
+     wszystkich 9 destynacji (patrz renderHomePage). */
+  .home-hero{max-width:720px; padding:48px 0 40px}
+  .home-eyebrow{font-size:11.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 14px}
+  .home-title{font-size:34px; font-weight:500; letter-spacing:-.02em; line-height:1.18; margin:0 0 16px}
+  .home-lede{font-size:15px; color:var(--ink-muted); line-height:1.65; margin:0 0 28px}
+  .home-stats{display:flex; flex-wrap:wrap; gap:32px}
+  .home-stat-n{font-size:24px; font-weight:500; font-variant-numeric:tabular-nums; line-height:1.1}
+  .home-stat-label{font-size:12.5px; color:var(--ink-faint); margin-top:4px}
+  .home-tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; padding-bottom:24px}
+  .home-tile{display:flex; flex-direction:column; gap:12px; padding:20px; text-align:left; cursor:pointer; font:inherit; color:inherit; transition:border-color .12s ease}
+  .home-tile:hover{border-color:var(--line-strong)}
+  .home-tile-icon{width:34px; height:34px; border-radius:9px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; flex:none}
+  .home-tile-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px}
+  .home-tile-count{font-size:11px; font-weight:600; color:var(--ink-faint); font-variant-numeric:tabular-nums; white-space:nowrap; margin-top:4px}
+  .home-tile-title{font-size:15px; font-weight:500; margin:0}
+  .home-tile-desc{font-size:13.5px; color:var(--ink-muted); line-height:1.5; margin:0}
+  @media (max-width:860px){ .home-tiles{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width:560px){ .home-tiles{grid-template-columns:1fr} .home-title{font-size:27px} }
 
   /* Szczegóły flow */
   /* Dwie kolumny w podglądzie flow — user: "te główne informacje... maja
@@ -1350,12 +1372,15 @@
      redesignu, przywrócony na wyraźną prośbę). -->
 <header class="topbar">
   <div class="topbar-inner">
-    <div class="nav-brand">
+    <!-- user: "Dodaj homepage strony, która będzie odpalać się domyślnie
+         teraz" — logo jako droga powrotna do Home, sam wzorzec co w
+         większości SaaS-owych appek (klik w logo = wróć na start). -->
+    <button type="button" class="nav-brand" id="navBrandHome" title="Go to Home">
       <div class="nav-brand-stack">
         <span class="brand-logo-text" translate="no">Maximus</span>
         <span class="app-version-tag" id="appVersionTag"></span>
       </div>
-    </div>
+    </button>
     <!-- user: "Wprowadź zmiany do headera. Mają się tam pojawić głównej
          kategorie... Klikając w nie przechodzi do listingu danej
          kategorii" — te same 6 grup co dawniej w sidebarze (patrz
@@ -1401,14 +1426,17 @@
          identyczne jak dotąd; is-hidden-group chowa całą grupę na raz.
          user: "widzę przy ładowaniu strony że na sidebarze wiszą wszystkie
          kategorie główne, które po chwili znikają... Ty je po prostu
-         chowasz, zamiast całkowicie usunąć" — dokładnie tak było:
-         syncNavGroupVisibility() dokłada is-hidden-group dopiero w
-         renderPrimaryNav() (czyli po zalogowaniu do Firebase i wczytaniu
-         danych), więc do tego momentu WSZYSTKIE grupy były widoczne w samym
-         statycznym HTML. Fix: is-hidden-group wpisany na sztywno w markupie
-         dla każdej grupy OPRÓCZ "composer" (domyślna state.section:
-         "components" należy do niej — patrz NAV_GROUPS) — poprawny stan
-         widoczny od PIERWSZEJ klatki, bez czekania na JS. -->
+         chowasz, zamiast całkowicie usunąć" — było naprawione statycznym
+         is-hidden-group na każdej grupie oprócz domyślnej sekcji. Potem
+         user: "Dodaj homepage strony, która będzie odpalać się domyślnie
+         teraz" — domyślna state.section stała się "home", która NIE
+         należy do żadnej NAV_GROUPS grupy (groupForSection zwraca null).
+         syncNavGroupVisibility() traktuje TERAZ "brak aktywnej grupy" jako
+         "pokaż wszystkie" (sensowny widok startowy — pełna nawigacja, nic
+         nie jest jeszcze zawężone), więc żadna grupa nie potrzebuje już
+         statycznego is-hidden-group w markupie — to jest znów poprawny
+         stan od pierwszej klatki, tym razem bo strona startowa i tak ma
+         pokazywać komplet. -->
     <div class="nav-group" data-navgroup="composer">
       <button class="nav-item" type="button" data-nav="components">
         <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M659.08-460.77 461.54-658.31l197.54-197.53 197.53 197.53-197.53 197.54Zm-506.77-66.92v-280h280v280h-280Zm375.38 375.38v-280h280v280h-280Zm-375.38 0v-280h280v280h-280Zm60-435.38h160v-160h-160v160Zm447.77 43.38 113-113-113-113-113 113 113 113Zm-72.39 332h160v-160h-160v160Zm-375.38 0h160v-160h-160v160Z"/></svg>
@@ -1427,7 +1455,7 @@
       <div class="nav-cats is-collapsed" id="navCatsLiquid" role="group" aria-label="Liquid snippet categories"></div>
     </div>
 
-    <div class="nav-group is-hidden-group" data-navgroup="automation">
+    <div class="nav-group" data-navgroup="automation">
       <button class="nav-item" type="button" data-nav="flows">
         <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M450-100v-174.23q0-55.23-16.23-84.54-16.23-29.31-45.77-55.69l42.77-42.77q12.77 11.77 25.5 27.35Q469-414.31 480-396.84q12.85-21.7 29.65-40.04 16.81-18.35 34.89-34.66 44.15-39.61 74.38-95.23 30.23-55.62 30.7-177.92l-73 73-42.77-42.16L680-860l146.15 146.15L784-671.69l-74.39-73.77q-.46 138.77-37.65 206.19-37.19 67.42-86.5 112.35-33.15 30.15-54.31 59.38Q510-338.31 510-274.23V-100h-60ZM259.15-634.15q-4.38-20.39-6.26-50.54-1.89-30.16-2.5-60.77L176-671.69l-42.15-42.16L280-860l146.15 146.15-42.77 42.16-73-72.39q-.38 27.16 1.81 52.39t5.35 43.54l-58.39 14Z"/></svg>
         <span class="nav-label">Automation Flows</span><span class="n" id="navCountFlows"></span>
@@ -1435,14 +1463,14 @@
       <div class="nav-cats is-collapsed" id="navCatsFlows" role="group" aria-label="Flow categories"></div>
     </div>
 
-    <div class="nav-group is-hidden-group" data-navgroup="direct">
+    <div class="nav-group" data-navgroup="direct">
       <button class="nav-item" type="button" data-nav="schedule">
         <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M212.31-100Q182-100 161-121q-21-21-21-51.31v-535.38Q140-738 161-759q21-21 51.31-21h55.38v-84.61h61.54V-780h303.08v-84.61h60V-780h55.38Q778-780 799-759q21 21 21 51.31v535.38Q820-142 799-121q-21 21-51.31 21H212.31Zm0-60h535.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-375.38H200v375.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM200-607.69h560v-100q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H212.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v100Z"/></svg>
         <span class="nav-label">Schedule</span><span class="n" id="navCountSchedule"></span>
       </button>
     </div>
 
-    <div class="nav-group is-hidden-group" data-navgroup="ai">
+    <div class="nav-group" data-navgroup="ai">
       <!-- user: "Dodaj kolejną kategorię - udostępnianie skilli do Claude" —
            nowa sekcja, ta sama architektura co Flow Repository (własne
            kategorie, karta, formularz, bez Mail Stacka). -->
@@ -1457,7 +1485,7 @@
       <div class="nav-filters" id="navFiltersSkills" role="group" aria-label="Skill filters"></div>
     </div>
 
-    <div class="nav-group is-hidden-group" data-navgroup="services">
+    <div class="nav-group" data-navgroup="services">
       <!-- user: "generator indywidualnych kodów rabatowych... Żadnej
            logiki, na razie tylko front end do zaprezentowania" — lista
            paczek kodów + formularz; dwa pola (warunki użycia, kampanie)
@@ -1469,7 +1497,7 @@
       </button>
     </div>
 
-    <div class="nav-group is-hidden-group" data-navgroup="reporting">
+    <div class="nav-group" data-navgroup="reporting">
       <!-- user: "generator raportów miesięcznych dla klienta... na razie
            sam front end bez żadnej logiki" — wybór klienta+miesiąca,
            Generate pokazuje placeholder ("coming soon"), bez żadnej
@@ -1488,7 +1516,7 @@
          Potem potwórz pomniejsze rozdziały." — WYŁĄCZNIE do czytania (bez
          add/edit, jak reszta bibliotek), statyczne dane (patrz
          KNOWLEDGE_ARTICLES). -->
-    <div class="nav-group is-hidden-group" data-navgroup="knowledge">
+    <div class="nav-group" data-navgroup="knowledge">
       <button class="nav-item" type="button" data-nav="knowledge">
         <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q134 0 227 93t93 227q0 134-93 227t-227 93Zm0-80q100 0 170-70t70-170q0-100-70-170t-170-70q-100 0-170 70t-70 170q0 100 70 170t170 70Zm-40-120v-240h80v240h-80Zm40-320q17 0 28.5-11.5T520-720q0-17-11.5-28.5T480-760q-17 0-28.5 11.5T440-720q0 17 11.5 28.5T480-680Z"/></svg>
         <span class="nav-label">Knowledge Base</span><span class="n" id="navCountKnowledge"></span>
@@ -1839,6 +1867,25 @@
           </div>
         </div>
         <div id="reportGenResult" style="display:none; max-width:640px; margin-top:16px"></div>
+      </div>
+
+      <!-- user: "Dodaj homepage strony, która będzie odpalać się domyślnie
+           teraz. Na homepage zaprezentuj wszystkie kategorie główne, stwórz
+           fajny opis dlaczego nasze narzędzie Maximus jest zajebistym
+           toolem dla zespołu RetentionQ. Dodaj sekcję z kafelkami per
+           kategoria... taki homepage a'la aplikacja SAASowa." — hero +
+           statystyki (na żywo z prawdziwych danych, nie na sztywno) +
+           siatka kafelków do wszystkich 9 rzeczywistych destynacji.
+           Wszystko renderowane przez renderHomePage(), wołane z
+           syncSectionChrome() przy state.section==="home". -->
+      <div id="homePage" style="display:none">
+        <div class="home-hero">
+          <p class="home-eyebrow">RetentionQ · Internal tool</p>
+          <h1 class="home-title">One place to build, ship, and reuse everything RetentionQ sends.</h1>
+          <p class="home-lede">Maximus is the team's shared home for email production — real, reusable components, ready-made emails, reference automation flows, installable Claude Skills, brand kits, the send calendar and a growing knowledge base. Everything here comes from real client work, kept in sync, so nobody starts a brief from a blank page.</p>
+          <div class="home-stats" id="homeStats"></div>
+        </div>
+        <div class="home-tiles" id="homeTiles"></div>
       </div>
     </main>
   </div>
@@ -8068,7 +8115,7 @@ var DM_ENTRIES = [];
 /* ================================================================
    STAN + RENDER
    ================================================================ */
-var state = { brand:"neutral", category:"all", section:"components", emailFlow:"all", list:[] /* [{uid, componentId, overrides}] */,
+var state = { brand:"neutral", category:"all", section:"home", emailFlow:"all", list:[] /* [{uid, componentId, overrides}] */,
   // Flow Repository + harmonogram DM — "all" to ten sam sentinel co
   // state.category; dmMonth ("YYYY-MM") ustawiany na bieżący przy starcie
   // (patrz initDmMonth), to stan przeglądania, więc nie jest zapisywany.
@@ -11098,6 +11145,7 @@ function openCrmSettings(initialTab){
 }
 function closeCrmSettings(){ byId("crmSettingsOverlay").classList.remove("open"); }
 byId("crmSettingsTopbarBtn").addEventListener("click", function(){ openCrmSettings(); });
+byId("navBrandHome").addEventListener("click", function(){ goToSection("home"); });
 
 /* ---- nawigacja + dok (redesign) ---- */
 byId("appNav").querySelectorAll("[data-nav]").forEach(function(btn){
@@ -11551,10 +11599,14 @@ function renderTopbarGroups(){
 }
 // Brand Kit celowo nie zmienia state.section (patrz goToSection) — sidebar
 // więc zostaje na grupie, w której user faktycznie był, zamiast znikać.
+// Home (state.section:"home") nie ma odpowiednika w NAV_GROUPS —
+// groupForSection zwraca wtedy null, co TERAZ oznacza "pokaż wszystkie
+// grupy" (pełny przegląd nawigacji na stronie głównej), a nie "schowaj
+// wszystkie" jak by wynikało z gołego `!(activeGroup && ...)`.
 function syncNavGroupVisibility(){
   var activeGroup = groupForSection(state.section);
   document.querySelectorAll(".nav-group[data-navgroup]").forEach(function(el){
-    el.classList.toggle("is-hidden-group", !(activeGroup && activeGroup.id===el.getAttribute("data-navgroup")));
+    el.classList.toggle("is-hidden-group", !!activeGroup && activeGroup.id!==el.getAttribute("data-navgroup"));
   });
 }
 /* Kategorie AKTYWNEJ destynacji, wcięte w sidebarze pod nią — user (po
@@ -13108,6 +13160,71 @@ function renderReportGenChrome(){
   }
   byId("reportGenResult").style.display = "none";
 }
+// user: "Dodaj homepage strony... Na homepage zaprezentuj wszystkie
+// kategorie główne... Dodaj sekcję z kafelkami per kategoria żeby można
+// było sobie stamtąd też przejść, jakieś króciutkie opisy" — statystyki i
+// liczniki na kafelkach liczone NA ŻYWO z prawdziwych tablic danych (nie na
+// sztywno), więc się nie rozjadą, gdy ktoś doda kolejny komponent/skill/itd.
+// Ikony to dokładnie te same <svg> co w sidebarze (skopiowane 1:1, ta sama
+// konwencja co reszta appki — każdy nav-item ma własny inline SVG, bez
+// centralnej biblioteki ikon).
+var HOME_TILES = [
+  { section:"components", label:"Components", desc:"The reusable email building blocks — headers, offers, product feeds, CTAs — ready to drop into any brand.",
+    icon:'M659.08-460.77 461.54-658.31l197.54-197.53 197.53 197.53-197.53 197.54Zm-506.77-66.92v-280h280v280h-280Zm375.38 375.38v-280h280v280h-280Zm-375.38 0v-280h280v280h-280Zm60-435.38h160v-160h-160v160Zm447.77 43.38 113-113-113-113-113 113 113 113Zm-72.39 332h160v-160h-160v160Zm-375.38 0h160v-160h-160v160Z',
+    count:function(){ return COMPONENTS.length; } },
+  { section:"emails", label:"E-mails", desc:"Fully composed, ready-to-send emails built straight from the component library.",
+    icon:'M172.31-180Q142-180 121-201q-21-21-21-51.31v-455.38Q100-738 121-759q21-21 51.31-21h615.38Q818-780 839-759q21 21 21 51.31v455.38Q860-222 839-201q-21 21-51.31 21H172.31ZM480-457.69 160-662.31v410q0 5.39 3.46 8.85t8.85 3.46h615.38q5.39 0 8.85-3.46t3.46-8.85v-410L480-457.69Zm0-62.31 313.85-200h-627.7L480-520Z',
+    count:function(){ return READY_EMAILS.length; } },
+  { section:"liquid", label:"Liquid Snippets", desc:"Copy-paste Liquid patterns for Customer.io and Shopify personalization.",
+    icon:'M320-242 80-482l240-240 57 57-184 184 183 183-56 56Zm320 0-56-56 183-183-184-184 57-57 240 240-240 240Z',
+    count:function(){ return LIQUID_SNIPPETS.length; } },
+  { section:"flows", label:"Automation Flows", desc:"Reference flows with a proven structure, stage by stage, industry by industry.",
+    icon:'M450-100v-174.23q0-55.23-16.23-84.54-16.23-29.31-45.77-55.69l42.77-42.77q12.77 11.77 25.5 27.35Q469-414.31 480-396.84q12.85-21.7 29.65-40.04 16.81-18.35 34.89-34.66 44.15-39.61 74.38-95.23 30.23-55.62 30.7-177.92l-73 73-42.77-42.16L680-860l146.15 146.15L784-671.69l-74.39-73.77q-.46 138.77-37.65 206.19-37.19 67.42-86.5 112.35-33.15 30.15-54.31 59.38Q510-338.31 510-274.23V-100h-60ZM259.15-634.15q-4.38-20.39-6.26-50.54-1.89-30.16-2.5-60.77L176-671.69l-42.15-42.16L280-860l146.15 146.15-42.77 42.16-73-72.39q-.38 27.16 1.81 52.39t5.35 43.54l-58.39 14Z',
+    count:function(){ return FLOWS.length; } },
+  { section:"schedule", label:"Schedule", desc:"The team's DM send calendar — who's sending what, and when.",
+    icon:'M212.31-100Q182-100 161-121q-21-21-21-51.31v-535.38Q140-738 161-759q21-21 51.31-21h55.38v-84.61h61.54V-780h303.08v-84.61h60V-780h55.38Q778-780 799-759q21 21 21 51.31v535.38Q820-142 799-121q-21 21-51.31 21H212.31Zm0-60h535.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-375.38H200v375.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM200-607.69h560v-100q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H212.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v100Z',
+    count:null },
+  { section:"skills", label:"Skills", desc:"Claude Skills the team can install, filterable by brand and industry.",
+    icon:'M208.85-197.69h504.61q3.85 0 6.35-2.69 2.5-2.7 2.5-6.54v-176.31l36.92-15.85q18.31-6.84 29.54-23.53Q800-439.31 800-461.15q0-21.62-11.23-38.43t-29.54-24.04l-36.92-15.23v-176.53q0-4.24-2.5-6.74t-6.35-2.5H534.92l-7.3-51.07q-3.77-25.85-22.39-43.92-18.61-18.08-44.08-18.08-26.07 0-44.69 18.08-18.61 18.07-22.38 43.92l-7.31 51.07H208.46q-3.46 0-5.96 2.5t-2.5 6.74V-624q51.77 17.15 84.15 62.04 32.39 44.88 32.39 100.81 0 57.3-32.19 102.19-32.2 44.88-84.35 61.27v90.77q0 3.84 2.5 6.54 2.5 2.69 6.35 2.69Zm0 60q-29 0-48.93-20.12Q140-177.92 140-206.92V-347q48-1.54 82.27-33.58 34.27-32.04 34.27-80.57 0-45.62-34.46-78.12-34.46-32.5-82.08-36.42v-139.69q0-28.77 20.04-49t48.42-20.23h126.23q6.62-47.93 42.16-80.5 35.54-32.58 84.3-32.58 48.16 0 83.7 32.58 35.53 32.57 42.76 80.5h125.85q28.39 0 48.62 20.23 20.23 20.23 20.23 49v136.69q34.84 14.15 56.27 46.23Q860-500.38 860-461.15q0 39.07-21.42 70.96-21.43 31.88-56.27 46.57v136.7q0 29-20.23 49.11-20.23 20.12-48.62 20.12H208.85ZM500-461.15Z',
+    count:function(){ return SKILLS.length; } },
+  { section:"discounts", label:"Discount Codes", desc:"Generate and track discount code batches for any brand.",
+    icon:'M336-480q-45 0-76.5-31.5T228-588q0-45 31.5-76.5T336-696q45 0 76.5 31.5T444-588q0 45-31.5 76.5T336-480Zm0-72q15 0 25.5-10.5T372-588q0-15-10.5-25.5T336-624q-15 0-25.5 10.5T300-588q0 15 10.5 25.5T336-552ZM624-264q-45 0-76.5-31.5T516-372q0-45 31.5-76.5T624-480q45 0 76.5 31.5T732-372q0 45-31.5 76.5T624-264Zm0-72q15 0 25.5-10.5T660-372q0-15-10.5-25.5T624-408q-15 0-25.5 10.5T588-372q0 15 10.5 25.5T624-336ZM252-216l-72-72 528-528 72 72-528 528Z',
+    count:function(){ return DISCOUNT_BATCHES.length; } },
+  { section:"reports", label:"Monthly Reports", desc:"Client-facing monthly performance reports, one click away.",
+    icon:'M320-240h320v-80H320v80Zm0-160h320v-80H320v80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z',
+    count:null },
+  { section:"knowledge", label:"Knowledge Base", desc:"Practical, real-world lessons distilled from a marketing-automation playbook.",
+    icon:'M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q134 0 227 93t93 227q0 134-93 227t-227 93Zm0-80q100 0 170-70t70-170q0-100-70-170t-170-70q-100 0-170 70t-70 170q0 100 70 170t170 70Zm-40-120v-240h80v240h-80Zm40-320q17 0 28.5-11.5T520-720q0-17-11.5-28.5T480-760q-17 0-28.5 11.5T440-720q0 17 11.5 28.5T480-680Z',
+    count:function(){ return KNOWLEDGE_ARTICLES.length; } }
+];
+function renderHomePage(){
+  var stats = [
+    ["Components", COMPONENTS.length],
+    ["Ready-made emails", READY_EMAILS.length],
+    ["Reference flows", FLOWS.length],
+    ["Brands in Brand Kit", BRAND_ORDER.length],
+    ["Skills", SKILLS.length],
+    ["Knowledge Base articles", KNOWLEDGE_ARTICLES.length]
+  ];
+  byId("homeStats").innerHTML = stats.map(function(s){
+    return '<div><div class="home-stat-n">'+s[1]+'</div><div class="home-stat-label">'+esc(s[0])+'</div></div>';
+  }).join("");
+  var tiles = byId("homeTiles");
+  tiles.innerHTML = HOME_TILES.map(function(t){
+    var count = t.count ? t.count() : null;
+    return '<button type="button" class="card home-tile" data-home-tile="'+esc(t.section)+'">'+
+      '<div class="home-tile-top">'+
+        '<div class="home-tile-icon"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="'+t.icon+'"/></svg></div>'+
+        (count!=null ? '<span class="home-tile-count">'+count+(count===1?" item":" items")+'</span>' : "")+
+      '</div>'+
+      '<p class="home-tile-title">'+esc(t.label)+'</p>'+
+      '<p class="home-tile-desc">'+esc(t.desc)+'</p>'+
+    '</button>';
+  }).join("");
+  tiles.querySelectorAll("[data-home-tile]").forEach(function(btn){
+    btn.addEventListener("click", function(){ goToSection(btn.getAttribute("data-home-tile")); });
+  });
+}
 function generateMonthlyReport(){
   var clientKey = byId("reportGenClient").value;
   var month = byId("reportGenMonth").value;
@@ -13425,6 +13542,10 @@ function closeDmDetail(){ byId("dmDetailOverlay").classList.remove("open"); dmDe
    wszędzie (wyszukiwarka, filtr CRM, Mail Stack) niezależnie od tego, czy
    miał tam jakiekolwiek zastosowanie. */
 var SECTION_META = {
+  // user: "Dodaj homepage strony, która będzie odpalać się domyślnie teraz"
+  // — jednoekranowa strona jak Brand Kit/Reports (noGrid), bez search/Add,
+  // bez Mail Stacka.
+  home:       { title:"Home", search:null, primary:null, stack:false },
   components: { title:"Components", search:"Search components…", primary:"add", stack:true },
   emails:     { title:"E-mails", search:"Search emails…", primary:null, stack:true },
   flows:      { title:"Automation Flows", search:"Search flows…", primary:"add-flow", stack:false },
@@ -13448,23 +13569,27 @@ function syncSectionChrome(){
   var isSchedule = state.section==="schedule";
   var isFlows = state.section==="flows";
   var isReports = state.section==="reports";
+  var isHome = state.section==="home";
   // Siatka kart obsługuje komponenty, maile I flow — chowamy ją tylko tam,
-  // gdzie strona ma zupełnie inną formę (formularz albo kalendarz).
-  var noGrid = isBrandKit || isSchedule || isReports;
+  // gdzie strona ma zupełnie inną formę (formularz, kalendarz albo strona
+  // główna).
+  var noGrid = isBrandKit || isSchedule || isReports || isHome;
 
   byId("cardGrid").style.display = noGrid ? "none" : "";
   byId("gridPagination").style.display = noGrid ? "none" : "";
   byId("brandKitPage").style.display = isBrandKit ? "" : "none";
   byId("dmWrap").style.display = isSchedule ? "" : "none";
   byId("reportGenPage").style.display = isReports ? "" : "none";
-  // renderGrid() nie biegnie dla Brand Kitu/Reports (to nie listing), więc
-  // nagłówek strony trzeba ustawić TU — inaczej zostawał tytuł poprzedniej
-  // sekcji.
-  if(isBrandKit || isReports){
+  byId("homePage").style.display = isHome ? "" : "none";
+  // renderGrid() nie biegnie dla Brand Kitu/Reports/Home (to nie listing),
+  // więc nagłówek strony trzeba ustawić TU — inaczej zostawał tytuł
+  // poprzedniej sekcji.
+  if(isBrandKit || isReports || isHome){
     byId("gridTitle").textContent = meta.title;
     byId("gridCount").textContent = "";
   }
   if(isReports) renderReportGenChrome();
+  if(isHome) renderHomePage();
   // Sticky pasek akcji Brand Kitu siedzi na dole ekranu i kolidował z
   // pływającym przyciskiem Feedback — chowamy go na tej stronie.
   document.body.classList.toggle("brandkit-open", isBrandKit);
@@ -13492,9 +13617,9 @@ function syncSectionChrome(){
   byId("addLiquidBtn").style.display = meta.primary==="add-liquid" ? "" : "none";
   byId("addDiscountBtn").style.display = meta.primary==="add-discount" ? "" : "none";
   // Filtr CRM zawęża komponenty/maile po platformie — nie ma zastosowania
-  // w Brand Kicie, w Reports (nie listing) ani w Discount Codes (nie ma
-  // pojęcia platformy CRM).
-  byId("crmFilterRow").style.display = (isBrandKit || isReports || state.section==="discounts") ? "none" : "";
+  // w Brand Kicie, w Reports (nie listing), w Discount Codes (nie ma
+  // pojęcia platformy CRM) ani na stronie głównej.
+  byId("crmFilterRow").style.display = (isBrandKit || isReports || isHome || state.section==="discounts") ? "none" : "";
   // Mail Stack dotyczy budowania maila — gdzie indziej jest bez sensu.
   // Na desktopie ta kolumna jest ZAWSZE widoczna (user: "Mail Stack ma być
   // zawsze widoczny - tak jak było wcześniej"), więc tu tylko decydujemy,
@@ -13825,6 +13950,7 @@ function renderGrid(){
   // przez syncSectionChrome (tytuł zostawał "Components" na Brand Kicie).
   if(state.section==="brandkit") return;
   if(state.section==="reports") return; // jednoekranowe narzędzie, nie listing (patrz syncSectionChrome)
+  if(state.section==="home") return; // jw. — homepage renderowany przez renderHomePage() w syncSectionChrome
   if(state.section==="schedule"){ renderDmCalendar(); return; }
   if(state.section==="flows"){ renderFlowGrid(); return; }
   if(state.section==="skills"){ renderSkillGrid(); return; }
@@ -13983,6 +14109,7 @@ function renderCrmFilterRow(){
   // sam wspólny pasek co filtr CRM/ESP, przełączany per-sekcja (jak
   // #page-head-actions), zamiast osobnego, nowego kontenera w HTML.
   if(state.section==="knowledge"){ renderKnowledgeReadFilterRow(); return; }
+  if(state.section==="home") return;
   var lockedKey = brand().crmPlatform || "klaviyo";
   if(CRM_PLATFORM_LABELS[lockedKey] !== undefined) state.crmFilter[lockedKey] = true;
   var row = byId("crmFilterRow");
@@ -15428,6 +15555,8 @@ function syncUrlFromState(){
     params.set("liquidcat", state.liquidCategory||"all");
   } else if(state.section==="knowledge"){
     params.set("knowledgecat", state.knowledgeCategory||"all");
+  } else if(state.section==="home"){
+    // brak podkategorii — sam section=home wystarcza.
   } else if(state.section==="schedule"){
     if(state.dmMonth) params.set("month", state.dmMonth);
   } else if(state.section==="discounts" || state.section==="reports"){
@@ -15498,6 +15627,8 @@ function restoreStateFromUrl(){
     state.section = "knowledge";
     var knowledgeCat = params.get("knowledgecat");
     if(knowledgeCat && (knowledgeCat==="all" || KNOWLEDGE_CATEGORIES.some(function(c){ return c.id===knowledgeCat; }))) state.knowledgeCategory = knowledgeCat;
+  } else if(section==="home"){
+    state.section = "home";
   } else if(section==="schedule"){
     state.section = "schedule";
     var month = params.get("month");
