@@ -153,6 +153,13 @@
   .app.nav-collapsed{--nav-w:68px}
   .app.no-stack{grid-template-columns:var(--nav-w,236px) 1fr}
   .app.no-stack .dock{display:none}
+  /* user: "po kiego chuja mi ten sidebar po lewej stronie [na homepage]?
+     content na homepage ma być wycentrowany" — Home nie ma sidebarowych
+     kategorii, więc cała kolumna .nav znika i .work zajmuje resztę
+     .app (jeszcze bez Mail Stacka, stack:false w SECTION_META.home robi
+     no-stack automatycznie, patrz syncSectionChrome). */
+  .app.no-nav{grid-template-columns:1fr}
+  .app.no-nav .nav{display:none}
 
   .nav{
     position:sticky; top:var(--topbar-h); align-self:start; height:calc(100vh - var(--topbar-h)); box-sizing:border-box;
@@ -278,6 +285,36 @@
   }
   .topbar-group-btn:hover{color:var(--ink)}
   .topbar-group-btn[aria-current="page"]{color:var(--ink); border-bottom-color:var(--ink)}
+  /* user: "dodaj opcje pojawiania sie popupu z podkategoriami, gdy najade
+     w headerze na jakąś kategorie glowna" — pokazywanie/chowanie jest
+     czysto CSS-owe (:hover/:focus-within), ale POZYCJA (left/top) jest
+     liczona w JS (patrz renderTopbarGroups) i position:fixed, nie
+     absolute — .topbar-groups ma overflow-x:auto (poziomy scroll
+     zakładek na wąskim ekranie), a taki element w tej przeglądarce
+     WYMUSZA overflow-y:auto na sobie samym nawet gdy jawnie ustawisz
+     overflow-y:visible (nie da się mieszać visible z auto na jednej
+     osi) — position:absolute wewnątrz niego przycinałoby popup od dołu.
+     position:fixed omija ten problem całkowicie (nie jest przycinany
+     przez overflow żadnego przodka, poza transform/filter, których tu
+     nikt nie ma). */
+  .topbar-group-item{position:relative}
+  .topbar-group-popup{
+    position:fixed; transform:translateX(-50%) translateY(4px);
+    min-width:180px; z-index:60; background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:6px; display:flex; flex-direction:column; gap:1px;
+    opacity:0; visibility:hidden; pointer-events:none;
+    transition:opacity .12s ease, transform .12s ease;
+  }
+  .topbar-group-item:hover .topbar-group-popup,
+  .topbar-group-item:focus-within .topbar-group-popup{
+    opacity:1; visibility:visible; pointer-events:auto; transform:translateX(-50%) translateY(0);
+  }
+  .topbar-group-sub{
+    display:block; width:100%; text-align:left; border:none; background:transparent; border-radius:6px;
+    padding:8px 10px; font:inherit; font-size:13.5px; color:var(--ink-muted); cursor:pointer;
+  }
+  .topbar-group-sub:hover{background:var(--surface-2); color:var(--ink)}
+  .topbar-group-sub.is-current{color:var(--ink); font-weight:500}
 
   /* Pasek roboczy — sticky nagłówek STRONY. Niesie: gdzie jestem + ile
      tego jest + wyszukiwarka + akcja właściwa DLA TEJ strony. */
@@ -676,15 +713,17 @@
   .flow-card-foot .btn{flex:1}
 
   /* Strona główna (Home) — user: "taki homepage a'la aplikacja SAASowa" —
-     hero z opisem + statystykami na żywo, potem siatka kafelków do
-     wszystkich 9 destynacji (patrz renderHomePage). */
+     hero z opisem, potem siatka kafelków do wszystkich 9 destynacji
+     (patrz renderHomePage). user, drugi raz: "content na homepage ma być
+     wycentrowany" — .home-inner centruje całość w pełnej, teraz
+     bez-sidebarowej szerokości (patrz .app.no-nav); "wywal też liczenie
+     itemów w każdej kategorii" — .home-stats/.home-stat-n/.home-stat-label
+     usunięte, licznik żyje już tylko na kafelku (.home-tile-count). */
+  .home-inner{max-width:1100px; margin:0 auto}
   .home-hero{max-width:720px; padding:48px 0 40px}
   .home-eyebrow{font-size:11.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 14px}
   .home-title{font-size:34px; font-weight:500; letter-spacing:-.02em; line-height:1.18; margin:0 0 16px}
-  .home-lede{font-size:15px; color:var(--ink-muted); line-height:1.65; margin:0 0 28px}
-  .home-stats{display:flex; flex-wrap:wrap; gap:32px}
-  .home-stat-n{font-size:24px; font-weight:500; font-variant-numeric:tabular-nums; line-height:1.1}
-  .home-stat-label{font-size:12.5px; color:var(--ink-faint); margin-top:4px}
+  .home-lede{font-size:15px; color:var(--ink-muted); line-height:1.65; margin:0}
   .home-tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; padding-bottom:24px}
   .home-tile{display:flex; flex-direction:column; gap:12px; padding:20px; text-align:left; cursor:pointer; font:inherit; color:inherit; transition:border-color .12s ease}
   .home-tile:hover{border-color:var(--line-strong)}
@@ -923,8 +962,9 @@
      .modal-preview-box na zewnątrz (padding/tło), mountMjmlIframe
      (fixedHeight:true) wewnątrz. Patrz renderBfMjmlPreview. */
   .bf-mjml-preview-label{display:block; font-size:12.5px; font-weight:500; color:var(--ink-muted); margin:12px 0 6px}
-  .bf-mjml-preview-frame{height:320px; overflow-x:auto}
-  .bf-mjml-preview-empty{font-size:12.5px; color:var(--ink-faint); padding:16px; margin:0}
+  .bf-mjml-preview-scroll{width:100%; overflow-x:auto}
+  .bf-mjml-preview-frame{height:320px}
+  .bf-mjml-preview-empty{font-size:12.5px; color:var(--ink-faint); padding:16px; margin:0; width:100%; box-sizing:border-box}
   #editPreviewBox #editPreviewIframeWrap{height:100%}
   .modal-preview-box.email-frame-mode{padding:20px; background:var(--surface-2)}
   .modal.mail-preview-modal{max-width:calc(660px + 88px)}
@@ -1400,6 +1440,13 @@
            #page-head-actions (patrz tam, niżej w pliku) — user: "Wybór
            brandu oraz przycisk Add Component przerzucasz do kategorii
            Components gdzieś w rejon nagłówka sekcji". -->
+      <!-- user: "Ekran logowania ma nie pojawiac sie przed wejsciem na
+           strone tylko dopiero gdy w prawym gornym rogu kliknie przycisk
+           Login... homepage ma sie odpalać bez logowania" — widoczny
+           TYLKO gdy MQ_CURRENT_USER jest pusty (patrz renderAuthUserBadge/
+           MQBootGuest), otwiera dokładnie ten sam #authGate co dotąd, tylko
+           teraz na wyraźne kliknięcie, nie automatycznie na starcie. -->
+      <button class="btn small" id="loginBtn" type="button" style="display:none">Login</button>
       <div class="brand-select" id="authUserMenuWrap">
         <button class="btn ghost auth-user-badge" id="authUserBtn" type="button" title="Account" aria-haspopup="menu" aria-expanded="false" style="display:none"></button>
         <ul class="brand-select-menu brand-select-menu-right" id="authUserMenu" role="menu" aria-label="Account menu" style="display:none">
@@ -1537,7 +1584,7 @@
     <!-- Nagłówek STRONY: gdzie jestem, ile tego jest, czego szukam,
          co mogę tu zrobić. "Add Component" jest globalny w .topbar,
          "Add Flow" zostaje tu jako akcja kontekstowa (tylko flows). -->
-    <header class="page-head">
+    <header class="page-head" id="pageHead">
       <div class="page-head-inner">
       <button class="icon-btn nav-toggle" type="button" id="navToggle" aria-label="Toggle navigation" aria-expanded="true">
         <svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M140-254.62v-59.99h680v59.99H140ZM140-450v-60h680v60H140Zm0-195.39v-59.99h680v59.99H140Z"/></svg>
@@ -1593,16 +1640,20 @@
 
     <main class="page-body" id="workMain">
 
-<!-- Blokada dostępu — user: "Stwórz mi panel logowania i rejestracji
-     kont", "ma być automatyczny", wiele osób z osobnymi kontami. Nie jest
-     to `.overlay`/`.modal` z reszty apki (te są zamykalne przez tło/Escape)
-     — to twarda brama, widoczna od razu w HTML (żeby nie było mrugnięcia
-     niezalogowaną appką pod spodem), chowana WYŁĄCZNIE przez
-     window.MQBoot po realnym potwierdzeniu zalogowania (patrz koniec
-     głównego skryptu app + moduł Firebase poniżej). Przycisk startuje
-     zablokowany "Loading…", odblokowuje go dopiero showAuthGate, wołane
-     przez moduł Firebase gdy auth SDK faktycznie się zainicjował. -->
-<div id="authGate" style="position:fixed;inset:0;z-index:9999;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px">
+<!-- Logowanie — user, pierwotnie: "Stwórz mi panel logowania i rejestracji
+     kont", "ma być automatyczny" — appka startowała za twardą, blokującą
+     bramą (widoczną od razu w HTML), chowaną dopiero po zalogowaniu.
+     user, później: "Ekran logowania ma nie pojawiac sie przed wejsciem na
+     strone tylko dopiero gdy w prawym gornym rogu kliknie przycisk
+     Login... homepage ma sie odpalać bez logowania" — jawne odwrócenie
+     tamtej decyzji. #authGate startuje TERAZ ukryty (display:none) i
+     pokazuje się WYŁĄCZNIE po kliknięciu #loginBtn (patrz showAuthGate) —
+     appka od razu renderuje Home i resztę na danych lokalnych/seedowych
+     (patrz window.MQBootGuest w module Firebase), bez czekania na
+     zalogowanie. Realne konto nadal odblokowuje pełną, zsynchronizowaną z
+     Firestore appkę przez window.MQBoot, dokładnie jak dotąd — zmieniło
+     się tylko to, KIEDY i PO CZYM ten formularz w ogóle się pokazuje. -->
+<div id="authGate" style="position:fixed;inset:0;z-index:9999;background:var(--paper);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px">
   <!-- user: "czemu za każdym refreshem strony przez sekundę widzę ekran
        logowania? nie chce tego, ma być od razu docelowa strona jak jestem
        zalogowany" — Firebase Auth potrzebuje chwili (async) żeby w ogóle
@@ -1886,14 +1937,21 @@
            siatka kafelków do wszystkich 9 rzeczywistych destynacji.
            Wszystko renderowane przez renderHomePage(), wołane z
            syncSectionChrome() przy state.section==="home". -->
+      <!-- user, drugi raz: "content na homepage ma być wycentrowany" —
+           .home-inner centruje hero+kafelki w dostępnej (teraz pełnej,
+           bez sidebaru) szerokości. "wywal też liczenie itemów w każdej
+           kategorii skoro to samo jest na kafelkach" — #homeStats/
+           .home-stats usunięte, liczby żyją już tylko na samych kafelkach
+           (patrz HOME_TILES/renderHomePage). -->
       <div id="homePage" style="display:none">
-        <div class="home-hero">
-          <p class="home-eyebrow">RetentionQ · Internal tool</p>
-          <h1 class="home-title">One place to build, ship, and reuse everything RetentionQ sends.</h1>
-          <p class="home-lede">Maximus is the team's shared home for email production — real, reusable components, ready-made emails, reference automation flows, installable Claude Skills, brand kits, the send calendar and a growing knowledge base. Everything here comes from real client work, kept in sync, so nobody starts a brief from a blank page.</p>
-          <div class="home-stats" id="homeStats"></div>
+        <div class="home-inner">
+          <div class="home-hero">
+            <p class="home-eyebrow">RetentionQ · Internal tool</p>
+            <h1 class="home-title">One place to build, ship, and reuse everything RetentionQ sends.</h1>
+            <p class="home-lede">Maximus is the team's shared home for email production — real, reusable components, ready-made emails, reference automation flows, installable Claude Skills, brand kits, the send calendar and a growing knowledge base. Everything here comes from real client work, kept in sync, so nobody starts a brief from a blank page.</p>
+          </div>
+          <div class="home-tiles" id="homeTiles"></div>
         </div>
-        <div class="home-tiles" id="homeTiles"></div>
       </div>
     </main>
   </div>
@@ -7066,10 +7124,11 @@ var KNOWLEDGE_CATEGORIES = [
 ];
 // user: "Dodaj w źródle całego pdfa do pobrania, z którego czerpałeś
 // wiedzę" — jeden wspólny plik dla WSZYSTKICH 36 lekcji (to jedno źródłowe
-// PDF), nie osobny per artykuł. null = link się nie pokazuje (patrz
-// openKnowledgeDetail) dopóki plik faktycznie nie wyląduje w
-// mailerQ-repo/assets/kb/ — świadomie NIE wskazujemy na nieistniejący plik.
-var KNOWLEDGE_SOURCE_PDF_URL = null;
+// PDF), nie osobny per hint. Plik faktycznie leży w
+// mailerQ-repo/assets/kb/source-playbook.pdf (user podesłał go ponownie
+// 2026-08-25 — oryginalna nazwa pliku miała emoji w nazwie, co psuło
+// argumenty Git Bash, stąd ASCII-owa nazwa w repo).
+var KNOWLEDGE_SOURCE_PDF_URL = "assets/kb/source-playbook.pdf";
 var KNOWLEDGE_HINTS = [];
 var KB_DATE = "2026-08-24";
 
@@ -10509,9 +10568,19 @@ function bfFieldHtml(f, d, device){
   } else if(f.type==="textarea"){
     html += '<textarea class="code" id="'+bfInputId(f.key)+'" data-bf-field="'+f.key+'" spellcheck="false" style="height:160px;width:100%"'+disAttr+'>'+esc(val||"")+'</textarea>';
     if(f.mjmlPreview){
+      // user: "szerokosc tych ma być taka jak określone w brand kicie w
+      // szerokości maila" — bez tego iframe dziedziczył 100% wąskiej
+      // kolumny formularza, co spychało go pod media query mobile
+      // (@media max-width:480px w compileEmailHtml) i podgląd wyglądał
+      // jak wersja mobilna. Teraz .bf-mjml-preview-frame ma NAPRAWDĘ
+      // ustawioną szerokość d.mailWidth (nie max-width — realną width),
+      // a zewnętrzny .bf-mjml-preview-scroll (100%, overflow-x:auto)
+      // dopiero przycina/scrolluje ją do dostępnej szerokości kolumny.
       html += '<label class="bf-mjml-preview-label">Preview</label>'+
-        '<div class="modal-preview-box bf-mjml-preview-frame">'+
-          '<div id="'+bfMjmlPreviewId(f.key)+'" style="height:100%"></div>'+
+        '<div class="bf-mjml-preview-scroll">'+
+          '<div class="modal-preview-box bf-mjml-preview-frame" style="width:'+esc(d.mailWidth||"640px")+'">'+
+            '<div id="'+bfMjmlPreviewId(f.key)+'" style="height:100%"></div>'+
+          '</div>'+
         '</div>';
     }
   } else if(f.type==="color"){
@@ -11209,6 +11278,7 @@ function openCrmSettings(initialTab){
 function closeCrmSettings(){ byId("crmSettingsOverlay").classList.remove("open"); }
 byId("crmSettingsTopbarBtn").addEventListener("click", function(){ openCrmSettings(); });
 byId("navBrandHome").addEventListener("click", function(){ goToSection("home"); });
+byId("loginBtn").addEventListener("click", function(){ showAuthGate(); });
 
 /* ---- nawigacja + dok (redesign) ---- */
 byId("appNav").querySelectorAll("[data-nav]").forEach(function(btn){
@@ -11640,12 +11710,29 @@ function groupForSection(section){
 }
 // Renderowane RAZ (dzieci #topbarGroups puste na starcie), potem tylko
 // resync aria-current — te 6 zakładek się nie zmienia w trakcie sesji.
+// user: "dodaj opcje pojawiania sie popupu z podkategoriami, gdy najade w
+// headerze na jakąś kategorie glowna. Ale mają pokazac sie tylko
+// podategorie kategorii glownych" — hover na zakładce topbara (main
+// category, NAV_GROUPS) pokazuje jej rzeczywiste destynacje (jeden
+// poziom w dół — dokładnie te same pozycje, co sidebar pokazuje w
+// .nav-cats dla aktywnej grupy), nie idzie głębiej w ich WŁASNE kategorie
+// (Components ma ich 24 — osobny mega-popup na to byłby nieczytelny).
+// SECTION_META[id].title daje etykietę — deklarowane niżej w pliku, ale
+// TA funkcja i tak biegnie dopiero w renderAll(), więc SECTION_META jest
+// już na pewno zainicjalizowane, kolejność deklaracji nie ma znaczenia.
 function renderTopbarGroups(){
   var nav = byId("topbarGroups");
   if(!nav) return;
   if(!nav.children.length){
     nav.innerHTML = NAV_GROUPS.map(function(g){
-      return '<button type="button" class="topbar-group-btn" data-navgroup="'+esc(g.id)+'">'+esc(g.label)+'</button>';
+      var subs = g.sections.map(function(sid){
+        var title = (SECTION_META[sid]||{}).title || sid;
+        return '<button type="button" class="topbar-group-sub" data-nav="'+esc(sid)+'">'+esc(title)+'</button>';
+      }).join("");
+      return '<div class="topbar-group-item">'+
+        '<button type="button" class="topbar-group-btn" data-navgroup="'+esc(g.id)+'">'+esc(g.label)+'</button>'+
+        '<div class="topbar-group-popup" role="group" aria-label="'+esc(g.label)+' sections">'+subs+'</div>'+
+      '</div>';
     }).join("");
     nav.querySelectorAll("[data-navgroup]").forEach(function(btn){
       btn.addEventListener("click", function(){
@@ -11653,11 +11740,38 @@ function renderTopbarGroups(){
         if(g) goToSection(g.sections[0]);
       });
     });
+    nav.querySelectorAll(".topbar-group-sub").forEach(function(btn){
+      btn.addEventListener("click", function(e){
+        e.stopPropagation();
+        goToSection(btn.getAttribute("data-nav"));
+      });
+    });
+    // .topbar-group-popup jest position:fixed (patrz CSS — .topbar-groups
+    // ma overflow-x:auto dla poziomego scrolla zakładek na wąskim ekranie,
+    // a taki element w tej przeglądarce wymusza overflow-y:auto na sobie
+    // SAMYM nawet przy jawnym overflow-y:visible, co przycinałoby
+    // position:absolute popup od dołu — fixed tego unika), więc pozycję
+    // trzeba jawnie policzyć z realnego rectu przycisku, na każde
+    // najechanie (rect może się zmienić np. po zmianie szerokości okna).
+    nav.querySelectorAll(".topbar-group-item").forEach(function(item){
+      var btn = item.querySelector(".topbar-group-btn");
+      var popup = item.querySelector(".topbar-group-popup");
+      function positionPopup(){
+        var r = btn.getBoundingClientRect();
+        popup.style.left = (r.left + r.width/2) + "px";
+        popup.style.top = r.bottom + "px";
+      }
+      item.addEventListener("mouseenter", positionPopup);
+      btn.addEventListener("focus", positionPopup);
+    });
   }
   var activeGroup = groupForSection(state.section);
   nav.querySelectorAll("[data-navgroup]").forEach(function(btn){
     if(activeGroup && activeGroup.id===btn.getAttribute("data-navgroup")) btn.setAttribute("aria-current","page");
     else btn.removeAttribute("aria-current");
+  });
+  nav.querySelectorAll(".topbar-group-sub").forEach(function(btn){
+    btn.classList.toggle("is-current", state.section===btn.getAttribute("data-nav"));
   });
 }
 // Brand Kit celowo nie zmienia state.section (patrz goToSection) — sidebar
@@ -13264,18 +13378,10 @@ var HOME_TILES = [
     icon:'M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q134 0 227 93t93 227q0 134-93 227t-227 93Zm0-80q100 0 170-70t70-170q0-100-70-170t-170-70q-100 0-170 70t-70 170q0 100 70 170t170 70Zm-40-120v-240h80v240h-80Zm40-320q17 0 28.5-11.5T520-720q0-17-11.5-28.5T480-760q-17 0-28.5 11.5T440-720q0 17 11.5 28.5T480-680Z',
     count:function(){ return KNOWLEDGE_HINTS.length; } }
 ];
+// user, drugi raz: "wywal też liczenie itemów w każdej kategorii skoro to
+// samo jest na kafelkach" — pasek statystyk (#homeStats) usunięty, każdy
+// kafelek i tak pokazuje swój własny licznik (patrz niżej).
 function renderHomePage(){
-  var stats = [
-    ["Components", COMPONENTS.length],
-    ["Ready-made emails", READY_EMAILS.length],
-    ["Reference flows", FLOWS.length],
-    ["Brands in Brand Kit", BRAND_ORDER.length],
-    ["Skills", SKILLS.length],
-    ["Knowledge Base hints", KNOWLEDGE_HINTS.length]
-  ];
-  byId("homeStats").innerHTML = stats.map(function(s){
-    return '<div><div class="home-stat-n">'+s[1]+'</div><div class="home-stat-label">'+esc(s[0])+'</div></div>';
-  }).join("");
   var tiles = byId("homeTiles");
   tiles.innerHTML = HOME_TILES.map(function(t){
     var count = t.count ? t.count() : null;
@@ -13656,10 +13762,16 @@ function syncSectionChrome(){
   // renderGrid() nie biegnie dla Brand Kitu/Reports/Home (to nie listing),
   // więc nagłówek strony trzeba ustawić TU — inaczej zostawał tytuł
   // poprzedniej sekcji.
-  if(isBrandKit || isReports || isHome){
+  if(isBrandKit || isReports){
     byId("gridTitle").textContent = meta.title;
     byId("gridCount").textContent = "";
   }
+  // user: "wywal z homepage napis HOME nad treścią - zbędne to" — Home nie
+  // dostaje już w ogóle paska nagłówka strony (nie tylko goły tytuł, cały
+  // #pageHead) ani paska filtrów pod nim — sam hero w #homePage niesie już
+  // tę informację, a wyszukiwarka/CRM-filtr i tak nie mają tu zastosowania.
+  byId("pageHead").style.display = isHome ? "none" : "";
+  byId("filterbar").style.display = isHome ? "none" : "";
   if(isReports) renderReportGenChrome();
   if(isHome) renderHomePage();
   // Sticky pasek akcji Brand Kitu siedzi na dole ekranu i kolidował z
@@ -13702,6 +13814,12 @@ function syncSectionChrome(){
   byId("app").classList.toggle("no-stack", !meta.stack);
   byId("dockToggle").style.display = meta.stack ? "" : "none";
   if(!meta.stack) closeDock();
+  // user: "po kiego chuja mi ten sidebar po lewej stronie? content na
+  // homepage ma być wycentrowany" — Home nie ma kategorii/podkategorii do
+  // pokazania w sidebarze (nie należy do żadnej NAV_GROUPS grupy, patrz
+  // syncNavGroupVisibility), więc cała kolumna .nav znika, a .work
+  // dostaje pełną dostępną szerokość (patrz .app.no-nav w CSS).
+  byId("app").classList.toggle("no-nav", isHome);
 }
 /* ---- Mail Stack dock ---- */
 function openDock(){
@@ -16818,9 +16936,29 @@ window.MQBoot = async function(user){
     }).catch(function(){});
   }
 };
+// user: "Ekran logowania ma nie pojawiac sie przed wejsciem na strone
+// tylko dopiero gdy w prawym gornym rogu kliknie przycisk Login...
+// homepage ma sie odpalać bez logowania" — ścieżka dla NIEzalogowanego
+// widza, wołana z module Firebase zamiast dawnego window.MQShowGate() w
+// onAuthStateChanged. Renderuje appkę od razu na danych lokalnych/
+// seedowych (bez Firestore — nieautoryzowany odczyt i tak by się nie
+// udał), Home startuje domyślnie (patrz state.section:"home"). Realne
+// zalogowanie i tak i tak przechodzi normalnym window.MQBoot (patrz
+// authSubmit -> window.MQAuth.login/register), które przy sukcesie
+// całkowicie nadpisuje ten stan świeżą, zsynchronizowaną biblioteką.
+window.MQBootGuest = function(){
+  hideAuthGate();
+  MQ_CURRENT_USER = null;
+  byId("authUserBtn").style.display = "none";
+  byId("loginBtn").style.display = "inline-flex";
+  loadFromStorage();
+  restoreStateFromUrl();
+  renderAll();
+};
 function renderAuthUserBadge(){
   var btn = byId("authUserBtn");
   if(!MQ_CURRENT_USER) return;
+  byId("loginBtn").style.display = "none";
   var label = esc(MQ_CURRENT_USER.displayName || MQ_CURRENT_USER.email);
   var roleLabel = isAdminUser() ? "Admin" : "Member";
   // user: "ten napis roli niech będzie malutki pod imieniem/nazwiskiem" —
@@ -16915,8 +17053,13 @@ window.MQShowGate = showAuthGate;
 // zostaje NA ZAWSZE na "Loading…" bez żadnego wyjaśnienia.
 setTimeout(function(){
   if(!window.MQAuth){
-    // Ciągle na spinnerze (patrz showAuthGate) — bez tego user zobaczyłby
-    // tylko kręcące się kółko w nieskończoność, bez żadnego komunikatu.
+    // #authGate startuje ukryte (patrz wyżej — Home ma się odpalać bez
+    // logowania), ale gdy moduł Firebase w ogóle nie wystartował, ANI
+    // window.MQBootGuest ANI window.MQBoot nigdy się nie wywołają — appka
+    // zostałaby całkowicie pusta, bez żadnego wyjaśnienia. Tu jedyne
+    // miejsce, gdzie jawnie POKAZUJEMY bramę mimo braku kliknięcia
+    // #loginBtn, bo to jedyny sposób, żeby user w ogóle zobaczył ten błąd.
+    byId("authGate").style.display = "flex";
     byId("authGateSpinner").style.display = "none";
     byId("authGateModal").style.display = "";
     byId("authSubmitBtn").disabled = true;
@@ -17184,7 +17327,10 @@ if(dmShareToken){
       window.MQBoot(user);
     } else {
       privateDocRef = null;
-      window.MQShowGate();
+      // user: "homepage ma sie odpalać bez logowania" — appka się renderuje
+      // od razu (patrz window.MQBootGuest), #authGate zostaje ukryte
+      // dopóki ktoś sam nie kliknie #loginBtn (patrz showAuthGate).
+      window.MQBootGuest();
     }
   });
 }
