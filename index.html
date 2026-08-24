@@ -4159,6 +4159,22 @@ function ekwiatyFooterCode(b){
     });
   });
 })();
+// user zgłosił: "Nie widzę brandu e-Kwiaty do wyboru w Brand Kit" —
+// realny bug, ten sam mechanizm co wcześniejszy bug z h2LineHeight
+// (patrz komentarz w applyBackupPayload). `BRANDS = payload.brands` przy
+// wczytaniu z Firestore PODMIENIA cały obiekt na to, co zostało zapisane
+// w bazie WCZEŚNIEJ — jeśli ten zapis powstał PRZED dodaniem e-Kwiaty do
+// kodu, podmiana bezpowrotnie ukrywa nowo dodaną wbudowaną markę, mimo że
+// jest wciąż zaszyta w kodzie źródłowym. Marek nie da się usuwać w tej
+// appce (brak jakiegokolwiek delete-brand), więc klucz obecny tu, ale
+// nieobecny w payload.brands, może znaczyć TYLKO "nowa marka dodana po
+// zapisaniu tego backupu" — nigdy świadome usunięcie przez usera. Snapshot
+// wzięty TU (po seedBrandHeaderFooter, więc z gotowym headerCode/
+// footerCode), zanim cokolwiek z Firestore/localStorage miało szansę
+// nadpisać BRANDS/BRAND_ORDER — patrz dogrywanie w applyBackupPayload.
+var SEED_BRANDS = {};
+Object.keys(BRANDS).forEach(function(k){ SEED_BRANDS[k] = BRANDS[k]; });
+var SEED_BRAND_ORDER = BRAND_ORDER.slice();
 
 /* ================================================================
    KOMPONENTY
@@ -8138,9 +8154,25 @@ function applyBackupPayload(payload){
   // więc nic, co user faktycznie ustawił, się nie zmienia.
   if(payload.brands){
     BRANDS = payload.brands;
+    // user zgłosił: "Nie widzę brandu e-Kwiaty do wyboru w Brand Kit" —
+    // ten backup został zapisany PRZED dodaniem e-Kwiaty do kodu, więc
+    // podmiana wyżej właśnie ją ukryła. Dogrywamy z powrotem KAŻDĄ
+    // wbudowaną markę, której nie ma w zapisanym payloadzie — patrz
+    // SEED_BRANDS. Marek nie da się usuwać w tej appce, więc brak klucza
+    // tu może znaczyć tylko "dodana po tym zapisie", nigdy usunięcie.
+    Object.keys(SEED_BRANDS).forEach(function(k){
+      if(BRANDS[k]==null) BRANDS[k] = SEED_BRANDS[k];
+    });
     Object.keys(BRANDS).forEach(function(k){ withDerivedStyleDefaults(BRANDS[k]); });
   }
-  if(payload.brandOrder) BRAND_ORDER = payload.brandOrder;
+  if(payload.brandOrder){
+    BRAND_ORDER = payload.brandOrder;
+    // jw. — dogrywamy nowe wbudowane klucze, których jeszcze nie było w
+    // momencie zapisania tego backupu, na koniec listy.
+    SEED_BRAND_ORDER.forEach(function(k){
+      if(BRAND_ORDER.indexOf(k)===-1) BRAND_ORDER.push(k);
+    });
+  }
   if(payload.deletedBuiltinComponentIds){
     DELETED_BUILTIN_COMPONENT_IDS = payload.deletedBuiltinComponentIds;
     COMPONENTS = COMPONENTS.filter(function(c){ return DELETED_BUILTIN_COMPONENT_IDS.indexOf(c.id)===-1; });
