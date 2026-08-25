@@ -299,18 +299,25 @@
      nikt nie ma). */
   .topbar-group-item{position:relative}
   .topbar-group-popup{
-    position:fixed; transform:translateX(-50%) translateY(4px);
-    min-width:180px; z-index:60; background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    position:fixed; transform:translateY(4px);
+    width:max-content; z-index:60; background:var(--surface); border:1px solid var(--line); border-radius:10px;
     padding:6px; display:flex; flex-direction:column; gap:1px;
     opacity:0; visibility:hidden; pointer-events:none;
     transition:opacity .12s ease, transform .12s ease;
   }
   .topbar-group-item:hover .topbar-group-popup,
   .topbar-group-item:focus-within .topbar-group-popup{
-    opacity:1; visibility:visible; pointer-events:auto; transform:translateX(-50%) translateY(0);
+    opacity:1; visibility:visible; pointer-events:auto; transform:translateY(0);
+  }
+  /* user: "klikniecie w sub-item nie zamyka mi tego dropdownu. Popraw- ma
+     zamykać" — patrz renderTopbarGroups: dodawane na klik sub-itemu,
+     zdejmowane dopiero gdy mysz realnie opuści .topbar-group-item.
+     !important bije samo :hover, którego kursor wciąż fizycznie dotyka. */
+  .topbar-group-item.is-force-closed .topbar-group-popup{
+    opacity:0!important; visibility:hidden!important; pointer-events:none!important;
   }
   .topbar-group-sub{
-    display:block; width:100%; text-align:left; border:none; background:transparent; border-radius:6px;
+    display:block; width:100%; text-align:left; white-space:nowrap; border:none; background:transparent; border-radius:6px;
     padding:8px 10px; font:inherit; font-size:13.5px; color:var(--ink-muted); cursor:pointer;
   }
   .topbar-group-sub:hover{background:var(--surface-2); color:var(--ink)}
@@ -720,7 +727,13 @@
      itemów w każdej kategorii" — .home-stats/.home-stat-n/.home-stat-label
      usunięte, licznik żyje już tylko na kafelku (.home-tile-count). */
   .home-inner{max-width:1100px; margin:0 auto}
-  .home-hero{max-width:720px; padding:48px 0 40px}
+  /* user, drugi raz: "tekst ma być wycentrowany względem kafelków...
+     szerokość kontenera zostaw jaka jest, ma być tylko text wycentrowany
+     i div wycentrowany" — .home-hero dostaje margin:0 auto (blok
+     wyśrodkowany w .home-inner, dawniej przyklejony do lewej) i
+     text-align:center (sam tekst też wycentrowany), max-width zostaje
+     bez zmian. */
+  .home-hero{max-width:720px; margin:0 auto; padding:48px 0 40px; text-align:center}
   .home-eyebrow{font-size:11.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 14px}
   .home-title{font-size:34px; font-weight:500; letter-spacing:-.02em; line-height:1.18; margin:0 0 16px}
   .home-lede{font-size:15px; color:var(--ink-muted); line-height:1.65; margin:0}
@@ -11715,7 +11728,23 @@ function renderTopbarGroups(){
   var nav = byId("topbarGroups");
   if(!nav) return;
   if(!nav.children.length){
+    // user, drugi raz: "Po co w Knowledge Base dropdown z sub-itemem o tej
+    // samej nazwie? Usuń. Jeśli jest tylko jeden element w kategorii, to
+    // dropdown ma się nie pojawiać" — TYLKO "Composer" ma realnie >1
+    // sekcję (Components/E-mails/Liquid); pozostałe 6 grup mają dokładnie
+    // JEDNĄ, więc wracają do zwykłego, bezpośrednio klikalnego przycisku
+    // (dawne zachowanie sprzed popupu) — inaczej byłyby całkiem
+    // nieklikalne (patrz niżej: przycisk grupy Z popupem świadomie NIE
+    // nawiguje).
     nav.innerHTML = NAV_GROUPS.map(function(g){
+      if(g.sections.length<=1){
+        return '<button type="button" class="topbar-group-btn" data-navgroup="'+esc(g.id)+'" data-nav-direct="'+esc(g.sections[0])+'">'+esc(g.label)+'</button>';
+      }
+      // user: "Klikniecie w główny odnośnik na top barze ma kierować
+      // donikąd. Dopiero klikniecie w sub-item w dropdownie ma gdzieś
+      // przenosić" — data-navgroup celowo BEZ data-nav-direct tutaj, więc
+      // poniższy listener na [data-navgroup] wie, że to grupa z popupem
+      // (nienawigująca), nie zwykły link.
       var subs = g.sections.map(function(sid){
         var title = (SECTION_META[sid]||{}).title || sid;
         return '<button type="button" class="topbar-group-sub" data-nav="'+esc(sid)+'">'+esc(title)+'</button>';
@@ -11725,16 +11754,28 @@ function renderTopbarGroups(){
         '<div class="topbar-group-popup" role="group" aria-label="'+esc(g.label)+' sections">'+subs+'</div>'+
       '</div>';
     }).join("");
-    nav.querySelectorAll("[data-navgroup]").forEach(function(btn){
-      btn.addEventListener("click", function(){
-        var g = NAV_GROUPS.filter(function(x){ return x.id===btn.getAttribute("data-navgroup"); })[0];
-        if(g) goToSection(g.sections[0]);
-      });
+    nav.querySelectorAll("[data-nav-direct]").forEach(function(btn){
+      btn.addEventListener("click", function(){ goToSection(btn.getAttribute("data-nav-direct")); });
     });
     nav.querySelectorAll(".topbar-group-sub").forEach(function(btn){
       btn.addEventListener("click", function(e){
         e.stopPropagation();
         goToSection(btn.getAttribute("data-nav"));
+        // user: "klikniecie w sub-item nie zamyka mi tego dropdownu.
+        // Popraw- ma zamykać" — pokazywanie/chowanie jest czysto CSS-owe
+        // (:hover/:focus-within), więc samo kliknięcie (bez ruchu myszy)
+        // nie chowa popupu — kursor wciąż fizycznie nad nim stoi.
+        // is-force-closed przebija :hover !important-em, dopóki mysz
+        // realnie nie opuści .topbar-group-item (wtedy sama się zdejmuje,
+        // żeby kolejne najechanie znowu działało normalnie).
+        var item = btn.closest(".topbar-group-item");
+        if(item){
+          item.classList.add("is-force-closed");
+          item.addEventListener("mouseleave", function unforce(){
+            item.classList.remove("is-force-closed");
+            item.removeEventListener("mouseleave", unforce);
+          });
+        }
       });
     });
     // .topbar-group-popup jest position:fixed (patrz CSS — .topbar-groups
@@ -11744,12 +11785,14 @@ function renderTopbarGroups(){
     // position:absolute popup od dołu — fixed tego unika), więc pozycję
     // trzeba jawnie policzyć z realnego rectu przycisku, na każde
     // najechanie (rect może się zmienić np. po zmianie szerokości okna).
+    // user, drugi raz: "dropdown ma być lewą krawędzią wyrównany
+    // względem lewej krawędzi tekstu-matki" — r.left, nie środek.
     nav.querySelectorAll(".topbar-group-item").forEach(function(item){
       var btn = item.querySelector(".topbar-group-btn");
       var popup = item.querySelector(".topbar-group-popup");
       function positionPopup(){
         var r = btn.getBoundingClientRect();
-        popup.style.left = (r.left + r.width/2) + "px";
+        popup.style.left = r.left + "px";
         popup.style.top = r.bottom + "px";
       }
       item.addEventListener("mouseenter", positionPopup);
@@ -11879,6 +11922,17 @@ function renderNavCats(){
   });
 }
 function goToSection(section){
+  // user: "Żeby wejść w jakąkolwiek kategorię muszę być zalogowany,
+  // obecnie tak nie jest. popraw" — jedyny wyjątek to sama Home (patrz
+  // window.MQBootGuest), która celowo działa bez konta; wszystko inne
+  // (włącznie z Brand Kitem, patrz gałąź niżej) wymaga zalogowania —
+  // zamiast nawigować, otwieramy dokładnie ten sam formularz logowania
+  // co #loginBtn.
+  if(section!=="home" && !MQ_CURRENT_USER){
+    showAuthGate();
+    showToast("Log in to browse this section");
+    return;
+  }
   // user: "jeśli klikne w jakis element przez co pojawi mi sie nowy
   // listing to ma naturalnie mnie zescrollować na sama gore strony" — ten
   // sam wzorzec co paginacja (patrz renderPagination), wołany PO
