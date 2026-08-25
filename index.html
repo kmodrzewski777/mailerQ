@@ -651,7 +651,17 @@
      zniknął; .card-preview jest teraz pierwszym dzieckiem .card, więc
      dostaje WSZYSTKIE cztery rogi zaokrąglone na górze (były 12px, bo
      nested pod card-head — teraz to sama krawędź karty, promień = --radius-card). */
-  .card-preview{height:150px; flex:none; background:var(--surface-2); overflow:hidden; position:relative; border-radius:var(--radius-card) var(--radius-card) 0 0}
+  /* user: "zablokuj klikanie w te preview komponentow / gotowych maili na
+     widgetach- to ma być tylko obrazek, a nie itneraktywny element" —
+     renderComponentThumb/renderEmailThumb wstrzykują SKOMPILOWANY MJML
+     wprost do tego diva (nie w iframe), więc realne linki/przyciski/pola
+     z maila (np. CTA <a href>) były naprawdę klikalne/najeżdżalne na
+     karcie. pointer-events:none wyłącza WSZYSTKO w środku (klik, hover,
+     focus) — działa jak statyczny obrazek, karta pod spodem (Open/Add/
+     3-kropki w .card-body/.card-actions) ma własny stacking context i
+     dalej reaguje normalnie, bo pointer-events nie jest dziedziczone tam,
+     gdzie explicit auto go przywraca. */
+  .card-preview{height:150px; flex:none; background:var(--surface-2); overflow:hidden; position:relative; border-radius:var(--radius-card) var(--radius-card) 0 0; pointer-events:none}
   /* user: "dół z kolei niech się wygasza kolorem #F5F6F8 (gradient)" —
      tylko na snapshotach gotowych maili (renderEmailThumb/renderEmailGrid),
      bo tam treść jest CELOWO ucinana na dole (długi mail w krótkim boxie). */
@@ -2704,7 +2714,7 @@
    Flow Repository, 3.2 = DM Schedule + Skills, 3.3 = import 13 skilli +
    Brand Kit integracja, 3.4 = przebudowa edytora komponentu (warianty,
    frazy per wariant, multi-CRM). */
-var APP_VERSION = "3.7.0";
+var APP_VERSION = "3.7.1";
 var APP_UPDATED = "2026-08-25";
 
 /* ================================================================
@@ -11773,16 +11783,38 @@ function renderTopbarGroups(){
         // Popraw- ma zamykać" — pokazywanie/chowanie jest czysto CSS-owe
         // (:hover/:focus-within), więc samo kliknięcie (bez ruchu myszy)
         // nie chowa popupu — kursor wciąż fizycznie nad nim stoi.
-        // is-force-closed przebija :hover !important-em, dopóki mysz
-        // realnie nie opuści .topbar-group-item (wtedy sama się zdejmuje,
-        // żeby kolejne najechanie znowu działało normalnie).
+        // is-force-closed przebija :hover !important-em.
+        //
+        // user, drugi raz: "Nadal ten dropdown nie znika" — pierwsza wersja
+        // zdejmowała is-force-closed na PIERWSZY mouseleave z .topbar-
+        // group-item, ale to samo dodanie is-force-closed (visibility:
+        // hidden na popupie) wybija popup z hit-testu w trakcie hover, co w
+        // tej przeglądarce generuje SPONTANICZNĄ parę mouseleave+mouseenter
+        // na .topbar-group-item w ciągu ~10ms — bez żadnego realnego ruchu
+        // myszy (potwierdzone empirycznie: headless powtórka pokazała
+        // "mouseleave t=408 / mouseenter t=417" przy nieruchomym kursorze).
+        // Ten spontaniczny mouseenter zdążał zdjąć is-force-closed niemal
+        // od razu, więc popup wracał. Fix: debounce — zdjęcie klasy czeka
+        // 120ms po mouseleave, a KAŻDY kolejny mouseenter w tym oknie
+        // (prawdziwy powrót kursora ALBO ten spontaniczny glitch) anuluje
+        // zdjęcie i zaczyna liczyć od nowa. Realne odejście myszy (użytkownik
+        // faktycznie przenosi kursor gdzie indziej i tam zostaje) nie ma
+        // kolejnego mouseenter w tym oknie, więc i tak zamyka się normalnie.
         var item = btn.closest(".topbar-group-item");
         if(item){
           item.classList.add("is-force-closed");
-          item.addEventListener("mouseleave", function unforce(){
-            item.classList.remove("is-force-closed");
-            item.removeEventListener("mouseleave", unforce);
-          });
+          clearTimeout(item._forceCloseTimer);
+          function armUnforce(){
+            clearTimeout(item._forceCloseTimer);
+            item._forceCloseTimer = setTimeout(function(){
+              item.classList.remove("is-force-closed");
+              item.removeEventListener("mouseleave", armUnforce);
+              item.removeEventListener("mouseenter", cancelUnforce);
+            }, 120);
+          }
+          function cancelUnforce(){ clearTimeout(item._forceCloseTimer); }
+          item.addEventListener("mouseleave", armUnforce);
+          item.addEventListener("mouseenter", cancelUnforce);
         }
       });
     });
