@@ -2778,6 +2778,57 @@
   </div>
 </div>
 
+<!-- user: "Siedzę sobie w Composer- odświeżam stronę i przez chwilę widzę
+     homepage, a dopiero po chwili wskakuje ponownie Composer. Ma się ładować
+     tylko i wyłącznie ta strona, na której jestem" — realny bug wynikający z
+     WCZEŚNIEJSZEJ anti-flash poprawki: cały statyczny HTML domyślnie ma
+     kształt Home (poprawnie, gdy w URL nie ma ?section=), ale gdy w URL JEST
+     realny ?section=components (bo syncUrlFromState zapisuje go tam przy
+     każdej nawigacji), przeglądarka i tak najpierw maluje statyczny domyślny
+     kształt Home — dopiero renderAll()/restoreStateFromUrl() (czeka na
+     Firebase Auth) poprawia to na właściwą sekcję, stąd widoczny "skok".
+     Ten mały, BLOKUJĄCY (nie async/defer/module) skrypt czyta ?section=
+     wprost z URL i przełącza WŁAŚNIE te klasy/display, które syncSectionChrome
+     ustawiłaby dla tej sekcji — wykonuje się synchronicznie, ZANIM
+     przeglądarka zdąży cokolwiek namalować, więc pierwsza faktycznie
+     narysowana klatka ma już poprawny kształt, bez czekania na Firebase.
+     Samej TREŚCI (tytuł/karty/liczniki) to nie dotyczy — ta i tak przyjdzie
+     dopiero z prawdziwym renderAll(), ale przynajmniej layout (sidebar/
+     Mail Stack/brak home-hero) się nie przeskakuje. Celowo minimalna kopia
+     logiki z syncSectionChrome/SECTION_META (te żyją w klasycznym skrypcie
+     poniżej, jeszcze nieparsowanym w tym momencie) — trzymać w zgodzie z
+     tamtą funkcją, jeśli kiedyś zmieni się zestaw sekcji/ich kształt.
+     UWAGA dla przyszłych zmian w tym pliku: ten tag skryptu MA atrybut id
+     specjalnie po to, żeby żaden mechanizm szukający "pierwszego tagu
+     skryptu bez atrybutów" (np. ekstrakcja klasycznego IIFE do node
+     --check) nie złapał tego małego skryptu zamiast właściwego. Ta sama
+     zasada dla linii "(function(){" niżej — celowo ze spacją przed
+     nawiasem ("(function () {"), żeby test-compiler.js (szuka DOKŁADNIE
+     linii "(function(){" jako granicy klasycznego IIFE) nie złapał TEJ
+     linii zamiast właściwej. -->
+<script id="preboot-section-sync">
+(function () {
+  try{
+    var section = new URLSearchParams(location.search).get("section");
+    var STACK_SECTIONS = {components:1, emails:1, liquid:1};
+    var NOGRID_SECTIONS = {schedule:1, reports:1};
+    var KNOWN_SECTIONS = {components:1, emails:1, liquid:1, flows:1, skills:1, schedule:1, discounts:1, reports:1, knowledge:1};
+    if(!section || !KNOWN_SECTIONS[section]) return; // brak/home/nieznana sekcja — statyczny domyślny kształt (Home) już jest poprawny
+    var app = document.getElementById("app");
+    var noGrid = !!NOGRID_SECTIONS[section];
+    app.classList.remove("no-nav");
+    app.classList.toggle("no-stack", !STACK_SECTIONS[section]);
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("pageHead").style.display = "";
+    document.getElementById("filterbar").style.display = "";
+    document.getElementById("cardGrid").style.display = noGrid ? "none" : "";
+    document.getElementById("gridPagination").style.display = noGrid ? "none" : "";
+    document.getElementById("dmWrap").style.display = section==="schedule" ? "" : "none";
+    document.getElementById("reportGenPage").style.display = section==="reports" ? "" : "none";
+  }catch(e){}
+})();
+</script>
+
 <script>
 (function(){
 "use strict";
@@ -2795,7 +2846,7 @@
    Flow Repository, 3.2 = DM Schedule + Skills, 3.3 = import 13 skilli +
    Brand Kit integracja, 3.4 = przebudowa edytora komponentu (warianty,
    frazy per wariant, multi-CRM). */
-var APP_VERSION = "3.8.1";
+var APP_VERSION = "3.9.0";
 var APP_UPDATED = "2026-08-25";
 
 /* ================================================================
