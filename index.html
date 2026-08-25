@@ -91,9 +91,22 @@
      chowanie/pokazywanie go już nic nie przesuwa — user: "czemu po
      odpaleniu jakiegokolwiek popupa strona... lekko przesuwa się w prawo?". */
   html{scrollbar-gutter:stable}
+  /* user: "wysokość całej strony powinna zamykać się w viewporcie...
+     bottom bar ze stopką powinienm widzieć na spodzie ekranu bez
+     konieczności scrollowania strony" — klasyczny "sticky footer" wzorzec
+     flexboxowy: body to kolumna na pełną wysokość ekranu, .topbar i
+     .app-footer mają stałą wysokość (flex:none), a #app (środek) dostaje
+     flex:1 i rośnie, żeby wypełnić resztę. Na krótkiej treści (Home) #app
+     rozciąga się do dołu ekranu i stopka ląduje DOKŁADNIE na krawędzi
+     viewportu bez scrolla; na długiej treści (np. 188 komponentów) #app i
+     tak rośnie ponad wysokość ekranu (flex:1 nie ogranicza maksimum,
+     tylko rozdziela WOLNĄ przestrzeń), więc reszta sekcji scrolluje się
+     zupełnie normalnie ze stopką na PRAWDZIWYM końcu treści — ten sam
+     mechanizm obsługuje oba przypadki bez rozróżniania sekcji w JS. */
   body{
     background:var(--paper); color:var(--ink); font-family:var(--font-body);
     font-size:14px; line-height:1.5; min-height:100vh; overflow-x:hidden;
+    display:flex; flex-direction:column;
   }
   /* font-weight:500 — w referencji "Plan" nagłówki są wyraźnie cięższe
      niż zwykły bold tekstu; Plus Jakarta Sans ma pełny zakres 200-800,
@@ -154,7 +167,7 @@
      szerokości okna, nie tylko na wąskich ekranach. --stack-w:290px +
      card-grid minmax(205px,1fr) (patrz niżej) dają ~50px zapasu przy
      1280px, nie tylko przy 1920px. */
-  .app{display:grid; grid-template-columns:var(--nav-w,236px) 1fr var(--stack-w,290px); min-height:calc(100vh - var(--topbar-h)); align-items:start; max-width:1400px; margin:0 auto}
+  .app{display:grid; grid-template-columns:var(--nav-w,236px) 1fr var(--stack-w,290px); min-height:calc(100vh - var(--topbar-h)); align-items:start; max-width:1400px; margin:0 auto; width:100%; flex:1 0 auto; box-sizing:border-box}
   .app.nav-collapsed{--nav-w:68px}
   .app.no-stack{grid-template-columns:var(--nav-w,236px) 1fr}
   .app.no-stack .dock{display:none}
@@ -273,7 +286,7 @@
      przypinały się POD paskiem, nie pod nim. */
   .topbar{
     position:sticky; top:0; z-index:40; background:var(--paper);
-    height:var(--topbar-h); box-sizing:border-box;
+    height:var(--topbar-h); box-sizing:border-box; flex:none;
   }
   .topbar-inner{
     max-width:1400px; height:100%; margin:0 auto; padding:0 24px; box-sizing:border-box;
@@ -766,6 +779,20 @@
   .home-tile-desc{font-size:13.5px; color:var(--ink-muted); line-height:1.5; margin:0}
   @media (max-width:860px){ .home-tiles{grid-template-columns:repeat(2,1fr)} }
   @media (max-width:560px){ .home-tiles{grid-template-columns:1fr} .home-title{font-size:27px} }
+  /* user: "Brakuje tu skeleton loadingu dla kafelek... Stopka jest blisko,
+     poczym się oddala gdy kafelki się załadują" — #homeTiles zaczynał
+     jako PUSTY div (0px wysokości) aż do pierwszego renderAll() (czeka na
+     Firebase Auth), więc stopka realnie skakała w dół, gdy kafelki się
+     w końcu pojawiały. Statyczny szkielet o TYM SAMYM kształcie co
+     .home-tile (ta sama siatka/padding/gap) rezerwuje docelową wysokość
+     od razu w pierwszej klatce — renderHomePage() i tak nadpisuje całe
+     innerHTML #homeTiles prawdziwymi kafelkami, więc nie trzeba nic
+     zmieniać w JS, ten sam mechanizm co reszta anti-flash poprawek w tym
+     pliku (hardkodowanie DOCELOWEGO kształtu wprost w statycznym HTML). */
+  .home-tile.skel{cursor:default; pointer-events:none}
+  .skel-block{background:var(--surface-2); border-radius:4px; animation:skel-pulse 1.4s ease-in-out infinite}
+  @keyframes skel-pulse{0%,100%{opacity:1}50%{opacity:.45}}
+  @media (prefers-reduced-motion:reduce){ .skel-block{animation:none; opacity:.7} }
 
   /* Szczegóły flow */
   /* Dwie kolumny w podglądzie flow — user: "te główne informacje... maja
@@ -1429,7 +1456,7 @@
      RetentionQ-Small-Mark.svg), tylko przebarwione z wariantu na ciemne
      tło (biały tekst 15% opacity) na czarny — sama koralowa ścieżka "Q"
      (#FF5456) zostaje nietknięta, to wciąż ten sam autentyczny znak. */
-  .app-footer{ background:var(--paper); margin-top:40px; border-top:1px solid var(--line) }
+  .app-footer{ background:var(--paper); margin-top:40px; border-top:1px solid var(--line); flex:none }
   .app-footer-inner{
     max-width:1400px; margin:0 auto; padding:22px 20px; box-sizing:border-box;
     display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px 24px;
@@ -1990,7 +2017,18 @@
             <h1 class="home-title">One place to build, ship, and reuse everything RetentionQ sends.</h1>
             <p class="home-lede">Maximus is the team's shared home for email production — real, reusable components, ready-made emails, reference automation flows, installable Claude Skills, brand kits, the send calendar and a growing knowledge base. Everything here comes from real client work, kept in sync, so nobody starts a brief from a blank page.</p>
           </div>
-          <div class="home-tiles" id="homeTiles"></div>
+          <div class="home-tiles" id="homeTiles" aria-busy="true">
+            <!-- Statyczny szkielet — patrz komentarz przy .skel-block w CSS.
+                 renderHomePage() nadpisuje CAŁE innerHTML prawdziwymi
+                 kafelkami, więc te 6 divów nigdy nie zostaje w DOM-ie na
+                 dłużej niż do pierwszego renderAll(). -->
+            <div class="card home-tile skel" aria-hidden="true"><div class="home-tile-top"><div class="skel-block" style="width:34px;height:34px;border-radius:9px"></div><div class="skel-block" style="width:46px;height:11px"></div></div><div class="skel-block" style="width:65%;height:15px"></div><div class="skel-block" style="width:100%;height:13px"></div><div class="skel-block" style="width:80%;height:13px"></div></div>
+            <div class="card home-tile skel" aria-hidden="true"><div class="home-tile-top"><div class="skel-block" style="width:34px;height:34px;border-radius:9px"></div><div class="skel-block" style="width:46px;height:11px"></div></div><div class="skel-block" style="width:65%;height:15px"></div><div class="skel-block" style="width:100%;height:13px"></div><div class="skel-block" style="width:80%;height:13px"></div></div>
+            <div class="card home-tile skel" aria-hidden="true"><div class="home-tile-top"><div class="skel-block" style="width:34px;height:34px;border-radius:9px"></div><div class="skel-block" style="width:46px;height:11px"></div></div><div class="skel-block" style="width:65%;height:15px"></div><div class="skel-block" style="width:100%;height:13px"></div><div class="skel-block" style="width:80%;height:13px"></div></div>
+            <div class="card home-tile skel" aria-hidden="true"><div class="home-tile-top"><div class="skel-block" style="width:34px;height:34px;border-radius:9px"></div><div class="skel-block" style="width:46px;height:11px"></div></div><div class="skel-block" style="width:65%;height:15px"></div><div class="skel-block" style="width:100%;height:13px"></div><div class="skel-block" style="width:80%;height:13px"></div></div>
+            <div class="card home-tile skel" aria-hidden="true"><div class="home-tile-top"><div class="skel-block" style="width:34px;height:34px;border-radius:9px"></div><div class="skel-block" style="width:46px;height:11px"></div></div><div class="skel-block" style="width:65%;height:15px"></div><div class="skel-block" style="width:100%;height:13px"></div><div class="skel-block" style="width:80%;height:13px"></div></div>
+            <div class="card home-tile skel" aria-hidden="true"><div class="home-tile-top"><div class="skel-block" style="width:34px;height:34px;border-radius:9px"></div><div class="skel-block" style="width:46px;height:11px"></div></div><div class="skel-block" style="width:65%;height:15px"></div><div class="skel-block" style="width:100%;height:13px"></div><div class="skel-block" style="width:80%;height:13px"></div></div>
+          </div>
         </div>
       </div>
     </main>
@@ -2739,7 +2777,7 @@
    Flow Repository, 3.2 = DM Schedule + Skills, 3.3 = import 13 skilli +
    Brand Kit integracja, 3.4 = przebudowa edytora komponentu (warianty,
    frazy per wariant, multi-CRM). */
-var APP_VERSION = "3.7.3";
+var APP_VERSION = "3.8.0";
 var APP_UPDATED = "2026-08-25";
 
 /* ================================================================
@@ -13501,6 +13539,7 @@ var HOME_TILES = [
 // kafelek i tak pokazuje swój własny licznik (patrz niżej).
 function renderHomePage(){
   var tiles = byId("homeTiles");
+  tiles.removeAttribute("aria-busy");
   tiles.innerHTML = HOME_TILES.filter(function(t){ return !t.hidden; }).map(function(t){
     var count = t.count ? t.count() : null;
     return '<button type="button" class="card home-tile" data-home-tile="'+esc(t.section)+'">'+
