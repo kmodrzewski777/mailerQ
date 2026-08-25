@@ -658,6 +658,17 @@
   .device-btn{border:0; background:transparent; padding:6px 12px; font-size:13.5px; font-family:inherit; border-radius:6px; cursor:pointer; color:var(--ink-faint)}
   .device-btn[aria-pressed="true"]{background:var(--surface); color:var(--ink); font-weight:500}
 
+  .pg-review-layout{display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start}
+  @media (max-width:820px){ .pg-review-layout{grid-template-columns:1fr} }
+  .pg-review-list{display:flex; flex-direction:column; gap:8px; max-height:560px; overflow-y:auto; padding-right:4px}
+  .pg-review-row{display:flex; align-items:center; gap:10px; padding:8px; border:1px solid var(--line); border-radius:8px}
+  .pg-review-thumb{flex:none; width:44px; height:44px; border-radius:6px; overflow:hidden; background:var(--surface-2)}
+  .pg-review-thumb img{width:100%; height:100%; object-fit:cover; display:block}
+  .pg-review-fields{flex:1; min-width:0; display:flex; flex-direction:column; gap:4px}
+  .pg-review-fields input{width:100%}
+  .pg-review-row .bf-checkbox{flex:none}
+  .bf-preview-label{font-size:12.5px; font-weight:500; color:var(--ink-muted); margin:0 0 6px}
+
   .modal-preview-box.email-frame-mode.is-mobile{display:flex; justify-content:center; align-items:flex-start; background:var(--surface-2); padding:16px 0}
   .modal-preview-box.email-frame-mode.is-mobile #editPreviewIframeWrap{width:420px; max-width:100%}
   .modal-desc{font-size:13px; color:var(--ink-muted); line-height:1.6; margin-bottom:16px}
@@ -952,6 +963,7 @@
           <li class="auth-user-menu-divider"></li>
           <li class="brand-select-option" role="menuitem" id="authUserMenuSettings" style="display:none">Site Settings</li>
           <li class="brand-select-option" role="menuitem" id="authUserMenuEdit">Edit profile</li>
+          <li class="brand-select-option" role="menuitem" id="authUserMenuConnectClaude">Connect Claude</li>
           <li class="brand-select-option" role="menuitem" id="authUserMenuLogout" style="color:#b42318">Logout</li>
         </ul>
       </div>
@@ -979,6 +991,10 @@
         <span class="nav-label">Liquid Snippets</span><span class="n" id="navCountLiquid"></span>
       </button>
       <div class="nav-cats is-collapsed" id="navCatsLiquid" role="group" aria-label="Liquid snippet categories"></div>
+      <button class="nav-item" type="button" data-nav="productgrid">
+        <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M120-520v-320h320v320H120Zm0 400v-320h320v320H120Zm400-400v-320h320v320H520Zm0 400v-320h320v320H520ZM200-600h160v-160H200v160Zm400 0h160v-160H600v160Zm0 400h160v-160H600v160Zm-400 0h160v-160H200v160Z"/></svg>
+        <span class="nav-label">Product Grid</span><span class="n" id="navCountProductGrid"></span>
+      </button>
     </div>
 
     <div class="nav-group" data-navgroup="automation">
@@ -1058,6 +1074,7 @@
         <button class="btn small" id="addFlowRepoBtn" type="button" style="display:none">Add Flow</button>
         <button class="btn small" id="addSkillBtn" type="button" style="display:none">Add Skill</button>
         <button class="btn small" id="addLiquidBtn" type="button" style="display:none">Add Snippet</button>
+        <button class="btn small" id="addProductGridBtn" type="button" style="display:none">Add Product Grid</button>
         <button class="btn small" id="addDiscountBtn" type="button" style="display:none">Generate codes</button>
         <button class="btn ghost small" id="dockToggle" type="button" aria-expanded="false" aria-controls="drawer">
           Mail Stack<span class="dock-pill" id="dockCount">0</span>
@@ -1169,6 +1186,28 @@
     <div class="modal-footer-bar" style="display:flex; justify-content:flex-end; gap:8px">
       <button class="btn ghost small" type="button" id="profileFormCancel">Cancel</button>
       <button class="btn small" type="button" id="profileFormSave">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="connectClaudeOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head">
+      <h3>Connect Claude</h3>
+      <button class="modal-close" id="connectClaudeClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px; color:var(--ink-muted); line-height:1.5; margin:0 0 14px">Connect your own Claude account to unlock Product Grid generation. Your key is stored privately on your account and never shared with other users.</p>
+      <div class="bf-field">
+        <label for="connectClaudeKeyInput">Anthropic API key</label>
+        <input type="password" id="connectClaudeKeyInput" placeholder="sk-ant-…" autocomplete="off">
+      </div>
+      <p style="font-size:12px; margin:8px 0 0"><a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Get an API key from console.anthropic.com</a></p>
+      <p id="connectClaudeError" style="color:#b42318; font-size:12.5px; margin:10px 0 0; display:none"></p>
+    </div>
+    <div class="modal-footer-bar" style="display:flex; justify-content:flex-end; gap:8px">
+      <button class="btn ghost small" type="button" id="connectClaudeCancel">Cancel</button>
+      <button class="btn small" type="button" id="connectClaudeSave">Save</button>
     </div>
   </div>
 </div>
@@ -1650,6 +1689,57 @@
 </div>
 
 
+<div class="overlay" id="productGridOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:1040px">
+    <div class="modal-head">
+      <h3 id="productGridDetailTitle"></h3>
+      <span style="display:flex; align-items:center; gap:4px">
+        <div class="card-menu-wrap" id="productGridDetailMenuWrap" data-card-menu-kind="productgrid" data-card-menu-id="">
+          <button type="button" class="icon-btn card-menu-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More options"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-189.23q-24.75 0-42.37-17.63Q420-224.48 420-249.23q0-24.75 17.63-42.38 17.62-17.62 42.37-17.62 24.75 0 42.37 17.62Q540-273.98 540-249.23q0 24.75-17.63 42.37-17.62 17.63-42.37 17.63ZM480-420q-24.75 0-42.37-17.63Q420-455.25 420-480q0-24.75 17.63-42.37Q455.25-540 480-540q24.75 0 42.37 17.63Q540-504.75 540-480q0 24.75-17.63 42.37Q504.75-420 480-420Zm0-230.77q-24.75 0-42.37-17.62Q420-686.02 420-710.77q0-24.75 17.63-42.37 17.62-17.63 42.37-17.63 24.75 0 42.37 17.63Q540-735.52 540-710.77q0 24.75-17.63 42.38-17.62 17.62-42.37 17.62Z"/></svg></button>
+          <ul class="card-menu" role="menu" style="display:none">
+            <li class="card-menu-item" role="menuitem" data-card-menu-edit>Edit</li>
+            <li class="card-menu-item danger" role="menuitem" data-card-menu-delete>Delete</li>
+          </ul>
+        </div>
+        <button class="modal-close" id="productGridDetailClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+      </span>
+    </div>
+    <div class="modal-body">
+      <div class="flow-detail-grid">
+        <div class="flow-detail-main" id="productGridDetailBody"></div>
+        <aside class="flow-detail-side" id="productGridDetailMetaPanel"></aside>
+      </div>
+    </div>
+    <div class="modal-footer-bar" style="gap:8px">
+      <button class="btn small" id="productGridCopyBtn" type="button" style="flex:1">Copy HTML</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="overlay" id="productGridFormOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:1100px">
+    <div class="modal-head">
+      <h3 id="productGridFormTitle">New Product Grid</h3>
+      <button class="modal-close" id="productGridFormClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div id="productGridFormConfigView"></div>
+      <div id="productGridFormReviewView" style="display:none"></div>
+    </div>
+    <div class="modal-footer-bar" id="productGridFormFooterConfig" style="gap:8px">
+      <button class="btn ghost small" type="button" id="productGridFormCancel" style="flex:1">Cancel</button>
+      <button class="btn small" type="button" id="productGridGenerateBtn" style="flex:1">Generate</button>
+    </div>
+    <div class="modal-footer-bar" id="productGridFormFooterReview" style="display:none; gap:8px">
+      <button class="btn ghost small" type="button" id="productGridBackBtn">Back</button>
+      <button class="btn ghost small" type="button" id="productGridAddToMailStackBtn" style="flex:1">Add to Mail Stack</button>
+      <button class="btn small" type="button" id="productGridSaveBtn" style="flex:1">Save</button>
+    </div>
+  </div>
+</div>
+
+
 <div class="overlay" id="discountOverlay" role="dialog" aria-modal="true">
   <div class="modal" style="max-width:1040px">
     <div class="modal-head">
@@ -2003,7 +2093,7 @@
     var section = new URLSearchParams(location.search).get("section");
     var STACK_SECTIONS = {components:1, emails:1, liquid:1};
     var NOGRID_SECTIONS = {schedule:1, reports:1};
-    var KNOWN_SECTIONS = {components:1, emails:1, liquid:1, flows:1, skills:1, schedule:1, discounts:1, reports:1, knowledge:1};
+    var KNOWN_SECTIONS = {components:1, emails:1, liquid:1, productgrid:1, flows:1, skills:1, schedule:1, discounts:1, reports:1, knowledge:1};
     if(!section || !KNOWN_SECTIONS[section]) return;
     var app = document.getElementById("app");
     var noGrid = !!NOGRID_SECTIONS[section];
@@ -2025,7 +2115,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.11.1";
+var APP_VERSION = "3.12.0";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -7005,6 +7095,17 @@ function knowledgeCategoryLabel(id){
 var DISCOUNT_BATCHES = [];
 
 
+var PRODUCT_GRID_PRESETS = {
+  berty: {
+    label:"Berty", bodyFont:"'Poppins', sans-serif", badgeFont:"'IBM Plex Mono', monospace",
+    promoColor:"#DF3557", tileBg:"#f2f0ec", buttonLabel:"Zobacz",
+    currencySuffix:"zł", lowestPriceLabel:"Najniższa cena", badgeThreshold:100
+  }
+};
+var PRODUCT_GRID_PRESET_ORDER = ["berty"];
+var PRODUCT_GRIDS = [];
+
+
 var DM_STATUSES = [
   { id:"todo", label:"To do", tone:"neutral" },
   { id:"in-progress", label:"In progress", tone:"warn" },
@@ -7238,6 +7339,7 @@ function buildBackupPayload(){
 
 
     customDiscountBatches: DISCOUNT_BATCHES,
+    customProductGrids: PRODUCT_GRIDS,
     dmEntries: DM_ENTRIES
   };
 }
@@ -7377,6 +7479,11 @@ function applyBackupPayload(payload){
       if(!findDiscountBatch(cd.id)) DISCOUNT_BATCHES.push(Object.assign({}, cd, { custom:true }));
     });
   }
+  if(payload.customProductGrids){
+    payload.customProductGrids.forEach(function(cg){
+      if(!findProductGrid(cg.id)) PRODUCT_GRIDS.push(Object.assign({}, cg, { custom:true }));
+    });
+  }
 
 
   if(payload.dmEntries) DM_ENTRIES = payload.dmEntries;
@@ -7385,7 +7492,7 @@ var mqSaveTimer = null;
 
 
 var MQ_PRIVATE_KEYS = ["buildList","currentBrand","headerVariant","footerVariant","favoriteComponents","favoriteEmails"];
-var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds","deletedBuiltinFlowIds","customFlows","deletedBuiltinSkillIds","customSkills","deletedBuiltinLiquidIds","customLiquidSnippets","customDiscountBatches","dmEntries"];
+var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds","deletedBuiltinFlowIds","customFlows","deletedBuiltinSkillIds","customSkills","deletedBuiltinLiquidIds","customLiquidSnippets","customDiscountBatches","customProductGrids","dmEntries"];
 function splitBackupPayload(full){
   var priv = {}, shared = {};
   MQ_PRIVATE_KEYS.forEach(function(k){ priv[k] = full[k]; });
@@ -9834,6 +9941,7 @@ function renderPrimaryNav(){
   byId("navCountFlows").textContent = FLOWS.length;
   byId("navCountSkills").textContent = SKILLS.length;
   byId("navCountLiquid").textContent = LIQUID_SNIPPETS.length;
+  byId("navCountProductGrid").textContent = PRODUCT_GRIDS.length;
   byId("navCountDiscounts").textContent = DISCOUNT_BATCHES.length;
   byId("navCountSchedule").textContent = DM_ENTRIES.length;
   byId("navCountKnowledge").textContent = KNOWLEDGE_HINTS.length;
@@ -9852,7 +9960,7 @@ function renderPrimaryNav(){
 
 
 var NAV_GROUPS = [
-  { id:"composer", label:"Composer", sections:["components","emails","liquid"] },
+  { id:"composer", label:"Composer", sections:["components","emails","liquid","productgrid"] },
   { id:"automation", label:"Marketing Automation", sections:["flows"] },
   { id:"direct", label:"Direct Marketing", sections:["schedule"], hidden:true },
   { id:"ai", label:"AI", sections:["skills"] },
@@ -11158,6 +11266,389 @@ function deleteSnippet(id){
 }
 
 
+function hasClaudeConnected(){
+  return !!(MQ_CURRENT_USER && MQ_CURRENT_USER.anthropicApiKey);
+}
+
+function truncateProductName(name){
+  name = name || "";
+  if(name.length <= 50) return name;
+  var cut = name.slice(0, 50);
+  var lastSpace = cut.lastIndexOf(" ");
+  if(lastSpace > 20) cut = cut.slice(0, lastSpace);
+  return cut + "...";
+}
+
+function sortProductGridProducts(products){
+  return (products||[]).slice().sort(function(a, b){
+    var ap = a.isPromo ? 1 : 0, bp = b.isPromo ? 1 : 0;
+    if(ap !== bp) return bp - ap;
+    var ar = a.rating || 0, br = b.rating || 0;
+    if(ar !== br) return br - ar;
+    var arv = a.reviewCount || 0, brv = b.reviewCount || 0;
+    if(arv !== brv) return brv - arv;
+    return 0;
+  });
+}
+
+function productGridCardHtml(p, preset, badgeText){
+  var name = esc(truncateProductName(p.name));
+  var url = esc(p.url || "#");
+  var img = esc(p.image || "");
+  var imageBlock = (p.hasBadge && badgeText) ?
+    '<tr><td align="center" height="234" style="height:234px; overflow:hidden; border-top-left-radius:4px; border-top-right-radius:4px; background:'+preset.tileBg+';">'+
+      '<a href="'+url+'" target="_blank" style="text-decoration:none;"><img src="'+img+'" alt="'+name+'" style="display:block; border:0; width:100%; height:234px; object-fit:cover; object-position:center; border-top-left-radius:4px; border-top-right-radius:4px;" /></a>'+
+    '</td></tr>'+
+    '<tr><td style="padding:0px 0px 12px 0px;">'+
+      '<span style="box-sizing:border-box; display:block; background:#000000; color:#ffffff; font-family:'+preset.badgeFont+'; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap; overflow:hidden; height:26px; line-height:26px; padding:0 2px; border-bottom-left-radius:4px; border-bottom-right-radius:4px; width:100%; text-align:center;">'+esc(badgeText)+'</span>'+
+    '</td></tr>'
+    :
+    '<tr><td align="center" height="260" style="height:260px; overflow:hidden; border-radius:4px; background:'+preset.tileBg+';">'+
+      '<a href="'+url+'" target="_blank" style="text-decoration:none;"><img src="'+img+'" alt="'+name+'" style="display:block; border:0; width:100%; height:260px; object-fit:cover; object-position:center; border-radius:4px;" /></a>'+
+    '</td></tr>'+
+    '<tr><td style="font-size:0px; line-height:0px; padding:0px 0px 12px 0px;">&nbsp;</td></tr>';
+  var nameBlock =
+    '<tr><td style="padding:0px 0px 25px 0px;">'+
+      '<div style="height:68px; overflow:hidden;">'+
+        '<a href="'+url+'" target="_blank" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; text-overflow:ellipsis; text-decoration:none; color:#1a1a1a; font-family:'+preset.bodyFont+'; font-size:16px; font-weight:500; line-height:1.4;">'+name+'</a>'+
+      '</div>'+
+    '</td></tr>';
+  var priceBlock = p.isPromo ?
+    '<tr><td style="padding:0px 0px 15px 0px; height:30px; vertical-align:middle;">'+
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>'+
+        '<td style="font-family:'+preset.bodyFont+'; font-size:16px; font-weight:600; line-height:1.4; color:'+preset.promoColor+'; vertical-align:middle; white-space:nowrap;">'+esc(p.price)+'</td>'+
+        '<td align="right" style="font-family:'+preset.bodyFont+'; font-size:10px; font-weight:400; line-height:1.3; color:#8f8f8f; vertical-align:middle; text-align:right; padding-left:6px; padding-bottom:3px;">'+esc(preset.lowestPriceLabel)+':<br>'+esc(p.lowestPrice30d)+'</td>'+
+      '</tr></table>'+
+    '</td></tr>'
+    :
+    '<tr><td style="padding: 0px 0px 15px 0px; height:30px; vertical-align:bottom; font-family:'+preset.bodyFont+'; font-size:16px; font-weight:600; line-height:1.4; color:#000;">'+esc(p.price)+'</td></tr>';
+  var buttonBlock =
+    '<tr><td>'+
+      '<a href="'+url+'" target="_blank" style="box-sizing:border-box; background:#fff; color:#000; border:1px solid #000; width:100%; letter-spacing:1px; display:block; text-align:center; font-family:'+preset.bodyFont+'; font-size:14px; font-weight:600; text-transform:uppercase; line-height:1; text-decoration:none; padding:16px 22px; border-radius:4px;">'+esc(preset.buttonLabel)+'</a>'+
+    '</td></tr>';
+  return '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background:#ffffff;">'+imageBlock+nameBlock+priceBlock+buttonBlock+'</table>';
+}
+
+function assembleProductGridHtml(grid){
+  var preset = PRODUCT_GRID_PRESETS[grid.presetId] || PRODUCT_GRID_PRESETS[PRODUCT_GRID_PRESET_ORDER[0]];
+  var products = sortProductGridProducts(grid.products);
+  var rows = "";
+  for(var i=0; i<products.length; i+=2){
+    var leftCard = productGridCardHtml(products[i], preset, grid.badgeText);
+    var rightCell = products[i+1]
+      ? '<td width="50%" valign="top" style="padding:0 0 24px 6px;">'+productGridCardHtml(products[i+1], preset, grid.badgeText)+'</td>'
+      : '<td width="50%" valign="top" style="padding:0 0 24px 6px;">&nbsp;</td>';
+    rows +=
+      '<tr>'+
+        '<td width="50%" valign="top" style="padding:0 6px 24px 0;">'+leftCard+'</td>'+
+        rightCell+
+      '</tr>';
+  }
+  return '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:separate; border-spacing:0; font-family:'+preset.bodyFont+';">'+rows+'</table>';
+}
+
+function productGridToolSchema(){
+  return {
+    type:"object",
+    properties:{
+      products:{
+        type:"array",
+        items:{
+          type:"object",
+          properties:{
+            url:{type:"string"},
+            name:{type:"string", description:"Product name, first letter capitalized, rest as-is"},
+            image:{type:"string", description:"Main product image URL, forced https, Shopify CDN paths normalized to width=720"},
+            price:{type:"string", description:"Display price, store's own formatting, the lower of two prices if the page shows a sale"},
+            priceValue:{type:"number", description:"Same price as a plain number, no currency symbol or thousands separator"},
+            isPromo:{type:"boolean", description:"true only if the page shows a struck-through/compare-at regular price"},
+            lowestPrice30d:{type:"string", description:"The regular/compare-at price shown on the page, display-formatted — only meaningful when isPromo is true"},
+            rating:{type:"number", description:"Average review rating shown on the page, 0 if none shown"},
+            reviewCount:{type:"number", description:"Number of reviews shown on the page, 0 if none shown"}
+          },
+          required:["url","name","image","price","priceValue","isPromo","rating","reviewCount"]
+        }
+      }
+    },
+    required:["products"]
+  };
+}
+
+function fetchProductGridData(urls, apiKey){
+  var prompt =
+    "Visit each of these product page URLs (use web_fetch) and extract structured data for each, in the exact order given below. Rules:\n"+
+    "- Capitalize only the first letter of the product name, keep the rest as-is.\n"+
+    "- If two prices are shown (a sale), price and priceValue must be the LOWER one.\n"+
+    "- isPromo is true only if the page shows a struck-through/compare-at regular price; when true, lowestPrice30d is that regular price, display-formatted like the page shows it.\n"+
+    "- For images on a Shopify CDN path (cdn/shop/...), normalize the query string to width=720 (drop crop/height, keep v, force https). Otherwise use the main/og:image URL as-is, forced https.\n"+
+    "- rating/reviewCount come from the page's own review widget if shown, otherwise 0.\n"+
+    "Once you have visited every URL, call report_products exactly once with one entry per URL in the same order — do not respond with plain text instead.\n\n"+
+    urls.join("\n");
+  return fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{
+      "x-api-key": apiKey,
+      "anthropic-version":"2023-06-01",
+      "content-type":"application/json",
+      "anthropic-dangerous-direct-browser-access":"true"
+    },
+    body: JSON.stringify({
+      model:"claude-sonnet-5",
+      max_tokens:8192,
+      messages:[{ role:"user", content: prompt }],
+      tools:[
+        { type:"web_fetch_20250910", name:"web_fetch", max_uses: urls.length*2, max_content_tokens:8000 },
+        { name:"report_products", description:"Report the extracted structured data for every product URL.", input_schema: productGridToolSchema() }
+      ]
+    })
+  }).then(function(res){
+    if(!res.ok){
+      return res.json().catch(function(){ return null; }).then(function(body){
+        var msg = (body && body.error && body.error.message) || ("HTTP "+res.status);
+        throw new Error(msg);
+      });
+    }
+    return res.json();
+  }).then(function(data){
+    var toolUse = (data.content||[]).filter(function(b){ return b.type==="tool_use" && b.name==="report_products"; })[0];
+    if(!toolUse || !toolUse.input || !Array.isArray(toolUse.input.products)){
+      throw new Error("Claude didn't return structured product data — try again");
+    }
+    return toolUse.input.products;
+  });
+}
+
+var productGridOpenId = null;
+function findProductGrid(id){ for(var i=0;i<PRODUCT_GRIDS.length;i++){ if(PRODUCT_GRIDS[i].id===id) return PRODUCT_GRIDS[i]; } return null; }
+function uniqueProductGridKey(base){
+  var key = base, n = 2;
+  while(findProductGrid(key)){ key = base + "-" + n; n++; }
+  return key;
+}
+
+function renderProductGridGrid(){
+  var q = state.searchQuery;
+  var fullList = PRODUCT_GRIDS.filter(function(g){ return matchesSearch([g.label, g.id], q); });
+  var page = paginateList(fullList);
+  byId("gridTitle").textContent = "Product Grid";
+  byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " grid" : " grids");
+  var grid = byId("cardGrid"); grid.innerHTML = "";
+  if(fullList.length===0){
+    grid.innerHTML = '<p class="drawer-empty" style="grid-column:1/-1; padding:36px">No product grids yet.</p>';
+    renderPagination(1);
+    return;
+  }
+  page.items.forEach(function(g){
+    var preset = PRODUCT_GRID_PRESETS[g.presetId] || {};
+    var count = (g.products||[]).length;
+    var el = document.createElement("div"); el.className = "card flow-card";
+    el.innerHTML =
+      '<div class="flow-card-top">'+
+        '<p class="flow-card-cat">'+esc(preset.label || g.presetId || "")+'</p>'+
+        '<div class="card-name-row"><p class="flow-card-title">'+esc(g.label)+'</p>'+cardMenuHtml("productgrid", g.id, "Edit")+'</div>'+
+        '<p class="flow-card-desc">'+count+(count===1 ? " product" : " products")+'</p>'+
+      '</div>'+
+      '<div class="flow-card-foot">'+
+        '<button class="btn small" data-productgrid-open="'+esc(g.id)+'" style="flex:1">Open</button>'+
+      '</div>';
+    grid.appendChild(el);
+  });
+  grid.querySelectorAll("[data-productgrid-open]").forEach(function(btn){
+    btn.addEventListener("click", function(){ openProductGridDetail(btn.getAttribute("data-productgrid-open")); });
+  });
+  renderPagination(page.totalPages);
+}
+
+function openProductGridDetail(id){
+  var g = findProductGrid(id);
+  if(!g) return;
+  productGridOpenId = id;
+  byId("productGridDetailTitle").textContent = g.label;
+  var preset = PRODUCT_GRID_PRESETS[g.presetId] || {};
+  var meta = [
+    ["Store", preset.label || g.presetId || ""],
+    ["Products", String((g.products||[]).length)],
+    ["Created by", displayNameOf(g.createdBy)],
+    ["Last updated", formatUpdatedStamp(g.updatedAt)]
+  ].filter(function(p){ return p[1]; });
+  byId("productGridDetailMetaPanel").innerHTML =
+    '<div class="flow-meta-grid">'+
+      meta.map(function(p){ return '<div class="flow-meta-item"><div class="k">'+esc(p[0])+'</div><div class="v">'+esc(p[1])+'</div></div>'; }).join("")+
+    '</div>';
+  byId("productGridDetailBody").innerHTML =
+    '<label class="bf-mjml-preview-label">Preview</label>'+
+    '<div class="bf-mjml-preview-scroll"><div class="modal-preview-box bf-mjml-preview-frame"><div class="bf-mjml-preview-inner" style="width:640px"><div id="productGridDetailPreviewMount" style="height:100%; width:100%"></div></div></div></div>';
+  mountMjmlIframe("productGridDetailPreviewMount", "<mj-raw>"+assembleProductGridHtml(g)+"</mj-raw>", brand(), { noChrome:true, fixedHeight:true });
+  byId("productGridDetailMenuWrap").setAttribute("data-card-menu-id", id);
+  byId("productGridOverlay").classList.add("open");
+  urlOpenProductGridId = id; syncUrlFromState();
+}
+function closeProductGridOverlay(){ byId("productGridOverlay").classList.remove("open"); urlOpenProductGridId = null; syncUrlFromState(); }
+
+function deleteProductGrid(id){
+  var g = findProductGrid(id);
+  if(!g) return;
+  if(!canManageRecord(g)){ showToast("You're not the creator of this product grid", "error"); return; }
+  PRODUCT_GRIDS = PRODUCT_GRIDS.filter(function(x){ return x.id!==id; });
+  saveToStorage().then(function(){
+    if(urlOpenProductGridId===id) closeProductGridOverlay();
+    renderAll();
+    showToast("Product grid deleted");
+  });
+}
+
+var productGridForm = { editId: null, draft: null };
+function emptyProductGridDraft(){
+  return { label:"", presetId: PRODUCT_GRID_PRESET_ORDER[0], urls:"", badgeText:"", badgeThreshold:100, products:[] };
+}
+function openProductGridForm(existing){
+  productGridForm.editId = existing ? existing.id : null;
+  productGridForm.draft = existing ? {
+    label: existing.label||"", presetId: existing.presetId||PRODUCT_GRID_PRESET_ORDER[0],
+    urls: (existing.products||[]).map(function(p){ return p.url; }).join("\n"),
+    badgeText: existing.badgeText||"", badgeThreshold: existing.badgeThreshold||100,
+    products: (existing.products||[]).map(function(p){ return Object.assign({}, p); })
+  } : emptyProductGridDraft();
+  byId("productGridFormTitle").textContent = existing ? "Edit Product Grid" : "New Product Grid";
+  renderProductGridConfigView();
+  if(productGridForm.draft.products.length) showProductGridReviewView();
+  else showProductGridConfigView();
+  byId("productGridFormOverlay").classList.add("open");
+}
+function closeProductGridForm(){ byId("productGridFormOverlay").classList.remove("open"); }
+
+function showProductGridConfigView(){
+  byId("productGridFormConfigView").style.display = "";
+  byId("productGridFormReviewView").style.display = "none";
+  byId("productGridFormFooterConfig").style.display = "flex";
+  byId("productGridFormFooterReview").style.display = "none";
+}
+function showProductGridReviewView(){
+  byId("productGridFormConfigView").style.display = "none";
+  byId("productGridFormReviewView").style.display = "";
+  byId("productGridFormFooterConfig").style.display = "none";
+  byId("productGridFormFooterReview").style.display = "flex";
+  renderProductGridReviewView();
+}
+
+function renderProductGridConfigView(){
+  var d = productGridForm.draft;
+  var connected = hasClaudeConnected();
+  var view = byId("productGridFormConfigView");
+  view.innerHTML =
+    '<div class="bf-group"><div class="bf-row">'+
+      '<div class="bf-field"><label for="pg-label">Grid name</label><input type="text" id="pg-label" value="'+esc(d.label)+'" placeholder="e.g. August promo grid"></div>'+
+      '<div class="bf-field"><label for="pg-preset">Store</label><select id="pg-preset">'+
+        PRODUCT_GRID_PRESET_ORDER.map(function(k){ return '<option value="'+esc(k)+'"'+(d.presetId===k?' selected':'')+'>'+esc(PRODUCT_GRID_PRESETS[k].label)+'</option>'; }).join("")+
+      '</select></div>'+
+    '</div></div>'+
+    '<div class="bf-group">'+
+      '<div class="bf-field"><label for="pg-urls">Product URLs (one per line)</label><textarea id="pg-urls" rows="8" placeholder="https://…">'+esc(d.urls)+'</textarea></div>'+
+    '</div>'+
+    '<div class="bf-group"><div class="bf-row">'+
+      '<div class="bf-field"><label for="pg-badge-text">Active discount badge text (optional)</label><input type="text" id="pg-badge-text" value="'+esc(d.badgeText)+'" placeholder="e.g. -20% z kodem DOGDAY"></div>'+
+      '<div class="bf-field"><label for="pg-badge-threshold">Badge minimum price</label><input type="number" id="pg-badge-threshold" value="'+esc(d.badgeThreshold)+'" min="0"></div>'+
+    '</div></div>'+
+    (connected ? "" : '<p class="drawer-empty" style="padding:14px; margin:0">Connect your Claude account to generate a grid — click your profile in the top-right, then “Connect Claude”.</p>');
+  byId("pg-label").addEventListener("input", function(){ d.label = this.value; });
+  byId("pg-preset").addEventListener("change", function(){ d.presetId = this.value; });
+  byId("pg-urls").addEventListener("input", function(){ d.urls = this.value; });
+  byId("pg-badge-text").addEventListener("input", function(){ d.badgeText = this.value; });
+  byId("pg-badge-threshold").addEventListener("input", function(){ d.badgeThreshold = Number(this.value)||0; });
+  enhanceAllSelects(view);
+  byId("productGridGenerateBtn").style.display = connected ? "" : "none";
+}
+
+function renderProductGridReviewView(){
+  var d = productGridForm.draft;
+  var view = byId("productGridFormReviewView");
+  var rowsHtml = d.products.map(function(p, idx){
+    return '<div class="pg-review-row">'+
+      '<div class="pg-review-thumb"><img src="'+esc(p.image)+'" alt="" loading="lazy"></div>'+
+      '<div class="pg-review-fields">'+
+        '<input type="text" data-pg-name="'+idx+'" value="'+esc(p.name)+'" placeholder="Name">'+
+        '<input type="text" data-pg-price="'+idx+'" value="'+esc(p.price)+'" placeholder="Price">'+
+      '</div>'+
+      '<label class="bf-checkbox"><input type="checkbox" data-pg-promo="'+idx+'"'+(p.isPromo?' checked':'')+'>Promo</label>'+
+      '<label class="bf-checkbox"><input type="checkbox" data-pg-badge="'+idx+'"'+(p.hasBadge?' checked':'')+'>Badge</label>'+
+    '</div>';
+  }).join("");
+  view.innerHTML =
+    '<div class="pg-review-layout">'+
+      '<div class="pg-review-list">'+rowsHtml+'</div>'+
+      '<div class="pg-review-preview">'+
+        '<p class="bf-preview-label">Live preview</p>'+
+        '<div class="bf-mjml-preview-scroll"><div class="modal-preview-box bf-mjml-preview-frame"><div class="bf-mjml-preview-inner" style="width:640px"><div id="productGridReviewPreviewMount" style="height:100%; width:100%"></div></div></div></div>'+
+      '</div>'+
+    '</div>';
+  view.querySelectorAll("[data-pg-name]").forEach(function(el){
+    el.addEventListener("input", function(){ d.products[+this.getAttribute("data-pg-name")].name = this.value; scheduleProductGridPreviewUpdate(); });
+  });
+  view.querySelectorAll("[data-pg-price]").forEach(function(el){
+    el.addEventListener("input", function(){ d.products[+this.getAttribute("data-pg-price")].price = this.value; scheduleProductGridPreviewUpdate(); });
+  });
+  view.querySelectorAll("[data-pg-promo]").forEach(function(el){
+    el.addEventListener("change", function(){ d.products[+this.getAttribute("data-pg-promo")].isPromo = this.checked; scheduleProductGridPreviewUpdate(); });
+  });
+  view.querySelectorAll("[data-pg-badge]").forEach(function(el){
+    el.addEventListener("change", function(){ d.products[+this.getAttribute("data-pg-badge")].hasBadge = this.checked; scheduleProductGridPreviewUpdate(); });
+  });
+  renderProductGridPreview();
+}
+var productGridPreviewTimer = null;
+function scheduleProductGridPreviewUpdate(){
+  clearTimeout(productGridPreviewTimer);
+  productGridPreviewTimer = setTimeout(renderProductGridPreview, 250);
+}
+function renderProductGridPreview(){
+  var d = productGridForm.draft;
+  if(!d.products.length) return;
+  mountMjmlIframe("productGridReviewPreviewMount", "<mj-raw>"+assembleProductGridHtml(d)+"</mj-raw>", brand(), { noChrome:true, fixedHeight:true });
+}
+
+function saveProductGridForm(){
+  var d = productGridForm.draft;
+  var label = (d.label||"").trim();
+  if(!label){ showToast("Enter a grid name"); return; }
+  return withBtnLoading(byId("productGridSaveBtn"), function(){
+    var payload = { label: label, presetId: d.presetId, badgeText: d.badgeText||"", badgeThreshold: d.badgeThreshold||0, products: d.products };
+    if(productGridForm.editId){
+      var existing = findProductGrid(productGridForm.editId);
+      if(!existing) return Promise.resolve();
+      if(!canManageRecord(existing)){ showToast("You're not the creator of this product grid", "error"); return Promise.resolve(); }
+      Object.assign(existing, payload, { updatedAt: new Date().toISOString() });
+    } else {
+      var requestedId = slugifyKey(label);
+      var finalId = findProductGrid(requestedId) ? uniqueProductGridKey(requestedId) : requestedId;
+      PRODUCT_GRIDS.push(Object.assign({ id: finalId, custom:true, createdBy: currentUserStamp(), updatedAt: new Date().toISOString() }, payload));
+      productGridForm.editId = finalId;
+    }
+    return saveToStorage().then(function(){
+      renderAll();
+      showToast("Saved “"+label+"”");
+    });
+  });
+}
+
+function addProductGridToMailStack(){
+  var d = productGridForm.draft;
+  if(!d.products.length){ showToast("Generate a grid first"); return; }
+  var label = (d.label||"").trim() || "Product Grid";
+  var html = "<mj-raw>"+assembleProductGridHtml(d)+"</mj-raw>";
+  var compId = uniqueComponentKey("product-grid-"+slugifyKey(label));
+  COMPONENTS.push({
+    id: compId, category:"feed", source:"Maximus", label: label, desc:"", crmPlatforms:[], custom:true,
+    preview: makeCustomPreview(html),
+    code: (function(fixedHtml){ return function(){ return fixedHtml; }; })(html),
+    createdBy: currentUserStamp()
+  });
+  state.list.push({ uid: uidSeq++, componentId: compId, code: null });
+  saveToStorage();
+  renderList(); renderGrid();
+  showToast("Added “"+label+"” to Mail Stack");
+}
+
+
 var discountOpenId = null;
 function findDiscountBatch(id){ for(var i=0;i<DISCOUNT_BATCHES.length;i++){ if(DISCOUNT_BATCHES[i].id===id) return DISCOUNT_BATCHES[i]; } return null; }
 function formatDiscountDate(isoDate){
@@ -11367,6 +11858,9 @@ var HOME_TILES = [
   { section:"liquid", label:"Liquid Snippets", desc:"Copy-paste Liquid patterns for Customer.io and Shopify personalization.",
     icon:'M320-242 80-482l240-240 57 57-184 184 183 183-56 56Zm320 0-56-56 183-183-184-184 57-57 240 240-240 240Z',
     count:function(){ return LIQUID_SNIPPETS.length; } },
+  { section:"productgrid", label:"Product Grid", desc:"Gmail-safe HTML product grids for marketing emails, built from a list of product URLs.",
+    icon:'M120-520v-320h320v320H120Zm0 400v-320h320v320H120Zm400-400v-320h320v320H520Zm0 400v-320h320v320H520ZM200-600h160v-160H200v160Zm400 0h160v-160H600v160Zm0 400h160v-160H600v160Zm-400 0h160v-160H200v160Z',
+    count:function(){ return PRODUCT_GRIDS.length; } },
   { section:"flows", label:"Automation Flows", desc:"Reference flows with a proven structure, stage by stage, industry by industry.",
     icon:'M450-100v-174.23q0-55.23-16.23-84.54-16.23-29.31-45.77-55.69l42.77-42.77q12.77 11.77 25.5 27.35Q469-414.31 480-396.84q12.85-21.7 29.65-40.04 16.81-18.35 34.89-34.66 44.15-39.61 74.38-95.23 30.23-55.62 30.7-177.92l-73 73-42.77-42.16L680-860l146.15 146.15L784-671.69l-74.39-73.77q-.46 138.77-37.65 206.19-37.19 67.42-86.5 112.35-33.15 30.15-54.31 59.38Q510-338.31 510-274.23V-100h-60ZM259.15-634.15q-4.38-20.39-6.26-50.54-1.89-30.16-2.5-60.77L176-671.69l-42.15-42.16L280-860l146.15 146.15-42.77 42.16-73-72.39q-.38 27.16 1.81 52.39t5.35 43.54l-58.39 14Z',
     count:function(){ return FLOWS.length; } },
@@ -11720,6 +12214,7 @@ var SECTION_META = {
 
 
   liquid:     { title:"Liquid Snippets", search:"Search snippets…", primary:"add-liquid", stack:true },
+  productgrid:{ title:"Product Grid", search:"Search product grids…", primary:"add-productgrid", stack:false },
   schedule:   { title:"Schedule", search:null, primary:null, stack:false },
 
 
@@ -11774,6 +12269,7 @@ function syncSectionChrome(){
   byId("addFlowRepoBtn").style.display = meta.primary==="add-flow" ? "" : "none";
   byId("addSkillBtn").style.display = meta.primary==="add-skill" ? "" : "none";
   byId("addLiquidBtn").style.display = meta.primary==="add-liquid" ? "" : "none";
+  byId("addProductGridBtn").style.display = meta.primary==="add-productgrid" ? "" : "none";
   byId("addDiscountBtn").style.display = meta.primary==="add-discount" ? "" : "none";
 
 
@@ -12008,10 +12504,11 @@ document.addEventListener("click", function(e){
       else if(kind==="skill" && typeof openSkillForm==="function") openSkillForm(findSkill(id));
       else if(kind==="liquid" && typeof openSnippetForm==="function") openSnippetForm(findSnippet(id));
       else if(kind==="discount" && typeof openDiscountForm==="function") openDiscountForm(findDiscountBatch(id));
+      else if(kind==="productgrid" && typeof openProductGridForm==="function") openProductGridForm(findProductGrid(id));
       return;
     }
 
-    var record = kind==="component" ? findComp(id) : kind==="email" ? findEmail(id) : kind==="flow" ? (typeof findFlow==="function" ? findFlow(id) : null) : kind==="skill" ? (typeof findSkill==="function" ? findSkill(id) : null) : kind==="liquid" ? (typeof findSnippet==="function" ? findSnippet(id) : null) : (typeof findDiscountBatch==="function" ? findDiscountBatch(id) : null);
+    var record = kind==="component" ? findComp(id) : kind==="email" ? findEmail(id) : kind==="flow" ? (typeof findFlow==="function" ? findFlow(id) : null) : kind==="skill" ? (typeof findSkill==="function" ? findSkill(id) : null) : kind==="liquid" ? (typeof findSnippet==="function" ? findSnippet(id) : null) : kind==="productgrid" ? (typeof findProductGrid==="function" ? findProductGrid(id) : null) : (typeof findDiscountBatch==="function" ? findDiscountBatch(id) : null);
     if((kind==="component" || kind==="email") && !canManageRecord(record)){
       showToast("You're not the creator of this "+(kind==="component"?"component":"e-mail"), "error");
       closeAllCardMenus();
@@ -12031,6 +12528,8 @@ document.addEventListener("click", function(e){
         deleteSnippet(id);
       } else if(kind==="discount" && typeof deleteDiscountBatch==="function"){
         deleteDiscountBatch(id);
+      } else if(kind==="productgrid" && typeof deleteProductGrid==="function"){
+        deleteProductGrid(id);
       }
     });
     return;
@@ -12058,6 +12557,7 @@ function renderGridInner(){
   if(state.section==="flows"){ renderFlowGrid(); return; }
   if(state.section==="skills"){ renderSkillGrid(); return; }
   if(state.section==="liquid"){ renderSnippetGrid(); return; }
+  if(state.section==="productgrid"){ renderProductGridGrid(); return; }
   if(state.section==="discounts"){ renderDiscountGrid(); return; }
   if(state.section==="knowledge"){ renderKnowledgeGrid(); return; }
   if(state.section==="emails"){ renderEmailGrid(); return; }
@@ -12806,6 +13306,44 @@ byId("liquidFormSave").addEventListener("click", saveSnippetForm);
 bindOverlayBackdropClose("liquidFormOverlay", closeSnippetForm);
 
 
+byId("productGridDetailClose").addEventListener("click", closeProductGridOverlay);
+bindOverlayBackdropClose("productGridOverlay", closeProductGridOverlay);
+byId("productGridCopyBtn").addEventListener("click", function(){
+  var g = productGridOpenId && findProductGrid(productGridOpenId);
+  if(!g) return;
+  copyText(assembleProductGridHtml(g), "Copied — paste it wherever the template needs it");
+});
+byId("addProductGridBtn").addEventListener("click", function(){ openProductGridForm(null); });
+byId("productGridFormClose").addEventListener("click", closeProductGridForm);
+byId("productGridFormCancel").addEventListener("click", closeProductGridForm);
+bindOverlayBackdropClose("productGridFormOverlay", closeProductGridForm);
+byId("productGridGenerateBtn").addEventListener("click", function(){
+  var d = productGridForm.draft;
+  var urls = (d.urls||"").split("\n").map(function(u){ return u.trim(); }).filter(Boolean);
+  if(!urls.length){ showToast("Paste at least one product URL"); return; }
+  if(!hasClaudeConnected()){ showToast("Connect your Claude account first"); return; }
+  withBtnLoading(byId("productGridGenerateBtn"), function(){
+    return fetchProductGridData(urls, MQ_CURRENT_USER.anthropicApiKey).then(function(products){
+      var threshold = d.badgeThreshold||0;
+      d.products = products.map(function(p){
+        return {
+          url: p.url, name: p.name||"", image: p.image||"", price: p.price||"",
+          priceValue: Number(p.priceValue)||0, isPromo: !!p.isPromo, lowestPrice30d: p.lowestPrice30d||"",
+          rating: Number(p.rating)||0, reviewCount: Number(p.reviewCount)||0,
+          hasBadge: !!(d.badgeText && (Number(p.priceValue)||0) >= threshold)
+        };
+      });
+      showProductGridReviewView();
+    }).catch(function(err){
+      showToast(err.message || "Generation failed", "error");
+    });
+  });
+});
+byId("productGridBackBtn").addEventListener("click", showProductGridConfigView);
+byId("productGridSaveBtn").addEventListener("click", saveProductGridForm);
+byId("productGridAddToMailStackBtn").addEventListener("click", addProductGridToMailStack);
+
+
 byId("discountClose").addEventListener("click", closeDiscountOverlay);
 bindOverlayBackdropClose("discountOverlay", closeDiscountOverlay);
 byId("addDiscountBtn").addEventListener("click", function(){ openDiscountForm(null); });
@@ -13289,6 +13827,7 @@ var urlOpenEmailId = null;
 var urlOpenFlowId = null;
 var urlOpenSkillId = null;
 var urlOpenLiquidId = null;
+var urlOpenProductGridId = null;
 var urlOpenDiscountId = null;
 var urlOpenHintId = null;
 function syncUrlFromState(){
@@ -13305,6 +13844,8 @@ function syncUrlFromState(){
     params.set("skillcat", state.skillCategory||"all");
   } else if(state.section==="liquid"){
     params.set("liquidcat", state.liquidCategory||"all");
+  } else if(state.section==="productgrid"){
+
   } else if(state.section==="knowledge"){
     params.set("knowledgecat", state.knowledgeCategory||"all");
   } else if(state.section==="home"){
@@ -13324,6 +13865,7 @@ function syncUrlFromState(){
   if(urlOpenFlowId) params.set("flowid", urlOpenFlowId);
   if(urlOpenSkillId) params.set("skillid", urlOpenSkillId);
   if(urlOpenLiquidId) params.set("liquidid", urlOpenLiquidId);
+  if(urlOpenProductGridId) params.set("productgridid", urlOpenProductGridId);
   if(urlOpenDiscountId) params.set("discountid", urlOpenDiscountId);
   if(urlOpenHintId) params.set("hint", urlOpenHintId);
   var qs = params.toString();
@@ -13342,6 +13884,7 @@ function restoreStateFromUrl(){
   var flowId = params.get("flowid");
   var skillId = params.get("skillid");
   var liquidId = params.get("liquidid");
+  var productGridId = params.get("productgridid");
   var discountId = params.get("discountid");
   var hintId = params.get("hint");
 
@@ -13368,6 +13911,8 @@ function restoreStateFromUrl(){
     state.section = "liquid";
     var liquidCat = params.get("liquidcat");
     if(liquidCat && (liquidCat==="all" || LIQUID_CATEGORIES.some(function(c){ return c.id===liquidCat; }))) state.liquidCategory = liquidCat;
+  } else if(section==="productgrid"){
+    state.section = "productgrid";
   } else if(section==="knowledge"){
     state.section = "knowledge";
     var knowledgeCat = params.get("knowledgecat");
@@ -13390,6 +13935,7 @@ function restoreStateFromUrl(){
   else if(flowId && findFlow(flowId)) openFlowDetail(flowId);
   else if(skillId && findSkill(skillId)) openSkillDetail(skillId);
   else if(liquidId && findSnippet(liquidId)) openSnippetDetail(liquidId);
+  else if(productGridId && findProductGrid(productGridId)) openProductGridDetail(productGridId);
   else if(discountId && findDiscountBatch(discountId)) openDiscountDetail(discountId);
   else if(hintId && findHint(hintId)) openKnowledgeDetail(hintId);
 }
@@ -14238,6 +14784,10 @@ byId("authUserMenuEdit").addEventListener("click", function(){
   closeAuthUserMenu();
   openProfileForm();
 });
+byId("authUserMenuConnectClaude").addEventListener("click", function(){
+  closeAuthUserMenu();
+  openConnectClaudeModal();
+});
 byId("authUserMenuLogout").addEventListener("click", function(){
   closeAuthUserMenu();
   if(window.MQAuth) window.MQAuth.logout().then(function(){ location.reload(); });
@@ -14245,6 +14795,44 @@ byId("authUserMenuLogout").addEventListener("click", function(){
 byId("profileFormClose").addEventListener("click", closeProfileForm);
 byId("profileFormCancel").addEventListener("click", closeProfileForm);
 bindOverlayBackdropClose("profileFormOverlay", closeProfileForm);
+
+function openConnectClaudeModal(){
+  byId("connectClaudeKeyInput").value = MQ_CURRENT_USER && MQ_CURRENT_USER.anthropicApiKey || "";
+  byId("connectClaudeError").style.display = "none";
+  byId("connectClaudeOverlay").classList.add("open");
+}
+function closeConnectClaudeModal(){ byId("connectClaudeOverlay").classList.remove("open"); }
+byId("connectClaudeClose").addEventListener("click", closeConnectClaudeModal);
+byId("connectClaudeCancel").addEventListener("click", closeConnectClaudeModal);
+bindOverlayBackdropClose("connectClaudeOverlay", closeConnectClaudeModal);
+byId("connectClaudeSave").addEventListener("click", function(){
+  var key = byId("connectClaudeKeyInput").value.trim();
+  var errEl = byId("connectClaudeError");
+  errEl.style.display = "none";
+  if(!key){ errEl.textContent = "Enter an API key"; errEl.style.display = ""; return; }
+  withBtnLoading(byId("connectClaudeSave"), function(){
+    return fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{ "x-api-key": key, "anthropic-version":"2023-06-01", "content-type":"application/json", "anthropic-dangerous-direct-browser-access":"true" },
+      body: JSON.stringify({ model:"claude-sonnet-5", max_tokens:1, messages:[{ role:"user", content:"hi" }] })
+    }).then(function(res){
+      if(!res.ok){
+        return res.json().catch(function(){ return null; }).then(function(body){
+          var msg = (body && body.error && body.error.message) || ("HTTP "+res.status);
+          throw new Error(msg);
+        });
+      }
+      return window.MQUsers.updateProfileFields(MQ_CURRENT_USER.uid, { anthropicApiKey: key });
+    }).then(function(){
+      MQ_CURRENT_USER.anthropicApiKey = key;
+      closeConnectClaudeModal();
+      showToast("Claude connected");
+    }).catch(function(err){
+      errEl.textContent = err.message || "Couldn't validate this key";
+      errEl.style.display = "";
+    });
+  });
+});
 byId("profileAvatarInput").addEventListener("change", function(){
   var file = byId("profileAvatarInput").files[0];
   if(!file) return;
@@ -14304,6 +14892,7 @@ window.MQBoot = async function(user){
       var directory = await window.MQUsers.upsertSelf();
       if(directory){
         MQ_CURRENT_USER.role = directory.role || "member";
+        if(directory.anthropicApiKey) MQ_CURRENT_USER.anthropicApiKey = directory.anthropicApiKey;
         if(directory.disabled){
           if(window.MQAuth) await window.MQAuth.logout();
           MQ_CURRENT_USER = null;
