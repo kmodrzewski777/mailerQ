@@ -310,6 +310,17 @@
      wskaźnik aktywnej zakładki, nie wypełnione tło — ta sama zasada
      "bez chamskiego podświetlania", co .nav-item[aria-current]. */
   .topbar-groups{flex:1; min-width:0; display:flex; align-items:center; justify-content:center; gap:4px; overflow-x:auto}
+  /* user: "nie rozumiem dlaczego to menu nie jest widoczne od razu tylko
+     doładowuje się po uruchomieniu strony" — #topbarGroups startuje puste
+     w statycznym HTML i dopiero pierwszy renderTopbarGroups() (czeka na
+     Firebase Auth) wypełnia je prawdziwymi zakładkami, więc menu
+     widocznie "wskakiwało" chwilę po pierwszej klatce. Statyczny
+     szkielet (ta sama .skel-block klasa/animacja co skeleton kafelków na
+     Home) rezerwuje z góry mniej-więcej tę samą szerokość co realne
+     zakładki — renderTopbarGroups() go usuwa/nadpisuje, gdy dociera
+     prawdziwa treść (patrz zmieniony warunek [data-navgroup] tam w JS,
+     bo nav.children.length liczyłby też ten szkielet). */
+  .topbar-groups-skel{display:flex; align-items:center; gap:18px}
   .topbar-group-btn{
     display:flex; align-items:center; gap:6px; padding:8px 14px 6px; border:none; border-bottom:2px solid transparent;
     background:transparent; color:var(--ink-muted); font:inherit; font-size:13.5px; font-weight:500;
@@ -1491,7 +1502,14 @@
          kategorii" — te same 6 grup co dawniej w sidebarze (patrz
          NAV_GROUPS w JS), teraz jako zakładki w topbarze; sidebar reaguje
          na aktywną (patrz syncNavGroupVisibility). -->
-    <nav class="topbar-groups" id="topbarGroups" aria-label="Sections"></nav>
+    <nav class="topbar-groups" id="topbarGroups" aria-label="Sections">
+      <span class="topbar-groups-skel" aria-hidden="true">
+        <span class="skel-block" style="width:60px;height:11px"></span>
+        <span class="skel-block" style="width:110px;height:11px"></span>
+        <span class="skel-block" style="width:26px;height:11px"></span>
+        <span class="skel-block" style="width:90px;height:11px"></span>
+      </span>
+    </nav>
     <div class="topbar-right">
       <!-- Wybór marki i "Add Component" przeniesione z topbaru do
            #page-head-actions (patrz tam, niżej w pliku) — user: "Wybór
@@ -2777,7 +2795,7 @@
    Flow Repository, 3.2 = DM Schedule + Skills, 3.3 = import 13 skilli +
    Brand Kit integracja, 3.4 = przebudowa edytora komponentu (warianty,
    frazy per wariant, multi-CRM). */
-var APP_VERSION = "3.8.0";
+var APP_VERSION = "3.8.1";
 var APP_UPDATED = "2026-08-25";
 
 /* ================================================================
@@ -11819,7 +11837,14 @@ function renderTopbarGroups(){
   // goToSection: wymaga MQ_CURRENT_USER dla każdej sekcji poza Home), więc
   // pokazywanie ich byłoby mylące.
   nav.style.display = MQ_CURRENT_USER ? "" : "none";
-  if(!nav.children.length){
+  // user: "nie rozumiem dlaczego to menu nie jest widoczne od razu tylko
+  // doładowuje się po uruchomieniu strony" — statyczny szkielet
+  // (.topbar-groups-skel, patrz HTML/CSS) siedzi w #topbarGroups od
+  // pierwszej klatki, więc nav.children.length ZAWSZE jest >0, nawet
+  // zanim cokolwiek się realnie wyrenderowało — warunek sprawdza więc
+  // konkretnie obecność [data-navgroup] (atrybut TYLKO na prawdziwych,
+  // wyrenderowanych zakładkach), nie samą liczbę dzieci.
+  if(!nav.querySelector("[data-navgroup]")){
     // user, drugi raz: "Po co w Knowledge Base dropdown z sub-itemem o tej
     // samej nazwie? Usuń. Jeśli jest tylko jeden element w kategorii, to
     // dropdown ma się nie pojawiać" — TYLKO "Composer" ma realnie >1
