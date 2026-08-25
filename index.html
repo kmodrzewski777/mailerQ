@@ -2739,7 +2739,7 @@
    Flow Repository, 3.2 = DM Schedule + Skills, 3.3 = import 13 skilli +
    Brand Kit integracja, 3.4 = przebudowa edytora komponentu (warianty,
    frazy per wariant, multi-CRM). */
-var APP_VERSION = "3.7.2";
+var APP_VERSION = "3.7.3";
 var APP_UPDATED = "2026-08-25";
 
 /* ================================================================
@@ -13916,9 +13916,21 @@ function syncSectionChrome(){
   byId("addLiquidBtn").style.display = meta.primary==="add-liquid" ? "" : "none";
   byId("addDiscountBtn").style.display = meta.primary==="add-discount" ? "" : "none";
   // Filtr CRM zawęża komponenty/maile po platformie — nie ma zastosowania
-  // w Brand Kicie, w Reports (nie listing), w Discount Codes (nie ma
-  // pojęcia platformy CRM) ani na stronie głównej.
-  byId("crmFilterRow").style.display = (isBrandKit || isReports || isHome || state.section==="discounts") ? "none" : "";
+  // w Reports (nie listing), w Discount Codes (nie ma pojęcia platformy
+  // CRM) ani na stronie głównej. Brand Kit nie jest już tu w ogóle
+  // uwzględniany — to zwykły modal (patrz openBrandForm), nie ma
+  // WŁASNEGO state.section, więc nie może "wygrać" tego warunku.
+  // user: "Coś zjebałeś i teraz nie uruchamia się strona" — realny bug:
+  // usunięta wcześniej deklaracja isBrandKit (dawny `var isBrandKit =
+  // state.section==="brandkit"`) zostawiła TO JEDNO użycie osierocone,
+  // więc KAŻDE wywołanie syncSectionChrome() (czyli KAŻDY renderAll())
+  // rzucało ReferenceError w tej linii — renderGrid()/renderList()/
+  // syncUrlFromState() (wołane PO syncSectionChrome w renderAll) nigdy
+  // nie zdążyły się odpalić. To dlatego pasek wyszukiwania/przycisk Add
+  // aktualizowały się poprawnie (te linie są WCZEŚNIEJ w tej funkcji), a
+  // tytuł/grid zostawały zastałe — funkcja wywalała się w połowie, zanim
+  // dotarła do końca (m.in. do przełącznika .no-nav/.no-stack niżej).
+  byId("crmFilterRow").style.display = (isReports || isHome || state.section==="discounts") ? "none" : "";
   // Mail Stack dotyczy budowania maila — gdzie indziej jest bez sensu.
   // Na desktopie ta kolumna jest ZAWSZE widoczna (user: "Mail Stack ma być
   // zawsze widoczny - tak jak było wcześniej"), więc tu tylko decydujemy,
