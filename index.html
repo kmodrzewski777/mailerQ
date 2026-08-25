@@ -165,6 +165,20 @@
      no-stack automatycznie, patrz syncSectionChrome). */
   .app.no-nav{grid-template-columns:1fr}
   .app.no-nav .nav{display:none}
+  /* user: "zmniejsz ten gap na stronie glownej- po chuj taki wielki
+     odstep od stopki" — DWIE osobne rzeczy wymuszały min-height:100vh
+     (żeby sidebar/dock zawsze sięgały dołu ekranu w sekcjach-listingach):
+     .app SAM (linia wyżej: min-height:calc(100vh - topbar)) i .work w
+     środku (osobna deklaracja niżej w arkuszu) — ale Home nie ma ani
+     sidebara, ani docka (oba schowane przez no-nav/no-stack), treść jest
+     krótka, a stopka (osobny <footer> POZA #app, patrz HTML) i tak czeka
+     na koniec obu, więc każde z tych dwóch z osobna zostawiało pustą
+     szparę między kafelkami a stopką na ekranie wyższym niż sama treść —
+     nadpisanie tylko .work nie wystarczało, bo .app samo w sobie już
+     wymuszało wysokość. Tylko na Home: obie rosną tyle, ile faktycznie
+     potrzebuje treść. */
+  .app.no-nav{min-height:0}
+  .app.no-nav .work{min-height:0}
 
   .nav{
     position:sticky; top:var(--topbar-h); align-self:start; height:calc(100vh - var(--topbar-h)); box-sizing:border-box;
@@ -981,7 +995,18 @@
      (fixedHeight:true) wewnątrz. Patrz renderBfMjmlPreview. */
   .bf-mjml-preview-label{display:block; font-size:12.5px; font-weight:500; color:var(--ink-muted); margin:12px 0 6px}
   .bf-mjml-preview-scroll{width:100%; overflow-x:auto}
-  .bf-mjml-preview-frame{height:320px}
+  /* user: "Okno preview headera/footera ma być równe szerokością z
+     pozostałymi sekcjami- po chuj ten gap?" — .bf-mjml-preview-frame
+     dostawało width:mailWidth WPROST (patrz bfFieldHtml), więc cały BOX
+     (tło/border od .modal-preview-box) kończył się razem z mailem, w
+     środku szerszej kolumny formularza — stąd martwa, nierówna szpara po
+     prawej, inna szerokość niż np. pole "FOOTER"/MJML code obok. Teraz
+     .bf-mjml-preview-frame samo jest width:100% (jak reszta pól), a
+     realną szerokość maila (mailWidth) dostaje dopiero .bf-mjml-preview-
+     inner — .modal-preview-box's własny display:flex;justify-content:
+     center wyśrodkowuje go w środku pełnej szerokości boxa. */
+  .bf-mjml-preview-frame{height:320px; width:100%}
+  .bf-mjml-preview-inner{flex:none; height:100%}
   .bf-mjml-preview-empty{font-size:12.5px; color:var(--ink-faint); padding:16px; margin:0; width:100%; box-sizing:border-box}
   #editPreviewBox #editPreviewIframeWrap{height:100%}
   .modal-preview-box.email-frame-mode{padding:20px; background:var(--surface-2)}
@@ -2714,7 +2739,7 @@
    Flow Repository, 3.2 = DM Schedule + Skills, 3.3 = import 13 skilli +
    Brand Kit integracja, 3.4 = przebudowa edytora komponentu (warianty,
    frazy per wariant, multi-CRM). */
-var APP_VERSION = "3.7.1";
+var APP_VERSION = "3.7.2";
 var APP_UPDATED = "2026-08-25";
 
 /* ================================================================
@@ -10580,14 +10605,25 @@ function bfFieldHtml(f, d, device){
       // szerokości maila" — bez tego iframe dziedziczył 100% wąskiej
       // kolumny formularza, co spychało go pod media query mobile
       // (@media max-width:480px w compileEmailHtml) i podgląd wyglądał
-      // jak wersja mobilna. Teraz .bf-mjml-preview-frame ma NAPRAWDĘ
-      // ustawioną szerokość d.mailWidth (nie max-width — realną width),
-      // a zewnętrzny .bf-mjml-preview-scroll (100%, overflow-x:auto)
-      // dopiero przycina/scrolluje ją do dostępnej szerokości kolumny.
+      // jak wersja mobilna. .bf-mjml-preview-inner dostaje NAPRAWDĘ
+      // ustawioną szerokość d.mailWidth (nie max-width — realną width).
+      // user, drugi raz: "Okno preview... ma być równe szerokością z
+      // pozostałymi sekcjami- po chuj ten gap?" — width:mailWidth trafiał
+      // wcześniej na SAM BOX (.modal-preview-box), więc jego tło/border
+      // kończyły się razem z mailem, zostawiając martwą szparę do
+      // krawędzi kolumny. Teraz .bf-mjml-preview-frame (box) jest
+      // width:100% jak każde inne pole formularza, a mailWidth trzyma
+      // dopiero WEWNĘTRZNY .bf-mjml-preview-inner, wyśrodkowany w boxie
+      // przez jego istniejący display:flex;justify-content:center
+      // (dziedziczone z .modal-preview-box). Zewnętrzny .bf-mjml-preview-
+      // scroll (100%, overflow-x:auto) wciąż przycina/scrolluje na
+      // wypadek, gdyby mailWidth było szersze niż dostępna kolumna.
       html += '<label class="bf-mjml-preview-label">Preview</label>'+
         '<div class="bf-mjml-preview-scroll">'+
-          '<div class="modal-preview-box bf-mjml-preview-frame" style="width:'+esc(d.mailWidth||"640px")+'">'+
-            '<div id="'+bfMjmlPreviewId(f.key)+'" style="height:100%; width:100%"></div>'+
+          '<div class="modal-preview-box bf-mjml-preview-frame">'+
+            '<div class="bf-mjml-preview-inner" style="width:'+esc(d.mailWidth||"640px")+'">'+
+              '<div id="'+bfMjmlPreviewId(f.key)+'" style="height:100%; width:100%"></div>'+
+            '</div>'+
           '</div>'+
         '</div>';
     }
@@ -14213,7 +14249,34 @@ document.addEventListener("click", function(e){
   }
   if(!e.target.closest(".card-menu-wrap")) closeAllCardMenus();
 });
+// user: "Coś zjebałeś i teraz nie uruchamia się strona pomimo że jestem
+// zalogowany" — zgłoszony przypadek (Marketing Automation/Flow Repository:
+// pusty grid + tytuł zastały na statycznym domyślnym HTML "All components")
+// wskazywał na wyjątek wewnątrz renderGrid()/jednej z jego gałęzi
+// (renderFlowGrid itd.), przerywający renderAll() W POŁOWIE — user twierdził
+// że w konsoli nic nie było, co jest niepokojące samo w sobie (niezłapany
+// wyjątek POWINIEN tam wylądować). Zamiast dalej zgadywać dokładny trigger
+// bez możliwości odtworzenia (sekcje wymagają logowania, którego nie da się
+// tu podrobić — patrz notatka w pamięci projektu), owijamy CAŁY dispatch w
+// try/catch: każda przyszła awaria w KTÓRYMKOLWIEK renderXGrid() dostaje
+// teraz jawny console.error (nie do przeoczenia), czytelny stan błędu w
+// miejscu pustego/zastałego grida, i toast — zamiast cichego "nic się nie
+// dzieje". To nie naprawia hipotetycznego oryginalnego triggera (nie znam
+// go z pewnością), ale gwarantuje, że KOLEJNA awaria będzie widoczna i
+// diagnozowalna, zamiast wyglądać jak "appka po prostu nie działa".
 function renderGrid(){
+  try{
+    renderGridInner();
+  }catch(err){
+    console.error("renderGrid() threw for section \""+state.section+"\":", err);
+    var grid = byId("cardGrid");
+    if(grid) grid.innerHTML = '<p class="drawer-empty" style="grid-column:1/-1; padding:36px">Something went wrong loading this view. Try reloading the page — if it keeps happening, tell an admin which section you were on and check the browser console.</p>';
+    var gt = byId("gridTitle"); if(gt) gt.textContent = "Couldn't load this section";
+    var gc = byId("gridCount"); if(gc) gc.textContent = "";
+    showToast("Something went wrong loading this section — check the browser console");
+  }
+}
+function renderGridInner(){
   if(state.section==="reports") return; // jednoekranowe narzędzie, nie listing (patrz syncSectionChrome)
   if(state.section==="home") return; // jw. — homepage renderowany przez renderHomePage() w syncSectionChrome
   if(state.section==="schedule"){ renderDmCalendar(); return; }
