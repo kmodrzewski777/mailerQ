@@ -33,12 +33,17 @@
      token z nazwy, ale wartość to zwykły jasny szary jak --surface-2.
      --shadow-card:none — cienie usunięte z całej apki (patrz też
      pojedyncze box-shadow niżej w arkuszu, każdy wykasowany osobno). */
+  /* user: "Wprowadź do aplikacji kolorystyki trochę" — Szary #FBFCFC (tło
+     strony), Czerwony #FE7577 (--accent-strong, do akcentowania ważnych
+     rzeczy), Lekko czerwony #FEF5F5 (--accent-soft, tło do wybicia),
+     Czarny #27282A (--ink, tekst). --surface zostaje czystym białym, żeby
+     karty odróżniały się od lekko-szarego tła strony. */
   :root{
-    --paper:#ffffff; --surface:#ffffff; --surface-2:#f4f4f4;
+    --paper:#FBFCFC; --surface:#ffffff; --surface-2:#f4f4f4;
     --surface-cream:#f4f4f4;
-    --ink:#1f1f1f; --ink-muted:#4b4b4f; --ink-faint:#8a8a8e;
+    --ink:#27282A; --ink-muted:#4b4b4f; --ink-faint:#8a8a8e;
     --line:#e6e6e6; --line-strong:#d0d0d0;
-    --accent:#8a8a8a; --accent-strong:#232323; --accent-ink:#ffffff; --accent-soft:rgba(31,31,31,.08);
+    --accent:#8a8a8a; --accent-strong:#FE7577; --accent-ink:#ffffff; --accent-soft:#FEF5F5;
     /* user: "zweryfikuj design system... bordery też, ma być identycznie"
        — referencja ma zauważalnie bardziej zaokrąglone karty niż
        poprzednie 16px. */
@@ -55,7 +60,7 @@
       --surface-cream:#202123;
       --ink:#f5f5f3; --ink-muted:#b8b7b2; --ink-faint:#7a7975;
       --line:#2c2c2f; --line-strong:#3c3c40;
-      --accent:#8a8a8a; --accent-strong:#f0f0ee; --accent-ink:#141414; --accent-soft:rgba(255,255,255,.12);
+      --accent:#8a8a8a; --accent-strong:#FE7577; --accent-ink:#141414; --accent-soft:rgba(254,117,119,.16);
       --shadow-card:none;
     }
   }
@@ -64,15 +69,15 @@
     --surface-cream:#202123;
     --ink:#f5f5f3; --ink-muted:#b8b7b2; --ink-faint:#7a7975;
     --line:#2c2c2f; --line-strong:#3c3c40;
-    --accent:#8a8a8a; --accent-strong:#f0f0ee; --accent-ink:#141414; --accent-soft:rgba(255,255,255,.12);
+    --accent:#8a8a8a; --accent-strong:#FE7577; --accent-ink:#141414; --accent-soft:rgba(254,117,119,.16);
     --shadow-card:none;
   }
   :root[data-theme="light"]{
-    --paper:#ffffff; --surface:#ffffff; --surface-2:#f4f4f4;
+    --paper:#FBFCFC; --surface:#ffffff; --surface-2:#f4f4f4;
     --surface-cream:#f4f4f4;
-    --ink:#1f1f1f; --ink-muted:#4b4b4f; --ink-faint:#8a8a8e;
+    --ink:#27282A; --ink-muted:#4b4b4f; --ink-faint:#8a8a8e;
     --line:#e6e6e6; --line-strong:#d0d0d0;
-    --accent:#8a8a8a; --accent-strong:#232323; --accent-ink:#ffffff; --accent-soft:rgba(31,31,31,.08);
+    --accent:#8a8a8a; --accent-strong:#FE7577; --accent-ink:#ffffff; --accent-soft:#FEF5F5;
     --shadow-card:none;
   }
 
@@ -410,8 +415,6 @@
      otwarty. Na desktopie ta klasa i tak się nie pojawia (#dockToggle jest
      tam ukryty), więc reguła jest neutralna. */
   body.dock-open .feedback-fab{display:none}
-  /* jw. — sticky pasek akcji Brand Kitu siedzi na dole ekranu. */
-  body.brandkit-open .feedback-fab{display:none}
   /* user: usuń kreski pod "Mail Stack" i nad "Preview" — panel zostaje bez
      wewnętrznych podziałów, tylko zewnętrzny border-left .dock. */
   .dock-head{
@@ -441,19 +444,11 @@
      (patrz media query) i tam X wciąż ma sens jako zamknięcie. */
   #dockClose{display:none}
 
-  /* Brand Kit jako strona */
-  .bk-head{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px}
-  .bk-head h3{font-size:22px; font-weight:500; letter-spacing:-.01em; margin:0}
+  /* Brand Kit — modal (patrz #brandKitOverlay); .bk-actionbar/.bk-head
+     (dawne, gdy to była pełna strona) usunięte — .modal-head/
+     .modal-footer-bar już robią dokładnie to samo. .bk-sub zostaje, wciąż
+     używane na podtytuł pod nazwą marki. */
   .bk-sub{font-size:13px; color:var(--ink-muted); margin:4px 0 0}
-  /* Pasek akcji przyklejony do DOŁU OKNA (nie do dołu treści) — user
-     wcześniej: "ten pasek w brand kit ma być sticky- zawsze widoczny".
-     W modalu robił to .modal-footer-bar; na stronie to samo osiąga
-     position:sticky; bottom:0. */
-  .bk-actionbar{
-    position:sticky; bottom:0; z-index:5; display:flex; gap:8px;
-    background:var(--paper); border-top:1px solid var(--line);
-    padding:14px 0; margin-top:24px;
-  }
   /* Skip link — pierwszy Tab na stronie przeskakuje nawigację i ląduje
      w treści (wcześniej trzeba było przeklikać całą listę kategorii). */
   .skip-link{
@@ -1167,10 +1162,13 @@
   @media (max-width:720px){ .brand-form-layout, .brand-form-layout.cd-layout{grid-template-columns:1fr} }
   /* Podgląd na żywo MUSI być przyklejony — formularz ma ~118 pól, więc bez
      tego znikał po pierwszym przewinięciu i cała idea "widzę efekt zmiany
-     od razu" przestawała działać. top = wysokość sticky nagłówka strony.
-     Wymaga align-items:start na gridzie (jest wyżej) — domyślne stretch
-     rozciągnęłoby kolumnę na całą wysokość i sticky nie miałoby zakresu. */
-  .brand-form-preview{position:sticky; top:78px; align-self:start}
+     od razu" przestawała działać. Brand Kit jest teraz modalem —
+     scrolluje się WYŁĄCZNIE .modal-body (patrz #brandKitOverlay), więc
+     top jest liczony względem TEGO kontenera, nie strony (stąd małe 0,
+     nie dawne 78px z układu pełnej strony). Wymaga align-items:start na
+     gridzie (jest wyżej) — domyślne stretch rozciągnęłoby kolumnę na całą
+     wysokość i sticky nie miałoby zakresu. */
+  .brand-form-preview{position:sticky; top:0; align-self:start}
   @media (max-width:900px){ .brand-form-preview{position:static} }
   .brand-form{display:flex; flex-direction:column; gap:18px}
   .bf-group{border:1px solid var(--line); border-radius:6px; padding:12px 14px}
@@ -1446,16 +1444,20 @@
       <button class="btn small" id="loginBtn" type="button" style="display:none">Login</button>
       <div class="brand-select" id="authUserMenuWrap">
         <button class="btn ghost auth-user-badge" id="authUserBtn" type="button" title="Account" aria-haspopup="menu" aria-expanded="false" style="display:none"></button>
+        <!-- user: "wywal to koło zębate z headera. opcja Site Settings ma
+             być w dropdownie, gdy kliknę w swój profil/avatar- nadal
+             widoczna opcja tylko dla adminów" — #authUserMenuSettings
+             pokazywane/chowane tak jak dawniej #crmSettingsTopbarBtn
+             (patrz renderAuthUserBadge, isAdminUser()), tylko teraz jako
+             pozycja w tym menu zamiast osobnej ikony w topbarze. -->
         <ul class="brand-select-menu brand-select-menu-right" id="authUserMenu" role="menu" aria-label="Account menu" style="display:none">
           <li class="auth-user-menu-header" id="authUserMenuHeader"></li>
           <li class="auth-user-menu-divider"></li>
+          <li class="brand-select-option" role="menuitem" id="authUserMenuSettings" style="display:none">Site Settings</li>
           <li class="brand-select-option" role="menuitem" id="authUserMenuEdit">Edit profile</li>
           <li class="brand-select-option" role="menuitem" id="authUserMenuLogout" style="color:#b42318">Logout</li>
         </ul>
       </div>
-      <button class="icon-btn" type="button" id="crmSettingsTopbarBtn" title="Site settings">
-        <svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="m387.69-100-15.23-121.85q-16.07-5.38-32.96-15.07-16.88-9.7-30.19-20.77L196.46-210l-92.3-160 97.61-73.77q-1.38-8.92-1.96-17.92-.58-9-.58-17.93 0-8.53.58-17.34t1.96-19.27L104.16-590l92.3-159.23 112.46 47.31q14.47-11.46 30.89-20.96t32.27-15.27L387.69-860h184.62l15.23 122.23q18 6.54 32.57 15.27 14.58 8.73 29.43 20.58l114-47.31L855.84-590l-99.15 74.92q2.15 9.69 2.35 18.12.19 8.42.19 16.96 0 8.15-.39 16.58-.38 8.42-2.76 19.27L854.46-370l-92.31 160-112.61-48.08q-14.85 11.85-30.31 20.96-15.46 9.12-31.69 14.89L572.31-100H387.69ZM440-160h78.62L533-267.15q30.62-8 55.96-22.73 25.35-14.74 48.89-37.89L737.23-286l39.39-68-86.77-65.38q5-15.54 6.8-30.47 1.81-14.92 1.81-30.15 0-15.62-1.81-30.15-1.8-14.54-6.8-29.7L777.38-606 738-674l-100.54 42.38q-20.08-21.46-48.11-37.92-28.04-16.46-56.73-23.31L520-800h-79.38l-13.24 106.77q-30.61 7.23-56.53 22.15-25.93 14.93-49.47 38.46L222-674l-39.38 68L269-541.62q-5 14.24-7 29.62t-2 32.38q0 15.62 2 30.62 2 15 6.62 29.62l-86 65.38L222-286l99-42q22.77 23.38 48.69 38.31 25.93 14.92 57.31 22.92L440-160Zm40.46-200q49.92 0 84.96-35.04 35.04-35.04 35.04-84.96 0-49.92-35.04-84.96Q530.38-600 480.46-600q-50.54 0-85.27 35.04T360.46-480q0 49.92 34.73 84.96Q429.92-360 480.46-360Z"/></svg>
-      </button>
     </div>
   </div>
 </header>
@@ -1522,7 +1524,7 @@
       <div class="nav-cats is-collapsed" id="navCatsFlows" role="group" aria-label="Flow categories"></div>
     </div>
 
-    <div class="nav-group" data-navgroup="direct">
+    <div class="nav-group" data-navgroup="direct" style="display:none">
       <button class="nav-item" type="button" data-nav="schedule">
         <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M212.31-100Q182-100 161-121q-21-21-21-51.31v-535.38Q140-738 161-759q21-21 51.31-21h55.38v-84.61h61.54V-780h303.08v-84.61h60V-780h55.38Q778-780 799-759q21 21 21 51.31v535.38Q820-142 799-121q-21 21-51.31 21H212.31Zm0-60h535.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-375.38H200v375.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM200-607.69h560v-100q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H212.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v100Z"/></svg>
         <span class="nav-label">Schedule</span><span class="n" id="navCountSchedule"></span>
@@ -1544,7 +1546,7 @@
       <div class="nav-filters" id="navFiltersSkills" role="group" aria-label="Skill filters"></div>
     </div>
 
-    <div class="nav-group" data-navgroup="services">
+    <div class="nav-group" data-navgroup="services" style="display:none">
       <!-- user: "generator indywidualnych kodów rabatowych... Żadnej
            logiki, na razie tylko front end do zaprezentowania" — lista
            paczek kodów + formularz; dwa pola (warunki użycia, kampanie)
@@ -1556,7 +1558,7 @@
       </button>
     </div>
 
-    <div class="nav-group" data-navgroup="reporting">
+    <div class="nav-group" data-navgroup="reporting" style="display:none">
       <!-- user: "generator raportów miesięcznych dla klienta... na razie
            sam front end bez żadnej logiki" — wybór klienta+miesiąca,
            Generate pokazuje placeholder ("coming soon"), bez żadnej
@@ -1873,7 +1875,6 @@
       <div class="pagination" id="gridPagination" style="display:none"></div>
       <!-- Brand Kit jako STRONA, nie modal (patrz komentarz przy .app) —
            workspace na 100+ pól nie mieści się sensownie w oknie dialogowym. -->
-      <div id="brandKitPage" style="display:none"></div>
       <!-- Harmonogram DM — osobny widok zamiast siatki kart. -->
       <div id="dmWrap" style="display:none">
         <div class="dm-toolbar">
@@ -2491,44 +2492,60 @@
   </div>
 </div>
 
-<!-- Brand Kit — dawniej modal na 900px, w którym trzeba było przewijać
-     ~150 pól w 9 grupach. Teraz pełna strona (patrz #brandKitPage w .work):
-     formularz w lewej kolumnie, PRZYKLEJONY podgląd na żywo w prawej,
-     sticky pasek akcji na dole ekranu. Wszystkie id zachowane, więc cała
-     logika (renderBrandFormFields/updateBrandFormPreview/zapis) działa bez
-     zmian — zmienił się wyłącznie kontener. -->
-<template id="brandKitTemplate">
-  <div class="bk-head">
-    <div>
-      <h3 id="brandFormTitle">Brand Kit</h3>
-      <p class="bk-sub" id="brandFormSubtitle"></p>
+<!-- Brand Kit — user: "wolałem jak Brand Kit było w nowym popupie jak
+     wcześniej, Obecnie ten widok jego do dupy. Nawet nie wiem po co tu
+     pokazujesz sidebar z kategoriami w brand kicie. Przywróć widok Brand
+     Kit do popupu jak wcześniej." — wraca do bycia zwykłym .overlay/.modal
+     (dokładnie ten sam wzorzec co #countdownOverlay/#editOverlay niżej),
+     nie osobną "stroną" w .work. To automatycznie rozwiązuje i skargę o
+     sidebarze — modal leci NAD aktualną sekcją, w ogóle nie dotykając
+     state.section (patrz openBrandForm/closeBrandForm), więc sidebar pod
+     spodem to zawsze po prostu ta sekcja, na której user faktycznie był,
+     nie jakiś osobny "sidebar Brand Kitu". Wszystkie id wewnątrz zachowane
+     bez zmian — cała logika (renderBrandFormFields/updateBrandFormPreview/
+     zapis) działa identycznie, zmienił się wyłącznie kontener (i to, że
+     jest teraz w DOM-ie od startu, nie doklejany leniwie przez
+     mountBrandKitPage — modal, jak każdy inny w appce, nie potrzebuje tego
+     kroku). -->
+<div class="overlay" id="brandKitOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:1200px">
+    <div class="modal-head">
+      <div>
+        <h3 id="brandFormTitle">Brand Kit</h3>
+        <p class="bk-sub" id="brandFormSubtitle"></p>
+      </div>
+      <div style="display:flex; align-items:center; gap:14px">
+        <div class="bf-device-toggle device-toggle" id="brandFormDeviceToggle" role="tablist">
+          <button type="button" class="bf-tab-btn" data-bf-device="desktop" aria-pressed="true">Desktop</button>
+          <button type="button" class="bf-tab-btn" data-bf-device="mobile" aria-pressed="false">Mobile</button>
+        </div>
+        <button class="modal-close" id="brandKitClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+      </div>
     </div>
-    <div class="bf-device-toggle device-toggle" id="brandFormDeviceToggle" role="tablist">
-      <button type="button" class="bf-tab-btn" data-bf-device="desktop" aria-pressed="true">Desktop</button>
-      <button type="button" class="bf-tab-btn" data-bf-device="mobile" aria-pressed="false">Mobile</button>
+    <div class="modal-body">
+      <div class="brand-form-layout">
+        <form id="brandForm" class="brand-form"></form>
+        <div class="brand-form-preview">
+          <p class="bf-preview-label">Live preview</p>
+          <div class="bf-preview-box" id="brandFormPreview"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer-bar" style="display:flex">
+      <div id="brandFormFooterDefault" style="display:flex; flex:1; justify-content:flex-end; gap:8px; align-items:center">
+        <button class="btn ghost small" type="button" id="brandFormDelete" style="display:none; margin-right:auto; color:#b42318; border-color:#b42318">Delete Brand</button>
+        <button class="btn ghost small" type="button" id="brandFormCancel">Discard Changes</button>
+        <button class="btn ghost small" type="button" id="brandFormSaveAsNew">Save as New</button>
+        <button class="btn small" type="button" id="brandFormSave">Save Brand</button>
+      </div>
+      <div id="brandFormFooterPrompt" style="display:none; flex:1; align-items:center; gap:8px">
+        <input type="text" id="brandFormSaveAsNewInput" class="inline-edit-input" placeholder="New brand name…" style="flex:1" autocomplete="off">
+        <button type="button" class="icon-btn icon-btn-field" id="brandFormSaveAsNewConfirm" title="Save" aria-label="Save"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg></button>
+        <button type="button" class="icon-btn icon-btn-field" id="brandFormSaveAsNewCancel" title="Cancel" aria-label="Cancel"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+      </div>
     </div>
   </div>
-  <div class="brand-form-layout">
-    <form id="brandForm" class="brand-form"></form>
-    <div class="brand-form-preview">
-      <p class="bf-preview-label">Live preview</p>
-      <div class="bf-preview-box" id="brandFormPreview"></div>
-    </div>
-  </div>
-  <div class="bk-actionbar">
-    <div id="brandFormFooterDefault" style="display:flex; flex:1; justify-content:flex-end; gap:8px; align-items:center">
-      <button class="btn ghost small" type="button" id="brandFormDelete" style="display:none; margin-right:auto; color:#b42318; border-color:#b42318">Delete Brand</button>
-      <button class="btn ghost small" type="button" id="brandFormCancel">Discard Changes</button>
-      <button class="btn ghost small" type="button" id="brandFormSaveAsNew">Save as New</button>
-      <button class="btn small" type="button" id="brandFormSave">Save Brand</button>
-    </div>
-    <div id="brandFormFooterPrompt" style="display:none; flex:1; align-items:center; gap:8px">
-      <input type="text" id="brandFormSaveAsNewInput" class="inline-edit-input" placeholder="New brand name…" style="flex:1" autocomplete="off">
-      <button type="button" class="icon-btn icon-btn-field" id="brandFormSaveAsNewConfirm" title="Save" aria-label="Save"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg></button>
-      <button type="button" class="icon-btn icon-btn-field" id="brandFormSaveAsNewCancel" title="Cancel" aria-label="Cancel"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
-    </div>
-  </div>
-</template>
+</div>
 
 <div class="overlay" id="countdownOverlay" role="dialog" aria-modal="true">
   <div class="modal" style="max-width:1140px">
@@ -10431,31 +10448,13 @@ function uniqueBrandKey(base){
 
 var brandForm = { mode:"new", editingKey:null, draft:null, device:"desktop" };
 
-/* Brand Kit żyje teraz NA STRONIE, nie w modalu — patrz #brandKitTemplate.
-   Szablon wstrzykujemy do #brandKitPage przy pierwszym wejściu (a nie na
-   starcie), żeby id-ki z szablonu nie istniały w DOM-ie zanim strona jest
-   realnie potrzebna, i żeby podpięcie listenerów działo się dokładnie raz. */
-var brandKitMounted = false;
-function mountBrandKitPage(){
-  if(brandKitMounted) return;
-  var page = byId("brandKitPage");
-  page.appendChild(byId("brandKitTemplate").content.cloneNode(true));
-  brandKitMounted = true;
-  // Przełącznik Desktop/Mobile — poza <form>, więc PRZETRWA przebudowę
-  // renderBrandFormFields(). Podpinany tu, bo dopiero teraz istnieje.
-  byId("brandFormDeviceToggle").querySelectorAll("[data-bf-device]").forEach(function(btn){
-    btn.addEventListener("click", function(){
-      brandForm.device = btn.getAttribute("data-bf-device");
-      byId("brandFormDeviceToggle").querySelectorAll("[data-bf-device]").forEach(function(b2){
-        b2.setAttribute("aria-pressed", b2===btn?"true":"false");
-      });
-      renderBrandFormFields();
-    });
-  });
-  bindBrandFormActions();
-}
+// user: "Przywróć widok Brand Kit do popupu jak wcześniej" — Brand Kit
+// jest teraz zwykłym .overlay/.modal (patrz #brandKitOverlay w HTML),
+// obecnym w DOM-ie od startu jak każdy inny modal w appce — nie ma już
+// osobnego kroku "wstrzyknij szablon przy pierwszym wejściu"
+// (mountBrandKitPage/brandKitMounted usunięte, ich listenery przeniesione
+// do zwykłego, jednorazowego podpięcia niżej w pliku, obok reszty modali).
 function openBrandForm(mode, sourceKey){
-  mountBrandKitPage();
   brandForm.device = "desktop";
   if(mode==="new"){
     brandForm.mode = "new"; brandForm.editingKey = null; brandForm.draft = defaultBrandDraft();
@@ -10481,15 +10480,10 @@ function openBrandForm(mode, sourceKey){
   delBtn.textContent = "Delete Brand"; deleteArmed = false;
   byId("brandFormFooterPrompt").style.display = "none";
   byId("brandFormFooterDefault").style.display = "flex";
-  state.section = "brandkit";
-  renderAll();
+  byId("brandKitOverlay").classList.add("open");
 }
-/* "Zamknięcie" Brand Kitu = wyjście ze strony, nie zamknięcie okna.
-   Wracamy do biblioteki komponentów — jedynej sekcji, która na pewno
-   istnieje niezależnie od stanu danych. */
 function closeBrandForm(){
-  if(state.section!=="brandkit") return;
-  goToSection("components");
+  byId("brandKitOverlay").classList.remove("open");
 }
 
 function bfInputId(key){ return "bf-"+key; }
@@ -10583,7 +10577,7 @@ function bfFieldHtml(f, d, device){
       html += '<label class="bf-mjml-preview-label">Preview</label>'+
         '<div class="bf-mjml-preview-scroll">'+
           '<div class="modal-preview-box bf-mjml-preview-frame" style="width:'+esc(d.mailWidth||"640px")+'">'+
-            '<div id="'+bfMjmlPreviewId(f.key)+'" style="height:100%"></div>'+
+            '<div id="'+bfMjmlPreviewId(f.key)+'" style="height:100%; width:100%"></div>'+
           '</div>'+
         '</div>';
     }
@@ -10924,8 +10918,10 @@ function brandFormConfirmSaveAsNew(){
   if(!newName){ showToast("Enter a name for the new brand"); return; }
   saveBrandForm(true, newName);
 }
-/* Podpinane dopiero po wstrzyknięciu szablonu strony Brand Kit (patrz
-   mountBrandKitPage) — te elementy nie istnieją w DOM-ie przy starcie. */
+// Podpinane raz, na starcie (wołane niżej w pliku obok reszty modali) —
+// #brandKitOverlay jest teraz statyczne w DOM-ie od razu, jak każdy inny
+// modal, więc te elementy zawsze istnieją, nie trzeba już nic leniwie
+// wstrzykiwać (patrz komentarz przy openBrandForm).
 function bindBrandFormActions(){
   byId("brandFormCancel").addEventListener("click", closeBrandForm);
   byId("brandFormSave").addEventListener("click", function(){ saveBrandForm(false); });
@@ -11280,7 +11276,6 @@ function openCrmSettings(initialTab){
   byId("crmSettingsOverlay").classList.add("open");
 }
 function closeCrmSettings(){ byId("crmSettingsOverlay").classList.remove("open"); }
-byId("crmSettingsTopbarBtn").addEventListener("click", function(){ openCrmSettings(); });
 byId("navBrandHome").addEventListener("click", function(){ goToSection("home"); });
 byId("loginBtn").addEventListener("click", function(){ showAuthGate(); });
 
@@ -11700,13 +11695,21 @@ function renderPrimaryNav(){
 // przechodzi do listingu danej kategorii. Na lewym sidebarze widzimy
 // rozwinięcie tej kategorii... i żadnych innych głównych kategorii" —
 // pierwsza sekcja w każdej tablicy = cel kliknięcia zakładki (goToSection).
+// user: "opcję Direct Marketing też na razie schowaj z menu i kafelków na
+// homepage. Wywal na razie z menu Services i Reporting... Te 3 tematy są
+// na razie nie działające" — hidden:true chowa zakładkę w topbarze
+// (renderTopbarGroups), grupę w sidebarze (patrz jej statyczny
+// display:none w HTML) i kafelek na Home (HOME_TILES, filtrowane po
+// sekcji). Świadomie NIE usuwa danych/routingu (groupForSection,
+// SECTION_META, sam URL ?section=schedule itd. wciąż działają) — to
+// tymczasowe schowanie wejść do nawigacji, nie usunięcie funkcji.
 var NAV_GROUPS = [
   { id:"composer", label:"Composer", sections:["components","emails","liquid"] },
   { id:"automation", label:"Marketing Automation", sections:["flows"] },
-  { id:"direct", label:"Direct Marketing", sections:["schedule"] },
+  { id:"direct", label:"Direct Marketing", sections:["schedule"], hidden:true },
   { id:"ai", label:"AI", sections:["skills"] },
-  { id:"services", label:"Services", sections:["discounts"] },
-  { id:"reporting", label:"Reporting", sections:["reports"] },
+  { id:"services", label:"Services", sections:["discounts"], hidden:true },
+  { id:"reporting", label:"Reporting", sections:["reports"], hidden:true },
   { id:"knowledge", label:"Knowledge Base", sections:["knowledge"] }
 ];
 function groupForSection(section){
@@ -11727,6 +11730,11 @@ function groupForSection(section){
 function renderTopbarGroups(){
   var nav = byId("topbarGroups");
   if(!nav) return;
+  // user: "Zaznaczone elementy mają się NIE POJAWIAĆ jeśli nie jestem
+  // zalogowany!" — same zakładki prowadzą donikąd dla gościa (patrz
+  // goToSection: wymaga MQ_CURRENT_USER dla każdej sekcji poza Home), więc
+  // pokazywanie ich byłoby mylące.
+  nav.style.display = MQ_CURRENT_USER ? "" : "none";
   if(!nav.children.length){
     // user, drugi raz: "Po co w Knowledge Base dropdown z sub-itemem o tej
     // samej nazwie? Usuń. Jeśli jest tylko jeden element w kategorii, to
@@ -11736,7 +11744,7 @@ function renderTopbarGroups(){
     // (dawne zachowanie sprzed popupu) — inaczej byłyby całkiem
     // nieklikalne (patrz niżej: przycisk grupy Z popupem świadomie NIE
     // nawiguje).
-    nav.innerHTML = NAV_GROUPS.map(function(g){
+    nav.innerHTML = NAV_GROUPS.filter(function(g){ return !g.hidden; }).map(function(g){
       if(g.sections.length<=1){
         return '<button type="button" class="topbar-group-btn" data-navgroup="'+esc(g.id)+'" data-nav-direct="'+esc(g.sections[0])+'">'+esc(g.label)+'</button>';
       }
@@ -11937,13 +11945,9 @@ function goToSection(section){
   // listing to ma naturalnie mnie zescrollować na sama gore strony" — ten
   // sam wzorzec co paginacja (patrz renderPagination), wołany PO
   // renderAll(), żeby scrollował już do świeżo wyrenderowanej treści.
-  // Brand Kit potrzebuje wczytania draftu aktualnej marki, nie samego
-  // przełączenia flagi — openBrandForm robi jedno i drugie.
-  if(section==="brandkit"){
-    closeNavOnMobile(); openBrandForm("edit", state.brand);
-    window.scrollTo({ top:0, behavior:"smooth" });
-    return;
-  }
+  // Brand Kit nie jest już "sekcją" tutaj w ogóle — to zwykły modal
+  // (patrz openBrandForm/closeBrandForm), otwierany bezpośrednio z
+  // ołówka w brand-pickerze, nigdy przez goToSection.
   // Kalendarz musi mieć ustawiony miesiąc ZANIM renderAll go narysuje —
   // pusty state.dmMonth wysypałby renderDmCalendar na split("-").
   if(section==="schedule") initDmMonth();
@@ -11963,9 +11967,10 @@ function goToSection(section){
 function renderFilterBar(){
   var bar = byId("filterbar");
   if(!bar) return;
-  // Brand Kit to formularz, a harmonogram ma własny pasek narzędzi
-  // (miesiąc/legenda) — w obu nie ma czego filtrować platformą CRM.
-  bar.style.display = (state.section==="brandkit" || state.section==="schedule") ? "none" : "";
+  // Harmonogram ma własny pasek narzędzi (miesiąc/legenda) — nie ma czego
+  // filtrować platformą CRM (Brand Kit to teraz modal, nie sekcja — nie
+  // ma już czego tu sprawdzać).
+  bar.style.display = state.section==="schedule" ? "none" : "";
 }
 /* Zwijanie/rozwijanie nawigacji. Na wąskim ekranie to overlay (przesuwa
    się nad treścią), na szerokim — kolumna zwężana do samych ikon. */
@@ -13409,16 +13414,16 @@ var HOME_TILES = [
     count:function(){ return FLOWS.length; } },
   { section:"schedule", label:"Schedule", desc:"The team's DM send calendar — who's sending what, and when.",
     icon:'M212.31-100Q182-100 161-121q-21-21-21-51.31v-535.38Q140-738 161-759q21-21 51.31-21h55.38v-84.61h61.54V-780h303.08v-84.61h60V-780h55.38Q778-780 799-759q21 21 21 51.31v535.38Q820-142 799-121q-21 21-51.31 21H212.31Zm0-60h535.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-375.38H200v375.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM200-607.69h560v-100q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H212.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v100Z',
-    count:null },
+    count:null, hidden:true },
   { section:"skills", label:"Skills", desc:"Claude Skills the team can install, filterable by brand and industry.",
     icon:'M208.85-197.69h504.61q3.85 0 6.35-2.69 2.5-2.7 2.5-6.54v-176.31l36.92-15.85q18.31-6.84 29.54-23.53Q800-439.31 800-461.15q0-21.62-11.23-38.43t-29.54-24.04l-36.92-15.23v-176.53q0-4.24-2.5-6.74t-6.35-2.5H534.92l-7.3-51.07q-3.77-25.85-22.39-43.92-18.61-18.08-44.08-18.08-26.07 0-44.69 18.08-18.61 18.07-22.38 43.92l-7.31 51.07H208.46q-3.46 0-5.96 2.5t-2.5 6.74V-624q51.77 17.15 84.15 62.04 32.39 44.88 32.39 100.81 0 57.3-32.19 102.19-32.2 44.88-84.35 61.27v90.77q0 3.84 2.5 6.54 2.5 2.69 6.35 2.69Zm0 60q-29 0-48.93-20.12Q140-177.92 140-206.92V-347q48-1.54 82.27-33.58 34.27-32.04 34.27-80.57 0-45.62-34.46-78.12-34.46-32.5-82.08-36.42v-139.69q0-28.77 20.04-49t48.42-20.23h126.23q6.62-47.93 42.16-80.5 35.54-32.58 84.3-32.58 48.16 0 83.7 32.58 35.53 32.57 42.76 80.5h125.85q28.39 0 48.62 20.23 20.23 20.23 20.23 49v136.69q34.84 14.15 56.27 46.23Q860-500.38 860-461.15q0 39.07-21.42 70.96-21.43 31.88-56.27 46.57v136.7q0 29-20.23 49.11-20.23 20.12-48.62 20.12H208.85ZM500-461.15Z',
     count:function(){ return SKILLS.length; } },
   { section:"discounts", label:"Discount Codes", desc:"Generate and track discount code batches for any brand.",
     icon:'M336-480q-45 0-76.5-31.5T228-588q0-45 31.5-76.5T336-696q45 0 76.5 31.5T444-588q0 45-31.5 76.5T336-480Zm0-72q15 0 25.5-10.5T372-588q0-15-10.5-25.5T336-624q-15 0-25.5 10.5T300-588q0 15 10.5 25.5T336-552ZM624-264q-45 0-76.5-31.5T516-372q0-45 31.5-76.5T624-480q45 0 76.5 31.5T732-372q0 45-31.5 76.5T624-264Zm0-72q15 0 25.5-10.5T660-372q0-15-10.5-25.5T624-408q-15 0-25.5 10.5T588-372q0 15 10.5 25.5T624-336ZM252-216l-72-72 528-528 72 72-528 528Z',
-    count:function(){ return DISCOUNT_BATCHES.length; } },
+    count:function(){ return DISCOUNT_BATCHES.length; }, hidden:true },
   { section:"reports", label:"Monthly Reports", desc:"Client-facing monthly performance reports, one click away.",
     icon:'M320-240h320v-80H320v80Zm0-160h320v-80H320v80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-520v-200H240v640h480v-440H520ZM240-800v200-200 640-640Z',
-    count:null },
+    count:null, hidden:true },
   { section:"knowledge", label:"Knowledge Base", desc:"Practical, real-world lessons distilled from a marketing-automation playbook.",
     icon:'M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q134 0 227 93t93 227q0 134-93 227t-227 93Zm0-80q100 0 170-70t70-170q0-100-70-170t-170-70q-100 0-170 70t-70 170q0 100 70 170t170 70Zm-40-120v-240h80v240h-80Zm40-320q17 0 28.5-11.5T520-720q0-17-11.5-28.5T480-760q-17 0-28.5 11.5T440-720q0 17 11.5 28.5T480-680Z',
     count:function(){ return KNOWLEDGE_HINTS.length; } }
@@ -13428,7 +13433,7 @@ var HOME_TILES = [
 // kafelek i tak pokazuje swój własny licznik (patrz niżej).
 function renderHomePage(){
   var tiles = byId("homeTiles");
-  tiles.innerHTML = HOME_TILES.map(function(t){
+  tiles.innerHTML = HOME_TILES.filter(function(t){ return !t.hidden; }).map(function(t){
     var count = t.count ? t.count() : null;
     return '<button type="button" class="card home-tile" data-home-tile="'+esc(t.section)+'">'+
       '<div class="home-tile-top">'+
@@ -13773,9 +13778,10 @@ var SECTION_META = {
   emails:     { title:"E-mails", search:"Search emails…", primary:null, stack:true },
   flows:      { title:"Automation Flows", search:"Search flows…", primary:"add-flow", stack:false },
   skills:     { title:"Skills", search:"Search skills…", primary:"add-skill", stack:false },
-  liquid:     { title:"Liquid Snippets", search:"Search snippets…", primary:"add-liquid", stack:false },
+  // user: "w kategorii Liquid Snippets pokazuj też kolumnę Mail Stack jak
+  // przy Components i E-mails" — stack:true.
+  liquid:     { title:"Liquid Snippets", search:"Search snippets…", primary:"add-liquid", stack:true },
   schedule:   { title:"Schedule", search:null, primary:null, stack:false },
-  brandkit:   { title:"Brand Kit", search:null, primary:null, stack:false },
   // user: "generator indywidualnych kodów rabatowych" — listing jak każda
   // inna biblioteka (Skills/Liquid), więc noGrid=false, search widoczny.
   discounts:  { title:"Discount Codes", search:"Search batches…", primary:"add-discount", stack:false },
@@ -13788,26 +13794,25 @@ var SECTION_META = {
 };
 function syncSectionChrome(){
   var meta = SECTION_META[state.section] || SECTION_META.components;
-  var isBrandKit = state.section==="brandkit";
   var isSchedule = state.section==="schedule";
   var isFlows = state.section==="flows";
   var isReports = state.section==="reports";
   var isHome = state.section==="home";
   // Siatka kart obsługuje komponenty, maile I flow — chowamy ją tylko tam,
   // gdzie strona ma zupełnie inną formę (formularz, kalendarz albo strona
-  // główna).
-  var noGrid = isBrandKit || isSchedule || isReports || isHome;
+  // główna). Brand Kit nie jest już tu w ogóle uwzględniany — to zwykły
+  // modal (patrz openBrandForm), nie sekcja z własną formą strony.
+  var noGrid = isSchedule || isReports || isHome;
 
   byId("cardGrid").style.display = noGrid ? "none" : "";
   byId("gridPagination").style.display = noGrid ? "none" : "";
-  byId("brandKitPage").style.display = isBrandKit ? "" : "none";
   byId("dmWrap").style.display = isSchedule ? "" : "none";
   byId("reportGenPage").style.display = isReports ? "" : "none";
   byId("homePage").style.display = isHome ? "" : "none";
-  // renderGrid() nie biegnie dla Brand Kitu/Reports/Home (to nie listing),
-  // więc nagłówek strony trzeba ustawić TU — inaczej zostawał tytuł
-  // poprzedniej sekcji.
-  if(isBrandKit || isReports){
+  // renderGrid() nie biegnie dla Reports/Home (to nie listing), więc
+  // nagłówek strony trzeba ustawić TU — inaczej zostawał tytuł poprzedniej
+  // sekcji.
+  if(isReports){
     byId("gridTitle").textContent = meta.title;
     byId("gridCount").textContent = "";
   }
@@ -13819,9 +13824,6 @@ function syncSectionChrome(){
   byId("filterbar").style.display = isHome ? "none" : "";
   if(isReports) renderReportGenChrome();
   if(isHome) renderHomePage();
-  // Sticky pasek akcji Brand Kitu siedzi na dole ekranu i kolidował z
-  // pływającym przyciskiem Feedback — chowamy go na tej stronie.
-  document.body.classList.toggle("brandkit-open", isBrandKit);
 
   // Wyszukiwarka: chowana tam, gdzie nie ma listingu, a placeholder MÓWI
   // czego szuka — wcześniej jedno "Search…" dla dwóch różnych zbiorów.
@@ -14180,10 +14182,6 @@ document.addEventListener("click", function(e){
   if(!e.target.closest(".card-menu-wrap")) closeAllCardMenus();
 });
 function renderGrid(){
-  // Brand Kit nie jest listingiem — bez tego wyjścia funkcja spadała do
-  // gałęzi komponentów i NADPISYWAŁA nagłówek strony ustawiony wcześniej
-  // przez syncSectionChrome (tytuł zostawał "Components" na Brand Kicie).
-  if(state.section==="brandkit") return;
   if(state.section==="reports") return; // jednoekranowe narzędzie, nie listing (patrz syncSectionChrome)
   if(state.section==="home") return; // jw. — homepage renderowany przez renderHomePage() w syncSectionChrome
   if(state.section==="schedule"){ renderDmCalendar(); return; }
@@ -15842,8 +15840,9 @@ function restoreStateFromUrl(){
     state.section = "components";
     if(category && (category==="all" || CATEGORIES.some(function(c){ return c.id===category; }))){ state.category = category; }
   } else if(section==="brandkit"){
-    // Brand Kit jest teraz stroną, więc ma własny, dzielony adres —
-    // otwieramy go na AKTUALNIE wybranej marce (klucz marki i tak jedzie
+    // Brand Kit to zwykły modal (patrz openBrandForm) — NIE zmienia
+    // state.section, więc ta gałąź tylko otwiera go na wierzchu domyślnej
+    // sekcji, na AKTUALNIE wybranej marce (klucz marki i tak jedzie
     // osobno w state.brand, nie w URL-u).
     openBrandForm("edit", state.brand);
   } else if(section==="flows"){
@@ -16631,6 +16630,18 @@ async function cdGenerate(){
 byId("cdGenBtn").addEventListener("click", cdGenerate);
 byId("countdownClose").addEventListener("click", function(){ byId("countdownOverlay").classList.remove("open"); });
 bindOverlayBackdropClose("countdownOverlay", function(){ byId("countdownOverlay").classList.remove("open"); });
+byId("brandKitClose").addEventListener("click", closeBrandForm);
+bindOverlayBackdropClose("brandKitOverlay", closeBrandForm);
+byId("brandFormDeviceToggle").querySelectorAll("[data-bf-device]").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    brandForm.device = btn.getAttribute("data-bf-device");
+    byId("brandFormDeviceToggle").querySelectorAll("[data-bf-device]").forEach(function(b2){
+      b2.setAttribute("aria-pressed", b2===btn?"true":"false");
+    });
+    renderBrandFormFields();
+  });
+});
+bindBrandFormActions();
 
 /* Blokada scrolla body pod otwartym popupem — user: "moge scrollować
    sobie majac otwarty popup". .overlay jest position:fixed więc SAM
@@ -16772,7 +16783,6 @@ function authSubmit(){
       // się updateProfile (avatar/imię+nazwisko). Wołamy MQBoot jeszcze raz
       // tu, z już kompletnym cred.user, żeby badge w topbarze na pewno
       // pokazał finalne dane, a nie gołe "przed chwilą utworzone" konto.
-      if(cred && cred.user && window.MQBoot) window.MQBoot(cred.user);
       // user: "dodaj taki mały hint informujący o tym, że ktoś się
       // zalogował, ot tak żeby było komuś miło to zobaczyć" — ciepłe
       // powitanie TYLKO przy faktycznym kliknięciu Log in/Register, nie
@@ -16782,6 +16792,13 @@ function authSubmit(){
       if(cred && cred.user){
         var firstName = (cred.user.displayName||"").trim().split(/\s+/)[0] || cred.user.email;
         showToast((submittedMode==="login" ? "Welcome back, " : "Welcome, ")+firstName+"!");
+      }
+      // user: "Po zalogowaniu mam być kierowany do panelu - Components" —
+      // dopiero PO zakończeniu window.MQBoot (dane załadowane, renderAll
+      // już poszło), żeby goToSection widziało kompletny, zsynchronizowany
+      // stan, nie odpalało się w trakcie ładowania.
+      if(cred && cred.user && window.MQBoot){
+        return window.MQBoot(cred.user).then(function(){ goToSection("components"); });
       }
     }).catch(function(err){
       authShowError(AUTH_ERROR_MESSAGES[err.code] || "Something went wrong — try again.");
@@ -16832,6 +16849,10 @@ byId("authUserBtn").addEventListener("click", function(e){
 document.addEventListener("click", function(e){
   var wrap = byId("authUserMenuWrap");
   if(wrap && !wrap.contains(e.target)) closeAuthUserMenu();
+});
+byId("authUserMenuSettings").addEventListener("click", function(){
+  closeAuthUserMenu();
+  openCrmSettings();
 });
 byId("authUserMenuEdit").addEventListener("click", function(){
   closeAuthUserMenu();
@@ -17010,9 +17031,10 @@ function renderAuthUserBadge(){
   // kategoriami żyje w tym samym panelu Site Settings. openCrmSettings ma
   // dodatkowo twardą blokadę, gdyby coś to ominęło.
   var adminOnly = isAdminUser();
-  // Wprost "flex" (nie ""), bo .icon-btn jest flexem — puste "" wyczyściłoby
-  // inline display i ikona wróciłaby do domyślnego inline-block wyrównania.
-  byId("crmSettingsTopbarBtn").style.display = adminOnly ? "flex" : "none";
+  // "flex", bo .brand-select-option ma display:flex — puste "" cofnęłoby
+  // się do domyślnego CSS-owego display, co i tak jest flex, ale jawność
+  // tu jest tańsza niż zgadywanie.
+  byId("authUserMenuSettings").style.display = adminOnly ? "flex" : "none";
 }
 /* Publiczny widok kalendarza — user: "Dać możliwość udostępniania
    kalendarza dla innych osób jakimś publicznym linkiem gdzie jest widoczny
@@ -17054,7 +17076,6 @@ window.MQPublicCalendar = async function(token){
     byId("addComponentBtn").style.display = "none";
     byId("topbarGroups").style.display = "none";
     byId("authUserMenuWrap").style.display = "none";
-    byId("crmSettingsTopbarBtn").style.display = "none";
     byId("dmAddBtn").style.display = "none";
     byId("dmShareBtn").style.display = "none";
     byId("filterbar").style.display = "none";
