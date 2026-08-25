@@ -2025,7 +2025,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.11.0";
+var APP_VERSION = "3.11.1";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -7407,7 +7407,7 @@ function saveToStorage(){
   }catch(e){  }
 
 
-  if(!window.MQStore) return Promise.resolve();
+  if(!window.MQStore || !MQ_CURRENT_USER) return Promise.resolve();
   return new Promise(function(resolve){
     mqSavePendingResolvers.push(resolve);
     clearTimeout(mqSaveTimer);
