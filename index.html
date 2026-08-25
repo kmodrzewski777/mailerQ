@@ -14,31 +14,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
 <style>
-  /* Design tokens — user: "kolor akcentu strony ma być czarny. strona ma
-     być czarno-biała z szarymi dodatkami (mogą być jeszcze jaśniejsze).
-     usuń cienie wszystkie." Paleta bursztynowa/kremowa z poprzedniej wersji
-     odchodzi całkowicie: --accent-strong jest teraz praktycznie czarny
-     (gwiazdka ulubionych, "dodano" na przycisku, status "sent" w
-     kalendarzu DM), --accent to średni szary (wypełnienia/plomby),
-     --accent-soft to bardzo jasny neutralny szary. --surface-cream
-     (dawny pasek filtra/panel marki) też traci kolor — zostaje jako
-     token z nazwy, ale wartość to zwykły jasny szary jak --surface-2.
-     --shadow-card:none — cienie usunięte z całej apki (patrz też
-     pojedyncze box-shadow niżej w arkuszu, każdy wykasowany osobno). */
-  /* user: "Wprowadź do aplikacji kolorystyki trochę" — Szary #FBFCFC (tło
-     strony), Czerwony #FE7577 (--accent-strong, do akcentowania ważnych
-     rzeczy), Lekko czerwony #FEF5F5 (--accent-soft, tło do wybicia),
-     Czarny #27282A (--ink, tekst). --surface zostaje czystym białym, żeby
-     karty odróżniały się od lekko-szarego tła strony. */
+
+
   :root{
     --paper:#FBFCFC; --surface:#ffffff; --surface-2:#f4f4f4;
     --surface-cream:#f4f4f4;
     --ink:#27282A; --ink-muted:#4b4b4f; --ink-faint:#8a8a8e;
     --line:#e6e6e6; --line-strong:#d0d0d0;
     --accent:#8a8a8a; --accent-strong:#FE7577; --accent-ink:#ffffff; --accent-soft:#FEF5F5;
-    /* user: "zweryfikuj design system... bordery też, ma być identycznie"
-       — referencja ma zauważalnie bardziej zaokrąglone karty niż
-       poprzednie 16px. */
+
     --radius-card:20px; --radius-chip:999px;
     --shadow-card:none;
     --topbar-h:64px;
@@ -75,41 +59,18 @@
 
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
-  /* Bez tego: otwarcie popupu dodaje body.modal-open{overflow:hidden}
-     (patrz syncModalScrollLock), co CHOWA scrollbar strony — przeglądarka
-     odzyskuje jego szerokość i cała strona pod spodem widocznie się
-     przesuwa. scrollbar-gutter:stable REZERWUJE tę przestrzeń NA STAŁE,
-     niezależnie od tego, czy scrollbar akurat jest widoczny, więc
-     chowanie/pokazywanie go już nic nie przesuwa — user: "czemu po
-     odpaleniu jakiegokolwiek popupa strona... lekko przesuwa się w prawo?". */
+
   html{scrollbar-gutter:stable}
-  /* user: "wysokość całej strony powinna zamykać się w viewporcie...
-     bottom bar ze stopką powinienm widzieć na spodzie ekranu bez
-     konieczności scrollowania strony" — klasyczny "sticky footer" wzorzec
-     flexboxowy: body to kolumna na pełną wysokość ekranu, .topbar i
-     .app-footer mają stałą wysokość (flex:none), a #app (środek) dostaje
-     flex:1 i rośnie, żeby wypełnić resztę. Na krótkiej treści (Home) #app
-     rozciąga się do dołu ekranu i stopka ląduje DOKŁADNIE na krawędzi
-     viewportu bez scrolla; na długiej treści (np. 188 komponentów) #app i
-     tak rośnie ponad wysokość ekranu (flex:1 nie ogranicza maksimum,
-     tylko rozdziela WOLNĄ przestrzeń), więc reszta sekcji scrolluje się
-     zupełnie normalnie ze stopką na PRAWDZIWYM końcu treści — ten sam
-     mechanizm obsługuje oba przypadki bez rozróżniania sekcji w JS. */
+
   body{
     background:var(--paper); color:var(--ink); font-family:var(--font-body);
     font-size:14px; line-height:1.5; min-height:100vh; overflow-x:hidden;
     display:flex; flex-direction:column;
   }
-  /* font-weight:500 — w referencji "Plan" nagłówki są wyraźnie cięższe
-     niż zwykły bold tekstu; Plus Jakarta Sans ma pełny zakres 200-800,
-     więc 700 to prawdziwa, natywna waga (nie zaokrąglenie jak przy Roboto). */
+
   h1,h2,h3{font-family:var(--font-display); font-weight:500; line-height:1.2; letter-spacing:-0.02em; margin:0; text-wrap:balance}
   ::selection{background:var(--accent-soft)}
-  /* Scrollbary wg designu strony — cieńsze niż domyślny pasek przeglądarki,
-     w kolorach palety (--line-strong/--ink-faint), zamiast grubego,
-     szarego systemowego paska widocznego dotąd w siatce komponentów,
-     textareach kodu, podglądzie maila itd. Ustawione globalnie (*), więc
-     obejmuje każdy przewijany kontener bez wypisywania selektorów po kolei. */
+
   *{scrollbar-width:thin; scrollbar-color:var(--line-strong) transparent}
   ::-webkit-scrollbar{width:10px; height:10px}
   ::-webkit-scrollbar-track{background:transparent}
@@ -120,68 +81,15 @@
   button{font-family:inherit; cursor:pointer}
   .mono{font-family:var(--font-mono)}
 
-  /* ---------- header ---------- */
-  /* user: "nie podoba mi się że zrobiłeś z tego taki box. wolałem jak
-     było jak poprzednio tylko content w środku zamknięty w boxie" — pasek
-     wraca do płaskiego, pełnoszerokościowego wyglądu (bez obramowania/
-     radiusu/cienia na CAŁYM barze); TYLKO .topbar-inner dostaje max-width
-     (ten sam 1400px co .shell), żeby treść była wyrównana z contentem
-     pod spodem, bez wizualnego "boxa" wokół samego paska. */
-  /* ============================================================
-     APP SHELL — user (po odrzuceniu poprzedniej wersji redesignu):
-     kategorie z powrotem na sidebarze, Mail Stack ma być ZAWSZE
-     widoczny (jak w architekturze SPRZED redesignu — dawny .shell,
-     grid 236px/1fr/320px), picker marki w sidebarze nad profilem,
-     wyszukiwarka nad listingiem.
 
-     Stąd 3 kolumny: nawigacja (destynacje + kategorie AKTYWNEJ sekcji +
-     Brand + profil) | obszar roboczy | Mail Stack — Mail Stack jest
-     zwykłym, sticky dzieckiem grida, NIE dokiem na żądanie. Kolumna
-     znika (.app.no-stack) tam, gdzie budowanie maila nie ma sensu
-     (Brand Kit / Flow Repository / DM Schedule — patrz meta.stack). */
-  /* user (drugi raz, ze zrzutem ekranu obrysowanym na czerwono): "nadal nie
-     zamknales strony w boxie. Jest na całą szerokość strony... tak jak
-     bylo wcześniej" — poprzednia próba capowała TYLKO treść WEWNĄTRZ
-     środkowej kolumny (page-head-inner/filterbar-inner/#cardGrid), ale sam
-     .app (nav+work+dock) i tak rozciągał się na 100% szerokości okna, więc
-     na typowym 1920px ekranie środkowa kolumna (1920-248-340=1332px) była
-     i tak WĘŻSZA niż limit 1400px — ograniczenie nigdy się nie
-     uruchamiało. Właściwe miejsce na max-width to CAŁY .app (dokładnie jak
-     dawny .shell{max-width:1400px; margin:0 auto}), żeby na szerokich
-     ekranach było widać puste marginesy PO OBU STRONACH całej aplikacji,
-     nie tylko wewnątrz jednej kolumny. */
-  /* user: "widgety lecą po 2 na wiersz a powinny po 3" — nav/dock zwężone
-     do dawnych wartości .shell (236/320), żeby środkowa kolumna miała
-     dość miejsca na 3 karty w rzędzie przy realistycznej szerokości ekranu. */
-  /* user: "widgety lecą po 2 na wiersz a powinny po 3" — sprawdzone przy
-     1280px (typowy laptop, nie tylko 1920px): przy --stack-w:320px i
-     minmax(252px,1fr) 3 karty NIE mieściły się już przy realistycznej
-     szerokości okna, nie tylko na wąskich ekranach. --stack-w:290px +
-     card-grid minmax(205px,1fr) (patrz niżej) dają ~50px zapasu przy
-     1280px, nie tylko przy 1920px. */
   .app{display:grid; grid-template-columns:var(--nav-w,236px) 1fr var(--stack-w,290px); min-height:calc(100vh - var(--topbar-h)); align-items:start; max-width:1400px; margin:0 auto; width:100%; flex:1 0 auto; box-sizing:border-box}
   .app.nav-collapsed{--nav-w:68px}
   .app.no-stack{grid-template-columns:var(--nav-w,236px) 1fr}
   .app.no-stack .dock{display:none}
-  /* user: "po kiego chuja mi ten sidebar po lewej stronie [na homepage]?
-     content na homepage ma być wycentrowany" — Home nie ma sidebarowych
-     kategorii, więc cała kolumna .nav znika i .work zajmuje resztę
-     .app (jeszcze bez Mail Stacka, stack:false w SECTION_META.home robi
-     no-stack automatycznie, patrz syncSectionChrome). */
+
   .app.no-nav{grid-template-columns:1fr}
   .app.no-nav .nav{display:none}
-  /* user: "zmniejsz ten gap na stronie glownej- po chuj taki wielki
-     odstep od stopki" — DWIE osobne rzeczy wymuszały min-height:100vh
-     (żeby sidebar/dock zawsze sięgały dołu ekranu w sekcjach-listingach):
-     .app SAM (linia wyżej: min-height:calc(100vh - topbar)) i .work w
-     środku (osobna deklaracja niżej w arkuszu) — ale Home nie ma ani
-     sidebara, ani docka (oba schowane przez no-nav/no-stack), treść jest
-     krótka, a stopka (osobny <footer> POZA #app, patrz HTML) i tak czeka
-     na koniec obu, więc każde z tych dwóch z osobna zostawiało pustą
-     szparę między kafelkami a stopką na ekranie wyższym niż sama treść —
-     nadpisanie tylko .work nie wystarczało, bo .app samo w sobie już
-     wymuszało wysokość. Tylko na Home: obie rosną tyle, ile faktycznie
-     potrzebuje treść. */
+
   .app.no-nav{min-height:0}
   .app.no-nav .work{min-height:0}
 
@@ -195,21 +103,12 @@
   .app.nav-collapsed .nav-item .n,
   .app.nav-collapsed .nav-cats{display:none}
   .app.nav-collapsed .nav-item{justify-content:center; padding-left:0; padding-right:0}
-  /* user: "za duza przerwa jest miedzy nazwa kategorii a podmiotami w
-     niej. zmniejsz o polowe, zmniejsz ten font size kategorii" — potem:
-     "zmniejsz dolny padding do zera" — odstęp DO pierwszej pozycji grupy
-     6px->3px->0, font 10.5px->9px. */
+
   .nav-group-title{
     font-size:9px; font-weight:500; letter-spacing:.09em; text-transform:uppercase;
     color:var(--ink-faint); padding:16px 10px 0;
   }
-  /* user: "Na lewym sidebarze widzimy rozwinięcie tej kategorii... i
-     żadnych innych głównych kategorii" — kategorie żyją teraz w topbarze
-     (patrz #topbarGroups), sidebar pokazuje TYLKO pozycje aktywnej grupy
-     (patrz syncNavGroupVisibility w JS). display:contents = grupa jest
-     strukturalnie "przezroczysta" dla .nav (flex column, gap:2px) — jej
-     przyciski liczą się jako BEZPOŚREDNIE dzieci .nav, więc odstępy
-     MIĘDZY nimi zostają identyczne jak bez opakowania w div. */
+
   .nav-group{display:contents}
   .nav-group.is-hidden-group{display:none}
   .nav-item{
@@ -225,30 +124,15 @@
     font-variant-numeric:tabular-nums; flex:none;
   }
   .nav-item:hover{background:var(--surface-2); color:var(--ink)}
-  /* user: "niech wybrana kategoria się tak chamsko nie podświetla całą apką
-     tylko po prostu zmienia kolor fontu na czarny" — bez wypełnionego tła,
-     sam kolor tekstu (+ waga) niesie stan "aktywne", tak jak już działa
-     .nav-cat-btn[aria-pressed] niżej. */
+
   .nav-item[aria-current="page"]{background:transparent; color:var(--ink)}
   .nav-item[aria-current="page"] .n{color:var(--ink-faint)}
-  /* Kategorie AKTYWNEJ sekcji, wcięte pod jej pozycją nav — user: "kategorie
-     komponentów zostają na lewy sidebarze, tak jak było wcześniej". Tylko
-     label na akcencie przy aktywnej, bez pełnego podświetlenia wiersza —
-     ta sama zasada co dawne .cat-btn sprzed redesignu. */
-  /* user: "Dodaj tez jakas animacje rozwijania/zwijajania" — max-height
-     zamiast display:none, żeby przełączenie sekcji faktycznie rozwijało/
-     zwijało listę kategorii, nie tylko pokazywało/chowało ją skokowo. */
+
+
   .nav-cats{
     display:flex; flex-direction:column; gap:0; margin:2px 0 6px; padding-left:14px;
     border-left:1px solid var(--line); margin-left:23px;
-    /* user: "w Components mam chyba zdecydowanie mniej kategorii - czemu?
-       brakuje juz takiegos scroll bara tej sekcji" — max-height:600px był
-       tylko sztuczką pod animację rozwijania (0 -> stała duża wartość), ale
-       Components ma 24 kategorie (~800px), więc realnie CIĘŁO listę bez
-       żadnego scrollbara (overflow:hidden) — kategorie po prostu znikały.
-       2000px starcza z zapasem nawet dla dużo dłuższych list; sama
-       sekcja i tak przewija się razem z resztą .nav (ma własny
-       overflow-y:auto), więc nie trzeba tu osobnego, zagnieżdżonego scrolla. */
+
     max-height:2000px; opacity:1; overflow:hidden;
     transition:max-height .22s ease, opacity .18s ease, margin .22s ease;
   }
@@ -268,14 +152,7 @@
   .nav-filters .nav-filter-title:not(:first-child){margin-top:12px}
   .nav-filters .bf-checkbox{padding:4px 10px; font-size:13px}
 
-  /* ============================================================
-     TOPBAR — user: "header ma być jak wczesniej czyli logo po lewej -
-     srodek pusto - prawa strona wybór brandu, dodaj komponent,
-     użytkownik, ustawienia" — globalny pasek NAD trzykolumnowym .app.
-     Brand picker/konto/Settings wracają tu z sidebaru (patrz
-     usunięte .nav-brand-section/.nav-foot wyżej); --topbar-h karmi
-     position:sticky top/height .nav, .dock i .page-head niżej, żeby
-     przypinały się POD paskiem, nie pod nim. */
+
   .topbar{
     position:sticky; top:0; z-index:40; background:var(--paper);
     height:var(--topbar-h); box-sizing:border-box; flex:none;
@@ -287,31 +164,13 @@
   .nav-brand{display:flex; align-items:center; gap:10px; min-width:0; border:none; background:none; padding:0; cursor:pointer; font:inherit; text-align:left}
   .nav-brand:hover .brand-logo-text{opacity:.75}
   .nav-brand .brand-logo-text{font-size:22px; white-space:nowrap; overflow:hidden}
-  /* Drobny druk wersji/daty deployu pod logiem — user: "wersję apki i
-     potem dodawaj do wersji jakieś kolejne cyfry" (patrz APP_VERSION w
-     skrypcie, bump ręczny przy każdym kolejnym deployu). */
+
   .nav-brand-stack{display:flex; flex-direction:column; line-height:1.1; min-width:0}
   .app-version-tag{font-size:9.5px; font-weight:400; color:var(--ink-faint); white-space:nowrap; margin-top:2px}
   .topbar-right{display:flex; align-items:center; gap:10px; flex:none}
-  /* user: "Wprowadź zmiany do headera. Mają się tam pojawić głównej
-     kategorie" — 6 zakładek, wypełniają teraz przestrzeń zwolnioną przez
-     wyprowadzenie brand-pickera/Add Component z topbaru (patrz
-     page-head-actions). flex:1 + justify-content:center centruje je
-     niezawodnie między logiem a prawą stroną, niezależnie od tego, jak
-     szerokie są te dwa skrajne bloki. Podkreślenie (border-bottom) jako
-     wskaźnik aktywnej zakładki, nie wypełnione tło — ta sama zasada
-     "bez chamskiego podświetlania", co .nav-item[aria-current]. */
+
   .topbar-groups{flex:1; min-width:0; display:flex; align-items:center; justify-content:center; gap:4px; overflow-x:auto}
-  /* user: "nie rozumiem dlaczego to menu nie jest widoczne od razu tylko
-     doładowuje się po uruchomieniu strony" — #topbarGroups startuje puste
-     w statycznym HTML i dopiero pierwszy renderTopbarGroups() (czeka na
-     Firebase Auth) wypełnia je prawdziwymi zakładkami, więc menu
-     widocznie "wskakiwało" chwilę po pierwszej klatce. Statyczny
-     szkielet (ta sama .skel-block klasa/animacja co skeleton kafelków na
-     Home) rezerwuje z góry mniej-więcej tę samą szerokość co realne
-     zakładki — renderTopbarGroups() go usuwa/nadpisuje, gdy dociera
-     prawdziwa treść (patrz zmieniony warunek [data-navgroup] tam w JS,
-     bo nav.children.length liczyłby też ten szkielet). */
+
   .topbar-groups-skel{display:flex; align-items:center; gap:18px}
   .topbar-group-btn{
     display:flex; align-items:center; gap:6px; padding:8px 14px 6px; border:none; border-bottom:2px solid transparent;
@@ -320,18 +179,7 @@
   }
   .topbar-group-btn:hover{color:var(--ink)}
   .topbar-group-btn[aria-current="page"]{color:var(--ink); border-bottom-color:var(--ink)}
-  /* user: "dodaj opcje pojawiania sie popupu z podkategoriami, gdy najade
-     w headerze na jakąś kategorie glowna" — pokazywanie/chowanie jest
-     czysto CSS-owe (:hover/:focus-within), ale POZYCJA (left/top) jest
-     liczona w JS (patrz renderTopbarGroups) i position:fixed, nie
-     absolute — .topbar-groups ma overflow-x:auto (poziomy scroll
-     zakładek na wąskim ekranie), a taki element w tej przeglądarce
-     WYMUSZA overflow-y:auto na sobie samym nawet gdy jawnie ustawisz
-     overflow-y:visible (nie da się mieszać visible z auto na jednej
-     osi) — position:absolute wewnątrz niego przycinałoby popup od dołu.
-     position:fixed omija ten problem całkowicie (nie jest przycinany
-     przez overflow żadnego przodka, poza transform/filter, których tu
-     nikt nie ma). */
+
   .topbar-group-item{position:relative}
   .topbar-group-popup{
     position:fixed; transform:translateY(4px);
@@ -344,10 +192,7 @@
   .topbar-group-item:focus-within .topbar-group-popup{
     opacity:1; visibility:visible; pointer-events:auto; transform:translateY(0);
   }
-  /* user: "klikniecie w sub-item nie zamyka mi tego dropdownu. Popraw- ma
-     zamykać" — patrz renderTopbarGroups: dodawane na klik sub-itemu,
-     zdejmowane dopiero gdy mysz realnie opuści .topbar-group-item.
-     !important bije samo :hover, którego kursor wciąż fizycznie dotyka. */
+
   .topbar-group-item.is-force-closed .topbar-group-popup{
     opacity:0!important; visibility:hidden!important; pointer-events:none!important;
   }
@@ -358,16 +203,9 @@
   .topbar-group-sub:hover{background:var(--surface-2); color:var(--ink)}
   .topbar-group-sub.is-current{color:var(--ink); font-weight:500}
 
-  /* Pasek roboczy — sticky nagłówek STRONY. Niesie: gdzie jestem + ile
-     tego jest + wyszukiwarka + akcja właściwa DLA TEJ strony. */
+
   .work{min-width:0; display:flex; flex-direction:column; min-height:100vh}
-  /* user: "zamknij content strony w boxie, nie chce zeby to bylo na caly
-     ekran - interesuje mnie tak jak bylo wcześniej" — ten sam max-width
-     centrujący co dawny .shell (usunięty jako martwy CSS w Fazie 0, ale
-     ta konkretna liczba wracała tu z powodu). Pasek TŁA (background/
-     border-bottom) zostaje full-bleed przez całą kolumnę .work — tylko
-     JEGO ZAWARTOŚĆ (.page-head-inner) jest wyśrodkowana, inaczej dolna
-     kreska urywałaby się w połowie szerokości na szerokich ekranach. */
+
   .page-head{
     position:sticky; top:var(--topbar-h); z-index:25; background:var(--paper);
     padding:14px 24px;
@@ -377,27 +215,12 @@
   .page-head h2{font-size:22px; font-weight:500; letter-spacing:-.015em; margin:0; white-space:nowrap}
   .page-head .page-count{font-size:13.5px; color:var(--ink-faint); font-variant-numeric:tabular-nums; white-space:nowrap}
   .page-head-actions{display:flex; align-items:center; gap:8px; margin-left:auto}
-  /* user: "wypierdol to. usun w pizdu ten hero banner wracaj do
-     poprzedniego" — baner z grafiką na Components wycofany, zwykły
-     nagłówek tekstowy wraca dla wszystkich sekcji bez wyjątku. */
-  /* user: "usuń tą ikonę do chowania sidebara" — na desktopie sidebar nie
-     ma już czego chować (4 pozycje), ale ten sam przycisk otwiera/zamyka
-     sidebar na wąskim ekranie (patrz media query niżej) — tam zostaje.
-     Podwójny selektor (.icon-btn.nav-toggle) celowo — sama .nav-toggle ma
-     tę samą specyficzność co .icon-btn{display:flex} (jedna klasa), które
-     jest zadeklarowane PÓŹNIEJ w arkuszu i wygrywałoby przez kolejność. */
+
+
   .icon-btn.nav-toggle{flex:none; display:none}
   .page-body{padding:20px 24px 64px; flex:1}
 
-  /* Wyszukiwarka nad listingiem (user: "tak jak było wcześniej") — sama
-     search-input-wrap żyje już w .page-head-actions, więc to spełnia od
-     razu; .page-head-actions zostaje TYLKO z wyszukiwarką + kontekstową
-     akcją "Add" (picker marki i przełącznik Mail Stacka wyprowadzone stąd
-     — patrz .nav-brand-section wyżej i zawsze-widoczna kolumna .dock). */
-  /* user: "usun ten zielony pasek" — bez kremowego tła, płaski pasek jak
-     reszta strony; user: "wyszukiwarka pod nagłówkiem, a po prawej
-     Platform, tak jak było wcześniej" — .search-row to jeden wiersz:
-     wyszukiwarka flex:1 po lewej, filtr CRM (Platform) flex:none po prawej. */
+
   .filterbar{
     padding:10px 24px; background:var(--paper);
   }
@@ -413,26 +236,7 @@
   .fchip[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:var(--paper)}
   .fchip .n{opacity:.55; margin-left:5px; font-variant-numeric:tabular-nums}
 
-  /* Mail Stack — ZAWSZE widoczna trzecia kolumna (nie dok na żądanie).
-     Na desktopie zwykłe sticky dziecko grida; na wąskim ekranie (patrz
-     media query niżej) wraca do bycia off-canvas panelem, bo trzy
-     kolumny fizycznie się nie mieszczą. */
-  /* user: "przycisk preview powinien byc od razu pod mail stacks... a nie
-     przyklejony do spodu ekranu" — poprzednio .dock-body{flex:1} w
-     height:100vh flex-columnie ZAWSZE dopychał .dock-foot do dołu
-     VIEWPORTU, niezależnie od tego, ile pozycji jest na liście. Teraz CAŁY
-     .dock jest jedynym kontenerem przewijanym (max-height zamiast sztywnego
-     height, overflow-y na .dock samym) — .dock-body płynie naturalną
-     wysokością, .dock-foot (Preview) ląduje OD RAZU pod ostatnią pozycją
-     listy, nagłówek zostaje wizualnie przypięty przez WŁASNE sticky. */
-  /* user: "nie ucinaj tak tej kreski tylko doprowadź ją do końca strony" —
-     bez min-height .dock (display:flex, tylko max-height) kurczył się do
-     wysokości TREŚCI, więc przy krótkiej liście border-left kończył się
-     dużo wyżej niż dół strony. min-height==max-height rezerwuje pełną
-     wysokość kolumny — .dock-foot i tak zostaje TUŻ pod listą (flex bez
-     justify-content pakuje dzieci od góry), nadmiar miejsca ląduje jako
-     pusta przestrzeń POD stopką, nie odsuwa jej — Preview nie wraca do
-     bycia przyklejonym do dołu ekranu. */
+
   .dock{
     position:sticky; top:var(--topbar-h); align-self:start;
     min-height:calc(100vh - var(--topbar-h)); max-height:calc(100vh - var(--topbar-h));
@@ -440,13 +244,9 @@
     background:var(--surface);
     display:flex; flex-direction:column; overflow-y:auto; overscroll-behavior:contain;
   }
-  /* Na wąskim ekranie dock wraca do bycia overlay-em (patrz media query) i
-     lądował NA pływającym przycisku Feedback — chowamy go, dopóki dok jest
-     otwarty. Na desktopie ta klasa i tak się nie pojawia (#dockToggle jest
-     tam ukryty), więc reguła jest neutralna. */
+
   body.dock-open .feedback-fab{display:none}
-  /* user: usuń kreski pod "Mail Stack" i nad "Preview" — panel zostaje bez
-     wewnętrznych podziałów, tylko zewnętrzny border-left .dock. */
+
   .dock-head{
     display:flex; align-items:center; gap:8px; padding:16px 18px;
     flex:none;
@@ -456,31 +256,20 @@
   .dock-body{flex:none; padding:14px 18px}
   .dock-foot{padding:14px 18px; flex:none}
   .dock-scrim{display:none}
-  /* Licznik przy nagłówku Mail Stacka — dziś czysto informacyjny (kolumna
-     jest zawsze widoczna, licznik nie musi już "zapowiadać" zawartości
-     zamkniętego panelu). */
+
   .dock-pill{
     display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px;
     padding:0 5px; border-radius:var(--radius-chip); background:var(--accent); color:var(--accent-ink);
     font-size:10.5px; font-weight:800; font-variant-numeric:tabular-nums; margin-left:6px;
   }
-  /* Przełącznik Mail Stacka istnieje TYLKO na wąskim ekranie (patrz media
-     query) — na desktopie kolumna jest zawsze widoczna, nic nie trzeba
-     przełączać. */
+
   #dockToggle{display:none}
-  /* user: "Po co tu ten button? Do usunięcia" (X w nagłówku Mail Stacka) —
-     na desktopie Mail Stack jest zawsze widoczną kolumną, nie ma czego
-     zamykać. Na wąskim ekranie dock wraca do bycia off-canvas panelem
-     (patrz media query) i tam X wciąż ma sens jako zamknięcie. */
+
   #dockClose{display:none}
 
-  /* Brand Kit — modal (patrz #brandKitOverlay); .bk-actionbar/.bk-head
-     (dawne, gdy to była pełna strona) usunięte — .modal-head/
-     .modal-footer-bar już robią dokładnie to samo. .bk-sub zostaje, wciąż
-     używane na podtytuł pod nazwą marki. */
+
   .bk-sub{font-size:13px; color:var(--ink-muted); margin:4px 0 0}
-  /* Skip link — pierwszy Tab na stronie przeskakuje nawigację i ląduje
-     w treści (wcześniej trzeba było przeklikać całą listę kategorii). */
+
   .skip-link{
     position:absolute; left:12px; top:-60px; z-index:100;
     background:var(--ink); color:var(--paper); padding:10px 16px;
@@ -497,10 +286,7 @@
     .fchip{transition:none}
   }
 
-  /* Poniżej 1000px trzy kolumny fizycznie się nie mieszczą — nawigacja
-     I Mail Stack wracają do bycia off-canvas panelami (dokładnie tak jak
-     to działało przed przywróceniem stałej kolumny), sterowane osobnymi
-     przełącznikami (#navToggle / #dockToggle, ten drugi widoczny TYLKO tu). */
+
   @media (max-width:1000px){
     .app{grid-template-columns:1fr}
     .nav{
@@ -536,19 +322,11 @@
   }
   @media (prefers-reduced-motion:reduce){ .nav{transition:none} }
 
-  /* user: "Jaki to font? [screenshot 'Maximus'] Chce logo tym fontem" —
-     Poppins Medium (500), rozpoznany po jednopiętrowym "a" i szerokich,
-     kolistych licznikach — nie pikselowe dopasowanie, odczyt wizualny.
-     Sam stylizowany napis "Maximus" jest logiem, jedna wspólna klasa
-     użyta w topbarze, stopce I na ekranie logowania (patrz #authGate),
-     rozmiar dobierany per-użycie inline. */
+
   .brand-logo-text{font-family:'Poppins',sans-serif; font-weight:500; color:var(--ink); line-height:1}
   .brand-picker{display:flex; align-items:center; gap:8px}
   .brand-picker-dot{width:14px; height:14px; border-radius:50%; border:1px solid rgba(0,0,0,.12); flex:none}
-  /* Natywny <select> nie da się realnie ostylować (lista opcji/podświetlenie
-     to renderowanie systemu operacyjnego, poza zasięgiem CSS) — dlatego
-     picker marki to własny widget: przycisk + własna, w pełni ostylowana
-     lista (patrz renderSwatches/brandSelectBtn/brandSelectMenu). */
+
   .brand-select{position:relative}
   .brand-select-btn{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -557,18 +335,9 @@
   }
   .brand-select-btn:hover{border-color:var(--line-strong)}
   .brand-select-caret{font-size:9px; color:var(--ink-faint); flex:none}
-  /* enhanceSelect() — generyczny "upgrade" KAŻDEGO <select> w apce na ten
-     sam widget co picker marki wyżej. */
+
   .cs-select{position:relative; width:100%}
-  /* visibility:hidden OBOK opacity:0 — user zgłosił "w Step jest coś
-     nawalone w inpucie od dropdownu": zreprodukowane w izolowanym teście —
-     DISABLED natywny <select> (np. Step, dopóki nie wybrano Flow) mimo
-     opacity:0 nadal renderował się WIDOCZNIE, nachodząc na własną etykietę
-     .cs-select-label (dwie warstwy tekstu na tej samej pozycji). Sam
-     opacity:0 nie wystarczał wyłącznie dla stanu :disabled — visibility:
-     hidden dodatkowo, twardo usuwa go z warstwy renderowania niezależnie
-     od stanu disabled. Dotyczy WSZYSTKICH enhance'owanych selectów w
-     appce, nie tylko Step — realny, utajony bug, nie tylko tego miejsca. */
+
   .cs-native-hidden{position:absolute; inset:0; width:100%; height:100%; opacity:0; visibility:hidden; pointer-events:none}
   .cs-select-btn{
     width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px;
@@ -577,10 +346,7 @@
   }
   .cs-select-btn:hover{border-color:var(--line-strong)}
   .cs-select-btn:disabled{opacity:.5; cursor:not-allowed}
-  /* min-width:0 — bez tego flex item domyślnie nie kurczy się poniżej
-     szerokości swojej treści, więc długie etykiety łamały się na dwa
-     wiersze zamiast się przyciąć; teraz się ucinają wielokropkiem w
-     jednej linii. */
+
   .cs-select-label{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0}
   .cs-select-caret{font-size:9px; color:var(--ink-faint); flex:none}
   .cs-select-menu{
@@ -591,11 +357,7 @@
   .cs-select-option{padding:7px 10px; border-radius:5px; font-size:13.5px; color:var(--ink); cursor:pointer; white-space:nowrap}
   .cs-select-option:hover{background:var(--surface-2)}
   .cs-select-option[aria-selected="true"]{background:var(--accent-soft); font-weight:500; color:var(--accent-strong)}
-  /* Wariant z wyszukiwarką (patrz enhanceSelect opts.searchable) — używany
-     na razie tylko w "Update an existing ready-made email", gdzie lista
-     bywa długa. .cs-select-menu w tym wariancie jest zwykłym divem (nie
-     ul), dziedziczy powyższe pozycjonowanie/obramowanie; realna lista
-     opcji siedzi osobno w zagnieżdżonym .cs-select-menu-list. */
+
   .cs-select-search{
     display:block; width:100%; box-sizing:border-box; margin-bottom:4px;
     border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:13.5px;
@@ -608,9 +370,7 @@
     background:var(--surface); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow-card);
     padding:4px; margin:0; list-style:none; max-height:280px; overflow-y:auto;
   }
-  /* Badge usera siedzi na samej prawej krawędzi paska — menu rozwinięte w
-     lewo (left:0) uciekłoby poza ekran, stąd wariant przyklejony do
-     prawej krawędzi przycisku zamiast lewej. */
+
   .brand-select-menu-right{left:auto; right:0; min-width:160px; white-space:nowrap}
   .brand-select-option{
     padding:5px 5px 5px 10px; border-radius:5px; font-size:13.5px; font-weight:500; color:var(--ink);
@@ -618,36 +378,23 @@
   }
   .brand-select-option:hover{background:var(--surface-2)}
   .brand-select-option[aria-selected="true"]{background:var(--accent-soft); font-weight:500; color:var(--accent-strong)}
-  /* user: "fajnie jakbyś tu gdzieś nieklikalnie dodał e-mail konta" —
-     statyczny nagłówek dropdownu, nie .brand-select-option (brak
-     cursor:pointer/hover, nic się nie klika). */
+
   .auth-user-menu-header{padding:6px 10px 8px; font-size:11.5px; color:var(--ink-muted); line-height:1.4}
   .auth-user-menu-divider{height:1px; background:var(--line); margin:2px 4px 4px}
-  /* user: "ten napis roli niech będzie malutki pod imieniem/nazwiskiem" —
-     drugi, drobny wiersz wprost w badge'u topbaru (patrz renderAuthUserBadge),
-     zamiast osobnej pigułki w dropdownie. */
+
   .auth-user-role-sub{font-size:9.5px; font-weight:500; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint)}
-  /* user: "zamiast tych dwóch przycisków [Edit/Add] zrób przy każdej
-     pozycji w dropdownie po prawej stronie ikonę ołówka" + "Add new" jako
-     wydzielona pozycja na końcu listy. */
+
   .brand-select-edit-btn{flex:none}
   .brand-select-add{border-top:1px solid var(--line); margin-top:4px; padding-top:10px; color:var(--accent-strong); font-weight:500; justify-content:flex-start}
 
   .crm-filter-row{display:flex; align-items:center; gap:14px; flex:none}
   .crm-filter-row .bf-checkbox{color:var(--ink-muted); font-size:13px}
-  /* Checkbox platformy obsługiwanej przez aktywną markę — zablokowany do
-     odznaczenia (patrz renderCrmFilterRow), ale user chce, żeby to było
-     też WIDAĆ, nie tylko egzekwowane po kliknięciu: "widoczny jako
-     niedostepny do klikniecia ale zaznaczony". Świadomie tylko opacity +
-     cursor, BEZ atrybutu disabled — klik ma dalej odpalać toast z
-     wyjaśnieniem (patrz komentarz przy renderCrmFilterRow). */
+
   .crm-filter-row .bf-checkbox.is-locked{opacity:.55; cursor:not-allowed}
   .crm-filter-row .bf-checkbox.is-locked input[type="checkbox"]{cursor:not-allowed}
-  /* Lekka kreska oddzielająca platformę marki od pozostałych — user:
-     "najpierw platforma... potem lekka kreska oddzielająca pozostałe". */
+
   .crm-filter-divider{width:1px; height:14px; background:var(--line); flex:none}
-  /* user: "Type Client Name or ID" (Ledgerix) — lupa osadzona W polu,
-     zamiast gołego tekstowego inputu. */
+
   .search-input-wrap{position:relative; flex:1; min-width:0}
   .search-input-wrap svg{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--ink-faint); pointer-events:none}
   .search-input{
@@ -667,64 +414,27 @@
     background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-card);
     box-shadow:var(--shadow-card); display:flex; flex-direction:column; overflow:hidden;
   }
-  /* Gwiazdka ulubionych — dziś żyje wyłącznie w nagłówkach modali (edytor
-     komponentu / podgląd maila), nie na samej karcie — user: "Przycisk
-     dodawania do ulubionych przenieś obok [X]". Klasa zostaje generyczna
-     (.icon-btn + ten modyfikator), bo to nadal ten sam .icon-btn co
-     wszędzie indziej — tylko SAMA gwiazdka (svg) zmienia kolor po
-     zaznaczeniu, nie tło/obramowanie przycisku. */
+
   .card-favorite-btn{flex:none}
   .card-favorite-btn.is-favorite svg{color:var(--accent-strong)}
-  /* user: "informacje o ilości komponentów/kategorii (nad obrazkiem
-     preview) wywal - w konsekwencji preview ma być pierwszym elementem od
-     krawędzi widgeta" — .card-head (dawny pasek z licznikiem+gwiazdką)
-     zniknął; .card-preview jest teraz pierwszym dzieckiem .card, więc
-     dostaje WSZYSTKIE cztery rogi zaokrąglone na górze (były 12px, bo
-     nested pod card-head — teraz to sama krawędź karty, promień = --radius-card). */
-  /* user: "zablokuj klikanie w te preview komponentow / gotowych maili na
-     widgetach- to ma być tylko obrazek, a nie itneraktywny element" —
-     renderComponentThumb/renderEmailThumb wstrzykują SKOMPILOWANY MJML
-     wprost do tego diva (nie w iframe), więc realne linki/przyciski/pola
-     z maila (np. CTA <a href>) były naprawdę klikalne/najeżdżalne na
-     karcie. pointer-events:none wyłącza WSZYSTKO w środku (klik, hover,
-     focus) — działa jak statyczny obrazek, karta pod spodem (Open/Add/
-     3-kropki w .card-body/.card-actions) ma własny stacking context i
-     dalej reaguje normalnie, bo pointer-events nie jest dziedziczone tam,
-     gdzie explicit auto go przywraca. */
+
+
   .card-preview{height:150px; flex:none; background:var(--surface-2); overflow:hidden; position:relative; border-radius:var(--radius-card) var(--radius-card) 0 0; pointer-events:none}
-  /* user: "dół z kolei niech się wygasza kolorem #F5F6F8 (gradient)" —
-     tylko na snapshotach gotowych maili (renderEmailThumb/renderEmailGrid),
-     bo tam treść jest CELOWO ucinana na dole (długi mail w krótkim boxie). */
+
   .card-preview-fade{position:absolute; left:0; right:0; bottom:0; height:40px; background:linear-gradient(to bottom, transparent, var(--surface-2)); pointer-events:none}
   .card-body{padding:12px 12px 10px; flex:1; display:flex; flex-direction:column; min-height:0}
-  /* Wiersz nazwy — etykieta po lewej, menu 3-kropek po prawej, W TEJ SAMEJ
-     linii (user: "po prawej stronie na linii nazwy komponentu/gotowego
-     maila mają pojawić się te 3 kropki"). */
+
   .card-name-row{display:flex; align-items:flex-start; justify-content:space-between; gap:6px}
   .card-label{font-weight:500; font-size:14.5px; line-height:1.3; margin:0; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
   .card-desc{font-size:13.5px; line-height:1.45; color:var(--ink-muted); margin:4px 0 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
-  /* user: "nazwy CRM bez chipsów, same napisy, ale fontem 9.5px" — zastępuje
-     dawny rząd osobnych pigułek (.card-crm-chip) jedną linią zwykłego
-     tekstu, oddzieloną środkowymi kropkami. margin-top:auto przykleja ją
-     zawsze do dołu card-body, niezależnie od długości opisu nad nią. */
+
   .card-compat-text{margin-top:auto; padding-top:8px; font-size:9.5px; color:var(--ink-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .card-actions{display:flex; gap:6px; padding:0 12px 12px}
 
-  /* Menu 3-kropek — nowy, generyczny wzorzec overflow-menu na kartach
-     (komponent/e-mail/flow), zamiast osobnych ikon (ołówek/kosz) na
-     widgecie. Ten sam dropdown-recipe co .brand-select-menu (przycisk +
-     bezwzględnie pozycjonowana lista + zamykanie klikiem poza nią), tylko
-     mniejszy i przyklejony do prawej krawędzi wiersza nazwy. */
+
   .card-menu-wrap{position:relative; flex:none}
-  /* user: "porównaj design system... 1:1 jak na obrazku" — w referencji
-     3-kropki to goła ikona, bez kwadratowego obrysu .icon-btn. Podwójny
-     selektor (.icon-btn.card-menu-btn) celowo — sama .card-menu-btn ma tę
-     samą specyficzność co .icon-btn (jedna klasa), więc kolejność w
-     arkuszu decydowałaby, kto wygra; tu wygrywa zawsze, niezależnie od
-     kolejności. */
-  /* user: "te 3 kropki na widgecie są tak małe że tego w ogole nie widac"
-     — --ink-faint (bardzo jasny szary) na białym tle realnie ginął;
-     --ink-muted ma dużo więcej kontrastu i pasuje do reszty ikon w apce. */
+
+
   .icon-btn.card-menu-btn{width:29px; height:29px; border:none; background:transparent; color:var(--ink-muted)}
   .icon-btn.card-menu-btn:hover{background:var(--surface-2); color:var(--ink)}
   .card-menu{
@@ -740,10 +450,7 @@
   .card-menu-item.danger{color:#b42318}
   .card-menu-item.danger:hover{background:#fef3f2}
 
-  /* ---------- Flow Repository ---------- */
-  /* Karta flow NIE ma podglądu graficznego (flow to opis kampanii, nie
-     renderowalny MJML) — zamiast miniatury niesie metadane, po których
-     realnie się wybiera: branża, kanały, liczba etapów. */
+
   .flow-card{display:flex; flex-direction:column; gap:0}
   .flow-card-top{padding:16px 16px 0}
   .flow-card-cat{font-size:10px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint)}
@@ -754,20 +461,9 @@
   .flow-card-foot{margin-top:auto; padding:14px 16px 16px; display:flex; gap:6px}
   .flow-card-foot .btn{flex:1}
 
-  /* Strona główna (Home) — user: "taki homepage a'la aplikacja SAASowa" —
-     hero z opisem, potem siatka kafelków do wszystkich 9 destynacji
-     (patrz renderHomePage). user, drugi raz: "content na homepage ma być
-     wycentrowany" — .home-inner centruje całość w pełnej, teraz
-     bez-sidebarowej szerokości (patrz .app.no-nav); "wywal też liczenie
-     itemów w każdej kategorii" — .home-stats/.home-stat-n/.home-stat-label
-     usunięte, licznik żyje już tylko na kafelku (.home-tile-count). */
+
   .home-inner{max-width:1100px; margin:0 auto}
-  /* user, drugi raz: "tekst ma być wycentrowany względem kafelków...
-     szerokość kontenera zostaw jaka jest, ma być tylko text wycentrowany
-     i div wycentrowany" — .home-hero dostaje margin:0 auto (blok
-     wyśrodkowany w .home-inner, dawniej przyklejony do lewej) i
-     text-align:center (sam tekst też wycentrowany), max-width zostaje
-     bez zmian. */
+
   .home-hero{max-width:720px; margin:0 auto; padding:48px 0 40px; text-align:center}
   .home-eyebrow{font-size:11.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 14px}
   .home-title{font-size:34px; font-weight:500; letter-spacing:-.02em; line-height:1.18; margin:0 0 16px}
@@ -782,31 +478,16 @@
   .home-tile-desc{font-size:13.5px; color:var(--ink-muted); line-height:1.5; margin:0}
   @media (max-width:860px){ .home-tiles{grid-template-columns:repeat(2,1fr)} }
   @media (max-width:560px){ .home-tiles{grid-template-columns:1fr} .home-title{font-size:27px} }
-  /* user: "Brakuje tu skeleton loadingu dla kafelek... Stopka jest blisko,
-     poczym się oddala gdy kafelki się załadują" — #homeTiles zaczynał
-     jako PUSTY div (0px wysokości) aż do pierwszego renderAll() (czeka na
-     Firebase Auth), więc stopka realnie skakała w dół, gdy kafelki się
-     w końcu pojawiały. Statyczny szkielet o TYM SAMYM kształcie co
-     .home-tile (ta sama siatka/padding/gap) rezerwuje docelową wysokość
-     od razu w pierwszej klatce — renderHomePage() i tak nadpisuje całe
-     innerHTML #homeTiles prawdziwymi kafelkami, więc nie trzeba nic
-     zmieniać w JS, ten sam mechanizm co reszta anti-flash poprawek w tym
-     pliku (hardkodowanie DOCELOWEGO kształtu wprost w statycznym HTML). */
+
   .home-tile.skel{cursor:default; pointer-events:none}
   .skel-block{background:var(--surface-2); border-radius:4px; animation:skel-pulse 1.4s ease-in-out infinite}
   @keyframes skel-pulse{0%,100%{opacity:1}50%{opacity:.45}}
   @media (prefers-reduced-motion:reduce){ .skel-block{animation:none; opacity:.7} }
 
-  /* Szczegóły flow */
-  /* Dwie kolumny w podglądzie flow — user: "te główne informacje... maja
-     być po prawej stronie jako sticky". Prawa (.flow-detail-side) zostaje
-     przypięta do góry WEWNĄTRZ jedynego scrollującego rodzica (.modal-body
-     — position:sticky liczy się względem najbliższego scrollującego
-     przodka, nie potrzeba osobnego kontenera scrolla). */
+
   .flow-detail-grid{display:grid; grid-template-columns:1fr 340px; gap:28px; align-items:start}
   .flow-detail-side{position:sticky; top:0}
-  /* 6 pól, 3 w wierszu — user: "jest akurat 6 elementow wiec po 3 w
-     wierszu" (Category/Industry/Channels/Stages/Duration/Built for). */
+
   .flow-meta-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px}
   .flow-meta-item{background:var(--surface-2); border-radius:10px; padding:10px 10px}
   .flow-meta-item .k{font-size:9.5px; font-weight:500; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint)}
@@ -827,23 +508,18 @@
   .flow-stage-purpose{font-size:13px; font-weight:500; color:var(--ink); margin:8px 0 0}
   .flow-stage-detail{font-size:13px; line-height:1.6; color:var(--ink-muted); margin:5px 0 0}
   .flow-stage-chips{display:flex; gap:5px; margin-top:9px; flex-wrap:wrap}
-  /* Gotowe maile podpięte pod dany step — user: "skladam sobie maila
-     klikam save as i w popupie wybieram flow -> krok w ktorym ten mail
-     wychodzi. w flow konkretnym juz widze jakie maile sa podpiete do
-     jakiego". */
+
   .flow-stage-emails{list-style:none; margin:10px 0 0; padding:8px 0 0; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:6px}
   .flow-email-row{display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px; color:var(--ink)}
 
-  /* Edytor etapów w Add/Edit flow — repeatable rows, ten sam duch co
-     add/remove wariantów w edytorze komponentu, tylko pola edytowalne
-     wprost (bez osobnego kroku "dodaj"). */
+
   .flow-stage-edit{border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:10px; position:relative}
   .flow-stage-edit .bf-row{margin-bottom:8px}
   .flow-stage-edit .bf-row:last-child{margin-bottom:0}
   .flow-stage-edit-remove{position:absolute; top:10px; right:10px}
   .flow-stage-add-btn{width:100%}
 
-  /* ---------- Harmonogram DM (kalendarz) ---------- */
+
   .dm-toolbar{display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:14px}
   .dm-monthnav{display:flex; align-items:center; gap:8px}
   .dm-monthlabel{font-size:16px; font-weight:500; min-width:150px; text-align:center}
@@ -853,8 +529,7 @@
   .dm-toolbar-actions{display:flex; gap:8px; margin-left:auto}
   .dm-owner-row{display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ink-muted); margin-bottom:14px}
   .dm-owner-row .k{font-weight:500; color:var(--ink-faint)}
-  /* 7 równych kolumn; minmax(0,1fr) — bez tego długie nazwy wysyłek
-     rozpychają kolumnę i cała siatka przestaje być równa. */
+
   .dm-grid{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden}
   .dm-dow{background:var(--surface-2); padding:8px 10px; font-size:10.5px; font-weight:500; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); text-align:center}
   .dm-day{background:var(--surface); min-height:104px; padding:7px 8px; display:flex; flex-direction:column; gap:4px}
@@ -862,13 +537,10 @@
   .dm-day.is-today .dm-daynum{background:var(--ink); color:var(--paper); border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center}
   .dm-daynum{font-size:11.5px; font-weight:500; color:var(--ink-muted); flex:none}
   .dm-day.is-other .dm-daynum{color:var(--ink-faint)}
-  /* user: "usuń cienie wszystkie" — pasek statusu po lewej krawędzi
-     (dawniej inset box-shadow) to teraz zwykły border-left, stąd
-     padding-left o 2px mniejszy niż reszta (border zajmuje tę różnicę). */
+
   .dm-ev{border:0; border-left:2px solid transparent; text-align:left; width:100%; border-radius:6px; padding:4px 6px 4px 4px; font-size:10.5px; font-weight:500; line-height:1.3; cursor:pointer; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:inherit}
   .dm-ev .t{opacity:.75; font-weight:500; margin-right:3px}
-  /* Statusy — kolor NIESIE znaczenie, więc każdy ma też własną etykietę w
-     legendzie i w szczegółach; sam kolor nigdy nie jest jedynym nośnikiem. */
+
   .dm-ev.s-todo{background:var(--surface-2); color:var(--ink-muted); border-left-color:var(--line-strong)}
   .dm-ev.s-in-progress{background:#fef6e0; color:#8a5a00; border-left-color:#fbbf24}
   .dm-ev.s-ready{background:#eaf2fe; color:#1d4ed8; border-left-color:#3b82f6}
@@ -890,50 +562,28 @@
   .btn{
     border:1px solid var(--ink); background:var(--ink); color:var(--surface);
     padding:10px 16px; border-radius:8px; font-size:13.5px; font-weight:500;
-    /* line-height:1 — user: "wyrównaj przyciski, czasami część z nich ma
-       różne wysokości, ogarnij to wszędzie". Bez jawnego line-height każdy
-       .btn liczy wysokość z ODZIEDZICZONEGO line-height body (metryka
-       fontu), która potrafi się różnić o ułamek piksela między przeglądarką
-       a kontekstem (np. przycisk wewnątrz flexa vs. samodzielny) — jeden
-       WSPÓLNY, jawny line-height usuwa całą tę klasę niezgodności naraz,
-       dla KAŻDEGO .btn w apce (ten sam trik już wcześniej zadziałał przy
-       dopasowywaniu przycisku gwiazdki do .btn.small). */
+
     line-height:1;
     transition:transform .12s ease, opacity .12s ease;
   }
   .btn:hover{opacity:.85}
   .btn:active{transform:scale(.97)}
   .btn.ghost{background:transparent; color:var(--ink); border-color:var(--line-strong)}
-  /* Badge zalogowanego usera w topbarze — user: "usuń ten border wokół
-     usera" — ma wyglądać jak avatar+imię pływające w pasku, nie jak
-     kolejny przycisk-obwódka obok Edit/Add. */
+
   .btn.ghost.auth-user-badge{border-color:transparent; padding-left:4px; padding-right:8px}
   .btn.ghost.auth-user-badge:hover{border-color:transparent; opacity:.7}
   .btn.small{padding:8px 12px; font-size:13.5px; border-radius:6px}
   .btn.added{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
   .btn.ghost[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent-strong); color:var(--ink)}
-  /* "Zapoznałem się" (Knowledge Base) — user: "zmienia się kolor z
-     czarnego obiektu na taki wyszarzały" po kliknięciu. .btn domyślnie
-     jest czarny (border/background:var(--ink)) — TU nadpisujemy tylko
-     stan aria-pressed="true" na wyszarzały. */
+
   .kb-read-btn[aria-pressed="true"]{background:var(--surface-2); border-color:var(--line-strong); color:var(--ink-muted)}
-  /* user, drugi raz: "checkboxa nie widać" — poprzednia wersja
-     wstrzykiwała SVG z JS do pustego <span>, które z jakiegoś powodu
-     renderowało się niewidocznie. TU checkbox to zwykły kwadrat +
-     ::after (haczyk), sterowane WYŁĄCZNIE stanem aria-pressed w CSS —
-     zero JS-owego wstrzykiwania ikony, więc nie ma czego "nie
-     wyrenderować". border-color:currentColor, więc dopasowuje się
-     automatycznie do koloru tekstu przycisku w obu stanach (biały na
-     czarnym / ciemnoszary na jasnoszarym). Haczyk na sztywno w
-     var(--paper) — tło pod nim jest zawsze ciemne (currentColor w obu
-     stanach przycisku), więc jasny haczyk ma kontrast niezależnie od
-     stanu. */
+
   .kb-read-checkbox{display:inline-block; width:15px; height:15px; border:1.5px solid currentColor; border-radius:4px; margin-right:7px; position:relative; vertical-align:-3px; flex:none}
   .kb-read-btn[aria-pressed="true"] .kb-read-checkbox{background:currentColor}
   .kb-read-btn[aria-pressed="true"] .kb-read-checkbox::after{content:""; position:absolute; left:4px; top:0px; width:4px; height:8px; border:solid var(--paper); border-width:0 2px 2px 0; transform:rotate(40deg)}
   .btn-preview{border:none; background:transparent; color:var(--ink-muted); font-size:13.5px; text-decoration:underline; padding:0}
 
-  /* ---------- build list drawer ---------- */
+
   aside.drawer{position:sticky; top:69px; align-self:start; padding:20px 20px 40px; max-height:calc(100vh - 69px); overflow-y:auto; display:flex; flex-direction:column; gap:12px}
   .drawer-title{font-size:15px; display:flex; align-items:center; justify-content:space-between}
   .drawer-count{font-family:var(--font-mono); font-size:11px; color:var(--ink-muted); font-weight:400}
@@ -947,29 +597,17 @@
   .li-handle:active{cursor:grabbing}
   .list-item-broken{background:#fef3f2; border-color:#f3a89c}
   .list-item-broken .li-key{color:#b42318}
-  /* user: "wywal pokazywanie id. niech bedzie pogrubiona nazwa... tylko z
-     fontem 11px i w nawiasie cienko pisane tak jak jest teraz wariant" —
-     jeden wiersz: label (pogrubiony, 11px) + wariant. .li-key/mono zostaje
-     w CSS TYLKO dla gałęzi "brakujący komponent" (patrz renderList). */
+
   .li-key-wrap{flex:1; overflow:hidden}
   .li-label{font-size:12.5px; font-weight:500; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .list-item .li-key{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-  /* user: "wariant mial byc lzejszym font weight lacznie z nawiasem" —
-     bez jawnego font-weight dziedziczyło pogrubienie z rodzica .li-label
-     (600), łącznie z nawiasami (są częścią TEGO spana, nie osobnym tekstem). */
+
   .li-variant{font-family:var(--font-body); font-weight:400; color:var(--ink-faint)}
   .li-order{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-faint); width:16px; flex:none}
   .li-actions{display:flex; gap:3px; flex:none}
-  /* user: "toć te ikony są mikroskopijne" — box powiększony razem z
-     samymi SVG-ami (patrz ICON_* wyżej, teraz 20-22px), żeby ikona miała
-     wygodny margines w środku zamiast dotykać krawędzi przycisku. */
+
   .icon-btn{width:29px; height:29px; border:1px solid var(--line); background:var(--surface); border-radius:5px; color:var(--ink-muted); font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center}
-  /* Warianty przy polu Variant (New component / Edit component) siedzą w
-     tym samym wierszu co select/input, więc mają dopasować się WYSOKOŚCIĄ
-     do niego zamiast trzymać sztywne 22px .icon-btn — user: "przyciski
-     przy VARIANT są nieadekwatne rozmiarem do pozostałych pół". Sztywna
-     height na .icon-btn blokowałaby align-items:stretch (domyślny na
-     flex row), height:auto ją odblokowuje. */
+
   .icon-btn-field{width:29px; height:auto; align-self:stretch}
   .icon-btn:hover{border-color:var(--line-strong); color:var(--ink)}
   .icon-btn:disabled{opacity:.3; cursor:default}
@@ -978,63 +616,33 @@
   .export-btn:disabled{background:var(--surface-2); border-color:var(--line); color:var(--ink-faint); cursor:not-allowed}
   .drawer-hint{font-size:13.5px; color:var(--ink-faint); line-height:1.5}
 
-  /* ---------- brand token strip ---------- */
+
   .token-strip{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:2px 0 18px; font-size:11.5px; color:var(--ink-muted)}
   .token-chip{display:flex; align-items:center; gap:5px; border:1px solid var(--line); border-radius:var(--radius-chip); padding:3px 9px 3px 4px}
   .token-chip .sw{width:13px; height:13px; border-radius:50%; border:1px solid rgba(0,0,0,.12)}
   .token-note{font-size:11px; color:var(--ink-faint); font-style:italic}
 
-  /* ---------- modal ---------- */
+
   .overlay{position:fixed; inset:0; background:rgba(20,20,16,.5); backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px); display:none; align-items:center; justify-content:center; padding:24px; z-index:100}
   .overlay.open{display:flex}
-  /* Blokada scrolla strony pod otwartym popupem (patrz IIFE na końcu
-     skryptu, syncModalScrollLock) — user: "moge scrollować sobie majac
-     otwarty popup". */
+
   body.modal-open{overflow:hidden}
   .modal{background:var(--surface); border:1px solid var(--line-strong); border-radius:8px; max-width:720px; width:100%; max-height:92vh; display:flex; flex-direction:column; overflow:hidden}
   .modal-head{display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--line)}
   .modal-head h3{font-size:16px}
-  /* user: "co z tego że dałeś im 18px skoro są osadzane w boxach o różnych
-     wielkościach" — .modal-close było 29x29 podczas gdy .icon-btn/
-     .card-menu-btn (ta sama ikona X wewnątrz) było 25x25. Jeden rozmiar
-     hit-boxa dla WSZYSTKICH przycisków-ikon w apce. */
+
   .modal-close{width:29px; height:29px; border-radius:5px; border:1px solid var(--line); background:var(--surface); color:var(--ink-muted); display:flex; align-items:center; justify-content:center}
   .modal-body{padding:20px; overflow-y:auto}
   .modal-footer-bar{flex:none; padding:14px 20px; border-top:1px solid var(--line); background:var(--surface)}
   .modal-preview-box{background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:20px; margin-bottom:16px; display:flex; align-items:center; justify-content:center}
-  /* height (STAŁA), nie max-height/min-height — inaczej przełączenie
-     Desktop/Mobile (treść reflow'uje się na inną wysokość) widocznie
-     zmieniało wysokość całego popupu, nie tylko samego podglądu. Ma być
-     ZAWSZE ta sama wysokość, treść dłuższa niż box po prostu przewija się
-     wewnątrz (overflow-y:auto). */
+
   .modal-preview-box.stacked{display:block; height:70vh; overflow-y:auto; overflow-anchor:none}
-  /* STAŁA wysokość (patrz mountMjmlIframe, fixedHeight:true) — treść
-     zaczyna się ZAWSZE od górnej krawędzi (patrz resizeStyle w
-     mountMjmlIframe — flex-start, nie center, żeby dłuższa treść nigdy
-     nie zaczynała się z górą już poza ekranem), dłuższa dostaje PIONOWY
-     scrollbar wewnątrz samego iframe'a. overflow-x:auto tutaj to
-     dodatkowy bezpiecznik — user:
-     "jeżeli content wyjeżdża poza okno preview dodaj boczny scrollbar"
-     (komponent szerszy niż okno, np. dwukolumnowy feed, ma dostać POZIOMY
-     scrollbar zamiast po prostu się przycinać bez śladu). */
+
   #editPreviewBox{height:480px; overflow-x:auto}
-  /* user: "w sekcji Header i Footer, pod MJML Code dodaj nową sekcję
-     'Preview'... każda zmiana w kodzie ma od razu odświeżać podgląd" —
-     sam wzorzec co #editPreviewBox (podgląd pojedynczego komponentu):
-     .modal-preview-box na zewnątrz (padding/tło), mountMjmlIframe
-     (fixedHeight:true) wewnątrz. Patrz renderBfMjmlPreview. */
+
   .bf-mjml-preview-label{display:block; font-size:12.5px; font-weight:500; color:var(--ink-muted); margin:12px 0 6px}
   .bf-mjml-preview-scroll{width:100%; overflow-x:auto}
-  /* user: "Okno preview headera/footera ma być równe szerokością z
-     pozostałymi sekcjami- po chuj ten gap?" — .bf-mjml-preview-frame
-     dostawało width:mailWidth WPROST (patrz bfFieldHtml), więc cały BOX
-     (tło/border od .modal-preview-box) kończył się razem z mailem, w
-     środku szerszej kolumny formularza — stąd martwa, nierówna szpara po
-     prawej, inna szerokość niż np. pole "FOOTER"/MJML code obok. Teraz
-     .bf-mjml-preview-frame samo jest width:100% (jak reszta pól), a
-     realną szerokość maila (mailWidth) dostaje dopiero .bf-mjml-preview-
-     inner — .modal-preview-box's własny display:flex;justify-content:
-     center wyśrodkowuje go w środku pełnej szerokości boxa. */
+
   .bf-mjml-preview-frame{height:320px; width:100%}
   .bf-mjml-preview-inner{flex:none; height:100%}
   .bf-mjml-preview-empty{font-size:12.5px; color:var(--ink-faint); padding:16px; margin:0; width:100%; box-sizing:border-box}
@@ -1044,9 +652,7 @@
   .device-toggle{display:flex; gap:2px; background:var(--surface-2); border-radius:8px; padding:3px}
   .device-btn{border:0; background:transparent; padding:6px 12px; font-size:13.5px; font-family:inherit; border-radius:6px; cursor:pointer; color:var(--ink-faint)}
   .device-btn[aria-pressed="true"]{background:var(--surface); color:var(--ink); font-weight:500}
-  /* Podgląd pojedynczego komponentu (editPreviewBox) — Mobile zwęża
-     TYLKO to okienko, nie cały popup edytora (patrz syncEditDeviceToggleUI;
-     #editModal już nie zmienia własnej szerokości). */
+
   .modal-preview-box.email-frame-mode.is-mobile{display:flex; justify-content:center; align-items:flex-start; background:var(--surface-2); padding:16px 0}
   .modal-preview-box.email-frame-mode.is-mobile #editPreviewIframeWrap{width:420px; max-width:100%}
   .modal-desc{font-size:13px; color:var(--ink-muted); line-height:1.6; margin-bottom:16px}
@@ -1055,48 +661,9 @@
   .preview-chrome-field{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-muted)}
   .preview-chrome-field select{font-family:inherit; font-size:13.5px; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:4px 8px}
 
-  /* ---------- podgląd pełnego maila: rama (nagłówek klienta pocztowego +
-     treść) jako JEDEN, scalony blok ---------- */
-  /* previewFrame = inboxChrome + previewBox sklejone w JEDNĄ, przewijaną
-     całość (patrz openMailPreview/openEmailPreview) — TYLKO ta rama
-     zwęża się/zaokrągla w widoku Mobile (patrz syncDeviceToggleUI),
-     popup dookoła (#previewModal) ma ZAWSZE tę samą szerokość i
-     wysokość, niezależnie od Desktop/Mobile. 60vh (nie 70vh) zostawia
-     więcej miejsca w oknie modala, żeby w typowym przypadku NIE
-     dochodziło jeszcze do przewijania .modal-body — jeden scrollbar
-     (ramy), nie dwa zagnieżdżone. */
-  /* max-height, nie height — user: "w podgladzie maili tez na samym
-     spodzie jest taka spora szpara". Stały height:60vh forsował TĘ
-     wysokość nawet dla krótkiego maila (np. tylko header+footer),
-     zostawiając pustą przestrzeń pod skompilowaną treścią wewnątrz tego
-     przewijalnego boxa. max-height zachowuje dokładnie to samo
-     zachowanie dla DŁUGICH maili (nadal ucina na 60vh i przewija w
-     środku — powód wyżej wciąż aktualny), ale krótszy mail po prostu
-     kurczy box do swojej rzeczywistej wysokości. */
+
   .preview-frame.stacked{max-height:60vh; overflow-y:auto; overflow-anchor:none; border:1px solid var(--line); border-radius:8px; margin-bottom:16px}
-  /* user: "podgląd na wersji mobile... zależy mi by rozmiar treści w
-     podglądzie był bardzo zbliżony do tego co mam faktycznie [na
-     telefonie]" — realne kliencki poczty (Gmail app w szczególności)
-     zwykle zmniejszają/dopasowują treść do faktycznej szerokości ekranu
-     mocniej, niż zwykłe wyrenderowanie przy 420px CSS-owej szerokości w
-     iframe pokazuje.
-     user: "w miejscach zaznaczonych strzałką widać kreski, których nie
-     może być widać" — transform:scale(.92) (poprzednia wersja tego
-     zabiegu) potrafi w Chrome zostawić 1px "rysę" o innym kolorze na
-     granicy dwóch sąsiadujących sekcji tego samego koloru (subpikselowe
-     zaokrąglanie przy kompozycji GPU dla niecałkowitej skali) —
-     zweryfikowane obiektywnie (pomiar koloru pikseli) na realnie
-     skompilowanym mailu: rysa jest w Mobile (transform), nieobecna w
-     Desktop (bez transformu). zoom NIE ma tego efektu (layoutowe
-     skalowanie, nie kompozycja warstw po fakcie) — i tak jak transform,
-     NIE dotyka mierzenia wysokości wewnątrz iframe'a (patrz
-     recalcIframeHeight/ResizeObserver w JS): zweryfikowane osobnym
-     testem, że documentElement.scrollHeight zmierzony WEWNĄTRZ iframe'a
-     jest identyczny z/bez zoom na jego przodku z zewnątrz — jedyna
-     różnica to nieistotne ~1px w raportowanej szerokości wewnętrznej.
-     Bez premnożenia height przez .92 (jak przy transform) — zoom sam
-     zmniejsza to, ile miejsca ramka zajmuje w SWOIM rodzicu, zachowując
-     przy tym normalny (nie-pomniejszony) układ WEWNĄTRZ siebie. */
+
   .preview-frame.stacked.is-mobile{width:420px; max-width:100%; margin-left:auto; margin-right:auto; border-radius:20px; max-height:60vh; zoom:.92}
   .preview-frame .inbox-chrome{border:0; border-bottom:1px solid var(--line); border-radius:0; margin-bottom:0}
   .preview-frame .modal-preview-box{border:0; border-radius:0; margin-bottom:0; display:block; padding:20px}
@@ -1116,21 +683,15 @@
     white-space:pre-wrap; word-break:break-word; max-height:340px; overflow-y:auto; box-sizing:border-box;
   }
   textarea.code{color:var(--ink); resize:vertical}
-  /* "Installation prompt" — druga strona popupu szczegółów skilla (patrz
-     skillInstallBtn/renderSkillInstallPanel), architektura info wzięta ze
-     skillta.com (numerowane kroki + nazwany blok kodu + duży CTA), samo
-     stylowanie zostaje czarno-białe, spójne z resztą appki. */
+
   .skill-install-steps{margin:0 0 16px; padding-left:20px; font-size:13.5px; line-height:1.65; color:var(--ink)}
   .skill-install-steps li{margin-bottom:6px}
   .skill-install-steps code{background:var(--surface-2); padding:1px 5px; border-radius:4px; font-family:var(--font-mono); font-size:12px}
   .skill-install-code-head{font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:6px}
-  /* Podgląd kodu i podgląd maila w tym samym modalu mają dzielić TĘ SAMĄ
-     politykę wysokości (70vh/min 120px), zamiast .code's własnego,
-     niezależnego max-height:340px — inaczej przełączanie "Preview code"/
-     "Preview email" widocznie zmieniało wysokość okna. */
+
   #previewCodeBox{height:70vh}
 
-  /* ---------- toast ---------- */
+
   .toast{
     position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(8px);
     background:var(--ink); color:var(--paper); padding:9px 16px; border-radius:var(--radius-chip);
@@ -1138,17 +699,10 @@
     z-index:200;
   }
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
-  /* user: "wszelkie komunikaty z błędem... mają być na czerwonym dymku,
-     nie czarnym — bo to błąd krytyczny" — tylko dla toastów, które
-     faktycznie oznaczają, że jakaś operacja się NIE udała (sieć/baza/plik),
-     nie dla zwykłych potwierdzeń czy przypomnień o wypełnieniu pola. */
+
   .toast.error{background:#b42318}
 
-  /* ---------- feedback ---------- */
-  /* user: "przycisk ma być przyklejony do dolnej krawędzi i border radius
-     mniejszy i tylko górne krawędzie" — bottom:0 zamiast pływającego
-     marginesu, mały radius tylko u góry (dolne rogi i tak nie są widoczne,
-     bo przycisk styka się z krawędzią ekranu). */
+
   .feedback-fab{
     position:fixed; right:22px; bottom:0; z-index:90;
     background:var(--ink); color:var(--paper); border:none; border-radius:8px 8px 0 0;
@@ -1156,9 +710,7 @@
     transition:opacity .12s ease;
   }
   .feedback-fab:hover{opacity:.85}
-  /* user: "ma nie wyskakiwać popup tylko wyjezdzac od dolu taki modal" —
-     ten sam mechanizm co aside.drawer na mobile (transform+transition,
-     zawsze w DOM, off-screen domyślnie), bez ciemnego .overlay tła. */
+
   .feedback-panel{
     position:fixed; right:22px; bottom:0; z-index:95;
     width:380px; max-width:calc(100vw - 44px);
@@ -1177,27 +729,19 @@
   .feedback-textarea:focus{outline:none; border-color:var(--line-strong)}
   @media (max-width:520px){ .feedback-panel{right:0; width:100%; max-width:100%} }
 
-  /* ---------- formularz marki ---------- */
+
   .modal-body{max-height:86vh}
   .edit-layout{display:grid; grid-template-columns:420px 1fr; gap:20px; align-items:start}
   @media (max-width:900px){ .edit-layout{grid-template-columns:1fr} }
   .edit-form{display:flex; flex-direction:column; gap:8px; max-height:480px; overflow-y:auto; padding-right:4px}
   .edit-field{display:flex; flex-direction:column; gap:3px}
-  /* Ten sam rozmiar/font co .bf-field label (Brand Kit, metadane
-     komponentu, ustawienia CRM...) — wcześniej ta jedna etykieta była
-     monospace i mniejsza niż WSZĘDZIE indziej w apce, mimo że pełni tę
-     samą rolę (podpis pola). */
+
   .edit-field label{font-size:13.5px; color:var(--ink-muted)}
   .edit-field input, .edit-field textarea{
     border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:13.5px;
     background:var(--surface); color:var(--ink); font-family:inherit; resize:vertical;
   }
-  /* Pasek pogrubienie/kursywa/przekreślenie nad polem frazy — user: "chcę
-     móc pogrubić/kursywić/przekreślić zaznaczony tekst". Znaczniki (<b>/
-     <i>/<s>) trafiają wprost w wartość [[TOKENU]], która wchodzi
-     nieescapowana w MJML (patrz applyValuesToCode) — mj-text renderuje
-     swoją zawartość jako surowe HTML, więc te tagi po prostu działają w
-     skompilowanym mailu bez żadnych zmian w kompilatorze. */
+
   .edit-field-head{display:flex; align-items:center; justify-content:space-between; gap:8px}
   .fmt-toolbar{display:flex; gap:3px}
   .fmt-btn{width:20px; height:20px; border:1px solid var(--line); border-radius:4px; background:var(--surface); color:var(--ink-muted); font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer}
@@ -1207,32 +751,17 @@
   .fmt-btn[data-fmt="s"]{text-decoration:line-through}
   .edit-empty-note{font-size:13.5px; color:var(--ink-faint); padding:10px}
   .edit-form-col{display:flex; flex-direction:column; gap:10px}
-  /* position:sticky + top:0 — kolumna podglądu ma "podążać" za scrollem
-     .modal-body (najbliższy przewijany przodek), gdy lewa kolumna
-     kodu/fraz jest wyższa i wymusza scroll — inaczej podgląd znikał z
-     widoku, mimo że to jego treść user chce cały czas widzieć. Wymaga
-     align-items:start na .edit-layout (już jest, patrz wyżej) — domyślne
-     stretch zablokowałoby sticky, bo kolumna zawsze wypełniałaby całą
-     wysokość wiersza grida. */
+
   .edit-preview-col{display:flex; flex-direction:column; position:sticky; top:0; align-self:start}
   .edit-mode-bar{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px}
-  /* min-height = wysokość panelu kodu (textarea 220px) — "Edit phrases"
-     bywa dużo krótszy (mało tokenów), bez tej podłogi przełączenie
-     zakładki widocznie zmniejszałoby popup. */
+
   #editModeBody{min-height:220px}
   .btn:disabled{opacity:.4; cursor:not-allowed; pointer-events:none}
   .brand-form-layout{display:grid; grid-template-columns:1fr 300px; gap:24px; align-items:start}
   .brand-form-layout.cd-layout{grid-template-columns:1fr 450px}
   @media (max-width:900px){ .brand-form-layout{grid-template-columns:1fr} }
   @media (max-width:720px){ .brand-form-layout, .brand-form-layout.cd-layout{grid-template-columns:1fr} }
-  /* Podgląd na żywo MUSI być przyklejony — formularz ma ~118 pól, więc bez
-     tego znikał po pierwszym przewinięciu i cała idea "widzę efekt zmiany
-     od razu" przestawała działać. Brand Kit jest teraz modalem —
-     scrolluje się WYŁĄCZNIE .modal-body (patrz #brandKitOverlay), więc
-     top jest liczony względem TEGO kontenera, nie strony (stąd małe 0,
-     nie dawne 78px z układu pełnej strony). Wymaga align-items:start na
-     gridzie (jest wyżej) — domyślne stretch rozciągnęłoby kolumnę na całą
-     wysokość i sticky nie miałoby zakresu. */
+
   .brand-form-preview{position:sticky; top:0; align-self:start}
   @media (max-width:900px){ .brand-form-preview{position:static} }
   .brand-form{display:flex; flex-direction:column; gap:18px}
@@ -1240,57 +769,25 @@
   .bf-group-title{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 10px}
   .bf-group-title-row{display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 10px}
   .bf-group-title-row .bf-group-title{margin:0}
-  /* Pełne logo aktywnej platformy CRM/ESP — user: "po prawej stronie od
-     nagłówka CRM/ESP... ma sie aktualizowac przy zmianie". Zamiast
-     literalnego opacity:20% (prawie niewidoczne na białym tle grupy) —
-     kolor logotypu = var(--ink-faint), ten sam "szary z lekkim niebieskim"
-     ton, którego już używa reszta wyciszonych elementów w appce (spójne
-     z motywem, czytelne w obu trybach jasny/ciemny automatycznie). */
+
   .bf-crm-logo-badge{display:flex; align-items:center; gap:5px; color:var(--ink-faint); font-weight:500; font-size:13px; flex:none}
   .bf-crm-logo-badge svg{width:16px; height:16px; flex:none}
   .bf-crm-logo-badge img{height:16px; width:16px; object-fit:contain; flex:none; opacity:.35}
-  /* align-items:flex-start (nie domyślny stretch) — pole Logo jest
-     wyraźnie wyższe niż zwykłe jednowierszowe pola obok (miniatura +
-     przycisk + notka), stretch rozciągał WSZYSTKIE pola w wierszu do
-     tej wysokości, co wyglądało na rozjechane. Etykiety (zawsze pierwszym
-     dzieckiem .bf-field) i tak zostają wyrównane do góry, jak dotąd —
-     ta zmiana nic nie psuje w rzędach z samymi jednowierszowymi polami. */
+
   .bf-row{display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start}
   .bf-field{display:flex; flex-direction:column; gap:4px; flex:1; min-width:120px}
   .bf-field label{display:block; font-size:13.5px; color:var(--ink-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   .field-label{display:block; font-size:13.5px; color:var(--ink-muted); margin-bottom:4px}
-  /* AI Support tymczasowo wyłączony — user: "Bez sensu to. zostaw opcję,
-     ale... zablokuj input, przycisk 'Proceed' ma być zgaszony" (odrzucił
-     wersję "skopiuj prompt do AI ręcznie" jako obejście ograniczenia CSP
-     artefaktu). Sekcja zostaje widoczna jako zapowiedź, ale w pełni
-     nieaktywna, dopóki nie będzie realnej ścieżki wywołania AI. */
+
   textarea.code:disabled{opacity:.55; cursor:not-allowed; resize:none}
   .bf-field input[type="text"], .bf-field input[type="number"], .bf-field input[type="datetime-local"], .bf-field input[type="date"], .bf-field input[type="month"], .bf-field input[type="email"], .bf-field input[type="password"], .bf-field select{
     border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:13.5px;
     background:var(--surface); color:var(--ink); font-family:inherit; width:100%; box-sizing:border-box;
   }
-  /* accent-color: przeglądarki chromowe (Chrome/Edge) faktycznie używają
-     tego jako kolor podświetlenia w natywnym kalendarzu date/datetime —
-     jedyny realny "hak" na markowy pomarańcz zamiast systemowego
-     niebieskiego, bo sam POPUP kalendarza (w odróżnieniu od samego pola)
-     jest renderowany przez system/przeglądarkę i poza tym nie da się go
-     ostylować z poziomu CSS. date/month dopisane przy okazji Discount
-     Codes/Monthly Reports — dawniej ta reguła obejmowała tylko
-     datetime-local, więc zwykłe pola date (patrz DM Schedule) i nowe
-     pola month renderowały się bez markowego akcentu. */
+
   .bf-field input[type="datetime-local"], .bf-field input[type="date"], .bf-field input[type="month"]{ accent-color:var(--accent-strong); color-scheme:light }
   .bf-color-swatch:focus-visible{ outline:2px solid var(--accent); outline-offset:1px }
-  /* user: "miałeś zlikwidować WSZĘDZIE ten styl pogrubienia każdych
-     inputów. ma być 1px i nie czarny tylko lekko ciemniejszy od obecnego"
-     — jeden globalny catch-all zamiast łatania każdej klasy inputu z
-     osobna (dawniej: search-input i .code w ogóle nie miały :focus, więc
-     dostawały grubą, czarną, natywną obwódkę przeglądarki; .bf-field
-     inputy miały SWOJĄ własną, 2px pomarańczową). Teraz KAŻDY zwykły
-     input/textarea/select w apce (poza świadomie odrębnymi wyjątkami:
-     .inline-edit-input — pomarańcz, zamierzony osobny akcent przy "wpisz
-     nazwę w miejscu"; checkboxy/swatche kolorów — inny typ kontrolki, mają
-     własne, wyżej wyspecyfikowane reguły) dostaje TĘ SAMĄ, spokojną
-     obwódkę: 1px, o jeden odcień ciemniejszy niż domyślny --line. */
+
   input[type="text"]:focus, input[type="number"]:focus, input[type="datetime-local"]:focus,
   input[type="date"]:focus, input[type="month"]:focus,
   input[type="email"]:focus, input[type="password"]:focus, input[type="search"]:focus,
@@ -1300,13 +797,7 @@
   .bf-color-field input[type="color"]:focus{outline:1px solid var(--line-strong); outline-offset:1px}
   .bf-color-field input[type="text"]{flex:1; min-width:0}
   .bf-checkbox{display:flex; align-items:center; gap:6px; font-size:13.5px; color:var(--ink-muted)}
-  /* Natywny checkbox (system-owy niebieski haczyk, patrz screenshot usera)
-     odstawał od reszty ostylowanych kontrolek (custom selecty, swatch'e
-     kolorów, przełączniki) — user: "zmień styl checkboxów na takie
-     pasujące do designu strony (wszystkie checkboxy)". Jedna reguła na
-     ".bf-checkbox input[type=checkbox]" pokrywa WSZYSTKIE checkboxy w
-     appce (Countdown GIF, pola boolean Brand Kitu, filtr CRM, branże przy
-     kategoriach maili) — wszystkie renderują się przez tę samą klasę. */
+
   .bf-checkbox input[type="checkbox"]{
     appearance:none; -webkit-appearance:none; margin:0; flex:none;
     width:15px; height:15px; border:1px solid var(--line-strong); border-radius:4px;
@@ -1314,8 +805,7 @@
     transition:background-color .12s ease, border-color .12s ease;
   }
   .bf-checkbox input[type="checkbox"]:hover{border-color:var(--ink-faint)}
-  /* user: "Checkboxy zaznaczone mają być czarne a nie szare" — było
-     var(--accent) (średni szary), teraz --accent-strong (prawie czarny). */
+
   .bf-checkbox input[type="checkbox"]:checked{background:var(--accent-strong); border-color:var(--accent-strong)}
   .bf-checkbox input[type="checkbox"]:checked::after{
     content:""; position:absolute; left:4px; top:1px; width:4px; height:8px;
@@ -1332,11 +822,7 @@
   .bf-preview-label{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 8px; position:sticky; top:0}
   .bf-preview-box{position:sticky; top:24px; background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:16px; display:flex; flex-direction:column; gap:10px}
   .bf-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:18px; padding-top:14px; border-top:1px solid var(--line)}
-  /* Pasek Delete/Save as/Save changes w edytorze komponentu — user: "jak
-     content popupu jest dłuższy to nie widać tych przycisków". Sticky w
-     obrębie #editOverlay .modal-body (jedyny scrollujący rodzic), z
-     ujemnym marginesem znoszącym padding modal-body, żeby pasek sięgał
-     równo do prawdziwej krawędzi okna, bez martwej szpary pod spodem. */
+
   #editActionsBar{position:sticky; bottom:-20px; margin:18px -20px -20px; padding:14px 20px; background:var(--surface); z-index:2}
   .bf-accordion{border:1px solid var(--line); border-radius:5px; background:var(--surface)}
   .bf-accordion + .bf-accordion{border-top:0; border-radius:0}
@@ -1350,8 +836,7 @@
   .bf-tabs{display:flex; gap:2px; background:var(--surface-2); border-radius:8px; padding:3px; margin-bottom:12px}
   .bf-tab-btn{flex:1; border:0; background:none; padding:7px 10px; font-size:13.5px; font-family:inherit; color:var(--ink-muted); border-radius:6px; cursor:pointer}
   .bf-tab-btn[aria-pressed="true"]{background:var(--surface); color:var(--ink); font-weight:500}
-  /* "+ Add variant" — sama pigułka co reszta zakładek, ale wizualnie
-     odróżniona (przerywana ramka), bo to akcja, nie stan wyboru. */
+
   .bf-tab-add{border:1px dashed var(--line-strong); color:var(--ink-faint)}
   .bf-tab-add:hover{color:var(--ink); border-color:var(--ink-muted)}
   .bf-tab-panel{display:none}
@@ -1360,24 +845,12 @@
   .cat-manage-row:last-child{border-bottom:0}
   .cat-manage-label{flex:1; font-size:13px; color:var(--ink)}
   .cat-manage-count{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint)}
-  /* Rename/usuń jako jedna zgrana para (mały odstęp MIĘDZY nimi), zamiast
-     rozjechane po row'owym gap:10px co label/count. Rozmiar samego
-     przycisku NIE jest już tu nadpisywany osobno — bazowy .icon-btn (patrz
-     wyżej) jest teraz sam w sobie wystarczająco duży, a osobny rozmiar TU
-     tylko wracał do niespójności między popupami, której user się
-     dopominał ("na innych podstronach/popupach ikon w ogóle nie
-     ruszyłeś" — a to był dokładnie jeden z takich miejsc, gdzie stary,
-     mniejszy override cichcem wygrywał z nowym bazowym rozmiarem). */
+
   .cat-manage-actions{display:flex; gap:5px; flex:none}
   .cat-manage-confirm{width:100%; margin-top:10px; padding:12px; background:var(--surface-2); border-radius:6px}
   .cat-manage-confirm p{margin:0 0 10px; font-size:13.5px; color:var(--ink-muted)}
   .cat-manage-industries{flex-basis:100%; display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:2px}
-  /* user: "nowa podstronę na której admin widzi użytkowników... imię,
-     nazwisko, e-mail, avatary... ile komponentów dodali, ile gotowych
-     maili" — za dużo kolumn na standardowe 640px Site Settings, stąd
-     poszerzony wariant modala TYLKO gdy otwarta jest zakładka Users
-     (patrz switchSettingsTab). Siatka zamiast flex — user woli, żeby
-     "formularze się wyrównywały w wierszach". */
+
   #crmSettingsModal.settings-modal-wide{max-width:860px}
   .user-manage-table{overflow-x:auto}
   .user-manage-head,.user-manage-row{
@@ -1388,12 +861,7 @@
   .user-manage-row{padding:7px 4px; border-bottom:1px solid var(--line)}
   .user-manage-row:last-child{border-bottom:0}
   .user-manage-row.is-disabled{opacity:.5}
-  /* user: "co to za gówniane ostylowanie inputów" — te pola żyły POZA
-     .bf-field, więc omijały wspólną regułę inputów/selectów (patrz
-     ".bf-field input[...], .bf-field select" wyżej) i renderowały się
-     gołym, natywnym wyglądem przeglądarki. Powtórzone tu 1:1 (ten sam
-     border/radius/padding/tło), żeby wyglądały jak KAŻDE inne pole w
-     apce, nie jak osobna, zapomniana wysepka. */
+
   .user-manage-name-input{
     border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:13.5px;
     background:var(--surface); color:var(--ink); font-family:inherit; width:100%; box-sizing:border-box;
@@ -1401,21 +869,9 @@
   .user-manage-name-input:focus{outline:none; border-color:var(--line-strong)}
   .user-manage-email{font-size:13.5px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .user-manage-count{font-family:var(--font-mono); font-size:12px; color:var(--ink-muted); text-align:center}
-  /* Role <select> przechodzi przez enhanceSelect (patrz renderUsersManager)
-     — te same custom-dropdown style co wszędzie indziej w apce (user:
-     "Restyle every native dropdown app-wide"), .cs-select samo dba o swój
-     wygląd; ta reguła tylko domyka szerokość w gridzie. */
+
   .user-manage-row .cs-select{width:100%}
-  /* Wspólna klasa dla KAŻDEGO "wpisz nazwę w miejscu" inputu w appce (rename
-     kategorii komponentu/maila w Site Settings, rename/add wariantu w
-     edytorze komponentu) — user: "border ktory sie pojawia po edycji nazwy
-     jest za gruby... zakładam ze taki border weight jest zastosowany
-     wszedzie... zastosuj to do wszystkich sytuacji". Bez tej klasy taki
-     input miał TYLKO domyślną obwódkę przeglądarki, która na :focus robi
-     się gruba/kolorowa (stąd "za gruby border") — teraz zawsze 1px, w
-     spoczynku nieco ciemniejszy niż wcześniejszy var(--line-strong), na
-     focus TA SAMA grubość, tylko kolor zmienia się na akcent (bez
-     natywnego outline przeglądarki). */
+
   .inline-edit-input{flex:1; min-width:0; font-size:13px; color:var(--ink); padding:4px 6px; border:1px solid var(--ink-faint); border-radius:5px; outline:none}
   .inline-edit-input:focus{border-color:var(--accent-strong)}
   .bf-responsive-field{position:relative}
@@ -1424,7 +880,7 @@
   #cdPreview{max-width:100%; background:repeating-conic-gradient(#f1f1f1 0% 25%, #fff 0% 50%) 50%/14px 14px}
   #cdResult{max-width:100%; display:block; margin:0 auto; background:repeating-conic-gradient(#f1f1f1 0% 25%, #fff 0% 50%) 50%/14px 14px}
 
-  /* mini preview mockup helpers */
+
   .mp-frame{width:100%; font-family:var(--pf-body); color:var(--pf-text); font-size:11px; line-height:1.4}
   .mp-card{background:var(--pf-surface); border:1px solid var(--pf-border); border-radius:var(--pf-radius)}
   .mp-btn{display:inline-block; font-weight:500; font-size:10px; text-transform:uppercase; letter-spacing:.03em; padding:6px 14px; border-radius:var(--pf-btn-radius)}
@@ -1436,32 +892,15 @@
     *{transition:none !important; animation:none !important}
   }
 
-  /* Spinner w nakładce ładowania podglądu (mountMjmlIframe) — patrz komentarz
-     tam: placeholder startuje z małą, STAŁĄ wysokością zamiast zgadywanych
-     420px, więc to kółko + krótki podpis wypełniają go bez wyglądania na
-     pustą dziurę, a przejście do realnej treści czyta się jako "doładowało
-     się", nie jako "layout skoczył". Animacja wyłączona globalnie przez
-     regułę prefers-reduced-motion powyżej. */
+
   .mf-spinner{width:22px; height:22px; border:2.5px solid var(--line-strong); border-top-color:var(--accent-strong); border-radius:50%; animation:mf-spin .7s linear infinite}
   @keyframes mf-spin{to{transform:rotate(360deg)}}
   #appLoadingScreen{position:fixed; inset:0; z-index:10000; background:var(--paper); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px}
   #appLoadingScreen .app-loading-spinner{width:36px; height:36px; border:3px solid var(--line-strong); border-top-color:var(--accent-strong); border-radius:50%; animation:mf-spin .8s linear infinite}
   @media (prefers-reduced-motion:reduce){ #appLoadingScreen .app-loading-spinner{animation:none} }
-  /* user: "po wciśnięciu dowolnego przycisku ... animacja ładowania do
-     momentu aż faktycznie coś się nie wczyta" — spinner podmieniający
-     całą zawartość przycisku na czas realnej akcji async (patrz
-     withBtnLoading w JS). currentColor, więc pasuje i do .btn (biały
-     tekst na czarnym tle), i do .btn.ghost (ciemny tekst). */
+
   .btn-spinner{width:14px; height:14px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation:mf-spin .7s linear infinite; display:inline-block; vertical-align:-2px}
-  /* ---------- footer ----------
-     user: "popraw stopkę, ma wyglądać strukturalnie jak ta co wrzuciłem
-     zdjęcie" (referencyjny zrzut: jasne tło, logo + copyright po lewej,
-     "Powered by [marka]" po prawej) — jasne tło zamiast dawnego ciemnego
-     bloku, spójne z resztą apki (--paper). Logo RetentionQ to PRAWDZIWE
-     wektory ściągnięte z retentionq.com/CDN (Footer-Big-Logo.svg +
-     RetentionQ-Small-Mark.svg), tylko przebarwione z wariantu na ciemne
-     tło (biały tekst 15% opacity) na czarny — sama koralowa ścieżka "Q"
-     (#FF5456) zostaje nietknięta, to wciąż ten sam autentyczny znak. */
+
   .app-footer{ background:var(--paper); margin-top:40px; border-top:1px solid var(--line); flex:none }
   .app-footer-inner{
     max-width:1400px; margin:0 auto; padding:22px 20px; box-sizing:border-box;
