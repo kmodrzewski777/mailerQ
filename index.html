@@ -2846,7 +2846,7 @@
    Flow Repository, 3.2 = DM Schedule + Skills, 3.3 = import 13 skilli +
    Brand Kit integracja, 3.4 = przebudowa edytora komponentu (warianty,
    frazy per wariant, multi-CRM). */
-var APP_VERSION = "3.9.0";
+var APP_VERSION = "3.9.1";
 var APP_UPDATED = "2026-08-25";
 
 /* ================================================================
@@ -16104,8 +16104,18 @@ function restoreStateFromUrl(){
   else if(discountId && findDiscountBatch(discountId)) openDiscountDetail(discountId);
   else if(hintId && findHint(hintId)) openKnowledgeDetail(hintId);
 }
+// user: "Czemu przy uruchomieniu strony widzę wszędzie 0 przy pozycjach, a
+// prawidłowa ilość ładuje się dopiero jak kliknę w cokolwiek?" — realny bug:
+// renderPrimaryNav() (liczniki kategorii w sidebarze, przez compsByCategory
+// -> crmFilterAllows -> state.crmFilter) leciał PRZED renderCrmFilterRow(),
+// czyli zanim cokolwiek w ogóle ustawiło state.crmFilter (startowo {} —
+// crmFilterAllows dla nieprzypisanej platformy zwraca wtedy false dla
+// KAŻDEGO komponentu, stąd 0 wszędzie). Dopiero klik (druga renderAll(), gdy
+// crmFilter jest już ustawione z pierwszego przebiegu) pokazywał prawdziwe
+// liczby. renderCrmFilterRow() nie zależy od niczego, co ustawia
+// renderPrimaryNav()/renderFilterBar(), więc bezpiecznie ląduje pierwsza.
 function renderAll(){
-  renderSwatches(); renderPrimaryNav(); renderFilterBar(); renderCrmFilterRow();
+  renderSwatches(); renderCrmFilterRow(); renderPrimaryNav(); renderFilterBar();
   syncSectionChrome(); renderGrid(); renderList();
   syncGoogleFontLink(brand());
   syncUrlFromState();
