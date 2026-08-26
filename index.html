@@ -2123,7 +2123,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.14.1";
+var APP_VERSION = "3.15.0";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -2289,6 +2289,7 @@ function withDerivedStyleDefaults(d){
   if(d.pgPricePromoSize==null) d.pgPricePromoSize = "16px";
   if(d.pgPriceOldColor==null) d.pgPriceOldColor = d.faint;
   if(d.pgPriceOldSize==null) d.pgPriceOldSize = "12px";
+  if(d.pgImageBg==null) d.pgImageBg = d.surface2;
   if(d.pgImageRadius==null) d.pgImageRadius = d.radius;
   if(d.pgNamePriceGap==null) d.pgNamePriceGap = "12px";
   return d;
@@ -8814,6 +8815,7 @@ var BRAND_FIELDS = [
     {key:"pgPricePromoSize", label:"Promo price size", type:"text", unitPx:true},
     {key:"pgPriceOldColor", label:"Old (strikethrough) price color", type:"color"},
     {key:"pgPriceOldSize", label:"Old (strikethrough) price size", type:"text", unitPx:true},
+    {key:"pgImageBg", label:"Image container background", type:"color"},
     {key:"pgImageRadius", label:"Image corner radius", type:"text", unitPx:true},
     {key:"pgNamePriceGap", label:"Name → price gap", type:"text", unitPx:true}
   ]},
@@ -11321,14 +11323,14 @@ function productGridCardHtml(p, badgeText, buttonLabel, showButton){
   var url = esc(p.url || "#");
   var img = esc(p.image || "");
   var imageBlock = (p.hasBadge && badgeText) ?
-    '<tr><td align="center" height="234" style="height:234px; overflow:hidden; border-top-left-radius:{{brand.pgImageRadius}}; border-top-right-radius:{{brand.pgImageRadius}}; background:{{brand.surface2}};">'+
+    '<tr><td align="center" height="234" style="height:234px; overflow:hidden; border-top-left-radius:{{brand.pgImageRadius}}; border-top-right-radius:{{brand.pgImageRadius}}; background:{{brand.pgImageBg}};">'+
       '<a href="'+url+'" target="_blank" style="text-decoration:none;"><img src="'+img+'" alt="'+name+'" style="display:block; border:0; width:100%; height:234px; object-fit:contain; object-position:center; border-top-left-radius:{{brand.pgImageRadius}}; border-top-right-radius:{{brand.pgImageRadius}};" /></a>'+
     '</td></tr>'+
     '<tr><td style="padding:0px 0px 12px 0px;">'+
       '<span style="box-sizing:border-box; display:block; background:{{brand.pgBadgeBg}}; color:{{brand.pgBadgeText}}; font-family:{{brand.fontMono}}; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap; overflow:hidden; height:26px; line-height:26px; padding:0 2px; border-bottom-left-radius:{{brand.pgBadgeRadius}}; border-bottom-right-radius:{{brand.pgBadgeRadius}}; width:100%; text-align:center;">'+esc(badgeText)+'</span>'+
     '</td></tr>'
     :
-    '<tr><td align="center" height="260" style="height:260px; overflow:hidden; border-radius:{{brand.pgImageRadius}}; background:{{brand.surface2}};">'+
+    '<tr><td align="center" height="260" style="height:260px; overflow:hidden; border-radius:{{brand.pgImageRadius}}; background:{{brand.pgImageBg}};">'+
       '<a href="'+url+'" target="_blank" style="text-decoration:none;"><img src="'+img+'" alt="'+name+'" style="display:block; border:0; width:100%; height:260px; object-fit:contain; object-position:center; border-radius:{{brand.pgImageRadius}};" /></a>'+
     '</td></tr>'+
     '<tr><td style="font-size:0px; line-height:0px; padding:0px 0px 12px 0px;">&nbsp;</td></tr>';
