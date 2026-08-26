@@ -2115,7 +2115,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.12.2";
+var APP_VERSION = "3.12.3";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -11352,7 +11352,7 @@ function productGridToolSchema(){
           properties:{
             url:{type:"string"},
             name:{type:"string", description:"Product name, first letter capitalized, rest as-is"},
-            image:{type:"string", description:"Main product image URL, forced https, Shopify CDN paths normalized to width=720"},
+            image:{type:"string", description:"Main product image URL copied verbatim from an <img> src or og:image tag actually seen in the fetched page — never constructed or guessed from the product name/slug/ID. Forced https; Shopify CDN paths normalized to width=720"},
             price:{type:"string", description:"Display price, store's own formatting, the lower of two prices if the page shows a sale"},
             priceValue:{type:"number", description:"Same price as a plain number, no currency symbol or thousands separator"},
             isPromo:{type:"boolean", description:"true only if the page shows a struck-through/compare-at regular price"},
@@ -11374,7 +11374,7 @@ function fetchProductGridData(urls, apiKey){
     "- Capitalize only the first letter of the product name, keep the rest as-is.\n"+
     "- If two prices are shown (a sale), price and priceValue must be the LOWER one.\n"+
     "- isPromo is true only if the page shows a struck-through/compare-at regular price; when true, lowestPrice30d is that regular price, display-formatted like the page shows it.\n"+
-    "- For images on a Shopify CDN path (cdn/shop/...), normalize the query string to width=720 (drop crop/height, keep v, force https). Otherwise use the main/og:image URL as-is, forced https.\n"+
+    "- image is critical: copy the EXACT src URL of the product's main image character-for-character from an <img> tag or a <meta property=\"og:image\"> tag in the page content you actually fetched. NEVER construct, guess, or infer an image URL yourself — even if you recognize the store's URL pattern (e.g. a PrestaShop/Shopify-style '/{id}-{size}/{slug}.jpg' convention), the real asset path is very often different from what that pattern would predict, so a guessed URL is usually wrong. If you cannot find a literal image URL in the fetched content, leave image as an empty string rather than guessing. The ONLY transformation allowed is: for a Shopify CDN path (cdn/shop/...), normalize the query string to width=720 (drop crop/height, keep v, force https); for every other URL, use it exactly as found, only forcing https.\n"+
     "- rating/reviewCount come from the page's own review widget if shown, otherwise 0.\n"+
     "Once you have visited every URL, call report_products exactly once with one entry per URL in the same order — do not respond with plain text instead.\n\n"+
     urls.join("\n");
@@ -11391,7 +11391,7 @@ function fetchProductGridData(urls, apiKey){
       max_tokens:8192,
       messages:[{ role:"user", content: prompt }],
       tools:[
-        { type:"web_fetch_20250910", name:"web_fetch", max_uses: urls.length*2, max_content_tokens:8000 },
+        { type:"web_fetch_20250910", name:"web_fetch", max_uses: urls.length*2, max_content_tokens:20000 },
         { name:"report_products", description:"Report the extracted structured data for every product URL.", input_schema: productGridToolSchema() }
       ]
     })
