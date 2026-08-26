@@ -675,6 +675,7 @@
   .pg-review-price{width:88px; flex:none}
   .pg-review-sub .bf-checkbox{flex:none}
   .bf-preview-label{font-size:12.5px; font-weight:500; color:var(--ink-muted); margin:0 0 6px}
+  .pg-live-preview-frame{height:auto; max-height:640px; overflow-y:auto; align-items:flex-start}
 
   .modal-preview-box.email-frame-mode.is-mobile{display:flex; justify-content:center; align-items:flex-start; background:var(--surface-2); padding:16px 0}
   .modal-preview-box.email-frame-mode.is-mobile #editPreviewIframeWrap{width:420px; max-width:100%}
@@ -2122,7 +2123,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.13.0";
+var APP_VERSION = "3.13.1";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -11479,7 +11480,7 @@ function openProductGridDetail(id){
     '</div>';
   byId("productGridDetailBody").innerHTML =
     '<label class="bf-mjml-preview-label">Preview</label>'+
-    '<div class="bf-mjml-preview-scroll"><div class="modal-preview-box bf-mjml-preview-frame"><div class="bf-mjml-preview-inner" style="width:100%; max-width:'+esc(brand().mailWidth||"640px")+'; margin:0 auto"><div id="productGridDetailPreviewMount" style="width:100%"></div></div></div></div>';
+    '<div class="bf-mjml-preview-scroll"><div class="modal-preview-box bf-mjml-preview-frame pg-live-preview-frame"><div class="bf-mjml-preview-inner" style="width:100%; max-width:'+esc(brand().mailWidth||"640px")+'; margin:0 auto"><div id="productGridDetailPreviewMount" style="width:100%"></div></div></div></div>';
   mountMjmlIframe("productGridDetailPreviewMount", productGridSectionMjml(g), brand(), { noChrome:true });
   byId("productGridDetailMenuWrap").setAttribute("data-card-menu-id", id);
   byId("productGridOverlay").classList.add("open");
@@ -11587,7 +11588,7 @@ function renderProductGridReviewView(){
       '<div class="pg-review-list">'+rowsHtml+'</div>'+
       '<div class="pg-review-preview">'+
         '<p class="bf-preview-label">Live preview</p>'+
-        '<div class="bf-mjml-preview-scroll"><div class="modal-preview-box bf-mjml-preview-frame"><div class="bf-mjml-preview-inner" style="width:100%; max-width:'+esc(brand().mailWidth||"640px")+'; margin:0 auto"><div id="productGridReviewPreviewMount" style="width:100%"></div></div></div></div>'+
+        '<div class="bf-mjml-preview-scroll"><div class="modal-preview-box bf-mjml-preview-frame pg-live-preview-frame"><div class="bf-mjml-preview-inner" style="width:100%; max-width:'+esc(brand().mailWidth||"640px")+'; margin:0 auto"><div id="productGridReviewPreviewMount" style="width:100%"></div></div></div></div>'+
       '</div>'+
     '</div>';
   view.querySelectorAll("[data-pg-name]").forEach(function(el){
