@@ -2099,7 +2099,7 @@
 (function () {
   try{
     var section = new URLSearchParams(location.search).get("section");
-    var STACK_SECTIONS = {components:1, emails:1, liquid:1};
+    var STACK_SECTIONS = {components:1, emails:1, liquid:1, productgrid:1};
     var NOGRID_SECTIONS = {schedule:1, reports:1};
     var KNOWN_SECTIONS = {components:1, emails:1, liquid:1, productgrid:1, flows:1, skills:1, schedule:1, discounts:1, reports:1, knowledge:1};
     if(!section || !KNOWN_SECTIONS[section]) return;
@@ -2123,7 +2123,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.14.0";
+var APP_VERSION = "3.14.1";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -12252,7 +12252,7 @@ var SECTION_META = {
 
 
   liquid:     { title:"Liquid Snippets", search:"Search snippets…", primary:"add-liquid", stack:true },
-  productgrid:{ title:"Product Grid", search:"Search product grids…", primary:"add-productgrid", stack:false },
+  productgrid:{ title:"Product Grid", search:"Search product grids…", primary:"add-productgrid", stack:true },
   schedule:   { title:"Schedule", search:null, primary:null, stack:false },
 
 
@@ -12303,7 +12303,7 @@ function syncSectionChrome(){
 
 
   byId("addComponentBtn").style.display = meta.primary==="add" ? "" : "none";
-  byId("brandSelectWrap").style.display = ["components","emails","liquid","skills"].indexOf(state.section)!==-1 ? "" : "none";
+  byId("brandSelectWrap").style.display = ["components","emails","liquid","skills","productgrid"].indexOf(state.section)!==-1 ? "" : "none";
   byId("addFlowRepoBtn").style.display = meta.primary==="add-flow" ? "" : "none";
   byId("addSkillBtn").style.display = meta.primary==="add-skill" ? "" : "none";
   byId("addLiquidBtn").style.display = meta.primary==="add-liquid" ? "" : "none";
