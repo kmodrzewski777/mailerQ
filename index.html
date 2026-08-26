@@ -658,15 +658,22 @@
   .device-btn{border:0; background:transparent; padding:6px 12px; font-size:13.5px; font-family:inherit; border-radius:6px; cursor:pointer; color:var(--ink-faint)}
   .device-btn[aria-pressed="true"]{background:var(--surface); color:var(--ink); font-weight:500}
 
-  .pg-review-layout{display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start}
-  @media (max-width:820px){ .pg-review-layout{grid-template-columns:1fr} }
-  .pg-review-list{display:flex; flex-direction:column; gap:8px; max-height:560px; overflow-y:auto; padding-right:4px}
-  .pg-review-row{display:flex; align-items:center; gap:10px; padding:8px; border:1px solid var(--line); border-radius:8px}
+  .pg-review-layout{display:grid; grid-template-columns:380px 1fr; gap:24px; align-items:start}
+  @media (max-width:980px){ .pg-review-layout{grid-template-columns:1fr} }
+  .pg-review-list{display:flex; flex-direction:column; gap:8px; max-height:620px; overflow-y:auto; padding-right:4px}
+  .pg-review-row{display:flex; align-items:flex-start; gap:10px; padding:8px; border:1px solid var(--line); border-radius:8px}
   .pg-review-thumb{flex:none; width:44px; height:44px; border-radius:6px; overflow:hidden; background:var(--surface-2)}
   .pg-review-thumb img{width:100%; height:100%; object-fit:cover; display:block}
-  .pg-review-fields{flex:1; min-width:0; display:flex; flex-direction:column; gap:4px}
-  .pg-review-fields input{width:100%}
-  .pg-review-row .bf-checkbox{flex:none}
+  .pg-review-main{flex:1; min-width:0; display:flex; flex-direction:column; gap:6px}
+  .pg-review-sub{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .pg-review-main input[type="text"]{
+    border:1px solid var(--line); border-radius:5px; padding:6px 8px; font-size:13px;
+    background:var(--surface); color:var(--ink); font-family:inherit; box-sizing:border-box;
+  }
+  .pg-review-main input[type="text"]:focus{outline:none; border-color:var(--line-strong)}
+  .pg-review-name{width:100%}
+  .pg-review-price{width:88px; flex:none}
+  .pg-review-sub .bf-checkbox{flex:none}
   .bf-preview-label{font-size:12.5px; font-weight:500; color:var(--ink-muted); margin:0 0 6px}
 
   .modal-preview-box.email-frame-mode.is-mobile{display:flex; justify-content:center; align-items:flex-start; background:var(--surface-2); padding:16px 0}
@@ -1718,7 +1725,7 @@
 
 
 <div class="overlay" id="productGridFormOverlay" role="dialog" aria-modal="true">
-  <div class="modal" style="max-width:1100px">
+  <div class="modal" style="max-width:1320px">
     <div class="modal-head">
       <h3 id="productGridFormTitle">New Product Grid</h3>
       <button class="modal-close" id="productGridFormClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
@@ -2115,7 +2122,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.12.3";
+var APP_VERSION = "3.13.0";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -11289,18 +11296,18 @@ function productGridCardHtml(p, badgeText, buttonLabel, showButton){
   var img = esc(p.image || "");
   var imageBlock = (p.hasBadge && badgeText) ?
     '<tr><td align="center" height="234" style="height:234px; overflow:hidden; border-top-left-radius:{{brand.radius}}; border-top-right-radius:{{brand.radius}}; background:{{brand.surface2}};">'+
-      '<a href="'+url+'" target="_blank" style="text-decoration:none;"><img src="'+img+'" alt="'+name+'" style="display:block; border:0; width:100%; height:234px; object-fit:cover; object-position:center; border-top-left-radius:{{brand.radius}}; border-top-right-radius:{{brand.radius}};" /></a>'+
+      '<a href="'+url+'" target="_blank" style="text-decoration:none;"><img src="'+img+'" alt="'+name+'" style="display:block; border:0; width:100%; height:234px; object-fit:contain; object-position:center; border-top-left-radius:{{brand.radius}}; border-top-right-radius:{{brand.radius}};" /></a>'+
     '</td></tr>'+
     '<tr><td style="padding:0px 0px 12px 0px;">'+
       '<span style="box-sizing:border-box; display:block; background:{{brand.accent}}; color:{{brand.accentOn}}; font-family:{{brand.fontMono}}; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap; overflow:hidden; height:26px; line-height:26px; padding:0 2px; border-bottom-left-radius:{{brand.radius}}; border-bottom-right-radius:{{brand.radius}}; width:100%; text-align:center;">'+esc(badgeText)+'</span>'+
     '</td></tr>'
     :
     '<tr><td align="center" height="260" style="height:260px; overflow:hidden; border-radius:{{brand.radius}}; background:{{brand.surface2}};">'+
-      '<a href="'+url+'" target="_blank" style="text-decoration:none;"><img src="'+img+'" alt="'+name+'" style="display:block; border:0; width:100%; height:260px; object-fit:cover; object-position:center; border-radius:{{brand.radius}};" /></a>'+
+      '<a href="'+url+'" target="_blank" style="text-decoration:none;"><img src="'+img+'" alt="'+name+'" style="display:block; border:0; width:100%; height:260px; object-fit:contain; object-position:center; border-radius:{{brand.radius}};" /></a>'+
     '</td></tr>'+
     '<tr><td style="font-size:0px; line-height:0px; padding:0px 0px 12px 0px;">&nbsp;</td></tr>';
   var nameBlock =
-    '<tr><td style="padding:0px 0px 25px 0px;">'+
+    '<tr><td style="padding:0px 0px 12px 0px;">'+
       '<div style="height:68px; overflow:hidden;">'+
         '<a href="'+url+'" target="_blank" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; text-overflow:ellipsis; text-decoration:none; color:{{brand.text}}; font-family:{{brand.fontBody}}; font-size:16px; font-weight:500; line-height:1.4;">'+name+'</a>'+
       '</div>'+
@@ -11341,6 +11348,10 @@ function assembleProductGridHtml(grid){
   return '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:separate; border-spacing:0; font-family:{{brand.fontBody}};">'+rows+'</table>';
 }
 
+function productGridSectionMjml(grid){
+  return '<mj-section padding="0px {{brand.contentPadding}}" css-class="mj-gutter"><mj-raw>'+assembleProductGridHtml(grid)+'</mj-raw></mj-section>';
+}
+
 function productGridToolSchema(){
   return {
     type:"object",
@@ -11353,7 +11364,7 @@ function productGridToolSchema(){
             url:{type:"string"},
             name:{type:"string", description:"Product name, first letter capitalized, rest as-is"},
             image:{type:"string", description:"Main product image URL copied verbatim from an <img> src or og:image tag actually seen in the fetched page — never constructed or guessed from the product name/slug/ID. Forced https; Shopify CDN paths normalized to width=720"},
-            price:{type:"string", description:"Display price, store's own formatting, the lower of two prices if the page shows a sale"},
+            price:{type:"string", description:"Display price, store's own formatting, the lower of two prices if the page shows a sale. If the page offers multiple price variants (size/flavor/option, each priced differently), use the CHEAPEST variant's price prefixed with \"od \" (Polish for \"from\"), e.g. \"od 133,00 zł\""},
             priceValue:{type:"number", description:"Same price as a plain number, no currency symbol or thousands separator"},
             isPromo:{type:"boolean", description:"true only if the page shows a struck-through/compare-at regular price"},
             lowestPrice30d:{type:"string", description:"The regular/compare-at price shown on the page, display-formatted — only meaningful when isPromo is true"},
@@ -11373,6 +11384,7 @@ function fetchProductGridData(urls, apiKey){
     "Visit each of these product page URLs (use web_fetch) and extract structured data for each, in the exact order given below. Rules:\n"+
     "- Capitalize only the first letter of the product name, keep the rest as-is.\n"+
     "- If two prices are shown (a sale), price and priceValue must be the LOWER one.\n"+
+    "- If the page offers multiple price variants (different sizes/flavors/options, each with its own price), price and priceValue must be the CHEAPEST variant, and price must be prefixed with \"od \" (Polish for \"from\"), e.g. \"od 133,00 zł\" — never the case for a single fixed price.\n"+
     "- isPromo is true only if the page shows a struck-through/compare-at regular price; when true, lowestPrice30d is that regular price, display-formatted like the page shows it.\n"+
     "- image is critical: copy the EXACT src URL of the product's main image character-for-character from an <img> tag or a <meta property=\"og:image\"> tag in the page content you actually fetched. NEVER construct, guess, or infer an image URL yourself — even if you recognize the store's URL pattern (e.g. a PrestaShop/Shopify-style '/{id}-{size}/{slug}.jpg' convention), the real asset path is very often different from what that pattern would predict, so a guessed URL is usually wrong. If you cannot find a literal image URL in the fetched content, leave image as an empty string rather than guessing. The ONLY transformation allowed is: for a Shopify CDN path (cdn/shop/...), normalize the query string to width=720 (drop crop/height, keep v, force https); for every other URL, use it exactly as found, only forcing https.\n"+
     "- rating/reviewCount come from the page's own review widget if shown, otherwise 0.\n"+
@@ -11467,8 +11479,8 @@ function openProductGridDetail(id){
     '</div>';
   byId("productGridDetailBody").innerHTML =
     '<label class="bf-mjml-preview-label">Preview</label>'+
-    '<div class="bf-mjml-preview-scroll"><div class="modal-preview-box bf-mjml-preview-frame"><div class="bf-mjml-preview-inner" style="width:640px"><div id="productGridDetailPreviewMount" style="height:100%; width:100%"></div></div></div></div>';
-  mountMjmlIframe("productGridDetailPreviewMount", "<mj-raw>"+assembleProductGridHtml(g)+"</mj-raw>", brand(), { noChrome:true, fixedHeight:true });
+    '<div class="bf-mjml-preview-scroll"><div class="modal-preview-box bf-mjml-preview-frame"><div class="bf-mjml-preview-inner" style="width:100%; max-width:'+esc(brand().mailWidth||"640px")+'; margin:0 auto"><div id="productGridDetailPreviewMount" style="width:100%"></div></div></div></div>';
+  mountMjmlIframe("productGridDetailPreviewMount", productGridSectionMjml(g), brand(), { noChrome:true });
   byId("productGridDetailMenuWrap").setAttribute("data-card-menu-id", id);
   byId("productGridOverlay").classList.add("open");
   urlOpenProductGridId = id; syncUrlFromState();
@@ -11560,12 +11572,14 @@ function renderProductGridReviewView(){
   var rowsHtml = d.products.map(function(p, idx){
     return '<div class="pg-review-row">'+
       '<div class="pg-review-thumb"><img src="'+esc(p.image)+'" alt="" loading="lazy"></div>'+
-      '<div class="pg-review-fields">'+
-        '<input type="text" data-pg-name="'+idx+'" value="'+esc(p.name)+'" placeholder="Name">'+
-        '<input type="text" data-pg-price="'+idx+'" value="'+esc(p.price)+'" placeholder="Price">'+
+      '<div class="pg-review-main">'+
+        '<input type="text" class="pg-review-name" data-pg-name="'+idx+'" value="'+esc(p.name)+'" placeholder="Name">'+
+        '<div class="pg-review-sub">'+
+          '<input type="text" class="pg-review-price" data-pg-price="'+idx+'" value="'+esc(p.price)+'" placeholder="Price">'+
+          '<label class="bf-checkbox"><input type="checkbox" data-pg-promo="'+idx+'"'+(p.isPromo?' checked':'')+'>Promo</label>'+
+          '<label class="bf-checkbox"><input type="checkbox" data-pg-badge="'+idx+'"'+(p.hasBadge?' checked':'')+'>Badge</label>'+
+        '</div>'+
       '</div>'+
-      '<label class="bf-checkbox"><input type="checkbox" data-pg-promo="'+idx+'"'+(p.isPromo?' checked':'')+'>Promo</label>'+
-      '<label class="bf-checkbox"><input type="checkbox" data-pg-badge="'+idx+'"'+(p.hasBadge?' checked':'')+'>Badge</label>'+
     '</div>';
   }).join("");
   view.innerHTML =
@@ -11573,7 +11587,7 @@ function renderProductGridReviewView(){
       '<div class="pg-review-list">'+rowsHtml+'</div>'+
       '<div class="pg-review-preview">'+
         '<p class="bf-preview-label">Live preview</p>'+
-        '<div class="bf-mjml-preview-scroll"><div class="modal-preview-box bf-mjml-preview-frame"><div class="bf-mjml-preview-inner" style="width:640px"><div id="productGridReviewPreviewMount" style="height:100%; width:100%"></div></div></div></div>'+
+        '<div class="bf-mjml-preview-scroll"><div class="modal-preview-box bf-mjml-preview-frame"><div class="bf-mjml-preview-inner" style="width:100%; max-width:'+esc(brand().mailWidth||"640px")+'; margin:0 auto"><div id="productGridReviewPreviewMount" style="width:100%"></div></div></div></div>'+
       '</div>'+
     '</div>';
   view.querySelectorAll("[data-pg-name]").forEach(function(el){
@@ -11598,7 +11612,7 @@ function scheduleProductGridPreviewUpdate(){
 function renderProductGridPreview(){
   var d = productGridForm.draft;
   if(!d.products.length) return;
-  mountMjmlIframe("productGridReviewPreviewMount", "<mj-raw>"+assembleProductGridHtml(d)+"</mj-raw>", brand(), { noChrome:true, fixedHeight:true });
+  mountMjmlIframe("productGridReviewPreviewMount", productGridSectionMjml(d), brand(), { noChrome:true });
 }
 
 function saveProductGridForm(){
@@ -11629,7 +11643,7 @@ function addProductGridToMailStack(){
   var d = productGridForm.draft;
   if(!d.products.length){ showToast("Generate a grid first"); return; }
   var label = (d.label||"").trim() || "Product Grid";
-  var html = "<mj-raw>"+assembleProductGridHtml(d)+"</mj-raw>";
+  var html = productGridSectionMjml(d);
   var compId = uniqueComponentKey("product-grid-"+slugifyKey(label));
   COMPONENTS.push({
     id: compId, category:"feed", source:"Maximus", label: label, desc:"", crmPlatforms:[], custom:true,
@@ -13306,7 +13320,8 @@ bindOverlayBackdropClose("productGridOverlay", closeProductGridOverlay);
 byId("productGridCopyBtn").addEventListener("click", function(){
   var g = productGridOpenId && findProductGrid(productGridOpenId);
   if(!g) return;
-  copyText(resolveBrandTokens(assembleProductGridHtml(g), brand()), "Copied — paste it wherever the template needs it");
+  var b = brand();
+  copyText(compileMjmlFragment(resolveBrandTokens(productGridSectionMjml(g), b), { fontBody: b.fontBody }), "Copied — paste it wherever the template needs it");
 });
 byId("addProductGridBtn").addEventListener("click", function(){ openProductGridForm(null); });
 byId("productGridFormClose").addEventListener("click", closeProductGridForm);
