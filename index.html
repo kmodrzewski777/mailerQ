@@ -2123,7 +2123,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.13.1";
+var APP_VERSION = "3.14.0";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -2279,6 +2279,18 @@ function withDerivedStyleDefaults(d){
 
   if(d.footerBg==null) d.footerBg = d.text;
   if(d.footerText==null) d.footerText = d.bg;
+
+  if(d.pgBadgeBg==null) d.pgBadgeBg = d.accent;
+  if(d.pgBadgeText==null) d.pgBadgeText = d.accentOn;
+  if(d.pgBadgeRadius==null) d.pgBadgeRadius = d.radius;
+  if(d.pgPriceColor==null) d.pgPriceColor = d.text;
+  if(d.pgPriceSize==null) d.pgPriceSize = "16px";
+  if(d.pgPricePromoColor==null) d.pgPricePromoColor = d.accent;
+  if(d.pgPricePromoSize==null) d.pgPricePromoSize = "16px";
+  if(d.pgPriceOldColor==null) d.pgPriceOldColor = d.faint;
+  if(d.pgPriceOldSize==null) d.pgPriceOldSize = "12px";
+  if(d.pgImageRadius==null) d.pgImageRadius = d.radius;
+  if(d.pgNamePriceGap==null) d.pgNamePriceGap = "12px";
   return d;
 }
 Object.keys(BRANDS).forEach(function(k){ withDerivedStyleDefaults(BRANDS[k]); });
@@ -8792,6 +8804,19 @@ var BRAND_FIELDS = [
     {key:"border", label:"Border color", type:"color"},
     {key:"cardBorder", label:"Visible card border", type:"checkbox"}
   ]},
+  { title:"Product Grid", fields:[
+    {key:"pgBadgeBg", label:"Badge background", type:"color"},
+    {key:"pgBadgeText", label:"Badge text color", type:"color"},
+    {key:"pgBadgeRadius", label:"Badge radius", type:"text", unitPx:true},
+    {key:"pgPriceColor", label:"Regular price color", type:"color"},
+    {key:"pgPriceSize", label:"Regular price size", type:"text", unitPx:true},
+    {key:"pgPricePromoColor", label:"Promo price color", type:"color"},
+    {key:"pgPricePromoSize", label:"Promo price size", type:"text", unitPx:true},
+    {key:"pgPriceOldColor", label:"Old (strikethrough) price color", type:"color"},
+    {key:"pgPriceOldSize", label:"Old (strikethrough) price size", type:"text", unitPx:true},
+    {key:"pgImageRadius", label:"Image corner radius", type:"text", unitPx:true},
+    {key:"pgNamePriceGap", label:"Name → price gap", type:"text", unitPx:true}
+  ]},
   { title:"Email layout", fields:[
     {key:"mailWidth", label:"Email width", type:"text", unitPx:true},
     {key:"componentGap", label:"Gap between components", type:"text", unitPx:true, responsive:true}
@@ -11296,19 +11321,19 @@ function productGridCardHtml(p, badgeText, buttonLabel, showButton){
   var url = esc(p.url || "#");
   var img = esc(p.image || "");
   var imageBlock = (p.hasBadge && badgeText) ?
-    '<tr><td align="center" height="234" style="height:234px; overflow:hidden; border-top-left-radius:{{brand.radius}}; border-top-right-radius:{{brand.radius}}; background:{{brand.surface2}};">'+
-      '<a href="'+url+'" target="_blank" style="text-decoration:none;"><img src="'+img+'" alt="'+name+'" style="display:block; border:0; width:100%; height:234px; object-fit:contain; object-position:center; border-top-left-radius:{{brand.radius}}; border-top-right-radius:{{brand.radius}};" /></a>'+
+    '<tr><td align="center" height="234" style="height:234px; overflow:hidden; border-top-left-radius:{{brand.pgImageRadius}}; border-top-right-radius:{{brand.pgImageRadius}}; background:{{brand.surface2}};">'+
+      '<a href="'+url+'" target="_blank" style="text-decoration:none;"><img src="'+img+'" alt="'+name+'" style="display:block; border:0; width:100%; height:234px; object-fit:contain; object-position:center; border-top-left-radius:{{brand.pgImageRadius}}; border-top-right-radius:{{brand.pgImageRadius}};" /></a>'+
     '</td></tr>'+
     '<tr><td style="padding:0px 0px 12px 0px;">'+
-      '<span style="box-sizing:border-box; display:block; background:{{brand.accent}}; color:{{brand.accentOn}}; font-family:{{brand.fontMono}}; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap; overflow:hidden; height:26px; line-height:26px; padding:0 2px; border-bottom-left-radius:{{brand.radius}}; border-bottom-right-radius:{{brand.radius}}; width:100%; text-align:center;">'+esc(badgeText)+'</span>'+
+      '<span style="box-sizing:border-box; display:block; background:{{brand.pgBadgeBg}}; color:{{brand.pgBadgeText}}; font-family:{{brand.fontMono}}; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap; overflow:hidden; height:26px; line-height:26px; padding:0 2px; border-bottom-left-radius:{{brand.pgBadgeRadius}}; border-bottom-right-radius:{{brand.pgBadgeRadius}}; width:100%; text-align:center;">'+esc(badgeText)+'</span>'+
     '</td></tr>'
     :
-    '<tr><td align="center" height="260" style="height:260px; overflow:hidden; border-radius:{{brand.radius}}; background:{{brand.surface2}};">'+
-      '<a href="'+url+'" target="_blank" style="text-decoration:none;"><img src="'+img+'" alt="'+name+'" style="display:block; border:0; width:100%; height:260px; object-fit:contain; object-position:center; border-radius:{{brand.radius}};" /></a>'+
+    '<tr><td align="center" height="260" style="height:260px; overflow:hidden; border-radius:{{brand.pgImageRadius}}; background:{{brand.surface2}};">'+
+      '<a href="'+url+'" target="_blank" style="text-decoration:none;"><img src="'+img+'" alt="'+name+'" style="display:block; border:0; width:100%; height:260px; object-fit:contain; object-position:center; border-radius:{{brand.pgImageRadius}};" /></a>'+
     '</td></tr>'+
     '<tr><td style="font-size:0px; line-height:0px; padding:0px 0px 12px 0px;">&nbsp;</td></tr>';
   var nameBlock =
-    '<tr><td style="padding:0px 0px 12px 0px;">'+
+    '<tr><td style="padding:0px 0px {{brand.pgNamePriceGap}} 0px;">'+
       '<div style="height:68px; overflow:hidden;">'+
         '<a href="'+url+'" target="_blank" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; text-overflow:ellipsis; text-decoration:none; color:{{brand.text}}; font-family:{{brand.fontBody}}; font-size:16px; font-weight:500; line-height:1.4;">'+name+'</a>'+
       '</div>'+
@@ -11316,12 +11341,15 @@ function productGridCardHtml(p, badgeText, buttonLabel, showButton){
   var priceBlock = p.isPromo ?
     '<tr><td style="padding:0px 0px 15px 0px; height:30px; vertical-align:middle;">'+
       '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>'+
-        '<td style="font-family:{{brand.fontBody}}; font-size:16px; font-weight:600; line-height:1.4; color:{{brand.accent}}; vertical-align:middle; white-space:nowrap;">'+esc(p.price)+'</td>'+
-        '<td align="right" style="font-family:{{brand.fontBody}}; font-size:10px; font-weight:400; line-height:1.3; color:{{brand.faint}}; vertical-align:middle; text-align:right; padding-left:6px; padding-bottom:3px;">Najniższa cena:<br>'+esc(p.lowestPrice30d)+'</td>'+
+        '<td style="font-family:{{brand.fontBody}}; font-size:{{brand.pgPricePromoSize}}; font-weight:600; line-height:1.4; color:{{brand.pgPricePromoColor}}; vertical-align:middle; white-space:nowrap;">'+esc(p.price)+'</td>'+
+        '<td align="right" style="font-family:{{brand.fontBody}}; font-weight:400; line-height:1.3; vertical-align:middle; text-align:right; padding-left:6px; padding-bottom:3px;">'+
+          '<span style="font-size:10px; color:{{brand.faint}};">Najniższa cena:</span><br>'+
+          '<span style="font-size:{{brand.pgPriceOldSize}}; color:{{brand.pgPriceOldColor}}; text-decoration:line-through;">'+esc(p.lowestPrice30d)+'</span>'+
+        '</td>'+
       '</tr></table>'+
     '</td></tr>'
     :
-    '<tr><td style="padding: 0px 0px 15px 0px; height:30px; vertical-align:bottom; font-family:{{brand.fontBody}}; font-size:16px; font-weight:600; line-height:1.4; color:{{brand.text}};">'+esc(p.price)+'</td></tr>';
+    '<tr><td style="padding: 0px 0px 15px 0px; height:30px; vertical-align:bottom; font-family:{{brand.fontBody}}; font-size:{{brand.pgPriceSize}}; font-weight:600; line-height:1.4; color:{{brand.pgPriceColor}};">'+esc(p.price)+'</td></tr>';
   var buttonBlock = showButton ?
     '<tr><td>'+
       '<a href="'+url+'" target="_blank" style="box-sizing:border-box; background:{{brand.btnPrimaryBg}}; color:{{brand.btnPrimaryText}}; width:100%; letter-spacing:1px; display:block; text-align:center; font-family:{{brand.fontBody}}; font-size:14px; font-weight:{{brand.btnPrimaryWeight}}; text-transform:{{brand.btnPrimaryTransform}}; line-height:1; text-decoration:none; padding:16px 22px; border-radius:{{brand.btnPrimaryRadius}};">'+esc(buttonLabel)+'</a>'+
