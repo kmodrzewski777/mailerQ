@@ -2115,7 +2115,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.12.1";
+var APP_VERSION = "3.12.2";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -11283,7 +11283,7 @@ function sortProductGridProducts(products){
   });
 }
 
-function productGridCardHtml(p, badgeText, buttonLabel){
+function productGridCardHtml(p, badgeText, buttonLabel, showButton){
   var name = esc(truncateProductName(p.name));
   var url = esc(p.url || "#");
   var img = esc(p.image || "");
@@ -11314,21 +11314,23 @@ function productGridCardHtml(p, badgeText, buttonLabel){
     '</td></tr>'
     :
     '<tr><td style="padding: 0px 0px 15px 0px; height:30px; vertical-align:bottom; font-family:{{brand.fontBody}}; font-size:16px; font-weight:600; line-height:1.4; color:{{brand.text}};">'+esc(p.price)+'</td></tr>';
-  var buttonBlock =
+  var buttonBlock = showButton ?
     '<tr><td>'+
       '<a href="'+url+'" target="_blank" style="box-sizing:border-box; background:{{brand.btnPrimaryBg}}; color:{{brand.btnPrimaryText}}; width:100%; letter-spacing:1px; display:block; text-align:center; font-family:{{brand.fontBody}}; font-size:14px; font-weight:{{brand.btnPrimaryWeight}}; text-transform:{{brand.btnPrimaryTransform}}; line-height:1; text-decoration:none; padding:16px 22px; border-radius:{{brand.btnPrimaryRadius}};">'+esc(buttonLabel)+'</a>'+
-    '</td></tr>';
+    '</td></tr>'
+    : "";
   return '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background:{{brand.surface}};">'+imageBlock+nameBlock+priceBlock+buttonBlock+'</table>';
 }
 
 function assembleProductGridHtml(grid){
   var products = sortProductGridProducts(grid.products);
   var buttonLabel = grid.buttonLabel || "Zobacz";
+  var showButton = grid.showButton!==false;
   var rows = "";
   for(var i=0; i<products.length; i+=2){
-    var leftCard = productGridCardHtml(products[i], grid.badgeText, buttonLabel);
+    var leftCard = productGridCardHtml(products[i], grid.badgeText, buttonLabel, showButton);
     var rightCell = products[i+1]
-      ? '<td width="50%" valign="top" style="padding:0 0 24px 6px;">'+productGridCardHtml(products[i+1], grid.badgeText, buttonLabel)+'</td>'
+      ? '<td width="50%" valign="top" style="padding:0 0 24px 6px;">'+productGridCardHtml(products[i+1], grid.badgeText, buttonLabel, showButton)+'</td>'
       : '<td width="50%" valign="top" style="padding:0 0 24px 6px;">&nbsp;</td>';
     rows +=
       '<tr>'+
@@ -11487,14 +11489,15 @@ function deleteProductGrid(id){
 
 var productGridForm = { editId: null, draft: null };
 function emptyProductGridDraft(){
-  return { label:"", urls:"", badgeText:"", badgeThreshold:100, buttonLabel:"Zobacz", products:[] };
+  return { label:"", urls:"", badgeText:"", badgeThreshold:100, showButton:true, buttonLabel:"Zobacz", products:[] };
 }
 function openProductGridForm(existing){
   productGridForm.editId = existing ? existing.id : null;
   productGridForm.draft = existing ? {
     label: existing.label||"",
     urls: (existing.products||[]).map(function(p){ return p.url; }).join("\n"),
-    badgeText: existing.badgeText||"", badgeThreshold: existing.badgeThreshold||100, buttonLabel: existing.buttonLabel||"Zobacz",
+    badgeText: existing.badgeText||"", badgeThreshold: existing.badgeThreshold||100,
+    showButton: existing.showButton!==false, buttonLabel: existing.buttonLabel||"Zobacz",
     products: (existing.products||[]).map(function(p){ return Object.assign({}, p); })
   } : emptyProductGridDraft();
   byId("productGridFormTitle").textContent = existing ? "Edit Product Grid" : "New Product Grid";
@@ -11533,7 +11536,10 @@ function renderProductGridConfigView(){
     '<div class="bf-group"><div class="bf-row">'+
       '<div class="bf-field"><label for="pg-badge-text">Active discount badge text (optional)</label><input type="text" id="pg-badge-text" value="'+esc(d.badgeText)+'" placeholder="e.g. -20% z kodem DOGDAY"></div>'+
       '<div class="bf-field"><label for="pg-badge-threshold">Badge minimum price</label><input type="number" id="pg-badge-threshold" value="'+esc(d.badgeThreshold)+'" min="0"></div>'+
-      '<div class="bf-field"><label for="pg-button-label">Button label</label><input type="text" id="pg-button-label" value="'+esc(d.buttonLabel)+'" placeholder="Zobacz"></div>'+
+      '<div class="bf-field">'+
+        '<label class="bf-checkbox"><input type="checkbox" id="pg-show-button"'+(d.showButton?' checked':'')+'> Show button under each product</label>'+
+        '<input type="text" id="pg-button-label" value="'+esc(d.buttonLabel)+'" placeholder="Zobacz"'+(d.showButton?"":" disabled")+' style="margin-top:6px">'+
+      '</div>'+
     '</div></div>'+
     (connected ? "" : '<p class="drawer-empty" style="padding:14px; margin:0">Connect your Claude account to generate a grid — click your profile in the top-right, then “Connect Claude”.</p>');
   byId("pg-label").addEventListener("input", function(){ d.label = this.value; });
@@ -11541,6 +11547,10 @@ function renderProductGridConfigView(){
   byId("pg-badge-text").addEventListener("input", function(){ d.badgeText = this.value; });
   byId("pg-badge-threshold").addEventListener("input", function(){ d.badgeThreshold = Number(this.value)||0; });
   byId("pg-button-label").addEventListener("input", function(){ d.buttonLabel = this.value; });
+  byId("pg-show-button").addEventListener("change", function(){
+    d.showButton = this.checked;
+    byId("pg-button-label").disabled = !this.checked;
+  });
   byId("productGridGenerateBtn").style.display = connected ? "" : "none";
 }
 
@@ -11596,7 +11606,7 @@ function saveProductGridForm(){
   var label = (d.label||"").trim();
   if(!label){ showToast("Enter a grid name"); return; }
   return withBtnLoading(byId("productGridSaveBtn"), function(){
-    var payload = { label: label, badgeText: d.badgeText||"", badgeThreshold: d.badgeThreshold||0, buttonLabel: d.buttonLabel||"Zobacz", products: d.products };
+    var payload = { label: label, badgeText: d.badgeText||"", badgeThreshold: d.badgeThreshold||0, showButton: d.showButton!==false, buttonLabel: d.buttonLabel||"Zobacz", products: d.products };
     if(productGridForm.editId){
       var existing = findProductGrid(productGridForm.editId);
       if(!existing) return Promise.resolve();
