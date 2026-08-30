@@ -2123,7 +2123,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.15.1";
+var APP_VERSION = "3.15.2";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -2808,7 +2808,9 @@ function frame(b,inner){
 
 
 function mjGetAttr(el, name, fallback){
-  return el.hasAttribute(name) ? el.getAttribute(name) : fallback;
+  if(!el.hasAttribute(name)) return fallback;
+  var val = el.getAttribute(name);
+  return (val==null || val==="") ? fallback : val;
 }
 
 
@@ -9250,7 +9252,8 @@ function renderBrandFormFields(){
 }
 
 function draftAsBrand(d){
-  return Object.assign({}, d, { fontMono: d.fontMono || d.fontBody, accent2: d.accent2 || null });
+  var b = Object.assign({}, d, { fontMono: d.fontMono || d.fontBody, accent2: d.accent2 || null });
+  return withDerivedStyleDefaults(b);
 }
 
 function updateBrandFormPreview(){
