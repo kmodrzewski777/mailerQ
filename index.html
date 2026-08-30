@@ -2123,7 +2123,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.16.0";
+var APP_VERSION = "3.16.1";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -6513,6 +6513,49 @@ KNOWLEDGE_HINTS.push({
       "Przypomnienia przed obciążeniem — wysyłaj 3–5 dni przed odnowieniem, z komunikatami typu: \"Twoje kolejne [produkt] już prawie w drodze, chcesz pominąć albo zamienić?\" lub \"Szybkie przypomnienie: dostawa w poniedziałek. Wszystko gra?\".",
       "Winback dla anulowanych subskrybentów — sekwencja rozłożona na 30–45 dni: przypomnienie, czego brakuje bez subskrypcji → oferta powrotu (mocna na wartość, lekka na rabaty) → informacja o ulepszeniach produktu/nowościach → testimoniale od osób, które wróciły.",
       "Nie kończ na \"Przykro nam, że odchodzisz\" — daj konkretny powód, żeby wrócić."
+    ]}
+  ]
+});
+KNOWLEDGE_HINTS.push({
+  id:"kb-subscription-churn-diagnosis-reactivation", category:"automation", dateAdded:"2026-08-30", image:"assets/kb/subscription-churn-dashboard.jpg",
+  title:"Cykl życia subskrypcji: silniejszy upsell, diagnoza churnu i reaktywacja",
+  summary:"Redukcja churnu to nie jedna sekwencja przypomnień przed obciążeniem — to dopasowanie konkretnego remedium do konkretnego POWODU anulowania. A odzyskani subskrybenci, jeśli dobrze ich potraktujesz, bywają bardziej opłacalni niż nowi klienci.",
+  source:"Subscription Lifecycle Playbook (upsell / churn / reactivation)",
+  sections:[
+    { heading:"What it's about", bullets:[
+      "Uzupełnienie istniejącej lekcji o flowach subskrypcyjnych — tu skupiamy się na TRZECH konkretnych momentach cyklu życia: silniejszym domknięciu upsellu po pierwszym jednorazowym zakupie, diagnozowaniu PRZYCZYNY anulowania zamiast leczenia objawów, oraz na reaktywacji już anulowanych subskrybentów innym podejściem niż standardowy winback."
+    ]},
+    { heading:"Why use it", bullets:[
+      "Generyczne \"zostań z nami\" albo \"wróć, mamy rabat 15%\" ignoruje FAKTYCZNY powód, dla którego ktoś odchodzi — a różne powody wymagają zupełnie różnych remediów.",
+      "Walka o subskrypcję zaczyna się jeszcze przed e-mailem, na PDP i checkout — jeśli ktoś już kupił jednorazowo bez subskrypcji, e-mail działa pod górkę, ale wciąż ma realną dźwignię."
+    ]},
+    { heading:"Upselling one-time buyers — 2 tactics beyond the obvious", bullets:[
+      "Poza oczywistym przypomnieniem o oszczędnościach (matematyka musi być jednoznaczna: subskrypcja = taniej), dwie mocniejsze dźwignie:",
+      "Silniejsza oferta przy DRUGIM zamówieniu — pozwól klientowi retroaktywnie \"wygrać\", jeśli zasubskrybuje teraz.",
+      "Gratis albo limitowany bonus dostępny WYŁĄCZNIE przy subskrypcji (próbka, ekskluzywny prezent) — to nie jest oszukiwanie klienta, to pomożenie mu zobaczyć długoterminową wartość po tym, jak miał już dobre pierwsze doświadczenie."
+    ]},
+    { heading:"Reducing cancellations: match the remedy to the real reason", bullets:[
+      "Najpierw znajdź punkt dźwigni: sprawdź, GDZIE najczęściej churnują klienci (u wielu marek to okres między 1. a 2. zamówieniem) — potem pytaj DLACZEGO.",
+      "Za dużo produktu → pozwól zawiesić, pominąć zamówienie albo zmniejszyć częstotliwość; wypchnij tę opcję mailem PROAKTYWNIE, zanim klient w ogóle dojdzie do przycisku \"anuluj\".",
+      "Zmęczenie produktem / niepewność co dalej → edukacja, tipy, nowe sposoby wykorzystania tego, co już zamówili.",
+      "Za mało zachęty, żeby zostać → gamifikuj kamienie milowe subskrypcji, np. \"darmowy krem z filtrem przy 3. zamówieniu subskrypcyjnym nawilżacza\"."
+    ]},
+    { heading:"Communicate like a human, not like a retention script", bullets:[
+      "Wykorzystaj e-mail + SMS, żeby zaoferować elastyczność ZANIM klient dotrze do przycisku anulowania, nie po fakcie.",
+      "Buduj flowy, które brzmią pomocnie, nie desperacko.",
+      "W razie potrzeby otwórz bezpośredni dialog (\"Masz pytania? Jesteśmy tutaj\") zamiast kolejnego automatycznego maila z rabatem."
+    ]},
+    { heading:"Reactivating cancelled subscribers — a different playbook than standard winback", bullets:[
+      "Zasypywanie anulowanych subskrybentów rabatami zwykle tylko irytuje — tu trzeba zmienić podejście, nie tylko treść.",
+      "Daj przestrzeń — nie wysyłaj 10 maili w 30 dni, to zabija zaufanie.",
+      "Zmień kanał — direct mail (prosta drukowana oferta, zapowiedź nowego produktu, podgląd bundle'a) potrafi przebić się tam, gdzie e-mail już nie działa.",
+      "Prowadź wartością, nie rabatem: zamiast \"Wróć i zaoszczędź 15%\" spróbuj \"Wypuściliśmy coś nowego, co Ci się spodoba\" albo \"Twój ulubiony produkt właśnie się poprawił\" — wróć do budowania ciekawości w relacji.",
+      "Kiedy już odzyskasz subskrybenta — otaguj go. Traktuj reaktywacje jak złoto: dobrze zaopiekowane, bywają bardziej opłacalne niż klienci pierwszorazowi."
+    ]},
+    { heading:"Winback timing & extras worth adding to the standard sequence", bullets:[
+      "Konkretne okno czasowe: uruchamiaj winback zwykle 45–90 dni od ostatniego zakupu — nie za wcześnie (jeszcze nie porzucili), nie za późno (relacja już wygasła).",
+      "Personalizuj na bazie historii zakupowej, a zachęty dawkuj strategicznie, nie hojnie — cel to przypomnieć, dlaczego kupili za pierwszym razem, nie tylko podbić rabatem.",
+      "Warte dodania jako rozszerzenie: segmenty wg ostatniego zakupu, osobna logika warunkowa dla klientów powracających vs. jednorazowych, oraz ankieta wyjściowa dla tych, którzy mimo całej sekwencji się nie nawrócili — realne źródło insightów, dlaczego dana grupa naprawdę odeszła."
     ]}
   ]
 });
