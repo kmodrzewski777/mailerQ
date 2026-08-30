@@ -2123,7 +2123,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.15.2";
+var APP_VERSION = "3.16.0";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -6926,6 +6926,38 @@ KNOWLEDGE_HINTS.push({
       "Doświadczenie użytkownika i personalizacja — mniej zmęczenia decyzyjnego dzięki podpowiedziom, spersonalizowane rekomendacje, lepsze upselle/cross-selle dopasowane do priorytetów.",
       "Strategia treści (social, blog, ads, SMS) — bardziej angażujące treści oparte na tym, co realnie interesuje klientów.",
       "Rozwój produktu — dopasowanie nowych premier do preferencji klientów, identyfikacja luk w ofercie na podstawie powtarzających się próśb."
+    ]}
+  ]
+});
+KNOWLEDGE_HINTS.push({
+  id:"kb-data-deep-dive", category:"other", dateAdded:"2026-08-30", image:"assets/kb/deliverability-score.jpg",
+  title:"Audyt danych: GA, Klaviyo, Shopify i analiza LTV",
+  summary:"Zanim zaczniesz cokolwiek testować, sprawdź skąd realnie przychodzi ruch, co napędza powtarzalne zakupy i co blokuje pierwszorazowych kupujących — bez tego każdy kolejny krok strategii to strzelanie na oślep.",
+  source:"Pillar #2 — Understand Your Customers (Data Deep Dive)",
+  sections:[
+    { heading:"What it's about", bullets:[
+      "Zanim zaczniesz optymalizować pop-upy, flowy czy kampanie, musisz najpierw zrozumieć skąd przychodzi ruch, co napędza powtarzalne zakupy i klientów o wysokim LTV, oraz jakie są najczęstsze obiekcje blokujące pierwszorazowych kupujących.",
+      "To fundament, na którym dopiero buduje się resztę strategii (segmentacja, oferty, treść) — bez niego działasz na wyczucie, nie na danych."
+    ]},
+    { heading:"Why use it", bullets:[
+      "Decyzje podjęte bez oparcia w realnych danych (np. jaki rabat dać w pop-upie, do kogo kierować kampanię reaktywacyjną) są w najlepszym razie przypadkowe, a w najgorszym — kosztowne.",
+      "Zrozumienie, co faktycznie napędza wysokie LTV, pozwala świadomie kierować budżet i uwagę na klientów, którzy realnie budują długoterminowy przychód, zamiast traktować całą bazę jednakowo."
+    ]},
+    { heading:"Where to look", bullets:[
+      "Google Analytics — źródła ruchu, ścieżki konwersji, które kanały faktycznie przyprowadzają kupujących (nie tylko odwiedzających).",
+      "Klaviyo (lub inny ESP) — wskaźniki konwersji per flow/kampania, segmentacja pod kątem zaangażowania i historii zakupowej.",
+      "Shopify — dane o AOV, częstotliwości zakupów, retencji — surowe dane transakcyjne, które pokazują faktyczne zachowanie, nie deklaracje."
+    ]},
+    { heading:"Dedicated LTV cohort tooling", bullets:[
+      "Warto sięgnąć po narzędzie dedykowane analizie LTV kohortowo (przykład z agencji: Lifetimely) — pozwala to na dużo głębszą analizę niż standardowe raporty Shopify/Klaviyo.",
+      "Analiza kohortowa pokazuje, jak LTV zmienia się w czasie dla różnych grup klientów (np. wg miesiąca pierwszego zakupu, źródła pozyskania, pierwszego kupionego produktu) — dzięki temu widać, KTÓRE działania realnie podnoszą wartość klienta w czasie, a nie tylko jednorazową konwersję."
+    ]},
+    { heading:"AB testing offers: the 3-factor evaluation", bullets:[
+      "Przy testowaniu ofert pop-upu/serii powitalnej (np. 10% vs. 20% rabatu) nie wystarczy patrzeć tylko na to, która wersja konwertuje lepiej przy zapisie — trzeba wziąć pod uwagę trzy rzeczy naraz.",
+      "1) Signup rate — który wariant zbiera więcej zapisów na pop-upie.",
+      "2) Lead-to-conversion rate — który wariant realnie przekłada zapisanych na płacących klientów (nie sam fakt zapisania się).",
+      "3) Marża — wyższa oferta (np. 20% zamiast 10%) może podnieść obie powyższe metryki, ale kosztuje dwa razy więcej marży na każdej transakcji — w efekcie może się NIE opłacać mimo lepszych wskaźników konwersji.",
+      "Dopiero zestawienie tych trzech czynników razem pozwala ocenić, czy dana oferta faktycznie jest opłacalna dla marki, a nie tylko \"lepiej konwertuje\"."
     ]}
   ]
 });
