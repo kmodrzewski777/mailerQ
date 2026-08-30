@@ -2123,7 +2123,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.15.0";
+var APP_VERSION = "3.15.1";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -3644,6 +3644,56 @@ COMPONENTS.push({
 '  <mj-text align="center" font-family="{{brand.h1Font}}" font-weight="{{brand.h1Weight}}" font-size="{{brand.h1Size}}px" line-height="{{brand.h1LineHeight}}" color="{{brand.h1Color}}" padding="0px 0px 16px" letter-spacing="{{brand.h1LetterSpacing}}" text-transform="{{brand.h1TextTransform}}" text-decoration="{{brand.h1TextDecoration}}" css-class="mj-h1">[[NAGLOWEK_OFERTY]]</mj-text>\n'+
 '  <mj-text align="center" font-size="{{brand.bodySize}}px" line-height="{{brand.bodyLineHeight}}" color="{{brand.text}}" font-family="{{brand.fontBody}}" padding="0px 0px 24px" css-class="mj-body">[[TRESC_OFERTY]]</mj-text>\n'+
 '  <mj-button href="[[URL_CTA]]" align="center" padding="{{brand.btnPrimaryPadding}}" width="100%" text-transform="{{brand.btnPrimaryTransform}}" font-weight="{{brand.btnPrimaryWeight}}" border-radius="{{brand.btnPrimaryRadius}}" font-family="{{brand.fontBody}}" font-size="{{brand.btnPrimarySize}}px" background-color="{{brand.btnPrimaryBg}}" color="{{brand.btnPrimaryText}}" css-class="mj-btn-primary">[[TEKST_CTA]]</mj-button>\n'+
+'</mj-section>'); }
+});
+
+COMPONENTS.push({
+  id:"cta-two-buttons-primary-secondary", category:"offer", source:"universal",
+  label:"Two Buttons — Primary + Secondary", desc:"Two CTAs side by side in one row, primary on the left, secondary on the right, 8px gap between them.",
+  preview:function(b){ return frame(b,
+    '<div style="display:flex;gap:6px">'+mpBtn(b,"Kup teraz")+
+    '<span class="mp-btn" style="background:'+b.btnSecondaryBg+';color:'+b.btnSecondaryText+';border:'+b.btnSecondaryBorder+';border-radius:'+b.btnSecondaryRadius+';font-weight:'+b.btnSecondaryWeight+';text-transform:'+b.btnSecondaryTransform+'">Dowiedz się więcej</span></div>'
+  ); },
+  code:function(b){ return (
+'<mj-section padding="10px {{brand.contentPadding}}" css-class="mj-gutter">\n'+
+'  <mj-column width="50%" padding="0px 4px 0px 0px">\n'+
+'    <mj-button\n'+
+'      href="[[URL_PRZYCISKU_1]]"\n'+
+'      background-color="{{brand.btnPrimaryBg}}"\n'+
+'      color="{{brand.btnPrimaryText}}"\n'+
+'      border="{{brand.btnPrimaryBorder}}"\n'+
+'      border-radius="{{brand.btnPrimaryRadius}}"\n'+
+'      padding="{{brand.btnPrimaryPadding}}"\n'+
+'      font-family="{{brand.btnPrimaryFont}}"\n'+
+'      font-size="{{brand.btnPrimarySize}}px"\n'+
+'      font-weight="{{brand.btnPrimaryWeight}}"\n'+
+'      text-transform="{{brand.btnPrimaryTransform}}"\n'+
+'      letter-spacing="{{brand.btnPrimaryLetterSpacing}}"\n'+
+'      align="center"\n'+
+'      width="100%"\n'+
+'      css-class="mj-btn-primary">\n'+
+'      [[TEKST_PRZYCISKU_1]]\n'+
+'    </mj-button>\n'+
+'  </mj-column>\n'+
+'  <mj-column width="50%" padding="0px 0px 0px 4px">\n'+
+'    <mj-button\n'+
+'      href="[[URL_PRZYCISKU_2]]"\n'+
+'      background-color="{{brand.btnSecondaryBg}}"\n'+
+'      color="{{brand.btnSecondaryText}}"\n'+
+'      border="{{brand.btnSecondaryBorder}}"\n'+
+'      border-radius="{{brand.btnSecondaryRadius}}"\n'+
+'      padding="{{brand.btnSecondaryPadding}}"\n'+
+'      font-family="{{brand.btnSecondaryFont}}"\n'+
+'      font-size="{{brand.btnSecondarySize}}px"\n'+
+'      font-weight="{{brand.btnSecondaryWeight}}"\n'+
+'      text-transform="{{brand.btnSecondaryTransform}}"\n'+
+'      letter-spacing="{{brand.btnSecondaryLetterSpacing}}"\n'+
+'      align="center"\n'+
+'      width="100%"\n'+
+'      css-class="mj-btn-secondary">\n'+
+'      [[TEKST_PRZYCISKU_2]]\n'+
+'    </mj-button>\n'+
+'  </mj-column>\n'+
 '</mj-section>'); }
 });
 
