@@ -2142,8 +2142,8 @@
 "use strict";
 
 
-var APP_VERSION = "3.17.2";
-var APP_UPDATED = "2026-08-25";
+var APP_VERSION = "3.17.3";
+var APP_UPDATED = "2026-08-31";
 
 
 var BRANDS = {
@@ -10969,6 +10969,70 @@ function flowMdMatchLabelsList(map, value){
   });
   return { matched:matched, unmatched:unmatched };
 }
+// Free-text variant: a value that's a whole sentence (not a clean label) —
+// find whichever known id/label from `list` appears earliest as a whole word.
+// Used for docs (e.g. the crm-flow-migration skill's spec format) where
+// Category/Industry are explanatory prose, not a single matched token.
+function flowMdFindLabelInText(list, text){
+  if(!text) return null;
+  var best = null, bestIdx = Infinity;
+  list.forEach(function(x){
+    [x.id, x.label].forEach(function(candidate){
+      if(!candidate) return;
+      var re = new RegExp('\\b'+String(candidate).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b', 'i');
+      var m = re.exec(text);
+      if(m && m.index<bestIdx){ bestIdx = m.index; best = x.id; }
+    });
+  });
+  return best;
+}
+// Parses a "☑ Label  ·  ☐ Label  ·  ☑ Label" checkbox line, returning the
+// map keys for only the ☑-checked items.
+function flowMdParseCheckboxLine(text, map){
+  if(!text) return [];
+  var parts = text.split(/[☑☐]/).slice(1);
+  var symbols = text.match(/[☑☐]/g) || [];
+  var matched = [];
+  parts.forEach(function(part, i){
+    if(symbols[i]!=="☑") return;
+    var label = part.replace(/\*\([^)]*\)\*/g, "").replace(/·/g, "").trim();
+    if(!label) return;
+    var lower = label.toLowerCase();
+    var key = Object.keys(map).filter(function(k){
+      return lower.indexOf(k.toLowerCase())===0 || lower.indexOf(String(map[k]).toLowerCase())===0;
+    })[0];
+    if(key) matched.push(key);
+  });
+  return matched;
+}
+// Scans `lines` for bare "**Label:**" / "**Label** *(annotation)*:" lines and
+// captures everything up to the next such label (or the next heading/"---"
+// divider, whichever comes first) as that label's value block. This is the
+// shape produced by the crm-flow-migration skill's "universal flow spec"
+// docs — bold key, value on the next line(s) — distinct from this app's own
+// buildFlowMarkdown table format.
+function flowMdBoldLabelBlocks(lines){
+  var labelRe = /^\*\*([^*:]+?)\s*:?\s*\*\*\s*(?:\*\([^)]*\)\*)?\s*:?\s*$/;
+  var hits = [];
+  lines.forEach(function(line, idx){
+    var m = labelRe.exec(line.trim());
+    if(m) hits.push({ label:m[1].trim(), line:idx });
+  });
+  var boundaries = [];
+  lines.forEach(function(line, idx){
+    var t = line.trim();
+    if(/^-{3,}\s*$/.test(t) || /^#{1,6}\s/.test(t)) boundaries.push(idx);
+  });
+  var blocks = {};
+  hits.forEach(function(hit, i){
+    var nextHit = i+1<hits.length ? hits[i+1].line : Infinity;
+    var nextBoundary = Infinity;
+    for(var b=0; b<boundaries.length; b++){ if(boundaries[b]>hit.line){ nextBoundary = boundaries[b]; break; } }
+    var end = Math.min(nextHit, nextBoundary, lines.length);
+    blocks[hit.label] = lines.slice(hit.line+1, end).join("\n").trim();
+  });
+  return blocks;
+}
 function parseFlowMarkdown(text){
   if(!text || !text.trim()) return null;
   var lines = text.replace(/\r\n/g, "\n").split("\n");
@@ -10996,49 +11060,78 @@ function parseFlowMarkdown(text){
   draft.label = h1.title;
   var warnings = [];
   var stagesHeadingIdx = -1;
-
   headings.forEach(function(h, idx){
-    if(h.level!==2) return;
-    var body = sectionBody(idx);
-    if(h.title==="At a glance"){
-      var table = parseMdTable(body);
-      if(table["Category"]){
-        var catId = flowMdMatchByLabelOrId(FLOW_CATEGORIES, table["Category"]);
-        if(catId) draft.category = catId; else warnings.push('category "'+table["Category"]+'"');
-      }
-      if(table["Industry"]){
-        var indId = flowMdMatchByLabelOrId(INDUSTRIES, table["Industry"]);
-        if(indId) draft.industry = indId; else warnings.push('industry "'+table["Industry"]+'"');
-      }
-      if(table["Duration"]) draft.duration = table["Duration"];
-      if(table["Channels"]){
-        var chRes = flowMdMatchLabelsList(FLOW_CHANNEL_LABELS, table["Channels"]);
-        draft.channels = chRes.matched;
-        chRes.unmatched.forEach(function(u){ warnings.push('channel "'+u+'"'); });
-      }
-      if(table["Originally built in"] && table["Originally built in"]!=="Any CRM"){
-        var crmRes = flowMdMatchLabelsList(CRM_PLATFORM_LABELS, table["Originally built in"]);
-        draft.crmPlatforms = crmRes.matched;
-        crmRes.unmatched.forEach(function(u){ warnings.push('CRM "'+u+'"'); });
-      }
-    } else if(h.title==="What this flow does"){
-      draft.desc = body;
-    } else if(h.title==="Goal"){
-      draft.goal = body;
-    } else if(h.title==="Audience"){
-      draft.audience = body;
-    } else if(h.title==="Mechanics"){
-      draft.mechanics = bulletsOf(body);
-    } else if(h.title==="Global rules"){
-      draft.rules = bulletsOf(body);
-    } else if(h.title==="How to measure it"){
-      draft.kpis = bulletsOf(body);
-    } else if(h.title==="Notes"){
-      draft.notes = body;
-    } else if(h.title==="Stages"){
-      stagesHeadingIdx = idx;
-    }
+    if(h.level===2 && /^Stages\b/i.test(h.title) && stagesHeadingIdx===-1) stagesHeadingIdx = idx;
   });
+
+  var hasAtAGlance = headings.some(function(h){ return h.level===2 && h.title==="At a glance"; });
+
+  if(hasAtAGlance){
+    // This app's own buildFlowMarkdown() export format — a "| Field | Value |" table.
+    headings.forEach(function(h, idx){
+      if(h.level!==2) return;
+      var body = sectionBody(idx);
+      if(h.title==="At a glance"){
+        var table = parseMdTable(body);
+        if(table["Category"]){
+          var catId = flowMdMatchByLabelOrId(FLOW_CATEGORIES, table["Category"]);
+          if(catId) draft.category = catId; else warnings.push('category "'+table["Category"]+'"');
+        }
+        if(table["Industry"]){
+          var indId = flowMdMatchByLabelOrId(INDUSTRIES, table["Industry"]);
+          if(indId) draft.industry = indId; else warnings.push('industry "'+table["Industry"]+'"');
+        }
+        if(table["Duration"]) draft.duration = table["Duration"];
+        if(table["Channels"]){
+          var chRes = flowMdMatchLabelsList(FLOW_CHANNEL_LABELS, table["Channels"]);
+          draft.channels = chRes.matched;
+          chRes.unmatched.forEach(function(u){ warnings.push('channel "'+u+'"'); });
+        }
+        if(table["Originally built in"] && table["Originally built in"]!=="Any CRM"){
+          var crmRes = flowMdMatchLabelsList(CRM_PLATFORM_LABELS, table["Originally built in"]);
+          draft.crmPlatforms = crmRes.matched;
+          crmRes.unmatched.forEach(function(u){ warnings.push('CRM "'+u+'"'); });
+        }
+      } else if(h.title==="What this flow does"){
+        draft.desc = body;
+      } else if(h.title==="Goal"){
+        draft.goal = body;
+      } else if(h.title==="Audience"){
+        draft.audience = body;
+      } else if(h.title==="Mechanics"){
+        draft.mechanics = bulletsOf(body);
+      } else if(h.title==="Global rules"){
+        draft.rules = bulletsOf(body);
+      } else if(h.title==="How to measure it"){
+        draft.kpis = bulletsOf(body);
+      } else if(h.title==="Notes"){
+        draft.notes = body;
+      }
+    });
+  } else {
+    // A "universal flow spec" doc (e.g. from the crm-flow-migration skill) —
+    // bold "**Label:**" keys with free-text values on the following line(s),
+    // channels/CRM as ☑/☐ checkbox lines, no tables.
+    var blocks = flowMdBoldLabelBlocks(lines);
+    if(blocks["Category"]){
+      var catId2 = flowMdFindLabelInText(FLOW_CATEGORIES, blocks["Category"]);
+      if(catId2) draft.category = catId2; else warnings.push('category "'+blocks["Category"].slice(0,60)+'"');
+    }
+    if(blocks["Industry"]){
+      var indId2 = flowMdFindLabelInText(INDUSTRIES, blocks["Industry"]);
+      if(indId2) draft.industry = indId2; else warnings.push('industry "'+blocks["Industry"].slice(0,60)+'"');
+    }
+    if(blocks["Duration"]) draft.duration = blocks["Duration"].replace(/\s*\n+\s*/g, " ").trim();
+    if(blocks["Channels"]) draft.channels = flowMdParseCheckboxLine(blocks["Channels"], FLOW_CHANNEL_LABELS);
+    if(blocks["Compatible with"]) draft.crmPlatforms = flowMdParseCheckboxLine(blocks["Compatible with"], CRM_PLATFORM_LABELS);
+    if(blocks["What it does"]) draft.desc = blocks["What it does"];
+    if(blocks["Goal"]) draft.goal = blocks["Goal"];
+    if(blocks["Audience"]) draft.audience = blocks["Audience"];
+    if(blocks["Mechanics"]) draft.mechanics = bulletsOf(blocks["Mechanics"]);
+    if(blocks["Global rules"]) draft.rules = bulletsOf(blocks["Global rules"]);
+    if(blocks["Success metrics"]) draft.kpis = bulletsOf(blocks["Success metrics"]);
+    if(blocks["Notes"]) draft.notes = blocks["Notes"];
+  }
 
   if(stagesHeadingIdx!==-1){
     var stagesEndLine = lines.length;
@@ -11050,7 +11143,7 @@ function parseFlowMarkdown(text){
       var body = sectionBody(idx);
       var table = parseMdTable(body);
       draft.stages.push({
-        name: h.title.replace(/^\d+\.\s*/, "").trim(),
+        name: h.title.replace(/^\d+\.\s*/, "").replace(/^Stage\s+\d+\s*[—-]\s*/i, "").replace(/^[„"]+|["”]+$/g, "").trim(),
         timing: table["Trigger / timing"] || "",
         channel: table["Channel"] || "",
         purpose: table["Purpose"] || "",
