@@ -262,6 +262,25 @@
   .dock-foot{padding:14px 18px; flex:none}
   .dock-scrim{display:none}
 
+  /* Segment Stack: always a fixed slide-in panel (not the persistent desktop
+     grid column .dock is elsewhere) — an ID override beats .dock's own
+     `position:sticky` at every width, so this needs no @media duplication. */
+  #segmentStackOverlay{
+    position:fixed; top:var(--topbar-h); right:0; bottom:0; left:auto; width:340px; max-width:92vw; z-index:45;
+    border-left:1px solid var(--line-strong);
+    transform:translateX(100%); transition:transform .22s cubic-bezier(.4,0,.2,1);
+  }
+  #segmentStackOverlay.open{transform:translateX(0)}
+  #segmentStackScrim{
+    display:block; position:fixed; inset:0; z-index:44; background:rgba(17,17,18,.28);
+    opacity:0; pointer-events:none; transition:opacity .22s ease;
+  }
+  #segmentStackScrim.open{opacity:1; pointer-events:auto}
+  @media (prefers-reduced-motion:reduce){
+    #segmentStackOverlay{transition:none}
+    #segmentStackScrim{transition:none}
+  }
+
   .dock-pill{
     display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px;
     padding:0 5px; border-radius:var(--radius-chip); background:var(--accent); color:var(--accent-ink);
@@ -1011,6 +1030,11 @@
         <span class="nav-label">Automation Flows</span><span class="n" id="navCountFlows"></span>
       </button>
       <div class="nav-cats is-collapsed" id="navCatsFlows" role="group" aria-label="Flow categories"></div>
+      <button class="nav-item" type="button" data-nav="segments">
+        <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97 10t76 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-48.5T752-397q11-2 22.5-2.5t25.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg>
+        <span class="nav-label">Segments</span><span class="n" id="navCountSegments"></span>
+      </button>
+      <div class="nav-cats is-collapsed" id="navCatsSegments" role="group" aria-label="Segment categories"></div>
     </div>
 
     <div class="nav-group" data-navgroup="direct" style="display:none">
@@ -1084,6 +1108,10 @@
         <button class="btn small" id="addLiquidBtn" type="button" style="display:none">Add Snippet</button>
         <button class="btn small" id="addProductGridBtn" type="button" style="display:none">Add Product Grid</button>
         <button class="btn small" id="addDiscountBtn" type="button" style="display:none">Generate codes</button>
+        <button class="btn small" id="addSegmentBtn" type="button" style="display:none">Add Segment</button>
+        <button class="btn ghost small" id="segmentStackToggle" type="button" aria-expanded="false" aria-controls="segmentStackOverlay" style="display:none">
+          Segment Stack<span class="dock-pill" id="segmentStackCount">0</span>
+        </button>
         <button class="btn ghost small" id="dockToggle" type="button" aria-expanded="false" aria-controls="drawer">
           Mail Stack<span class="dock-pill" id="dockCount">0</span>
         </button>
@@ -1716,6 +1744,71 @@
 </div>
 
 
+<div class="overlay" id="segmentOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:1040px">
+    <div class="modal-head">
+      <h3 id="segmentTitle"></h3>
+      <span style="display:flex; align-items:center; gap:4px">
+        <div class="card-menu-wrap" id="segmentDetailMenuWrap" data-card-menu-kind="segment" data-card-menu-id="">
+          <button type="button" class="icon-btn card-menu-btn" aria-haspopup="menu" aria-expanded="false" aria-label="More options"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-189.23q-24.75 0-42.37-17.63Q420-224.48 420-249.23q0-24.75 17.63-42.38 17.62-17.62 42.37-17.62 24.75 0 42.37 17.62Q540-273.98 540-249.23q0 24.75-17.63 42.37-17.62 17.63-42.37 17.63ZM480-420q-24.75 0-42.37-17.63Q420-455.25 420-480q0-24.75 17.63-42.37Q455.25-540 480-540q24.75 0 42.37 17.63Q540-504.75 540-480q0 24.75-17.63 42.37Q504.75-420 480-420Zm0-230.77q-24.75 0-42.37-17.62Q420-686.02 420-710.77q0-24.75 17.63-42.37 17.62-17.63 42.37-17.63 24.75 0 42.37 17.63Q540-735.52 540-710.77q0 24.75-17.63 42.38-17.62 17.62-42.37 17.62Z"/></svg></button>
+          <ul class="card-menu" role="menu" style="display:none">
+            <li class="card-menu-item" role="menuitem" data-card-menu-edit>Edit</li>
+            <li class="card-menu-item danger" role="menuitem" data-card-menu-delete>Delete</li>
+          </ul>
+        </div>
+        <button class="modal-close" id="segmentClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+      </span>
+    </div>
+    <div class="modal-body">
+      <div class="flow-detail-grid">
+        <div class="flow-detail-main" id="segmentBody"></div>
+        <aside class="flow-detail-side" id="segmentMetaPanel"></aside>
+      </div>
+    </div>
+    <div class="modal-footer-bar" style="gap:8px">
+      <button class="btn ghost small" id="segmentCopyBtn" type="button" style="flex:1">Copy</button>
+      <button class="btn ghost small" id="segmentDownloadBtn" type="button" style="flex:1">Download .md</button>
+      <button class="btn small" id="segmentDetailStackBtn" type="button" style="flex:1">Add to Stack</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="overlay" id="segmentFormOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-head">
+      <h3 id="segmentFormTitle">Add segment</h3>
+      <button class="modal-close" id="segmentFormClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <form id="segmentForm" class="brand-form"></form>
+    </div>
+    <div class="modal-footer-bar" style="gap:8px">
+      <button class="btn ghost small" type="button" id="segmentFormCancel" style="flex:1">Cancel</button>
+      <button class="btn small" type="button" id="segmentFormSave" style="flex:1">Save segment</button>
+    </div>
+  </div>
+</div>
+
+
+<aside class="dock" id="segmentStackOverlay" aria-label="Segment Stack" aria-hidden="true">
+  <div class="dock-head">
+    <h3>Segment Stack</h3>
+    <span class="drawer-count" id="segmentStackHeadCount">(0)</span>
+    <span class="li-actions" style="margin-left:auto">
+      <button class="icon-btn" id="segmentStackClearBtn" type="button" disabled title="Clear Segment Stack" aria-label="Clear Segment Stack"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M292.31-140q-29.92 0-51.12-21.19Q220-182.39 220-212.31V-720h-40v-60h180v-35.38h240V-780h180v60h-40v507.69Q740-182 719-161q-21 21-51.31 21H292.31ZM680-720H280v507.69q0 5.39 3.46 8.85t8.85 3.46h375.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46V-720ZM376.16-280h59.99v-360h-59.99v360Zm147.69 0h59.99v-360h-59.99v360ZM280-720v520-520Z"/></svg></button>
+      <button class="modal-close" id="segmentStackClose" type="button" aria-label="Close Segment Stack"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+    </span>
+  </div>
+  <div class="dock-body" id="segmentStackBody"></div>
+  <div class="dock-foot" style="gap:8px">
+    <button class="btn ghost small" id="segmentStackCopyBtn" style="flex:1" disabled>Copy</button>
+    <button class="btn small" id="segmentStackDownloadBtn" style="flex:1" disabled>Export .md</button>
+  </div>
+</aside>
+<div class="dock-scrim" id="segmentStackScrim"></div>
+
+
 <div class="overlay" id="productGridOverlay" role="dialog" aria-modal="true">
   <div class="modal" style="max-width:1040px">
     <div class="modal-head">
@@ -2142,7 +2235,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.17.3";
+var APP_VERSION = "3.18.0";
 var APP_UPDATED = "2026-08-31";
 
 
@@ -6167,6 +6260,17 @@ LIQUID_SNIPPETS.push({
 });
 
 
+var SEGMENT_CATEGORIES = [
+  { id:"suppression", label:"Suppression / Sunset" },
+  { id:"engagement", label:"Engagement & activity" },
+  { id:"lifecycle", label:"Lifecycle stage" },
+  { id:"purchase", label:"Purchase behavior" },
+  { id:"consent", label:"Consent & compliance" },
+  { id:"other", label:"Other" }
+];
+var SEGMENTS = [];
+
+
 var KNOWLEDGE_CATEGORIES = [
   { id:"automation", label:"Marketing Automation" },
   { id:"direct", label:"Direct Marketing" },
@@ -7298,6 +7402,7 @@ var state = { brand:"neutral", category:"all", section:"home", emailFlow:"all", 
   skillCategory:"all",
   liquidCategory:"all",
   knowledgeCategory:"all",
+  segmentCategory:"all", segmentStack:[],
 
 
   knowledgeReadFilter:"unread",
@@ -7511,6 +7616,7 @@ function buildBackupPayload(){
 
     customDiscountBatches: DISCOUNT_BATCHES,
     customProductGrids: PRODUCT_GRIDS,
+    customSegments: SEGMENTS,
     dmEntries: DM_ENTRIES
   };
 }
@@ -7655,6 +7761,11 @@ function applyBackupPayload(payload){
       if(!findProductGrid(cg.id)) PRODUCT_GRIDS.push(Object.assign({}, cg, { custom:true }));
     });
   }
+  if(payload.customSegments){
+    payload.customSegments.forEach(function(cs){
+      if(!findSegment(cs.id)) SEGMENTS.push(Object.assign({}, cs, { custom:true }));
+    });
+  }
 
 
   if(payload.dmEntries) DM_ENTRIES = payload.dmEntries;
@@ -7663,7 +7774,7 @@ var mqSaveTimer = null;
 
 
 var MQ_PRIVATE_KEYS = ["buildList","currentBrand","headerVariant","footerVariant","favoriteComponents","favoriteEmails"];
-var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds","deletedBuiltinFlowIds","customFlows","deletedBuiltinSkillIds","customSkills","deletedBuiltinLiquidIds","customLiquidSnippets","customDiscountBatches","customProductGrids","dmEntries"];
+var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds","deletedBuiltinFlowIds","customFlows","deletedBuiltinSkillIds","customSkills","deletedBuiltinLiquidIds","customLiquidSnippets","customDiscountBatches","customProductGrids","customSegments","dmEntries"];
 function splitBackupPayload(full){
   var priv = {}, shared = {};
   MQ_PRIVATE_KEYS.forEach(function(k){ priv[k] = full[k]; });
@@ -10158,6 +10269,7 @@ function renderPrimaryNav(){
   byId("navCountComponents").textContent = COMPONENTS.length;
   byId("navCountEmails").textContent = READY_EMAILS.length;
   byId("navCountFlows").textContent = FLOWS.length;
+  byId("navCountSegments").textContent = SEGMENTS.length;
   byId("navCountSkills").textContent = SKILLS.length;
   byId("navCountLiquid").textContent = LIQUID_SNIPPETS.length;
   byId("navCountProductGrid").textContent = PRODUCT_GRIDS.length;
@@ -10180,7 +10292,7 @@ function renderPrimaryNav(){
 
 var NAV_GROUPS = [
   { id:"composer", label:"Composer", sections:["components","emails","liquid","productgrid"] },
-  { id:"automation", label:"Marketing Automation", sections:["flows"] },
+  { id:"automation", label:"Marketing Automation", sections:["flows","segments"] },
   { id:"direct", label:"Direct Marketing", sections:["schedule"], hidden:true },
   { id:"ai", label:"AI", sections:["skills"] },
   { id:"services", label:"Services", sections:["discounts"], hidden:true },
@@ -10278,7 +10390,7 @@ function syncNavGroupVisibility(){
 }
 
 function renderNavCats(){
-  var wraps = { components: byId("navCatsComponents"), emails: byId("navCatsEmails"), flows: byId("navCatsFlows"), skills: byId("navCatsSkills"), liquid: byId("navCatsLiquid"), knowledge: byId("navCatsKnowledge") };
+  var wraps = { components: byId("navCatsComponents"), emails: byId("navCatsEmails"), flows: byId("navCatsFlows"), segments: byId("navCatsSegments"), skills: byId("navCatsSkills"), liquid: byId("navCatsLiquid"), knowledge: byId("navCatsKnowledge") };
   Object.keys(wraps).forEach(function(key){
     var wrap = wraps[key];
     if(!wrap) return;
@@ -10353,6 +10465,17 @@ function renderNavCats(){
         if(n===0 && state.liquidCategory!==c.id) return;
         catBtn(c.label, n, state.liquidCategory===c.id, function(){
           state.liquidCategory=c.id; state.page=1; renderAll();
+        });
+      });
+    } else if(key==="segments"){
+      catBtn("All", SEGMENTS.length, state.segmentCategory==="all", function(){
+        state.segmentCategory="all"; state.page=1; renderAll();
+      });
+      SEGMENT_CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).forEach(function(c){
+        var n = segmentsByCategory(c.id).length;
+        if(n===0 && state.segmentCategory!==c.id) return;
+        catBtn(c.label, n, state.segmentCategory===c.id, function(){
+          state.segmentCategory=c.id; state.page=1; renderAll();
         });
       });
     } else if(key==="knowledge"){
@@ -11847,6 +11970,314 @@ function deleteSnippet(id){
 }
 
 
+// ============================================================
+// Segments — a library of reusable CRM segment specs (.md), plus
+// a multi-select "Segment Stack" that exports several combined
+// into one .md for handing to another CRM/agent.
+// ============================================================
+var segmentOpenId = null;
+function findSegment(id){ for(var i=0;i<SEGMENTS.length;i++){ if(SEGMENTS[i].id===id) return SEGMENTS[i]; } return null; }
+function segmentsByCategory(cat){ return cat==="all" ? SEGMENTS.slice() : SEGMENTS.filter(function(s){ return s.category===cat; }); }
+function segmentCategoryLabel(id){
+  var c = SEGMENT_CATEGORIES.filter(function(x){ return x.id===id; })[0];
+  return c ? c.label : id;
+}
+function isInSegmentStack(id){ return state.segmentStack.indexOf(id)!==-1; }
+function renderSegmentGrid(){
+  var q = state.searchQuery;
+  var fullList = segmentsByCategory(state.segmentCategory).filter(function(s){
+    return matchesSearch([s.label, s.id, s.desc], q);
+  });
+  var page = paginateList(fullList);
+  byId("gridTitle").textContent = state.segmentCategory==="all" ? "All segments" : segmentCategoryLabel(state.segmentCategory);
+  byId("gridCount").textContent = fullList.length + (fullList.length===1 ? " segment" : " segments");
+  var grid = byId("cardGrid"); grid.innerHTML = "";
+  if(fullList.length===0){
+    grid.innerHTML = '<p class="drawer-empty" style="grid-column:1/-1; padding:36px">No segments here yet.</p>';
+    renderPagination(1);
+    return;
+  }
+  page.items.forEach(function(s){
+    var inStack = isInSegmentStack(s.id);
+    var el = document.createElement("div"); el.className = "card flow-card";
+    el.innerHTML =
+      '<div class="flow-card-top">'+
+        '<p class="flow-card-cat">'+esc(segmentCategoryLabel(s.category))+'</p>'+
+        '<div class="card-name-row"><p class="flow-card-title">'+esc(s.label)+'</p>'+cardMenuHtml("segment", s.id, "Edit")+'</div>'+
+        '<p class="flow-card-desc">'+esc(s.desc||"")+'</p>'+
+      '</div>'+
+      '<div class="flow-card-foot">'+
+        '<button class="btn ghost small" data-segment-open="'+esc(s.id)+'" style="flex:1">Open</button>'+
+        '<button class="btn small'+(inStack?' added':'')+'" data-segment-stack-toggle="'+esc(s.id)+'" style="flex:1">'+(inStack?'Added':'Add')+'</button>'+
+      '</div>';
+    grid.appendChild(el);
+  });
+  grid.querySelectorAll("[data-segment-open]").forEach(function(btn){
+    btn.addEventListener("click", function(){ openSegmentDetail(btn.getAttribute("data-segment-open")); });
+  });
+  grid.querySelectorAll("[data-segment-stack-toggle]").forEach(function(btn){
+    btn.addEventListener("click", function(){ toggleSegmentStack(btn.getAttribute("data-segment-stack-toggle")); });
+  });
+  renderPagination(page.totalPages);
+}
+function buildSegmentMd(s){ return s.md || ""; }
+function segmentMdFilename(s){ return String(s.id||"segment").replace(/[^a-z0-9-_]+/gi,"-").toLowerCase()+".md"; }
+function downloadSegmentMarkdown(segmentId){
+  var s = findSegment(segmentId);
+  if(!s) return;
+  var md = buildSegmentMd(s);
+  if(!md){ showToast("This segment has no .md content yet", "error"); return; }
+  var blob = new Blob([md], { type:"text/markdown;charset=utf-8" });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url; a.download = segmentMdFilename(s);
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  showToast("Downloaded "+segmentMdFilename(s));
+}
+function syncSegmentStackBtn(segmentId){
+  var btn = byId("segmentDetailStackBtn");
+  if(!btn) return;
+  var inStack = isInSegmentStack(segmentId);
+  btn.textContent = inStack ? "Added to Stack ✓" : "Add to Stack";
+  btn.classList.toggle("added", inStack);
+}
+function openSegmentDetail(segmentId){
+  var s = findSegment(segmentId);
+  if(!s) return;
+  segmentOpenId = segmentId;
+  byId("segmentTitle").textContent = s.label;
+  var meta = [
+    ["Category", segmentCategoryLabel(s.category)],
+    ["Created by", displayNameOf(s.createdBy)],
+    ["Last updated", formatUpdatedStamp(s.updatedAt)],
+    ["Updated by", displayNameOf(s.updatedBy)]
+  ].filter(function(p){ return p[1]; });
+  function sec(title, inner){ return inner ? '<div class="flow-sec"><h4>'+esc(title)+'</h4>'+inner+'</div>' : ""; }
+  byId("segmentMetaPanel").innerHTML =
+    '<div class="flow-meta-grid">'+
+      meta.map(function(p){ return '<div class="flow-meta-item"><div class="k">'+esc(p[0])+'</div><div class="v">'+esc(p[1])+'</div></div>'; }).join("")+
+    '</div>';
+  byId("segmentBody").innerHTML =
+    sec("Summary", s.desc ? '<p>'+esc(s.desc)+'</p>' : "")+
+    sec("Conditions (.md)", s.md ? '<pre class="code">'+esc(s.md)+'</pre>' : '<p style="color:var(--ink-faint)">No .md uploaded yet — edit this segment to add one.</p>')+
+    sec("Notes", s.notes ? '<p>'+esc(s.notes)+'</p>' : "");
+  byId("segmentDetailMenuWrap").setAttribute("data-card-menu-id", segmentId);
+  syncSegmentStackBtn(segmentId);
+  byId("segmentOverlay").classList.add("open");
+  urlOpenSegmentId = segmentId; syncUrlFromState();
+}
+function closeSegmentOverlay(){ byId("segmentOverlay").classList.remove("open"); urlOpenSegmentId = null; syncUrlFromState(); }
+
+var segmentForm = { editId: null, draft: null };
+function uniqueSegmentKey(base){
+  var key = base, n = 2;
+  while(findSegment(key)){ key = base + "-" + n; n++; }
+  return key;
+}
+function emptySegmentDraft(){
+  return { label:"", category: (SEGMENT_CATEGORIES[0]||{}).id||"", desc:"", md:"", notes:"" };
+}
+function openSegmentForm(existing){
+  segmentForm.editId = existing ? existing.id : null;
+  segmentForm.draft = existing ? {
+    label: existing.label||"", category: existing.category||(SEGMENT_CATEGORIES[0]||{}).id,
+    desc: existing.desc||"", md: existing.md||"", notes: existing.notes||""
+  } : emptySegmentDraft();
+  byId("segmentFormTitle").textContent = existing ? "Edit segment" : "Add segment";
+  renderSegmentFormFields();
+  byId("segmentFormOverlay").classList.add("open");
+}
+function closeSegmentForm(){ byId("segmentFormOverlay").classList.remove("open"); }
+function renderSegmentFormFields(){
+  var form = byId("segmentForm");
+  var d = segmentForm.draft;
+  function textField(key, label, placeholder){
+    return '<div class="bf-field"><label for="sg-'+key+'">'+esc(label)+'</label>'+
+      '<input type="text" id="sg-'+key+'" data-sg-field="'+key+'" value="'+esc(d[key]||"")+'" placeholder="'+esc(placeholder||"")+'"></div>';
+  }
+  function textareaField(key, label, rows){
+    return '<div class="bf-field"><label for="sg-'+key+'">'+esc(label)+'</label>'+
+      '<textarea id="sg-'+key+'" data-sg-field="'+key+'" rows="'+(rows||3)+'">'+esc(d[key]||"")+'</textarea></div>';
+  }
+  function selectField(key, label, options){
+    return '<div class="bf-field"><label for="sg-'+key+'">'+esc(label)+'</label>'+
+      '<select id="sg-'+key+'" data-sg-select-field="'+key+'">'+
+        options.map(function(o){ return '<option value="'+esc(o[0])+'"'+(d[key]===o[0]?' selected':'')+'>'+esc(o[1])+'</option>'; }).join("")+
+      '</select></div>';
+  }
+  form.innerHTML =
+    '<div class="bf-group" style="display:flex; align-items:center; gap:12px; margin-bottom:4px">'+
+      '<label class="btn ghost small" for="sgUploadMdInput">Upload .md</label>'+
+      '<input type="file" accept=".md,text/markdown" id="sgUploadMdInput" style="display:none">'+
+      '<span style="font-size:12.5px; color:var(--ink-faint)">Fills in the name and conditions below from the file — review before saving.</span>'+
+    '</div>'+
+    '<div class="bf-group"><div class="bf-row">'+
+      textField("label", "Segment name")+
+      selectField("category", "Category", SEGMENT_CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).map(function(c){ return [c.id, c.label]; }))+
+    '</div></div>'+
+    '<div class="bf-group">'+
+      textareaField("desc", "Summary")+
+    '</div>'+
+    '<div class="bf-group">'+
+      textareaField("md", "Conditions (.md)", 12)+
+      textareaField("notes", "Notes")+
+    '</div>';
+  form.querySelectorAll("[data-sg-field]").forEach(function(el){
+    el.addEventListener("input", function(){ segmentForm.draft[el.getAttribute("data-sg-field")] = el.value; });
+  });
+  form.querySelectorAll("[data-sg-select-field]").forEach(function(el){
+    el.addEventListener("change", function(){ segmentForm.draft[el.getAttribute("data-sg-select-field")] = el.value; });
+  });
+  var uploadInput = byId("sgUploadMdInput");
+  if(uploadInput){
+    uploadInput.addEventListener("change", function(){
+      var file = this.files && this.files[0];
+      var input = this;
+      if(!file) return;
+      var reader = new FileReader();
+      reader.onload = function(){
+        var text = String(reader.result||"");
+        var h1 = /^#\s+(.+)$/m.exec(text);
+        segmentForm.draft.label = h1 ? h1[1].trim() : file.name.replace(/\.[^.]+$/, "");
+        segmentForm.draft.md = text;
+        renderSegmentFormFields();
+        showToast("Filled in from “"+file.name+"” — review before saving");
+        input.value = "";
+      };
+      reader.onerror = function(){ showToast("Couldn't read this file", "error"); input.value = ""; };
+      reader.readAsText(file);
+    });
+  }
+  enhanceAllSelects(form);
+}
+function saveSegmentForm(){
+  var d = segmentForm.draft;
+  var label = (d.label||"").trim();
+  if(!label){ showToast("Enter a segment name"); byId("sg-label").focus(); return; }
+  var payload = {
+    label: label, category: d.category,
+    desc: (d.desc||"").trim(), md: (d.md||"").trim(), notes: (d.notes||"").trim()
+  };
+  if(segmentForm.editId){
+    var existing = findSegment(segmentForm.editId);
+    if(!existing) return;
+    if(!canManageRecord(existing)){ showToast("You're not the creator of this segment", "error"); return; }
+    return withBtnLoading(byId("segmentFormSave"), function(){
+      Object.assign(existing, payload, { updatedAt: new Date().toISOString(), updatedBy: currentUserStamp() });
+      return saveToStorage().then(function(){
+        closeSegmentForm(); renderAll();
+        if(byId("segmentOverlay").classList.contains("open")) openSegmentDetail(existing.id);
+        showToast("Updated segment “"+label+"”");
+      });
+    });
+  }
+  var requestedId = slugifyKey(label);
+  var finalId = findSegment(requestedId) ? uniqueSegmentKey(requestedId) : requestedId;
+  return withBtnLoading(byId("segmentFormSave"), function(){
+    var now = new Date().toISOString();
+    var who = currentUserStamp();
+    SEGMENTS.push(Object.assign({ id: finalId, custom: true, createdBy: who, updatedAt: now, updatedBy: who }, payload));
+    state.section = "segments"; state.segmentCategory = payload.category;
+    return saveToStorage().then(function(){
+      closeSegmentForm(); renderAll();
+      showToast("Added segment “"+label+"”");
+    });
+  });
+}
+function deleteSegment(id){
+  var s = findSegment(id);
+  if(!s) return;
+  if(!canManageRecord(s)){ showToast("You're not the creator of this segment", "error"); return; }
+  SEGMENTS = SEGMENTS.filter(function(x){ return x.id!==id; });
+  state.segmentStack = state.segmentStack.filter(function(x){ return x!==id; });
+  saveToStorage().then(function(){
+    if(urlOpenSegmentId===id) closeSegmentOverlay();
+    renderAll();
+    renderSegmentStackPanel();
+    showToast("Segment deleted");
+  });
+}
+
+// --- Segment Stack: multi-select + combined .md export ---
+function toggleSegmentStack(id){
+  var idx = state.segmentStack.indexOf(id);
+  if(idx===-1) state.segmentStack.push(id); else state.segmentStack.splice(idx,1);
+  renderSegmentStackPanel();
+  if(state.section==="segments") renderGrid();
+  if(segmentOpenId===id) syncSegmentStackBtn(id);
+}
+function clearSegmentStack(){
+  state.segmentStack = [];
+  renderSegmentStackPanel();
+  if(state.section==="segments") renderGrid();
+  if(segmentOpenId) syncSegmentStackBtn(segmentOpenId);
+}
+function buildCombinedSegmentMd(){
+  var segs = state.segmentStack.map(function(id){ return findSegment(id); }).filter(Boolean);
+  if(!segs.length) return "";
+  var L = [];
+  L.push("# Segment Package — "+segs.length+" segment"+(segs.length===1?"":"s"));
+  L.push("");
+  L.push("_Exported from Maximus Segments · "+new Date().toISOString().slice(0,10)+"._");
+  L.push("");
+  segs.forEach(function(s){
+    L.push("---");
+    L.push("");
+    L.push("## "+s.label);
+    L.push("");
+    L.push(s.md || s.desc || "(no conditions captured)");
+    L.push("");
+  });
+  return L.join("\n").trim()+"\n";
+}
+function combinedSegmentMdFilename(){
+  return "segment-package-"+new Date().toISOString().slice(0,10)+".md";
+}
+function renderSegmentStackPanel(){
+  saveToStorage();
+  var n = state.segmentStack.length;
+  var toggle = byId("segmentStackToggle");
+  if(toggle) toggle.style.display = state.section==="segments" ? "" : "none";
+  var countEl = byId("segmentStackCount");
+  if(countEl){ countEl.textContent = n; countEl.style.display = n ? "" : "none"; }
+  var headCount = byId("segmentStackHeadCount");
+  if(headCount) headCount.textContent = "("+n+")";
+  byId("segmentStackCopyBtn").disabled = n===0;
+  byId("segmentStackDownloadBtn").disabled = n===0;
+  byId("segmentStackClearBtn").disabled = n===0;
+  var body = byId("segmentStackBody");
+  if(!body) return;
+  if(n===0){ body.innerHTML = '<p class="drawer-empty">Your segment stack is empty.<br>Click "Add" on a segment.</p>'; return; }
+  body.innerHTML = "";
+  state.segmentStack.forEach(function(id){
+    var s = findSegment(id);
+    var row = document.createElement("div"); row.className = "list-item";
+    row.innerHTML =
+      '<span class="li-key-wrap"><span class="li-label" title="'+esc(s?s.label:id)+'">'+esc(s?s.label:id)+'</span></span>'+
+      '<span class="li-actions"><button class="icon-btn" data-segment-stack-remove="'+esc(id)+'" aria-label="Remove">'+ICON_CLOSE+'</button></span>';
+    body.appendChild(row);
+  });
+  body.querySelectorAll("[data-segment-stack-remove]").forEach(function(btn){
+    btn.addEventListener("click", function(){ toggleSegmentStack(btn.getAttribute("data-segment-stack-remove")); });
+  });
+}
+function openSegmentStackPanel(){
+  byId("segmentStackOverlay").classList.add("open");
+  byId("segmentStackOverlay").setAttribute("aria-hidden","false");
+  byId("segmentStackScrim").classList.add("open");
+  byId("segmentStackToggle").setAttribute("aria-expanded","true");
+  document.body.classList.add("modal-open");
+}
+function closeSegmentStackPanel(){
+  byId("segmentStackOverlay").classList.remove("open");
+  byId("segmentStackOverlay").setAttribute("aria-hidden","true");
+  byId("segmentStackScrim").classList.remove("open");
+  byId("segmentStackToggle").setAttribute("aria-expanded","false");
+  if(!document.querySelector(".overlay.open")) document.body.classList.remove("modal-open");
+}
+
+
 function hasClaudeConnected(){
   return !!(MQ_CURRENT_USER && MQ_CURRENT_USER.anthropicApiKey);
 }
@@ -12458,6 +12889,9 @@ var HOME_TILES = [
   { section:"flows", label:"Automation Flows", desc:"Reference flows with a proven structure, stage by stage, industry by industry.",
     icon:'M450-100v-174.23q0-55.23-16.23-84.54-16.23-29.31-45.77-55.69l42.77-42.77q12.77 11.77 25.5 27.35Q469-414.31 480-396.84q12.85-21.7 29.65-40.04 16.81-18.35 34.89-34.66 44.15-39.61 74.38-95.23 30.23-55.62 30.7-177.92l-73 73-42.77-42.16L680-860l146.15 146.15L784-671.69l-74.39-73.77q-.46 138.77-37.65 206.19-37.19 67.42-86.5 112.35-33.15 30.15-54.31 59.38Q510-338.31 510-274.23V-100h-60ZM259.15-634.15q-4.38-20.39-6.26-50.54-1.89-30.16-2.5-60.77L176-671.69l-42.15-42.16L280-860l146.15 146.15-42.77 42.16-73-72.39q-.38 27.16 1.81 52.39t5.35 43.54l-58.39 14Z',
     count:function(){ return FLOWS.length; } },
+  { section:"segments", label:"Segments", desc:"Reusable CRM segment definitions, ready to select and export together for another workspace.",
+    icon:'M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97 10t76 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-48.5T752-397q11-2 22.5-2.5t25.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z',
+    count:function(){ return SEGMENTS.length; } },
   { section:"schedule", label:"Schedule", desc:"The team's DM send calendar — who's sending what, and when.",
     icon:'M212.31-100Q182-100 161-121q-21-21-21-51.31v-535.38Q140-738 161-759q21-21 51.31-21h55.38v-84.61h61.54V-780h303.08v-84.61h60V-780h55.38Q778-780 799-759q21 21 21 51.31v535.38Q820-142 799-121q-21 21-51.31 21H212.31Zm0-60h535.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46v-375.38H200v375.38q0 4.62 3.85 8.46 3.84 3.85 8.46 3.85ZM200-607.69h560v-100q0-4.62-3.85-8.46-3.84-3.85-8.46-3.85H212.31q-4.62 0-8.46 3.85-3.85 3.84-3.85 8.46v100Z',
     count:null, hidden:true },
@@ -12804,6 +13238,7 @@ var SECTION_META = {
   components: { title:"Components", search:"Search components…", primary:"add", stack:true },
   emails:     { title:"E-mails", search:"Search emails…", primary:null, stack:true },
   flows:      { title:"Automation Flows", search:"Search flows…", primary:"add-flow", stack:false },
+  segments:   { title:"Segments", search:"Search segments…", primary:"add-segment", stack:false },
   skills:     { title:"Skills", search:"Search skills…", primary:"add-skill", stack:false },
 
 
@@ -12865,6 +13300,7 @@ function syncSectionChrome(){
   byId("addLiquidBtn").style.display = meta.primary==="add-liquid" ? "" : "none";
   byId("addProductGridBtn").style.display = meta.primary==="add-productgrid" ? "" : "none";
   byId("addDiscountBtn").style.display = meta.primary==="add-discount" ? "" : "none";
+  byId("addSegmentBtn").style.display = meta.primary==="add-segment" ? "" : "none";
 
 
   byId("crmFilterRow").style.display = (isReports || isHome || state.section==="discounts") ? "none" : "";
@@ -12873,6 +13309,10 @@ function syncSectionChrome(){
   byId("app").classList.toggle("no-stack", !meta.stack);
   byId("dockToggle").style.display = meta.stack ? "" : "none";
   if(!meta.stack) closeDock();
+
+  var isSegments = state.section==="segments";
+  byId("segmentStackToggle").style.display = isSegments ? "" : "none";
+  if(!isSegments) closeSegmentStackPanel();
 
 
   byId("app").classList.toggle("no-nav", isHome);
@@ -13095,6 +13535,7 @@ document.addEventListener("click", function(e){
       if(kind==="component") openComponentEditor(id, null);
       else if(kind==="email") openEditReadyEmail(id);
       else if(kind==="flow" && typeof openFlowForm==="function") openFlowForm(findFlow(id));
+      else if(kind==="segment" && typeof openSegmentForm==="function") openSegmentForm(findSegment(id));
       else if(kind==="skill" && typeof openSkillForm==="function") openSkillForm(findSkill(id));
       else if(kind==="liquid" && typeof openSnippetForm==="function") openSnippetForm(findSnippet(id));
       else if(kind==="discount" && typeof openDiscountForm==="function") openDiscountForm(findDiscountBatch(id));
@@ -13102,7 +13543,7 @@ document.addEventListener("click", function(e){
       return;
     }
 
-    var record = kind==="component" ? findComp(id) : kind==="email" ? findEmail(id) : kind==="flow" ? (typeof findFlow==="function" ? findFlow(id) : null) : kind==="skill" ? (typeof findSkill==="function" ? findSkill(id) : null) : kind==="liquid" ? (typeof findSnippet==="function" ? findSnippet(id) : null) : kind==="productgrid" ? (typeof findProductGrid==="function" ? findProductGrid(id) : null) : (typeof findDiscountBatch==="function" ? findDiscountBatch(id) : null);
+    var record = kind==="component" ? findComp(id) : kind==="email" ? findEmail(id) : kind==="flow" ? (typeof findFlow==="function" ? findFlow(id) : null) : kind==="segment" ? (typeof findSegment==="function" ? findSegment(id) : null) : kind==="skill" ? (typeof findSkill==="function" ? findSkill(id) : null) : kind==="liquid" ? (typeof findSnippet==="function" ? findSnippet(id) : null) : kind==="productgrid" ? (typeof findProductGrid==="function" ? findProductGrid(id) : null) : (typeof findDiscountBatch==="function" ? findDiscountBatch(id) : null);
     if((kind==="component" || kind==="email") && !canManageRecord(record)){
       showToast("You're not the creator of this "+(kind==="component"?"component":"e-mail"), "error");
       closeAllCardMenus();
@@ -13116,6 +13557,8 @@ document.addEventListener("click", function(e){
         deleteReadyEmailRecord(id).then(function(){ renderAll(); showToast("E-mail deleted"); });
       } else if(kind==="flow" && typeof deleteFlow==="function"){
         deleteFlow(id);
+      } else if(kind==="segment" && typeof deleteSegment==="function"){
+        deleteSegment(id);
       } else if(kind==="skill" && typeof deleteSkill==="function"){
         deleteSkill(id);
       } else if(kind==="liquid" && typeof deleteSnippet==="function"){
@@ -13149,6 +13592,7 @@ function renderGridInner(){
   if(state.section==="home") return;
   if(state.section==="schedule"){ renderDmCalendar(); return; }
   if(state.section==="flows"){ renderFlowGrid(); return; }
+  if(state.section==="segments"){ renderSegmentGrid(); return; }
   if(state.section==="skills"){ renderSkillGrid(); return; }
   if(state.section==="liquid"){ renderSnippetGrid(); return; }
   if(state.section==="productgrid"){ renderProductGridGrid(); return; }
@@ -13913,6 +14357,45 @@ byId("liquidFormCancel").addEventListener("click", closeSnippetForm);
 byId("liquidFormSave").addEventListener("click", saveSnippetForm);
 bindOverlayBackdropClose("liquidFormOverlay", closeSnippetForm);
 
+byId("addSegmentBtn").addEventListener("click", function(){ openSegmentForm(null); });
+byId("segmentClose").addEventListener("click", closeSegmentOverlay);
+bindOverlayBackdropClose("segmentOverlay", closeSegmentOverlay);
+byId("segmentFormClose").addEventListener("click", closeSegmentForm);
+byId("segmentFormCancel").addEventListener("click", closeSegmentForm);
+byId("segmentFormSave").addEventListener("click", saveSegmentForm);
+bindOverlayBackdropClose("segmentFormOverlay", closeSegmentForm);
+byId("segmentCopyBtn").addEventListener("click", function(){
+  var s = segmentOpenId && findSegment(segmentOpenId);
+  if(!s) return;
+  copyText(buildSegmentMd(s) || (s.desc||""), "Copied — paste it wherever the segment needs to go");
+});
+byId("segmentDownloadBtn").addEventListener("click", function(){
+  if(segmentOpenId) downloadSegmentMarkdown(segmentOpenId);
+});
+byId("segmentDetailStackBtn").addEventListener("click", function(){
+  if(segmentOpenId) toggleSegmentStack(segmentOpenId);
+});
+byId("segmentStackToggle").addEventListener("click", openSegmentStackPanel);
+byId("segmentStackClose").addEventListener("click", closeSegmentStackPanel);
+byId("segmentStackScrim").addEventListener("click", closeSegmentStackPanel);
+byId("segmentStackClearBtn").addEventListener("click", clearSegmentStack);
+byId("segmentStackCopyBtn").addEventListener("click", function(){
+  var md = buildCombinedSegmentMd();
+  if(!md) return;
+  copyText(md, "Copied "+state.segmentStack.length+" segment"+(state.segmentStack.length===1?"":"s")+" as one .md");
+});
+byId("segmentStackDownloadBtn").addEventListener("click", function(){
+  var md = buildCombinedSegmentMd();
+  if(!md) return;
+  var blob = new Blob([md], { type:"text/markdown;charset=utf-8" });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url; a.download = combinedSegmentMdFilename();
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  showToast("Downloaded "+combinedSegmentMdFilename());
+});
+
 
 byId("productGridDetailClose").addEventListener("click", closeProductGridOverlay);
 bindOverlayBackdropClose("productGridOverlay", closeProductGridOverlay);
@@ -14436,6 +14919,7 @@ var urlOpenEmailId = null;
 var urlOpenFlowId = null;
 var urlOpenSkillId = null;
 var urlOpenLiquidId = null;
+var urlOpenSegmentId = null;
 var urlOpenProductGridId = null;
 var urlOpenDiscountId = null;
 var urlOpenHintId = null;
@@ -14453,6 +14937,8 @@ function syncUrlFromState(){
     params.set("skillcat", state.skillCategory||"all");
   } else if(state.section==="liquid"){
     params.set("liquidcat", state.liquidCategory||"all");
+  } else if(state.section==="segments"){
+    params.set("segmentcat", state.segmentCategory||"all");
   } else if(state.section==="productgrid"){
 
   } else if(state.section==="knowledge"){
@@ -14474,6 +14960,7 @@ function syncUrlFromState(){
   if(urlOpenFlowId) params.set("flowid", urlOpenFlowId);
   if(urlOpenSkillId) params.set("skillid", urlOpenSkillId);
   if(urlOpenLiquidId) params.set("liquidid", urlOpenLiquidId);
+  if(urlOpenSegmentId) params.set("segmentid", urlOpenSegmentId);
   if(urlOpenProductGridId) params.set("productgridid", urlOpenProductGridId);
   if(urlOpenDiscountId) params.set("discountid", urlOpenDiscountId);
   if(urlOpenHintId) params.set("hint", urlOpenHintId);
@@ -14493,6 +14980,7 @@ function restoreStateFromUrl(){
   var flowId = params.get("flowid");
   var skillId = params.get("skillid");
   var liquidId = params.get("liquidid");
+  var segmentId = params.get("segmentid");
   var productGridId = params.get("productgridid");
   var discountId = params.get("discountid");
   var hintId = params.get("hint");
@@ -14520,6 +15008,10 @@ function restoreStateFromUrl(){
     state.section = "liquid";
     var liquidCat = params.get("liquidcat");
     if(liquidCat && (liquidCat==="all" || LIQUID_CATEGORIES.some(function(c){ return c.id===liquidCat; }))) state.liquidCategory = liquidCat;
+  } else if(section==="segments"){
+    state.section = "segments";
+    var segmentCat = params.get("segmentcat");
+    if(segmentCat && (segmentCat==="all" || SEGMENT_CATEGORIES.some(function(c){ return c.id===segmentCat; }))) state.segmentCategory = segmentCat;
   } else if(section==="productgrid"){
     state.section = "productgrid";
   } else if(section==="knowledge"){
@@ -14544,6 +15036,7 @@ function restoreStateFromUrl(){
   else if(flowId && findFlow(flowId)) openFlowDetail(flowId);
   else if(skillId && findSkill(skillId)) openSkillDetail(skillId);
   else if(liquidId && findSnippet(liquidId)) openSnippetDetail(liquidId);
+  else if(segmentId && findSegment(segmentId)) openSegmentDetail(segmentId);
   else if(productGridId && findProductGrid(productGridId)) openProductGridDetail(productGridId);
   else if(discountId && findDiscountBatch(discountId)) openDiscountDetail(discountId);
   else if(hintId && findHint(hintId)) openKnowledgeDetail(hintId);
@@ -14552,7 +15045,7 @@ function restoreStateFromUrl(){
 
 function renderAll(){
   renderSwatches(); renderCrmFilterRow(); renderPrimaryNav(); renderFilterBar();
-  syncSectionChrome(); renderGrid(); renderList();
+  syncSectionChrome(); renderGrid(); renderList(); renderSegmentStackPanel();
   syncGoogleFontLink(brand());
   syncUrlFromState();
 }
