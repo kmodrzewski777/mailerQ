@@ -2142,7 +2142,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.17.1";
+var APP_VERSION = "3.17.2";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -9557,6 +9557,7 @@ function enhanceSelect(select, opts){
     var spaceAbove = rect.top - 8;
     var openUp = spaceBelow < 200 && spaceAbove > spaceBelow;
     menu.style.position = "fixed";
+    menu.style.zIndex = "200";
     menu.style.left = rect.left + "px";
     menu.style.width = rect.width + "px";
     menu.style.minWidth = rect.width + "px";
@@ -9575,7 +9576,7 @@ function enhanceSelect(select, opts){
     btn.setAttribute("aria-expanded", "false");
     window.removeEventListener("scroll", onCsMenuScroll, true);
     if(menu.parentNode!==wrap){
-      menu.style.position = ""; menu.style.top = ""; menu.style.bottom = ""; menu.style.left = ""; menu.style.width = ""; menu.style.minWidth = ""; menu.style.maxHeight = "";
+      menu.style.position = ""; menu.style.zIndex = ""; menu.style.top = ""; menu.style.bottom = ""; menu.style.left = ""; menu.style.width = ""; menu.style.minWidth = ""; menu.style.maxHeight = "";
       wrap.appendChild(menu);
     }
   }
