@@ -2142,7 +2142,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.17.0";
+var APP_VERSION = "3.17.1";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -9549,7 +9549,36 @@ function enhanceSelect(select, opts){
   }
   wrap.appendChild(menu);
 
-  function closeMenu(){ menu.style.display = "none"; btn.setAttribute("aria-expanded", "false"); }
+  function onCsMenuScroll(){ closeMenu(); }
+  function positionMenu(){
+    var rect = btn.getBoundingClientRect();
+    var vh = window.innerHeight;
+    var spaceBelow = vh - rect.bottom - 8;
+    var spaceAbove = rect.top - 8;
+    var openUp = spaceBelow < 200 && spaceAbove > spaceBelow;
+    menu.style.position = "fixed";
+    menu.style.left = rect.left + "px";
+    menu.style.width = rect.width + "px";
+    menu.style.minWidth = rect.width + "px";
+    if(openUp){
+      menu.style.top = "auto";
+      menu.style.bottom = (vh - rect.top + 4) + "px";
+      menu.style.maxHeight = Math.max(120, spaceAbove) + "px";
+    } else {
+      menu.style.bottom = "auto";
+      menu.style.top = (rect.bottom + 4) + "px";
+      menu.style.maxHeight = Math.max(120, spaceBelow) + "px";
+    }
+  }
+  function closeMenu(){
+    menu.style.display = "none";
+    btn.setAttribute("aria-expanded", "false");
+    window.removeEventListener("scroll", onCsMenuScroll, true);
+    if(menu.parentNode!==wrap){
+      menu.style.position = ""; menu.style.top = ""; menu.style.bottom = ""; menu.style.left = ""; menu.style.width = ""; menu.style.minWidth = ""; menu.style.maxHeight = "";
+      wrap.appendChild(menu);
+    }
+  }
   function syncFromSelect(){
     var opt = select.options[select.selectedIndex];
     label.textContent = opt ? opt.text : "";
@@ -9589,9 +9618,12 @@ function enhanceSelect(select, opts){
     if(open){ closeMenu(); return; }
     if(search) search.value = "";
     renderMenu();
+    document.body.appendChild(menu);
+    positionMenu();
     menu.style.display = "";
     btn.setAttribute("aria-expanded", "true");
     if(search) search.focus();
+    window.addEventListener("scroll", onCsMenuScroll, true);
   });
   if(search){
 
@@ -9599,7 +9631,7 @@ function enhanceSelect(select, opts){
     search.addEventListener("click", function(e){ e.stopPropagation(); });
     search.addEventListener("input", renderMenu);
   }
-  document.addEventListener("click", function(e){ if(!wrap.contains(e.target)) closeMenu(); });
+  document.addEventListener("click", function(e){ if(!wrap.contains(e.target) && !menu.contains(e.target)) closeMenu(); });
 
 
   select.addEventListener("change", syncFromSelect);
