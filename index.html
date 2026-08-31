@@ -2227,7 +2227,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.18.2";
+var APP_VERSION = "3.18.3";
 var APP_UPDATED = "2026-08-31";
 
 
@@ -13900,8 +13900,22 @@ function simulateLiquidForPreview(html, b){
     return "";
   });
 
-  html = html.replace(/\{%\s*assign\s+(\w+)\s*=\s*[\s\S]*?%\}/g, function(m, varName){
-    if(!(varName in assigns)) assigns[varName] = "7";
+  html = html.replace(/\{%\s*assign\s+(\w+)\s*=\s*([\s\S]*?)%\}/g, function(m, varName, rhs){
+    if(varName in assigns) return "";
+    // Same idea as the {{ }} label fix below: a direct `|lookup:'Key'` or a
+    // chain off an already-known merge-tag assign (price_rounded = price |
+    // round, where price came from event|lookup:'Price') should keep showing
+    // that field's name, not the flat "7" stub — user: "czemu podstawiasz 7
+    // w miejscu ceny". Deliberately does NOT guess-label arbitrary bare
+    // identifiers (e.g. `teraz` in a days-since calc) that were never a real
+    // lookup/merge-tag — those keep the old "7" stub, unchanged.
+    var lookupMatch = /lookup\s*:\s*['"]([^'"]+)['"]/.exec(rhs);
+    if(lookupMatch){
+      assigns[varName] = "["+lookupMatch[1]+"]";
+    } else {
+      var base = rhs.split("|")[0].trim();
+      assigns[varName] = (base in assigns) ? assigns[base] : "7";
+    }
     return "";
   });
 
