@@ -1300,6 +1300,17 @@
             <button class="btn small" type="button" id="addFlowBtn" style="align-self:flex-end">Add</button>
           </div>
         </div>
+        <div class="bf-group">
+          <p class="bf-group-title">Automation flow categories</p>
+          <div id="flowCategoryManagerList"></div>
+          <div class="bf-row" style="margin-top:10px">
+            <div class="bf-field" style="flex:1">
+              <label for="newFlowCategoryInput">New category name</label>
+              <input type="text" id="newFlowCategoryInput">
+            </div>
+            <button class="btn small" type="button" id="addFlowCategoryBtn" style="align-self:flex-end">Add</button>
+          </div>
+        </div>
       </div>
       <div class="settings-tab-panel" data-settings-tab="industries" style="display:none">
         <div class="bf-group">
@@ -2225,7 +2236,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.19.0";
+var APP_VERSION = "3.19.1";
 var APP_UPDATED = "2026-08-31";
 
 
@@ -7586,6 +7597,7 @@ function buildBackupPayload(){
     categories: CATEGORIES,
     emailFlows: EMAIL_FLOWS,
     industries: INDUSTRIES,
+    flowCategories: FLOW_CATEGORIES,
     favoriteComponents: state.favoriteComponents,
     favoriteEmails: state.favoriteEmails,
     deletedBuiltinComponentIds: DELETED_BUILTIN_COMPONENT_IDS,
@@ -7724,6 +7736,7 @@ function applyBackupPayload(payload){
   if(payload.categories) CATEGORIES = payload.categories;
   if(payload.emailFlows) EMAIL_FLOWS = payload.emailFlows;
   if(payload.industries) INDUSTRIES = payload.industries;
+  if(payload.flowCategories) FLOW_CATEGORIES = payload.flowCategories;
   if(payload.favoriteComponents) state.favoriteComponents = payload.favoriteComponents;
   if(payload.favoriteEmails) state.favoriteEmails = payload.favoriteEmails;
   if(payload.customFlows){
@@ -7764,7 +7777,7 @@ var mqSaveTimer = null;
 
 
 var MQ_PRIVATE_KEYS = ["buildList","currentBrand","headerVariant","footerVariant","favoriteComponents","favoriteEmails"];
-var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","deletedBuiltinComponentIds","deletedBuiltinEmailIds","deletedBuiltinFlowIds","customFlows","deletedBuiltinSkillIds","customSkills","deletedBuiltinLiquidIds","customLiquidSnippets","customDiscountBatches","customProductGrids","customSegments","dmEntries"];
+var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","flowCategories","deletedBuiltinComponentIds","deletedBuiltinEmailIds","deletedBuiltinFlowIds","customFlows","deletedBuiltinSkillIds","customSkills","deletedBuiltinLiquidIds","customLiquidSnippets","customDiscountBatches","customProductGrids","customSegments","dmEntries"];
 function splitBackupPayload(full){
   var priv = {}, shared = {};
   MQ_PRIVATE_KEYS.forEach(function(k){ priv[k] = full[k]; });
@@ -10002,6 +10015,25 @@ function renderCategoryManager(){
       toggleFlowIndustry(input.getAttribute("data-flow-industry"), input.getAttribute("data-industry-key"), input.checked);
     });
   });
+
+  var flowCatList = byId("flowCategoryManagerList");
+  flowCatList.innerHTML = FLOW_CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).map(function(cat){
+    var n = FLOWS.filter(function(f){ return f.category===cat.id; }).length;
+    return '<div class="cat-manage-row" data-flow-cat-row="'+cat.id+'">'+
+      '<span class="cat-manage-label" data-flow-cat-label="'+cat.id+'">'+esc(cat.label)+'</span>'+
+      '<span class="cat-manage-count">'+n+'</span>'+
+      '<span class="cat-manage-actions">'+
+        '<button type="button" class="icon-btn" data-rename-flow-category="'+cat.id+'" title="Rename category" aria-label="Rename category">'+ICON_PENCIL+'</button>'+
+        '<button type="button" class="icon-btn" data-remove-flow-category="'+cat.id+'" aria-label="Remove category">'+ICON_CLOSE+'</button>'+
+      '</span>'+
+    '</div>';
+  }).join("");
+  flowCatList.querySelectorAll("[data-remove-flow-category]").forEach(function(btn){
+    btn.addEventListener("click", function(){ requestRemoveFlowCategory(btn.getAttribute("data-remove-flow-category")); });
+  });
+  flowCatList.querySelectorAll("[data-rename-flow-category]").forEach(function(btn){
+    btn.addEventListener("click", function(){ startRenameFlowCategory(btn.getAttribute("data-rename-flow-category")); });
+  });
 }
 
 function startRenameCategory(catId){
@@ -10071,6 +10103,36 @@ function startRenameFlow(flowId){
     if(done) return; done = true;
     var val = input.value.trim();
     if(val) f.label = val;
+    saveToStorage(); renderCategoryManager(); renderAll();
+  }
+  function cancel(){
+    if(done) return; done = true;
+    renderCategoryManager();
+  }
+  input.addEventListener("keydown", function(e){
+    if(e.key==="Enter"){ e.preventDefault(); commit(); }
+    else if(e.key==="Escape"){ e.preventDefault(); cancel(); }
+  });
+  input.addEventListener("blur", function(){ commit(); });
+}
+function startRenameFlowCategory(catId){
+  var row = document.querySelector('[data-flow-cat-row="'+catId+'"]');
+  var cat = FLOW_CATEGORIES.filter(function(x){ return x.id===catId; })[0];
+  if(!row || !cat) return;
+  var labelEl = row.querySelector("[data-flow-cat-label]");
+  if(!labelEl || labelEl.tagName==="INPUT") return;
+  var input = document.createElement("input");
+  input.type = "text";
+  input.className = "inline-edit-input";
+  input.value = cat.label;
+  labelEl.replaceWith(input);
+  input.focus();
+  input.select();
+  var done = false;
+  function commit(){
+    if(done) return; done = true;
+    var val = input.value.trim();
+    if(val) cat.label = val;
     saveToStorage(); renderCategoryManager(); renderAll();
   }
   function cancel(){
@@ -10184,6 +10246,56 @@ function requestRemoveFlow(flowId){
     showToast("E-mails moved, category deleted");
   });
 }
+function requestRemoveFlowCategory(catId){
+  var row = document.querySelector('[data-flow-cat-row="'+catId+'"]');
+  if(!row || row.querySelector(".cat-manage-confirm")) return;
+  var n = FLOWS.filter(function(f){ return f.category===catId; }).length;
+  if(n===0){
+    FLOW_CATEGORIES = FLOW_CATEGORIES.filter(function(c){ return c.id!==catId; });
+    if(state.flowCategory===catId) state.flowCategory = "all";
+    saveToStorage(); renderCategoryManager(); renderAll();
+    showToast("Category removed");
+    return;
+  }
+  var others = FLOW_CATEGORIES.filter(function(c){ return c.id!==catId; });
+  if(others.length===0){ showToast("Can't remove the only remaining category"); return; }
+  var panel = document.createElement("div");
+  panel.className = "cat-manage-confirm";
+  panel.innerHTML =
+    '<p>This category has '+n+' flow'+(n===1?"":"s")+'. What should happen to '+(n===1?"it":"them")+'?</p>'+
+    '<div class="bf-row"><div class="bf-field" style="flex:1">'+
+      '<label for="flow-cat-reassign-target">Move to</label>'+
+      '<select id="flow-cat-reassign-target">'+others.map(function(c){ return '<option value="'+c.id+'">'+esc(c.label)+'</option>'; }).join("")+'</select>'+
+    '</div></div>'+
+    '<div class="bf-actions" style="border-top:none; padding-top:0; margin-top:8px">'+
+      '<button type="button" class="btn ghost small" data-flow-cat-cancel="1">Cancel</button>'+
+      '<button type="button" class="btn ghost small" data-flow-cat-delete-all="1" style="color:#b42318;border-color:#b42318">Delete all</button>'+
+      '<button type="button" class="btn small" data-flow-cat-move="1">Move &amp; delete category</button>'+
+    '</div>';
+  row.appendChild(panel);
+  enhanceAllSelects(panel);
+  panel.querySelector("[data-flow-cat-cancel]").addEventListener("click", function(){ panel.remove(); });
+  panel.querySelector("[data-flow-cat-delete-all]").addEventListener("click", function(){
+    FLOWS.forEach(function(f){
+      if(f.category===catId && !f.custom && DELETED_BUILTIN_FLOW_IDS.indexOf(f.id)===-1){
+        DELETED_BUILTIN_FLOW_IDS.push(f.id);
+      }
+    });
+    FLOWS = FLOWS.filter(function(f){ return f.category!==catId; });
+    FLOW_CATEGORIES = FLOW_CATEGORIES.filter(function(c){ return c.id!==catId; });
+    if(state.flowCategory===catId) state.flowCategory = "all";
+    saveToStorage(); renderCategoryManager(); renderAll();
+    showToast("Category and its flows deleted");
+  });
+  panel.querySelector("[data-flow-cat-move]").addEventListener("click", function(){
+    var target = byId("flow-cat-reassign-target").value;
+    FLOWS.forEach(function(f){ if(f.category===catId){ f.category = target; f.custom = true; } });
+    FLOW_CATEGORIES = FLOW_CATEGORIES.filter(function(c){ return c.id!==catId; });
+    if(state.flowCategory===catId) state.flowCategory = "all";
+    saveToStorage(); renderCategoryManager(); renderAll();
+    showToast("Flows moved, category deleted");
+  });
+}
 function uniqueCategoryKey(base){
   var key = slugify(base), n = 2;
   while(CATEGORIES.some(function(c){ return c.id===key; })){ key = slugify(base)+"-"+n; n++; }
@@ -10197,6 +10309,11 @@ function uniqueFlowKey(base){
 function uniqueIndustryKey(base){
   var key = slugify(base), n = 2;
   while(INDUSTRIES.some(function(i){ return i.id===key; })){ key = slugify(base)+"-"+n; n++; }
+  return key;
+}
+function uniqueFlowCategoryKey(base){
+  var key = slugify(base), n = 2;
+  while(FLOW_CATEGORIES.some(function(c){ return c.id===key; })){ key = slugify(base)+"-"+n; n++; }
   return key;
 }
 byId("addCategoryBtn").addEventListener("click", function(){
@@ -10213,6 +10330,15 @@ byId("addFlowBtn").addEventListener("click", function(){
   var label = input.value.trim();
   if(!label){ showToast("Enter a category name"); return; }
   EMAIL_FLOWS.push({ id: uniqueFlowKey(label), label: label });
+  input.value = "";
+  saveToStorage(); renderCategoryManager(); renderAll();
+  showToast("Category added");
+});
+byId("addFlowCategoryBtn").addEventListener("click", function(){
+  var input = byId("newFlowCategoryInput");
+  var label = input.value.trim();
+  if(!label){ showToast("Enter a category name"); return; }
+  FLOW_CATEGORIES.push({ id: uniqueFlowCategoryKey(label), label: label });
   input.value = "";
   saveToStorage(); renderCategoryManager(); renderAll();
   showToast("Category added");
