@@ -2227,7 +2227,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.18.1";
+var APP_VERSION = "3.18.2";
 var APP_UPDATED = "2026-08-31";
 
 
@@ -13938,7 +13938,19 @@ function simulateLiquidForPreview(html, b){
 
 
   html = html.replace(/\{%[\s\S]*?%\}/g, "");
-  html = html.replace(/\{\{[\s\S]*?\}\}/g, "Sample content");
+  html = html.replace(/\{\{([\s\S]*?)\}\}/g, function(m, expr){
+    // Instead of a flat "Sample content" for every unmatched tag, show which
+    // field it actually is — pulls the key out of Klaviyo's `|lookup:'Key'`
+    // filter, or the last segment of a dotted path (event.Price -> Price),
+    // so the live preview is actually readable when a template has several
+    // different merge tags (user: "nie widzę w live preview co jest gdzie").
+    var lookupMatch = /lookup\s*:\s*['"]([^'"]+)['"]/.exec(expr);
+    if(lookupMatch) return "["+lookupMatch[1]+"]";
+    var base = expr.split("|")[0].trim();
+    var segMatch = /([A-Za-z0-9_]+)\s*$/.exec(base);
+    if(segMatch) return "["+segMatch[1]+"]";
+    return "Sample content";
+  });
   return html;
 }
 
