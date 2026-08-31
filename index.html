@@ -262,25 +262,6 @@
   .dock-foot{padding:14px 18px; flex:none}
   .dock-scrim{display:none}
 
-  /* Segment Stack: always a fixed slide-in panel (not the persistent desktop
-     grid column .dock is elsewhere) — an ID override beats .dock's own
-     `position:sticky` at every width, so this needs no @media duplication. */
-  #segmentStackOverlay{
-    position:fixed; top:var(--topbar-h); right:0; bottom:0; left:auto; width:340px; max-width:92vw; z-index:45;
-    border-left:1px solid var(--line-strong);
-    transform:translateX(100%); transition:transform .22s cubic-bezier(.4,0,.2,1);
-  }
-  #segmentStackOverlay.open{transform:translateX(0)}
-  #segmentStackScrim{
-    display:block; position:fixed; inset:0; z-index:44; background:rgba(17,17,18,.28);
-    opacity:0; pointer-events:none; transition:opacity .22s ease;
-  }
-  #segmentStackScrim.open{opacity:1; pointer-events:auto}
-  @media (prefers-reduced-motion:reduce){
-    #segmentStackOverlay{transition:none}
-    #segmentStackScrim{transition:none}
-  }
-
   .dock-pill{
     display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px;
     padding:0 5px; border-radius:var(--radius-chip); background:var(--accent); color:var(--accent-ink);
@@ -288,8 +269,10 @@
   }
 
   #dockToggle{display:none}
+  #segmentStackToggle{display:none}
 
   #dockClose{display:none}
+  #segmentStackClose{display:none}
 
 
   .bk-sub{font-size:13px; color:var(--ink-muted); margin:4px 0 0}
@@ -332,6 +315,9 @@
     #dockToggle{display:inline-flex}
     .app.no-stack #dockToggle{display:none}
     #dockClose{display:inline-flex}
+    #segmentStackToggle{display:inline-flex}
+    .app.no-stack #segmentStackToggle{display:none}
+    #segmentStackClose{display:inline-flex}
     .dock{
       position:fixed; top:var(--topbar-h); right:0; bottom:0; left:auto; width:340px; max-width:92vw; z-index:45;
       max-height:none; border-left:1px solid var(--line-strong);
@@ -1109,8 +1095,8 @@
         <button class="btn small" id="addProductGridBtn" type="button" style="display:none">Add Product Grid</button>
         <button class="btn small" id="addDiscountBtn" type="button" style="display:none">Generate codes</button>
         <button class="btn small" id="addSegmentBtn" type="button" style="display:none">Add Segment</button>
-        <button class="btn ghost small" id="segmentStackToggle" type="button" aria-expanded="false" aria-controls="segmentStackOverlay" style="display:none">
-          Segment Stack<span class="dock-pill" id="segmentStackCount">0</span>
+        <button class="btn ghost small" id="segmentStackToggle" type="button" aria-expanded="false" aria-controls="segmentStackOverlay">
+          Segments Group<span class="dock-pill" id="segmentStackCount">0</span>
         </button>
         <button class="btn ghost small" id="dockToggle" type="button" aria-expanded="false" aria-controls="drawer">
           Mail Stack<span class="dock-pill" id="dockCount">0</span>
@@ -1443,9 +1429,26 @@
     <button class="btn export-btn" id="previewMailBtn" style="width:100%" disabled>Preview</button>
   </div>
   </aside>
+
+  <aside class="dock" id="segmentStackOverlay" aria-label="Segments Group" aria-hidden="true">
+  <div class="dock-head">
+    <h3>Segments Group</h3>
+    <span class="drawer-count" id="segmentStackHeadCount">(0)</span>
+    <span class="li-actions" style="margin-left:auto">
+      <button class="icon-btn" id="segmentStackClearBtn" type="button" disabled title="Clear Segments Group" aria-label="Clear Segments Group"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M292.31-140q-29.92 0-51.12-21.19Q220-182.39 220-212.31V-720h-40v-60h180v-35.38h240V-780h180v60h-40v507.69Q740-182 719-161q-21 21-51.31 21H292.31ZM680-720H280v507.69q0 5.39 3.46 8.85t8.85 3.46h375.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46V-720ZM376.16-280h59.99v-360h-59.99v360Zm147.69 0h59.99v-360h-59.99v360ZM280-720v520-520Z"/></svg></button>
+      <button class="modal-close" id="segmentStackClose" type="button" aria-label="Close Segments Group"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+    </span>
+  </div>
+  <div class="dock-body" id="segmentStackBody"></div>
+  <div class="dock-foot" style="gap:8px">
+    <button class="btn ghost small" id="segmentStackCopyBtn" style="flex:1" disabled>Copy</button>
+    <button class="btn small" id="segmentStackDownloadBtn" style="flex:1" disabled>Export .md</button>
+  </div>
+  </aside>
 </div>
 
 <div class="dock-scrim" id="dockScrim"></div>
+<div class="dock-scrim" id="segmentStackScrim"></div>
 
 <footer class="app-footer">
   <div class="app-footer-inner">
@@ -1768,7 +1771,7 @@
     <div class="modal-footer-bar" style="gap:8px">
       <button class="btn ghost small" id="segmentCopyBtn" type="button" style="flex:1">Copy</button>
       <button class="btn ghost small" id="segmentDownloadBtn" type="button" style="flex:1">Download .md</button>
-      <button class="btn small" id="segmentDetailStackBtn" type="button" style="flex:1">Add to Stack</button>
+      <button class="btn small" id="segmentDetailStackBtn" type="button" style="flex:1">Add to Group</button>
     </div>
   </div>
 </div>
@@ -1789,24 +1792,6 @@
     </div>
   </div>
 </div>
-
-
-<aside class="dock" id="segmentStackOverlay" aria-label="Segment Stack" aria-hidden="true">
-  <div class="dock-head">
-    <h3>Segment Stack</h3>
-    <span class="drawer-count" id="segmentStackHeadCount">(0)</span>
-    <span class="li-actions" style="margin-left:auto">
-      <button class="icon-btn" id="segmentStackClearBtn" type="button" disabled title="Clear Segment Stack" aria-label="Clear Segment Stack"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M292.31-140q-29.92 0-51.12-21.19Q220-182.39 220-212.31V-720h-40v-60h180v-35.38h240V-780h180v60h-40v507.69Q740-182 719-161q-21 21-51.31 21H292.31ZM680-720H280v507.69q0 5.39 3.46 8.85t8.85 3.46h375.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46V-720ZM376.16-280h59.99v-360h-59.99v360Zm147.69 0h59.99v-360h-59.99v360ZM280-720v520-520Z"/></svg></button>
-      <button class="modal-close" id="segmentStackClose" type="button" aria-label="Close Segment Stack"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
-    </span>
-  </div>
-  <div class="dock-body" id="segmentStackBody"></div>
-  <div class="dock-foot" style="gap:8px">
-    <button class="btn ghost small" id="segmentStackCopyBtn" style="flex:1" disabled>Copy</button>
-    <button class="btn small" id="segmentStackDownloadBtn" style="flex:1" disabled>Export .md</button>
-  </div>
-</aside>
-<div class="dock-scrim" id="segmentStackScrim"></div>
 
 
 <div class="overlay" id="productGridOverlay" role="dialog" aria-modal="true">
@@ -2211,14 +2196,21 @@
 (function () {
   try{
     var section = new URLSearchParams(location.search).get("section");
-    var STACK_SECTIONS = {components:1, emails:1, liquid:1, productgrid:1};
+    var MAIL_STACK_SECTIONS = {components:1, emails:1, liquid:1, productgrid:1};
+    var SEGMENTS_STACK_SECTIONS = {segments:1};
     var NOGRID_SECTIONS = {schedule:1, reports:1};
-    var KNOWN_SECTIONS = {components:1, emails:1, liquid:1, productgrid:1, flows:1, skills:1, schedule:1, discounts:1, reports:1, knowledge:1};
+    var KNOWN_SECTIONS = {components:1, emails:1, liquid:1, productgrid:1, flows:1, segments:1, skills:1, schedule:1, discounts:1, reports:1, knowledge:1};
     if(!section || !KNOWN_SECTIONS[section]) return;
     var app = document.getElementById("app");
     var noGrid = !!NOGRID_SECTIONS[section];
+    var isMailStack = !!MAIL_STACK_SECTIONS[section];
+    var isSegmentsStack = !!SEGMENTS_STACK_SECTIONS[section];
     app.classList.remove("no-nav");
-    app.classList.toggle("no-stack", !STACK_SECTIONS[section]);
+    app.classList.toggle("no-stack", !isMailStack && !isSegmentsStack);
+    var drawerEl = document.getElementById("drawer");
+    var segStackEl = document.getElementById("segmentStackOverlay");
+    if(drawerEl) drawerEl.style.display = isMailStack ? "" : "none";
+    if(segStackEl) segStackEl.style.display = isSegmentsStack ? "" : "none";
     document.getElementById("homePage").style.display = "none";
     document.getElementById("pageHead").style.display = "";
     document.getElementById("filterbar").style.display = "";
@@ -2235,7 +2227,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.18.0";
+var APP_VERSION = "3.18.1";
 var APP_UPDATED = "2026-08-31";
 
 
@@ -11972,7 +11964,7 @@ function deleteSnippet(id){
 
 // ============================================================
 // Segments — a library of reusable CRM segment specs (.md), plus
-// a multi-select "Segment Stack" that exports several combined
+// a multi-select "Segments Group" that exports several combined
 // into one .md for handing to another CRM/agent.
 // ============================================================
 var segmentOpenId = null;
@@ -12039,7 +12031,7 @@ function syncSegmentStackBtn(segmentId){
   var btn = byId("segmentDetailStackBtn");
   if(!btn) return;
   var inStack = isInSegmentStack(segmentId);
-  btn.textContent = inStack ? "Added to Stack ✓" : "Add to Stack";
+  btn.textContent = inStack ? "Added to Group ✓" : "Add to Group";
   btn.classList.toggle("added", inStack);
 }
 function openSegmentDetail(segmentId){
@@ -12199,7 +12191,7 @@ function deleteSegment(id){
   });
 }
 
-// --- Segment Stack: multi-select + combined .md export ---
+// --- Segments Group: multi-select + combined .md export ---
 function toggleSegmentStack(id){
   var idx = state.segmentStack.indexOf(id);
   if(idx===-1) state.segmentStack.push(id); else state.segmentStack.splice(idx,1);
@@ -12248,7 +12240,7 @@ function renderSegmentStackPanel(){
   byId("segmentStackClearBtn").disabled = n===0;
   var body = byId("segmentStackBody");
   if(!body) return;
-  if(n===0){ body.innerHTML = '<p class="drawer-empty">Your segment stack is empty.<br>Click "Add" on a segment.</p>'; return; }
+  if(n===0){ body.innerHTML = '<p class="drawer-empty">Your segments group is empty.<br>Click "Add" on a segment.</p>'; return; }
   body.innerHTML = "";
   state.segmentStack.forEach(function(id){
     var s = findSegment(id);
@@ -12268,13 +12260,18 @@ function openSegmentStackPanel(){
   byId("segmentStackScrim").classList.add("open");
   byId("segmentStackToggle").setAttribute("aria-expanded","true");
   document.body.classList.add("modal-open");
+  document.body.classList.add("dock-open");
 }
 function closeSegmentStackPanel(){
   byId("segmentStackOverlay").classList.remove("open");
   byId("segmentStackOverlay").setAttribute("aria-hidden","true");
   byId("segmentStackScrim").classList.remove("open");
   byId("segmentStackToggle").setAttribute("aria-expanded","false");
+  document.body.classList.remove("dock-open");
   if(!document.querySelector(".overlay.open")) document.body.classList.remove("modal-open");
+}
+function toggleSegmentStackPanel(){
+  if(byId("segmentStackOverlay").classList.contains("open")) closeSegmentStackPanel(); else openSegmentStackPanel();
 }
 
 
@@ -13235,15 +13232,15 @@ var SECTION_META = {
 
 
   home:       { title:"Home", search:null, primary:null, stack:false },
-  components: { title:"Components", search:"Search components…", primary:"add", stack:true },
-  emails:     { title:"E-mails", search:"Search emails…", primary:null, stack:true },
+  components: { title:"Components", search:"Search components…", primary:"add", stack:"mail" },
+  emails:     { title:"E-mails", search:"Search emails…", primary:null, stack:"mail" },
   flows:      { title:"Automation Flows", search:"Search flows…", primary:"add-flow", stack:false },
-  segments:   { title:"Segments", search:"Search segments…", primary:"add-segment", stack:false },
+  segments:   { title:"Segments", search:"Search segments…", primary:"add-segment", stack:"segments" },
   skills:     { title:"Skills", search:"Search skills…", primary:"add-skill", stack:false },
 
 
-  liquid:     { title:"Liquid Snippets", search:"Search snippets…", primary:"add-liquid", stack:true },
-  productgrid:{ title:"Product Grid", search:"Search product grids…", primary:"add-productgrid", stack:true },
+  liquid:     { title:"Liquid Snippets", search:"Search snippets…", primary:"add-liquid", stack:"mail" },
+  productgrid:{ title:"Product Grid", search:"Search product grids…", primary:"add-productgrid", stack:"mail" },
   schedule:   { title:"Schedule", search:null, primary:null, stack:false },
 
 
@@ -13307,12 +13304,16 @@ function syncSectionChrome(){
 
 
   byId("app").classList.toggle("no-stack", !meta.stack);
-  byId("dockToggle").style.display = meta.stack ? "" : "none";
-  if(!meta.stack) closeDock();
 
-  var isSegments = state.section==="segments";
-  byId("segmentStackToggle").style.display = isSegments ? "" : "none";
-  if(!isSegments) closeSegmentStackPanel();
+  var isMailStack = meta.stack==="mail";
+  byId("drawer").style.display = isMailStack ? "" : "none";
+  byId("dockToggle").style.display = isMailStack ? "" : "none";
+  if(!isMailStack) closeDock();
+
+  var isSegmentsStack = meta.stack==="segments";
+  byId("segmentStackOverlay").style.display = isSegmentsStack ? "" : "none";
+  byId("segmentStackToggle").style.display = isSegmentsStack ? "" : "none";
+  if(!isSegmentsStack) closeSegmentStackPanel();
 
 
   byId("app").classList.toggle("no-nav", isHome);
@@ -14375,7 +14376,7 @@ byId("segmentDownloadBtn").addEventListener("click", function(){
 byId("segmentDetailStackBtn").addEventListener("click", function(){
   if(segmentOpenId) toggleSegmentStack(segmentOpenId);
 });
-byId("segmentStackToggle").addEventListener("click", openSegmentStackPanel);
+byId("segmentStackToggle").addEventListener("click", toggleSegmentStackPanel);
 byId("segmentStackClose").addEventListener("click", closeSegmentStackPanel);
 byId("segmentStackScrim").addEventListener("click", closeSegmentStackPanel);
 byId("segmentStackClearBtn").addEventListener("click", clearSegmentStack);
