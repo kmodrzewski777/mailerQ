@@ -1554,8 +1554,7 @@
       </div>
     </div>
     <div class="modal-footer-bar" style="gap:8px">
-      <button class="btn ghost small" id="flowCopyMdBtn" type="button" style="flex:1">Copy .md</button>
-      <button class="btn small" id="flowDownloadMdBtn" type="button" style="flex:1">Download .md</button>
+      <button class="btn small" id="flowInstallBtn" type="button" style="flex:1">Install</button>
     </div>
   </div>
 </div>
@@ -1568,12 +1567,32 @@
       <button class="modal-close" id="flowFormClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
     </div>
     <div class="modal-body">
+      <div class="bf-group" style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+        <label class="btn ghost small" for="ffUploadMdInput">Upload .md</label>
+        <input type="file" accept=".md,text/markdown" id="ffUploadMdInput" style="display:none">
+        <span style="font-size:12.5px; color:var(--ink-faint)">Fills in every field below from a flow spec exported with "Download .md" — review before saving.</span>
+      </div>
       <form id="flowForm" class="brand-form"></form>
     </div>
     <div class="modal-footer-bar" style="gap:8px">
       <button class="btn ghost small" type="button" id="flowFormCancel" style="flex:1">Cancel</button>
       <button class="btn small" type="button" id="flowFormSave" style="flex:1">Save flow</button>
     </div>
+  </div>
+</div>
+
+
+<div class="overlay" id="flowInstallOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-head">
+      <button class="icon-btn" id="flowInstallBackBtn" type="button" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <h3 id="flowInstallTitle" style="flex:1"></h3>
+      <button class="modal-close" id="flowInstallClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div id="flowInstallStepBody"></div>
+    </div>
+    <div class="modal-footer-bar" id="flowInstallFooter" style="gap:8px"></div>
   </div>
 </div>
 
@@ -2123,7 +2142,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.16.1";
+var APP_VERSION = "3.17.0";
 var APP_UPDATED = "2026-08-25";
 
 
@@ -7379,6 +7398,18 @@ function bindOverlayBackdropClose(overlayId, onClose){
     downOnBackdrop = false;
   });
 }
+
+var overlayBackStack = [];
+function pushOverlayBack(overlayId){
+  byId(overlayId).classList.remove("open");
+  overlayBackStack.push(overlayId);
+}
+function popOverlayBack(){
+  var prevId = overlayBackStack.pop();
+  if(prevId) byId(prevId).classList.add("open");
+  return prevId || null;
+}
+
 function brand(){ return BRANDS[state.brand]; }
 
 function componentCrmPlatforms(c){
@@ -10452,7 +10483,10 @@ function openFlowDetail(flowId){
     sec("Success metrics", list(f.kpis))+
     sec("Notes", f.notes ? '<p>'+esc(f.notes)+'</p>' : "");
   byId("flowBody").querySelectorAll("[data-flow-email-preview]").forEach(function(btn){
-    btn.addEventListener("click", function(){ openEmailPreview(btn.getAttribute("data-flow-email-preview")); });
+    btn.addEventListener("click", function(){
+      pushOverlayBack("flowOverlay");
+      openEmailPreview(btn.getAttribute("data-flow-email-preview"));
+    });
   });
 
 
@@ -10461,6 +10495,147 @@ function openFlowDetail(flowId){
   urlOpenFlowId = flowId; syncUrlFromState();
 }
 function closeFlowOverlay(){ byId("flowOverlay").classList.remove("open"); urlOpenFlowId = null; syncUrlFromState(); }
+
+var flowInstallState = { flowId:null, step:1, clientBrandKey:null, emailIds:[], emailIndex:0 };
+function openFlowInstall(flowId){
+  var f = findFlow(flowId);
+  if(!f) return;
+  pushOverlayBack("flowOverlay");
+  flowInstallState = {
+    flowId: flowId, step:1, clientBrandKey: state.brand,
+    emailIds: READY_EMAILS.filter(function(e){ return e.linkedFlowId===flowId; })
+      .sort(function(a, b){
+        var ai = a.linkedStageIndex==null ? Infinity : a.linkedStageIndex;
+        var bi = b.linkedStageIndex==null ? Infinity : b.linkedStageIndex;
+        return ai - bi;
+      }).map(function(e){ return e.id; }),
+    emailIndex:0
+  };
+  renderFlowInstallStep();
+  byId("flowInstallOverlay").classList.add("open");
+}
+function closeFlowInstall(){ byId("flowInstallOverlay").classList.remove("open"); }
+function flowInstallGoBack(){
+  if(flowInstallState.step===2 && flowInstallState.emailIndex>0){
+    flowInstallState.emailIndex--;
+    renderFlowInstallStep();
+    return;
+  }
+  if(flowInstallState.step>1){
+    flowInstallState.step--;
+    if(flowInstallState.step===2) flowInstallState.emailIndex = Math.max(0, flowInstallState.emailIds.length-1);
+    renderFlowInstallStep();
+    return;
+  }
+  closeFlowInstall();
+  popOverlayBack();
+}
+function renderFlowInstallStep(){
+  var f = findFlow(flowInstallState.flowId);
+  if(!f){ closeFlowInstall(); return; }
+  if(flowInstallState.step===1){
+    byId("flowInstallTitle").textContent = "Install “"+f.label+"” — Step 1 of 3: Client";
+    renderFlowInstallStep1Client(f);
+  } else if(flowInstallState.step===2){
+    var total = flowInstallState.emailIds.length;
+    byId("flowInstallTitle").textContent = total
+      ? "Install “"+f.label+"” — Step 2 of 3: Email "+(flowInstallState.emailIndex+1)+" of "+total
+      : "Install “"+f.label+"” — Step 2 of 3: Emails";
+    renderFlowInstallStep2Emails(f);
+  } else {
+    byId("flowInstallTitle").textContent = "Install “"+f.label+"” — Step 3 of 3: Header & footer";
+    renderFlowInstallStep3HeaderFooter(f);
+  }
+}
+function renderFlowInstallStep1Client(f){
+  var body = byId("flowInstallStepBody");
+  var sortedKeys = BRAND_ORDER.slice().sort(function(a, b){ return BRANDS[a].name.localeCompare(BRANDS[b].name); });
+  body.innerHTML =
+    '<p style="font-size:13.5px; color:var(--ink-muted); margin:0 0 16px">Pick which client this flow is being installed for. Every linked e-mail in the next step compiles against that client’s Brand Kit.</p>'+
+    '<div class="bf-field"><label for="fiClientSelect">Client</label><select id="fiClientSelect">'+
+      sortedKeys.map(function(k){ return '<option value="'+esc(k)+'"'+(k===flowInstallState.clientBrandKey?' selected':'')+'>'+esc(BRANDS[k].name)+'</option>'; }).join("")+
+    '</select></div>';
+  enhanceAllSelects(body);
+  byId("fiClientSelect").addEventListener("change", function(){ flowInstallState.clientBrandKey = this.value; });
+  byId("flowInstallFooter").innerHTML = '<button class="btn small" type="button" id="fiNextBtn" style="flex:1">Next</button>';
+  byId("fiNextBtn").addEventListener("click", function(){
+    state.brand = flowInstallState.clientBrandKey;
+    saveToStorage();
+    flowInstallState.step = 2;
+    flowInstallState.emailIndex = 0;
+    renderFlowInstallStep();
+  });
+}
+function renderFlowInstallStep2Emails(f){
+  var body = byId("flowInstallStepBody");
+  var footer = byId("flowInstallFooter");
+  var total = flowInstallState.emailIds.length;
+  if(total===0){
+    body.innerHTML = '<p class="drawer-empty" style="padding:36px">No e-mails are linked to this flow yet — nothing to review here.</p>';
+    footer.innerHTML = '<button class="btn small" type="button" id="fiNextBtn" style="flex:1">Next</button>';
+    byId("fiNextBtn").addEventListener("click", function(){ flowInstallState.step = 3; renderFlowInstallStep(); });
+    return;
+  }
+  var emailId = flowInstallState.emailIds[flowInstallState.emailIndex];
+  var e = findEmail(emailId);
+  var b = brand();
+  var stageName = "";
+  if(e.linkedStageIndex!=null && f.stages && f.stages[e.linkedStageIndex]) stageName = f.stages[e.linkedStageIndex].name;
+  body.innerHTML =
+    '<div style="margin-bottom:12px">'+
+      '<p style="font-size:15px; font-weight:500; margin:0">'+esc(e.label)+'</p>'+
+      (stageName ? '<p style="font-size:12.5px; color:var(--ink-faint); margin:2px 0 0">Stage: '+esc(stageName)+'</p>' : '')+
+    '</div>'+
+    '<div class="bf-mjml-preview-scroll"><div class="modal-preview-box bf-mjml-preview-frame pg-live-preview-frame"><div class="bf-mjml-preview-inner" style="width:100%; max-width:'+esc(b.mailWidth||"640px")+'; margin:0 auto"><div id="flowInstallEmailPreviewMount" style="width:100%"></div></div></div></div>';
+  var bodyMjml = stitchComponentCodes(e.componentIds.map(function(cid, i){
+    var vals = e.componentValues && e.componentValues[i];
+    var variantId = e.componentVariants && e.componentVariants[i];
+    var raw = resolveItemCode({ componentId:cid, variantId: variantId || null, code:null, values: vals || null }, b);
+    return raw || "";
+  }), b.componentGap);
+  mountMjmlIframe("flowInstallEmailPreviewMount", bodyMjml, b, { noChrome:true });
+  footer.innerHTML =
+    '<span style="font-size:12.5px; color:var(--ink-faint); align-self:center; margin-right:auto">Email '+(flowInstallState.emailIndex+1)+' of '+total+'</span>'+
+    '<button class="btn small" type="button" id="fiConfirmBtn" style="flex:1; max-width:200px">Looks good — next</button>';
+  byId("fiConfirmBtn").addEventListener("click", function(){
+    if(flowInstallState.emailIndex < total-1){ flowInstallState.emailIndex++; renderFlowInstallStep(); }
+    else { flowInstallState.step = 3; renderFlowInstallStep(); }
+  });
+}
+function renderFlowInstallStep3HeaderFooter(f){
+  var body = byId("flowInstallStepBody");
+  var footer = byId("flowInstallFooter");
+  var b = brand();
+  var headerOpts = [1]; if(b.header2Code) headerOpts.push(2); if(b.header3Code) headerOpts.push(3);
+  var footerOpts = [1]; if(b.footer2Code) footerOpts.push(2); if(b.footer3Code) footerOpts.push(3);
+  if(headerOpts.indexOf(state.headerVariant)===-1) state.headerVariant = 1;
+  if(footerOpts.indexOf(state.footerVariant)===-1) state.footerVariant = 1;
+  function variantLabel(prefix, n){
+    var custom = b[prefix + (n>1?n:"") + "Name"];
+    return (custom && custom.trim()) ? custom.trim() : prefix.charAt(0).toUpperCase()+prefix.slice(1)+" "+n;
+  }
+  body.innerHTML =
+    '<p style="font-size:13.5px; color:var(--ink-muted); margin:0 0 16px">Pick which header and footer variant every e-mail in this flow should ship with for “'+esc(b.name)+'”.</p>'+
+    '<div class="bf-row">'+
+      (headerOpts.length>1 ? '<div class="bf-field"><label for="fiHeaderSelect">Header</label><select id="fiHeaderSelect">'+
+        headerOpts.map(function(n){ return '<option value="'+n+'"'+(n===state.headerVariant?' selected':'')+'>'+esc(variantLabel("header", n))+'</option>'; }).join("")+
+      '</select></div>' : '')+
+      (footerOpts.length>1 ? '<div class="bf-field"><label for="fiFooterSelect">Footer</label><select id="fiFooterSelect">'+
+        footerOpts.map(function(n){ return '<option value="'+n+'"'+(n===state.footerVariant?' selected':'')+'>'+esc(variantLabel("footer", n))+'</option>'; }).join("")+
+      '</select></div>' : '')+
+    '</div>'+
+    (headerOpts.length<=1 && footerOpts.length<=1 ? '<p class="drawer-empty" style="padding:16px">This brand only has one header and one footer — nothing to pick.</p>' : '');
+  enhanceAllSelects(body);
+  if(byId("fiHeaderSelect")) byId("fiHeaderSelect").addEventListener("change", function(){ state.headerVariant = +this.value; saveToStorage(); });
+  if(byId("fiFooterSelect")) byId("fiFooterSelect").addEventListener("change", function(){ state.footerVariant = +this.value; saveToStorage(); });
+  footer.innerHTML = '<button class="btn small" type="button" id="fiFinishBtn" style="flex:1">Finish</button>';
+  byId("fiFinishBtn").addEventListener("click", function(){
+    var flowLabel = f.label, brandName = b.name;
+    closeFlowInstall();
+    popOverlayBack();
+    showToast("Installed “"+flowLabel+"” for "+brandName);
+  });
+}
 
 
 var flowForm = { editId: null, draft: null };
@@ -10728,6 +10903,131 @@ function downloadFlowMarkdown(flowId){
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
   showToast("Downloaded "+flowMdFilename(f));
+}
+
+function parseMdTable(block){
+  var obj = {};
+  block.split("\n").forEach(function(line){
+    var m = /^\|\s*(.+?)\s*\|\s*(.*?)\s*\|\s*$/.exec(line.trim());
+    if(!m) return;
+    var key = m[1].trim(), val = m[2].trim();
+    if(key==="Field" || /^-+$/.test(key)) return;
+    obj[key] = val;
+  });
+  return obj;
+}
+function stripMdTableLines(block){
+  return block.split("\n").filter(function(l){ return !/^\|.*\|\s*$/.test(l.trim()); }).join("\n").trim();
+}
+function flowMdMatchByLabelOrId(list, value){
+  if(!value) return null;
+  var v = value.trim().toLowerCase();
+  var found = list.filter(function(x){ return x.id.toLowerCase()===v || x.label.toLowerCase()===v; })[0];
+  return found ? found.id : null;
+}
+function flowMdMatchLabelsList(map, value){
+  if(!value) return { matched:[], unmatched:[] };
+  var parts = value.split(",").map(function(s){ return s.trim(); }).filter(Boolean);
+  var matched = [], unmatched = [];
+  parts.forEach(function(p){
+    var lower = p.toLowerCase();
+    var key = Object.keys(map).filter(function(k){ return k.toLowerCase()===lower || String(map[k]).toLowerCase()===lower; })[0];
+    if(key) matched.push(key); else unmatched.push(p);
+  });
+  return { matched:matched, unmatched:unmatched };
+}
+function parseFlowMarkdown(text){
+  if(!text || !text.trim()) return null;
+  var lines = text.replace(/\r\n/g, "\n").split("\n");
+  var headings = [];
+  lines.forEach(function(line, idx){
+    var m = /^(#{1,3})\s+(.+)$/.exec(line);
+    if(m) headings.push({ level:m[1].length, title:m[2].trim(), line:idx });
+  });
+  var h1 = headings.filter(function(h){ return h.level===1; })[0];
+  if(!h1) return null;
+
+  function sectionBody(headingIdx){
+    var h = headings[headingIdx];
+    var nextLine = headingIdx+1 < headings.length ? headings[headingIdx+1].line : lines.length;
+    return lines.slice(h.line+1, nextLine).join("\n").trim();
+  }
+  function bulletsOf(body){
+    return body.split("\n").map(function(l){ return l.trim(); })
+      .filter(function(l){ return l.indexOf("- ")===0; })
+      .map(function(l){ return l.slice(2).trim(); })
+      .filter(Boolean);
+  }
+
+  var draft = emptyFlowDraft();
+  draft.label = h1.title;
+  var warnings = [];
+  var stagesHeadingIdx = -1;
+
+  headings.forEach(function(h, idx){
+    if(h.level!==2) return;
+    var body = sectionBody(idx);
+    if(h.title==="At a glance"){
+      var table = parseMdTable(body);
+      if(table["Category"]){
+        var catId = flowMdMatchByLabelOrId(FLOW_CATEGORIES, table["Category"]);
+        if(catId) draft.category = catId; else warnings.push('category "'+table["Category"]+'"');
+      }
+      if(table["Industry"]){
+        var indId = flowMdMatchByLabelOrId(INDUSTRIES, table["Industry"]);
+        if(indId) draft.industry = indId; else warnings.push('industry "'+table["Industry"]+'"');
+      }
+      if(table["Duration"]) draft.duration = table["Duration"];
+      if(table["Channels"]){
+        var chRes = flowMdMatchLabelsList(FLOW_CHANNEL_LABELS, table["Channels"]);
+        draft.channels = chRes.matched;
+        chRes.unmatched.forEach(function(u){ warnings.push('channel "'+u+'"'); });
+      }
+      if(table["Originally built in"] && table["Originally built in"]!=="Any CRM"){
+        var crmRes = flowMdMatchLabelsList(CRM_PLATFORM_LABELS, table["Originally built in"]);
+        draft.crmPlatforms = crmRes.matched;
+        crmRes.unmatched.forEach(function(u){ warnings.push('CRM "'+u+'"'); });
+      }
+    } else if(h.title==="What this flow does"){
+      draft.desc = body;
+    } else if(h.title==="Goal"){
+      draft.goal = body;
+    } else if(h.title==="Audience"){
+      draft.audience = body;
+    } else if(h.title==="Mechanics"){
+      draft.mechanics = bulletsOf(body);
+    } else if(h.title==="Global rules"){
+      draft.rules = bulletsOf(body);
+    } else if(h.title==="How to measure it"){
+      draft.kpis = bulletsOf(body);
+    } else if(h.title==="Notes"){
+      draft.notes = body;
+    } else if(h.title==="Stages"){
+      stagesHeadingIdx = idx;
+    }
+  });
+
+  if(stagesHeadingIdx!==-1){
+    var stagesEndLine = lines.length;
+    for(var k=stagesHeadingIdx+1; k<headings.length; k++){
+      if(headings[k].level===2){ stagesEndLine = headings[k].line; break; }
+    }
+    headings.forEach(function(h, idx){
+      if(h.level!==3 || h.line<=headings[stagesHeadingIdx].line || h.line>=stagesEndLine) return;
+      var body = sectionBody(idx);
+      var table = parseMdTable(body);
+      draft.stages.push({
+        name: h.title.replace(/^\d+\.\s*/, "").trim(),
+        timing: table["Trigger / timing"] || "",
+        channel: table["Channel"] || "",
+        purpose: table["Purpose"] || "",
+        detail: stripMdTableLines(body)
+      });
+    });
+  }
+
+  if(warnings.length) showToast("Couldn't match: "+warnings.join(", ")+" — check these fields", "error");
+  return draft;
 }
 
 
@@ -13406,12 +13706,10 @@ byId("previewMailBtn").addEventListener("click", openMailPreview);
 
 byId("flowClose").addEventListener("click", closeFlowOverlay);
 bindOverlayBackdropClose("flowOverlay", closeFlowOverlay);
-byId("flowDownloadMdBtn").addEventListener("click", function(){ if(flowOpenId) downloadFlowMarkdown(flowOpenId); });
-byId("flowCopyMdBtn").addEventListener("click", function(){
-  var f = flowOpenId && findFlow(flowOpenId);
-  if(!f) return;
-  copyText(buildFlowMarkdown(f), "Markdown copied — paste it to your CRM's AI agent");
-});
+byId("flowInstallBtn").addEventListener("click", function(){ if(flowOpenId) openFlowInstall(flowOpenId); });
+byId("flowInstallBackBtn").addEventListener("click", flowInstallGoBack);
+byId("flowInstallClose").addEventListener("click", function(){ closeFlowInstall(); popOverlayBack(); });
+bindOverlayBackdropClose("flowInstallOverlay", function(){ closeFlowInstall(); popOverlayBack(); });
 byId("flowShareBtn").addEventListener("click", function(){
   if(flowOpenId) copyShareUrl({ section:"flows", flowid: flowOpenId });
 });
@@ -13420,6 +13718,22 @@ byId("flowFormClose").addEventListener("click", closeFlowForm);
 byId("flowFormCancel").addEventListener("click", closeFlowForm);
 byId("flowFormSave").addEventListener("click", saveFlowForm);
 bindOverlayBackdropClose("flowFormOverlay", closeFlowForm);
+byId("ffUploadMdInput").addEventListener("change", function(){
+  var file = this.files && this.files[0];
+  var input = this;
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(){
+    var parsed = parseFlowMarkdown(String(reader.result||""));
+    if(!parsed){ showToast("Couldn't read this file as a flow spec — check it starts with a # heading", "error"); input.value = ""; return; }
+    flowForm.draft = parsed;
+    renderFlowFormFields();
+    showToast("Filled in from “"+file.name+"” — review before saving");
+    input.value = "";
+  };
+  reader.onerror = function(){ showToast("Couldn't read this file", "error"); input.value = ""; };
+  reader.readAsText(file);
+});
 
 
 byId("skillClose").addEventListener("click", closeSkillOverlay);
@@ -14175,7 +14489,7 @@ function showToast(msg, type){
 }
 
 
-function closePreviewOverlay(){ byId("previewOverlay").classList.remove("open"); urlOpenEmailId = null; syncUrlFromState(); }
+function closePreviewOverlay(){ byId("previewOverlay").classList.remove("open"); urlOpenEmailId = null; syncUrlFromState(); popOverlayBack(); }
 byId("previewClose").addEventListener("click", closePreviewOverlay);
 bindOverlayBackdropClose("previewOverlay", closePreviewOverlay);
 
