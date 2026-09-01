@@ -2236,7 +2236,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.19.2";
+var APP_VERSION = "3.19.3";
 var APP_UPDATED = "2026-09-01";
 
 
@@ -8313,8 +8313,25 @@ function applyValuesToCodeEditable(code, values, keyPrefix){
   Object.keys(values||{}).forEach(function(token){
     var val = values[token];
     if(val==null || val==="") return;
-    var re = new RegExp("\\[\\[" + token.replace(/[.*+?^${}()|[\]\\]/g,"\\$&") + "\\]\\]", "g");
-    if(/^URL|_URL$|^ALT_|^HREF/i.test(token)){ out = out.replace(re, val); return; }
+    var tokenEsc = token.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+    if(/^URL|_URL$|^ALT_|^HREF/i.test(token)){
+      var reAll = new RegExp("\\[\\[" + tokenEsc + "\\]\\]", "g");
+      out = out.replace(reAll, val);
+      return;
+    }
+    // A token can ALSO sit inside an HTML attribute (src="[[PRODUCT_IMAGE]]",
+    // href='[[SOME_LINK]]'...) without being named URL/HREF-ish — the naming
+    // check above only catches an intentionally-named subset. Wrapping THAT
+    // occurrence in <span> lands literal markup inside the attribute string
+    // and breaks it silently (real bug: image tokens like PRODUCT_1_IMAGE
+    // rendered fine in Full Preview — plain substitution, no wrapping — but
+    // came up broken in the editable Live Preview). Detect this
+    // structurally, per-occurrence, instead of guessing from the name: any
+    // occurrence directly after `="` or `='` gets substituted as plain text;
+    // only occurrences OUTSIDE an attribute get the editable <span> wrapper.
+    var attrRe = new RegExp('([=]["\'])\\[\\[' + tokenEsc + '\\]\\]', "g");
+    out = out.replace(attrRe, function(m, quote){ return quote + val; });
+    var re = new RegExp("\\[\\[" + tokenEsc + "\\]\\]", "g");
     out = out.replace(re, '<span class="mf-edit-token" data-mf-token="'+prefix+token+'">'+val+'</span>');
   });
   return out;
