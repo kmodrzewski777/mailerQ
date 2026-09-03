@@ -2253,7 +2253,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.21.0";
+var APP_VERSION = "3.21.1";
 var APP_UPDATED = "2026-09-03";
 
 
@@ -3047,8 +3047,9 @@ function mjCompileColumnGroup(cols, ctx){
     var w = mjGetAttr(c,"width", Math.floor(1000/n)/10+"%");
     var va = mjGetAttr(c,"vertical-align","top");
     var pad = mjGetAttr(c,"padding","0px");
+    var colCssClass = mjGetAttr(c,"css-class","");
     html += '<!--[if mso]><td width="'+w+'" valign="'+va+'" style="padding:'+pad+';"><![endif]-->\n';
-    html += '<div class="mj-col-stack" style="display:inline-block;width:100%;max-width:'+w+";vertical-align:"+va+";padding:"+pad+';box-sizing:border-box;">\n';
+    html += '<div class="mj-col-stack'+(colCssClass?" "+colCssClass:"")+'" style="display:inline-block;width:100%;max-width:'+w+";vertical-align:"+va+";padding:"+pad+';box-sizing:border-box;">\n';
     html += '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td>'+mjCompileChildren(c, ctx)+"</td></tr></table>\n";
     html += "</div>\n";
     html += "<!--[if mso]></td><![endif]-->\n";
@@ -3465,7 +3466,7 @@ googleFontsLinkHtml(b)+
 "  body{background:"+pageBg+";font-family:"+b.fontBody+"}\n"+
 "  .mj-body-box{margin-top:0px}\n"+
 "  @media only screen and (max-width:480px){\n"+
-"    .mj-col-stack{display:block!important;width:100%!important;max-width:100%!important}\n"+
+"    .mj-col-stack:not(.mj-col-nostack){display:block!important;width:100%!important;max-width:100%!important}\n"+
 "    .mj-btn-full{display:block!important;width:auto!important}\n"+
 "    .mj-hide-mobile{display:none!important}\n"+
 responsiveRules+
