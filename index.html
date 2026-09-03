@@ -2253,7 +2253,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.20.0";
+var APP_VERSION = "3.20.1";
 var APP_UPDATED = "2026-09-03";
 
 
@@ -2455,6 +2455,10 @@ var CATEGORIES = [
   {id:"discovery", label:"Discovery & Recommendations"},
   {id:"support", label:"Support & Policies"}
 ];
+function categoryLabel(id){
+  var c = CATEGORIES.filter(function(x){ return x.id===id; })[0];
+  return c ? c.label : id;
+}
 
 
 var EMAIL_FLOWS = [
@@ -14019,6 +14023,7 @@ function renderGridInner(){
     el.innerHTML =
       '<div class="card-preview">'+renderComponentThumb(c, b)+'</div>'+
       '<div class="card-body">'+
+        '<p class="flow-card-cat">'+esc(categoryLabel(c.category))+'</p>'+
         '<div class="card-name-row"><p class="card-label">'+esc(c.label)+'</p>'+cardMenuHtml("component", c.id)+'</div>'+
         (c.desc ? '<p class="card-desc">'+esc(c.desc)+'</p>' : "")+
         compatBoxHtml(componentCompatiblePlatforms(c))+
