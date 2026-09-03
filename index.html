@@ -1516,6 +1516,10 @@
           <button type="button" class="device-btn" data-theme="light" aria-pressed="true">Light</button>
           <button type="button" class="device-btn" data-theme="dark" aria-pressed="false">Dark</button>
         </div>
+        <div class="device-toggle" id="previewTopBarToggle" role="group" aria-label="Top Bar" style="display:none">
+          <button type="button" class="device-btn" data-topbar="on" aria-pressed="true">Top Bar: On</button>
+          <button type="button" class="device-btn" data-topbar="off" aria-pressed="false">Off</button>
+        </div>
       </div>
       <div class="preview-frame" id="previewFrame">
         <div class="inbox-chrome" id="inboxChrome">
@@ -2253,7 +2257,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.21.3";
+var APP_VERSION = "3.21.4";
 var APP_UPDATED = "2026-09-03";
 
 
@@ -3448,7 +3452,11 @@ function compileEmailHtml(bodyMjml, b, opts){
   // resolveBrandTokens then compileMjmlFragment — and wrapped in the same
   // max-width/MSO-table pattern footer uses, so it lines up with the mail's
   // own width instead of stretching edge to edge.
-  var topBarCompiled = (!opts.noChrome && b.topBarContent) ? compileMjmlFragment(resolveBrandTokens(b.topBarContent, b), { fontBody: b.fontBody }) : "";
+  // opts.showTopBar (default true) lets a caller turn a CONFIGURED top bar
+  // off for this one compile — user: "dodaj mi funkcje włączania/
+  // wyłączania top bara przed skompilowaniem kodu".
+  var showTopBar = opts.showTopBar!==false;
+  var topBarCompiled = (!opts.noChrome && showTopBar && b.topBarContent) ? compileMjmlFragment(resolveBrandTokens(b.topBarContent, b), { fontBody: b.fontBody }) : "";
   var topBarHtml = topBarCompiled ? (
     '<!--[if mso]><table role="presentation" width="'+mso+'" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->\n'+
     '<div style="max-width:'+b.mailWidth+';margin:0 auto;">\n'+
@@ -14240,6 +14248,24 @@ function setPreviewTheme(mode){
   if(previewRecompile) previewRecompile();
 }
 
+// Lets you switch a configured {{brand.topBarContent}} on/off for the
+// preview/export in front of you, without having to clear the Brand Kit
+// field — user: "dodaj mi funkcje włączania/wyłączania top bara przed
+// skompilowaniem kodu". Session-only (like previewDevice/previewTheme, not
+// persisted) — a quick "what does this look like without it" check, not a
+// lasting per-user setting the way headerVariant/footerVariant are.
+var previewShowTopBar = true;
+function syncTopBarToggleUI(){
+  byId("previewTopBarToggle").querySelectorAll("[data-topbar]").forEach(function(btn){
+    btn.setAttribute("aria-pressed", (btn.getAttribute("data-topbar")==="on")===previewShowTopBar ? "true" : "false");
+  });
+}
+function setPreviewShowTopBar(on){
+  previewShowTopBar = on;
+  syncTopBarToggleUI();
+  if(previewRecompile) previewRecompile();
+}
+
 function resetPreviewScrollIfMain(containerId, iframe){
   if(containerId!=="previewIframeWrap") return;
   var frame = byId("previewFrame");
@@ -14251,6 +14277,9 @@ byId("previewDeviceToggle").querySelectorAll("[data-device]").forEach(function(b
 });
 byId("previewThemeToggle").querySelectorAll("[data-theme]").forEach(function(btn){
   btn.addEventListener("click", function(){ setPreviewTheme(btn.getAttribute("data-theme")); });
+});
+byId("previewTopBarToggle").querySelectorAll("[data-topbar]").forEach(function(btn){
+  btn.addEventListener("click", function(){ setPreviewShowTopBar(btn.getAttribute("data-topbar")==="on"); });
 });
 
 
@@ -14574,6 +14603,8 @@ function renderPreviewChromeSelectors(b){
   var showHeader = headerOpts.length>1, showFooter = footerOpts.length>1;
   byId("previewHeaderVariantWrap").style.display = showHeader ? "" : "none";
   byId("previewFooterVariantWrap").style.display = showFooter ? "" : "none";
+  byId("previewTopBarToggle").style.display = b.topBarContent ? "" : "none";
+  syncTopBarToggleUI();
 
 
   function variantLabel(prefix, n, b){
@@ -14666,12 +14697,12 @@ function openEmailPreview(emailId){
     var raw = resolveItemCode({ componentId: cid, variantId: variantId || null, code: null, values: vals || null }, b);
     return raw || "";
   }), b.componentGap);
-  mountMjmlIframe("previewIframeWrap", bodyMjml, b, { headerVariant: state.headerVariant, footerVariant: state.footerVariant, darkPreview: previewTheme==="dark" });
+  mountMjmlIframe("previewIframeWrap", bodyMjml, b, { headerVariant: state.headerVariant, footerVariant: state.footerVariant, darkPreview: previewTheme==="dark", showTopBar: previewShowTopBar });
   resetPreviewCodeToggle();
   byId("previewExportBar").style.display = "none";
   var fullPreviewBtn = byId("previewFullPreviewBtn");
   fullPreviewBtn.style.display = "";
-  fullPreviewBtn.onclick = function(){ openFullEmailInNewTab(bodyMjml, b, { headerVariant: state.headerVariant, footerVariant: state.footerVariant }); };
+  fullPreviewBtn.onclick = function(){ openFullEmailInNewTab(bodyMjml, b, { headerVariant: state.headerVariant, footerVariant: state.footerVariant, showTopBar: previewShowTopBar }); };
   var addBtn = byId("previewAddBtn");
   addBtn.style.display = "";
   addBtn.textContent = "Get";
@@ -14713,7 +14744,7 @@ function openMailPreview(){
     var code = resolveItemCodeEditableForPreview(item, b);
     return code==null ? null : { uid: item.uid, mjml: code };
   }).filter(function(it){ return it!=null; });
-  mountMjmlIframe("previewIframeWrap", bodyMjml, b, { editable:true, itemMjmlList: itemMjmlList, headerVariant: state.headerVariant, footerVariant: state.footerVariant, darkPreview: previewTheme==="dark" });
+  mountMjmlIframe("previewIframeWrap", bodyMjml, b, { editable:true, itemMjmlList: itemMjmlList, headerVariant: state.headerVariant, footerVariant: state.footerVariant, darkPreview: previewTheme==="dark", showTopBar: previewShowTopBar });
   resetPreviewCodeToggle();
   var addBtn = byId("previewAddBtn");
   addBtn.style.display = "none";
@@ -14723,7 +14754,7 @@ function openMailPreview(){
 
   byId("previewStackFullPreviewBtn").onclick = function(){
     var plainCodes = state.list.map(function(item){ return resolveItemCode(item, b); }).filter(function(code){ return code!=null; });
-    openFullEmailInNewTab(stitchComponentCodes(plainCodes, b.componentGap), b, { headerVariant: state.headerVariant, footerVariant: state.footerVariant });
+    openFullEmailInNewTab(stitchComponentCodes(plainCodes, b.componentGap), b, { headerVariant: state.headerVariant, footerVariant: state.footerVariant, showTopBar: previewShowTopBar });
   };
   previewExportCode = buildExportCode();
   byId("previewExportBar").style.display = "flex";
@@ -15593,7 +15624,7 @@ function buildExportCode(){
   if(state.list.length===0) return "";
   var codes = state.list.map(function(item){ return resolveItemCode(item, b); }).filter(function(code){ return code!=null; });
   var bodyMjml = stitchComponentCodes(codes, b.componentGap);
-  return minifyEmailHtml(compileEmailHtml(bodyMjml, b, { headerVariant: state.headerVariant, footerVariant: state.footerVariant }));
+  return minifyEmailHtml(compileEmailHtml(bodyMjml, b, { headerVariant: state.headerVariant, footerVariant: state.footerVariant, showTopBar: previewShowTopBar }));
 }
 var previewExportCode = "";
 function fallbackCopy(txt, successMessage){
