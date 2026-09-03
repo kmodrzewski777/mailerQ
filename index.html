@@ -1090,6 +1090,7 @@
         <button class="btn small" id="addFlowRepoBtn" type="button" style="display:none">Add Flow</button>
         <button class="btn small" id="addSkillBtn" type="button" style="display:none">Add Skill</button>
         <button class="btn small" id="addLiquidBtn" type="button" style="display:none">Add Snippet</button>
+        <button class="btn small" id="addKnowledgeBtn" type="button" style="display:none">Add Hint</button>
         <button class="btn small" id="addProductGridBtn" type="button" style="display:none">Add Product Grid</button>
         <button class="btn small" id="addDiscountBtn" type="button" style="display:none">Generate codes</button>
         <button class="btn small" id="addSegmentBtn" type="button" style="display:none">Add Segment</button>
@@ -1684,6 +1685,22 @@
   </div>
 </div>
 
+<div class="overlay" id="knowledgeFormOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-head">
+      <h3 id="knowledgeFormTitle">Add hint</h3>
+      <button class="modal-close" id="knowledgeFormClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <form id="knowledgeForm" class="brand-form"></form>
+    </div>
+    <div class="modal-footer-bar" style="gap:8px">
+      <button class="btn ghost small" type="button" id="knowledgeFormCancel" style="flex:1">Cancel</button>
+      <button class="btn small" type="button" id="knowledgeFormSave" style="flex:1">Save hint</button>
+    </div>
+  </div>
+</div>
+
 
 <div class="overlay" id="liquidOverlay" role="dialog" aria-modal="true">
   <div class="modal" style="max-width:1040px">
@@ -2236,8 +2253,8 @@
 "use strict";
 
 
-var APP_VERSION = "3.19.3";
-var APP_UPDATED = "2026-09-01";
+var APP_VERSION = "3.20.0";
+var APP_UPDATED = "2026-09-03";
 
 
 var BRANDS = {
@@ -7362,6 +7379,11 @@ function knowledgeCategoryLabel(id){
   var c = KNOWLEDGE_CATEGORIES.filter(function(x){ return x.id===id; })[0];
   return c ? c.label : id;
 }
+function uniqueKnowledgeKey(base){
+  var key = base, n = 2;
+  while(findHint(key)){ key = base + "-" + n; n++; }
+  return key;
+}
 
 
 var DISCOUNT_BATCHES = [];
@@ -7616,6 +7638,10 @@ function buildBackupPayload(){
     customLiquidSnippets: LIQUID_SNIPPETS.filter(function(s){ return s.custom; }),
 
 
+    deletedBuiltinKnowledgeIds: DELETED_BUILTIN_KNOWLEDGE_IDS,
+    customKnowledgeHints: KNOWLEDGE_HINTS.filter(function(h){ return h.custom; }),
+
+
     customDiscountBatches: DISCOUNT_BATCHES,
     customProductGrids: PRODUCT_GRIDS,
     customSegments: SEGMENTS,
@@ -7629,6 +7655,7 @@ var DELETED_BUILTIN_EMAIL_IDS = [];
 var DELETED_BUILTIN_FLOW_IDS = [];
 var DELETED_BUILTIN_SKILL_IDS = [];
 var DELETED_BUILTIN_LIQUID_IDS = [];
+var DELETED_BUILTIN_KNOWLEDGE_IDS = [];
 function applyBackupPayload(payload){
 
 
@@ -7674,6 +7701,10 @@ function applyBackupPayload(payload){
   if(payload.deletedBuiltinLiquidIds){
     DELETED_BUILTIN_LIQUID_IDS = payload.deletedBuiltinLiquidIds;
     LIQUID_SNIPPETS = LIQUID_SNIPPETS.filter(function(s){ return DELETED_BUILTIN_LIQUID_IDS.indexOf(s.id)===-1; });
+  }
+  if(payload.deletedBuiltinKnowledgeIds){
+    DELETED_BUILTIN_KNOWLEDGE_IDS = payload.deletedBuiltinKnowledgeIds;
+    KNOWLEDGE_HINTS = KNOWLEDGE_HINTS.filter(function(h){ return DELETED_BUILTIN_KNOWLEDGE_IDS.indexOf(h.id)===-1; });
   }
   if(payload.customComponents){
     payload.customComponents.forEach(function(cc){
@@ -7754,6 +7785,11 @@ function applyBackupPayload(payload){
       if(!findSnippet(cl.id)) LIQUID_SNIPPETS.push(Object.assign({}, cl, { custom:true }));
     });
   }
+  if(payload.customKnowledgeHints){
+    payload.customKnowledgeHints.forEach(function(ch){
+      if(!findHint(ch.id)) KNOWLEDGE_HINTS.push(Object.assign({}, ch, { custom:true }));
+    });
+  }
   if(payload.customDiscountBatches){
     payload.customDiscountBatches.forEach(function(cd){
       if(!findDiscountBatch(cd.id)) DISCOUNT_BATCHES.push(Object.assign({}, cd, { custom:true }));
@@ -7777,7 +7813,7 @@ var mqSaveTimer = null;
 
 
 var MQ_PRIVATE_KEYS = ["buildList","currentBrand","headerVariant","footerVariant","favoriteComponents","favoriteEmails"];
-var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","flowCategories","deletedBuiltinComponentIds","deletedBuiltinEmailIds","deletedBuiltinFlowIds","customFlows","deletedBuiltinSkillIds","customSkills","deletedBuiltinLiquidIds","customLiquidSnippets","customDiscountBatches","customProductGrids","customSegments","dmEntries"];
+var MQ_SHARED_KEYS = ["brands","brandOrder","customComponents","customEmails","categories","emailFlows","industries","flowCategories","deletedBuiltinComponentIds","deletedBuiltinEmailIds","deletedBuiltinFlowIds","customFlows","deletedBuiltinSkillIds","customSkills","deletedBuiltinLiquidIds","customLiquidSnippets","deletedBuiltinKnowledgeIds","customKnowledgeHints","customDiscountBatches","customProductGrids","customSegments","dmEntries"];
 function splitBackupPayload(full){
   var priv = {}, shared = {};
   MQ_PRIVATE_KEYS.forEach(function(k){ priv[k] = full[k]; });
@@ -11980,7 +12016,7 @@ function renderKnowledgeGrid(){
     el.innerHTML =
       '<div class="flow-card-top">'+
         '<p class="flow-card-cat">'+esc(knowledgeCategoryLabel(a.category))+(read?' · <span style="color:var(--ink-faint)">Reviewed</span>':'')+'</p>'+
-        '<p class="flow-card-title">'+esc(a.title)+'</p>'+
+        '<div class="card-name-row"><p class="flow-card-title">'+esc(a.title)+'</p>'+cardMenuHtml("knowledge", a.id, "Edit")+'</div>'+
         '<p class="flow-card-desc">'+esc(a.summary||"")+'</p>'+
       '</div>'+
 
@@ -12080,6 +12116,141 @@ function closeKnowledgeOverlay(){
 
 
   if(state.section==="knowledge"){ renderGrid(); renderKnowledgeReadFilterRow(); }
+}
+
+var knowledgeForm = { editId: null, draft: null };
+function emptyKnowledgeDraft(){
+  return { category:(KNOWLEDGE_CATEGORIES[0]||{}).id||"", title:"", summary:"", source:"", image:"", sections:[] };
+}
+function openKnowledgeForm(existing){
+  knowledgeForm.editId = existing ? existing.id : null;
+  knowledgeForm.draft = existing ? {
+    category: existing.category||(KNOWLEDGE_CATEGORIES[0]||{}).id, title: existing.title||"",
+    summary: existing.summary||"", source: existing.source||"", image: existing.image||"",
+    sections: (existing.sections||[]).map(function(s){ return { heading: s.heading||"", bullets: (s.bullets||[]).slice() }; })
+  } : emptyKnowledgeDraft();
+  byId("knowledgeFormTitle").textContent = existing ? "Update hint" : "Add hint";
+  renderKnowledgeFormFields();
+  byId("knowledgeFormOverlay").classList.add("open");
+}
+function closeKnowledgeForm(){ byId("knowledgeFormOverlay").classList.remove("open"); }
+function renderKnowledgeFormFields(){
+  var form = byId("knowledgeForm");
+  var d = knowledgeForm.draft;
+  function textField(key, label, placeholder){
+    return '<div class="bf-field"><label for="kf-'+key+'">'+esc(label)+'</label>'+
+      '<input type="text" id="kf-'+key+'" data-kf-field="'+key+'" value="'+esc(d[key]||"")+'" placeholder="'+esc(placeholder||"")+'"></div>';
+  }
+  function textareaField(key, label, rows){
+    return '<div class="bf-field"><label for="kf-'+key+'">'+esc(label)+'</label>'+
+      '<textarea id="kf-'+key+'" data-kf-field="'+key+'" rows="'+(rows||3)+'">'+esc(d[key]||"")+'</textarea></div>';
+  }
+  function selectField(key, label, options){
+    return '<div class="bf-field"><label for="kf-'+key+'">'+esc(label)+'</label>'+
+      '<select id="kf-'+key+'" data-kf-select-field="'+key+'">'+
+        options.map(function(o){ return '<option value="'+esc(o[0])+'"'+(d[key]===o[0]?' selected':'')+'>'+esc(o[1])+'</option>'; }).join("")+
+      '</select></div>';
+  }
+  form.innerHTML =
+    '<div class="bf-group"><div class="bf-row">'+
+      textField("title", "Title")+
+      selectField("category", "Category", KNOWLEDGE_CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).map(function(c){ return [c.id, c.label]; }))+
+    '</div></div>'+
+    '<div class="bf-group">'+
+      textareaField("summary", "Summary")+
+    '</div>'+
+    '<div class="bf-group"><div class="bf-row">'+
+      textField("source", "Source", "e.g. Pillar #5 — Core Flow Infrastructure")+
+      textField("image", "Image URL", "assets/kb/…")+
+    '</div></div>'+
+    '<div class="bf-group"><p class="bf-group-title">Sections</p><div id="kfSectionsList"></div>'+
+      '<button type="button" class="btn ghost small flow-step-add-btn" id="kfAddSectionBtn">+ Add section</button>'+
+    '</div>';
+  form.querySelectorAll("[data-kf-field]").forEach(function(el){
+    el.addEventListener("input", function(){ knowledgeForm.draft[el.getAttribute("data-kf-field")] = el.value; });
+  });
+  form.querySelectorAll("[data-kf-select-field]").forEach(function(el){
+    el.addEventListener("change", function(){ knowledgeForm.draft[el.getAttribute("data-kf-select-field")] = el.value; });
+  });
+  enhanceAllSelects(form);
+  renderKnowledgeFormSections();
+  byId("kfAddSectionBtn").addEventListener("click", function(){
+    knowledgeForm.draft.sections.push({ heading:"", bullets:[] });
+    renderKnowledgeFormSections();
+  });
+}
+function renderKnowledgeFormSections(){
+  var wrap = byId("kfSectionsList");
+  wrap.innerHTML = knowledgeForm.draft.sections.map(function(s, i){
+    return '<div class="flow-step-edit" data-kf-section-index="'+i+'">'+
+      '<button type="button" class="icon-btn flow-step-edit-remove" data-kf-section-remove="'+i+'" aria-label="Remove section" title="Remove section">'+ICON_CLOSE+'</button>'+
+      '<div class="bf-field"><label>Heading</label><input type="text" data-kf-section-field="heading" value="'+esc(s.heading||"")+'"></div>'+
+      '<div class="bf-field"><label>Bullets</label><textarea rows="4" placeholder="One per line" data-kf-section-list-field="bullets">'+esc((s.bullets||[]).join("\n"))+'</textarea></div>'+
+    '</div>';
+  }).join("") || '<p style="font-size:12.5px; color:var(--ink-faint); margin:0 0 10px">No sections yet — add at least one.</p>';
+  wrap.querySelectorAll("[data-kf-section-field]").forEach(function(el){
+    var idx = +el.closest("[data-kf-section-index]").getAttribute("data-kf-section-index");
+    el.addEventListener("input", function(){ knowledgeForm.draft.sections[idx][el.getAttribute("data-kf-section-field")] = el.value; });
+  });
+  wrap.querySelectorAll("[data-kf-section-list-field]").forEach(function(el){
+    var idx = +el.closest("[data-kf-section-index]").getAttribute("data-kf-section-index");
+    el.addEventListener("input", function(){
+      knowledgeForm.draft.sections[idx][el.getAttribute("data-kf-section-list-field")] = el.value.split("\n").map(function(s){ return s.trim(); }).filter(Boolean);
+    });
+  });
+  wrap.querySelectorAll("[data-kf-section-remove]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      knowledgeForm.draft.sections.splice(+btn.getAttribute("data-kf-section-remove"), 1);
+      renderKnowledgeFormSections();
+    });
+  });
+}
+function saveKnowledgeForm(){
+  var d = knowledgeForm.draft;
+  var title = (d.title||"").trim();
+  if(!title){ showToast("Enter a title"); byId("kf-title").focus(); return; }
+  var payload = {
+    category: d.category, title: title, summary: (d.summary||"").trim(),
+    source: (d.source||"").trim(), image: (d.image||"").trim(),
+    sections: d.sections.filter(function(s){ return (s.heading||"").trim() || (s.bullets||[]).length; })
+  };
+  if(!payload.image) delete payload.image;
+
+  if(knowledgeForm.editId){
+    var existing = findHint(knowledgeForm.editId);
+    if(!existing) return;
+    if(!canManageRecord(existing)){ showToast("You're not the creator of this hint", "error"); return; }
+    return withBtnLoading(byId("knowledgeFormSave"), function(){
+      Object.assign(existing, payload);
+      return saveToStorage().then(function(){
+        closeKnowledgeForm(); renderAll();
+        if(byId("knowledgeOverlay").classList.contains("open")) openKnowledgeDetail(existing.id);
+        showToast("Updated hint “"+title+"”" + (existing.custom ? "" : " (changes to a built-in hint only last this session)"));
+      });
+    });
+  }
+  var requestedId = slugifyKey(title);
+  var finalId = findHint(requestedId) ? uniqueKnowledgeKey(requestedId) : requestedId;
+  return withBtnLoading(byId("knowledgeFormSave"), function(){
+    KNOWLEDGE_HINTS.push(Object.assign({ id: finalId, custom: true, dateAdded: new Date().toISOString().slice(0,10), createdBy: currentUserStamp() }, payload));
+    state.section = "knowledge"; state.knowledgeCategory = payload.category;
+    return saveToStorage().then(function(){
+      closeKnowledgeForm(); renderAll();
+      showToast("Added hint “"+title+"”");
+    });
+  });
+}
+function deleteKnowledgeHint(id){
+  var h = findHint(id);
+  if(!h) return;
+  if(!canManageRecord(h)){ showToast("You're not the creator of this hint", "error"); return; }
+  if(!h.custom && DELETED_BUILTIN_KNOWLEDGE_IDS.indexOf(id)===-1) DELETED_BUILTIN_KNOWLEDGE_IDS.push(id);
+  KNOWLEDGE_HINTS = KNOWLEDGE_HINTS.filter(function(x){ return x.id!==id; });
+  saveToStorage().then(function(){
+    if(urlOpenHintId===id) closeKnowledgeOverlay();
+    renderAll();
+    showToast("Hint deleted");
+  });
 }
 
 var liquidForm = { editId: null, draft: null };
@@ -13478,7 +13649,7 @@ var SECTION_META = {
   reports:    { title:"Monthly Reports", search:null, primary:null, stack:false },
 
 
-  knowledge:  { title:"Knowledge Base", search:"Search hints…", primary:null, stack:false }
+  knowledge:  { title:"Knowledge Base", search:"Search hints…", primary:"add-knowledge", stack:false }
 };
 function syncSectionChrome(){
   var meta = SECTION_META[state.section] || SECTION_META.components;
@@ -13523,6 +13694,7 @@ function syncSectionChrome(){
   byId("addFlowRepoBtn").style.display = meta.primary==="add-flow" ? "" : "none";
   byId("addSkillBtn").style.display = meta.primary==="add-skill" ? "" : "none";
   byId("addLiquidBtn").style.display = meta.primary==="add-liquid" ? "" : "none";
+  byId("addKnowledgeBtn").style.display = meta.primary==="add-knowledge" ? "" : "none";
   byId("addProductGridBtn").style.display = meta.primary==="add-productgrid" ? "" : "none";
   byId("addDiscountBtn").style.display = meta.primary==="add-discount" ? "" : "none";
   byId("addSegmentBtn").style.display = meta.primary==="add-segment" ? "" : "none";
@@ -13767,12 +13939,13 @@ document.addEventListener("click", function(e){
       else if(kind==="segment" && typeof openSegmentForm==="function") openSegmentForm(findSegment(id));
       else if(kind==="skill" && typeof openSkillForm==="function") openSkillForm(findSkill(id));
       else if(kind==="liquid" && typeof openSnippetForm==="function") openSnippetForm(findSnippet(id));
+      else if(kind==="knowledge" && typeof openKnowledgeForm==="function") openKnowledgeForm(findHint(id));
       else if(kind==="discount" && typeof openDiscountForm==="function") openDiscountForm(findDiscountBatch(id));
       else if(kind==="productgrid" && typeof openProductGridForm==="function") openProductGridForm(findProductGrid(id));
       return;
     }
 
-    var record = kind==="component" ? findComp(id) : kind==="email" ? findEmail(id) : kind==="flow" ? (typeof findFlow==="function" ? findFlow(id) : null) : kind==="segment" ? (typeof findSegment==="function" ? findSegment(id) : null) : kind==="skill" ? (typeof findSkill==="function" ? findSkill(id) : null) : kind==="liquid" ? (typeof findSnippet==="function" ? findSnippet(id) : null) : kind==="productgrid" ? (typeof findProductGrid==="function" ? findProductGrid(id) : null) : (typeof findDiscountBatch==="function" ? findDiscountBatch(id) : null);
+    var record = kind==="component" ? findComp(id) : kind==="email" ? findEmail(id) : kind==="flow" ? (typeof findFlow==="function" ? findFlow(id) : null) : kind==="segment" ? (typeof findSegment==="function" ? findSegment(id) : null) : kind==="skill" ? (typeof findSkill==="function" ? findSkill(id) : null) : kind==="liquid" ? (typeof findSnippet==="function" ? findSnippet(id) : null) : kind==="knowledge" ? (typeof findHint==="function" ? findHint(id) : null) : kind==="productgrid" ? (typeof findProductGrid==="function" ? findProductGrid(id) : null) : (typeof findDiscountBatch==="function" ? findDiscountBatch(id) : null);
     if((kind==="component" || kind==="email") && !canManageRecord(record)){
       showToast("You're not the creator of this "+(kind==="component"?"component":"e-mail"), "error");
       closeAllCardMenus();
@@ -13792,6 +13965,8 @@ document.addEventListener("click", function(e){
         deleteSkill(id);
       } else if(kind==="liquid" && typeof deleteSnippet==="function"){
         deleteSnippet(id);
+      } else if(kind==="knowledge" && typeof deleteKnowledgeHint==="function"){
+        deleteKnowledgeHint(id);
       } else if(kind==="discount" && typeof deleteDiscountBatch==="function"){
         deleteDiscountBatch(id);
       } else if(kind==="productgrid" && typeof deleteProductGrid==="function"){
@@ -14611,6 +14786,12 @@ byId("liquidFormClose").addEventListener("click", closeSnippetForm);
 byId("liquidFormCancel").addEventListener("click", closeSnippetForm);
 byId("liquidFormSave").addEventListener("click", saveSnippetForm);
 bindOverlayBackdropClose("liquidFormOverlay", closeSnippetForm);
+
+byId("addKnowledgeBtn").addEventListener("click", function(){ openKnowledgeForm(null); });
+byId("knowledgeFormClose").addEventListener("click", closeKnowledgeForm);
+byId("knowledgeFormCancel").addEventListener("click", closeKnowledgeForm);
+byId("knowledgeFormSave").addEventListener("click", saveKnowledgeForm);
+bindOverlayBackdropClose("knowledgeFormOverlay", closeKnowledgeForm);
 
 byId("addSegmentBtn").addEventListener("click", function(){ openSegmentForm(null); });
 byId("segmentClose").addEventListener("click", closeSegmentOverlay);
