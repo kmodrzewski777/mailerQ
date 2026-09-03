@@ -2253,7 +2253,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.20.5";
+var APP_VERSION = "3.21.0";
 var APP_UPDATED = "2026-09-03";
 
 
@@ -3436,6 +3436,17 @@ function compileEmailHtml(bodyMjml, b, opts){
   var boxOuterInsetMobileRule = (boxOuterInsetMobile && boxOuterInsetMobile!=="0px")
     ? "    .mj-outer-td{padding:"+boxOuterInsetMobile+"!important}\n" : "";
 
+  // Top Bar Content (Brand Kit, "Email background" group) — free-text/HTML
+  // that sits OUTSIDE the white mail box, on the letterbox background,
+  // above it — e.g. a classic "Wiadomość nie wyświetla się prawidłowo?
+  // Zobacz w przeglądarce" prompt. User: "powinno być poza białym tłem nad
+  // głównym boxem maila." Rendered verbatim (whatever HTML/link the brand
+  // admin put in the field) — not run through resolveBrandTokens, since
+  // this is a raw Brand Kit setting, not a component template.
+  var topBarHtml = (!opts.noChrome && b.topBarContent)
+    ? '<div style="text-align:center; font-family:'+b.fontBody+'; font-size:12px; line-height:1.5; color:'+(b.muted||b.text)+'; padding:16px '+(b.contentPadding||"20px")+' 8px;">'+b.topBarContent+'</div>\n'
+    : "";
+
 
   var forcedDarkStyleBlock = opts.darkPreview ? simulateGmailDarkRules(b) : "";
   return (
@@ -3469,6 +3480,7 @@ forcedDarkStyleBlock+
 "</style>\n</head>\n"+
 '<body style="margin:0;padding:0;background:'+pageBg+';">\n'+
 '<div class="mj-canvas-bg" style="background:'+pageBg+';">\n'+
+topBarHtml+
 '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" align="center">\n<tr><td align="center" class="mj-outer-td">\n'+
 '<!--[if mso]><table role="presentation" width="'+mso+'" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->\n'+
 '<div class="mj-body-box" style="max-width:'+b.mailWidth+";margin:0 auto;background:"+bodyBoxBg+";border-radius:"+bodyRadius+';overflow:hidden;">\n'+
@@ -9047,7 +9059,8 @@ var BRAND_FIELDS = [
     {key:"logoWidth", label:"Logo width (px)", type:"text", unitPx:true, responsive:true}
   ]},
   { title:"Email background", fields:[
-    {key:"outerBg", label:"Letterbox color", type:"color", responsive:true}
+    {key:"outerBg", label:"Letterbox color", type:"color", responsive:true},
+    {key:"topBarContent", label:"Top Bar Content", type:"text", placeholder:"e.g. Wiadomość nie wyświetla się prawidłowo? <a href=\"...\">Zobacz w przeglądarce</a>"}
   ]},
   { title:"Body", fields:[
     {key:"bg", label:"Background color", type:"color"},
