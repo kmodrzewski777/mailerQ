@@ -2253,7 +2253,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.21.2";
+var APP_VERSION = "3.21.3";
 var APP_UPDATED = "2026-09-03";
 
 
@@ -9242,6 +9242,7 @@ var brandForm = { mode:"new", editingKey:null, draft:null, device:"desktop" };
 
 
 function openBrandForm(mode, sourceKey){
+  if(!isAdminUser()){ showToast("Only an admin can edit the Brand Kit", "error"); return; }
   brandForm.device = "desktop";
   if(mode==="new"){
     brandForm.mode = "new"; brandForm.editingKey = null; brandForm.draft = defaultBrandDraft();
@@ -9828,15 +9829,22 @@ function renderSwatches(){
   var menu = byId("brandSelectMenu");
 
 
+  // Brand Kit editing (rename/rebuild an existing brand, or add a new one)
+  // is admin-only — user: "Ustal, aby grzebać w Brand Kit mógł tylko
+  // Admin. dla innych ról w ogóle nie pokazuj ikony do edycji brand kit ani
+  // nic." The pencil icon per row and the "+ Add new" row simply don't
+  // render for anyone else — openBrandForm() itself also refuses non-admins
+  // (defense in depth: URL-driven opens, not just this menu, funnel through it).
+  var canEditBrands = isAdminUser();
   menu.innerHTML = BRAND_ORDER.slice().sort(function(a,b){ return BRANDS[a].short.localeCompare(BRANDS[b].short); }).map(function(key){
     var b = BRANDS[key];
     var label = b.short + (b.custom ? " (custom)" : "");
     return '<li class="brand-select-option" role="option" data-brand-key="'+key+'" aria-selected="'+(state.brand===key?"true":"false")+'">'+
       '<span>'+esc(label)+'</span>'+
-      '<button type="button" class="icon-btn brand-select-edit-btn" data-brand-edit="'+key+'" title="Edit '+esc(b.short)+'" aria-label="Edit '+esc(b.short)+'">'+ICON_PENCIL+'</button>'+
+      (canEditBrands ? '<button type="button" class="icon-btn brand-select-edit-btn" data-brand-edit="'+key+'" title="Edit '+esc(b.short)+'" aria-label="Edit '+esc(b.short)+'">'+ICON_PENCIL+'</button>' : '')+
     '</li>';
   }).join("") +
-  '<li class="brand-select-option brand-select-add" data-brand-add="1">+ Add new</li>';
+  (canEditBrands ? '<li class="brand-select-option brand-select-add" data-brand-add="1">+ Add new</li>' : '');
   menu.querySelectorAll("[data-brand-key]").forEach(function(li){
     li.addEventListener("click", function(){
       state.brand = li.getAttribute("data-brand-key");
@@ -9851,7 +9859,8 @@ function renderSwatches(){
       openBrandForm("edit", btn.getAttribute("data-brand-edit"));
     });
   });
-  menu.querySelector("[data-brand-add]").addEventListener("click", function(e){
+  var addBtn = menu.querySelector("[data-brand-add]");
+  if(addBtn) addBtn.addEventListener("click", function(e){
     e.stopPropagation();
     closeBrandSelectMenu();
     openBrandForm("new");
