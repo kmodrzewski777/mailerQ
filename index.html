@@ -2253,7 +2253,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.20.3";
+var APP_VERSION = "3.20.4";
 var APP_UPDATED = "2026-09-03";
 
 
@@ -3411,6 +3411,31 @@ function compileEmailHtml(bodyMjml, b, opts){
   var outerBgMobileRule = (!opts.noChrome && b.outerBgMobile && b.outerBgMobile!==b.outerBg)
     ? "    body,.mj-canvas-bg{background:"+b.outerBgMobile+"!important}\n" : "";
 
+  // boxPadding (mj-body-content, header/footer excluded) stays a separate,
+  // already-correct concern — user previously insisted it must NOT reach
+  // header/footer. This is a different problem: below max-width (mobile),
+  // .mj-body-box itself has no reserved gap from the true screen/letterbox
+  // edge (max-width never binds once the viewport is already narrower than
+  // mailWidth, and the inline "margin:0 auto" centering collapses to zero on
+  // a box that already fills 100% of its container) — so outerBg never
+  // shows through no matter what boxPadding is set to. User: "{{brand.
+  // boxPadding}} w ogóle się nie nakłada na wrapper maila na mobilce ...
+  // powinien wystąpić jakiś margines między body content a krawędzią letter
+  // box". Reuses the same boxPadding/boxPaddingMobile value, mobile-only —
+  // additive to, not a replacement of, the existing inner .mj-body-content
+  // padding. Targets the OUTER <td> (padding), not a margin on
+  // .mj-body-box itself: a margin on a block with max-width nested in a
+  // width="100%" table cell hits a real table-auto-layout quirk — the
+  // browser's shrink-to-fit sizing for the cell doesn't reserve room for an
+  // external margin the same way it does for padding, so the table (and
+  // the whole page) silently grows past 100% and overflows horizontally
+  // (confirmed empirically: td computed to 408px on a 375px viewport).
+  // Padding directly on the td has no such quirk — it is simply part of the
+  // cell's own box.
+  var boxOuterInsetMobile = !opts.noChrome ? (b.boxPaddingMobile || b.boxPadding || "0px") : "0px";
+  var boxOuterInsetMobileRule = (boxOuterInsetMobile && boxOuterInsetMobile!=="0px")
+    ? "    .mj-outer-td{padding:"+boxOuterInsetMobile+"!important}\n" : "";
+
 
   var forcedDarkStyleBlock = opts.darkPreview ? simulateGmailDarkRules(b) : "";
   return (
@@ -3434,6 +3459,7 @@ googleFontsLinkHtml(b)+
 "    .mj-hide-mobile{display:none!important}\n"+
 responsiveRules+
 outerBgMobileRule+
+boxOuterInsetMobileRule+
 "  }\n"+
 "  @media only screen and (min-width:481px){\n"+
 "    .mj-hide-desktop{display:none!important}\n"+
@@ -3443,7 +3469,7 @@ forcedDarkStyleBlock+
 "</style>\n</head>\n"+
 '<body style="margin:0;padding:0;background:'+pageBg+';">\n'+
 '<div class="mj-canvas-bg" style="background:'+pageBg+';">\n'+
-'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" align="center">\n<tr><td align="center">\n'+
+'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" align="center">\n<tr><td align="center" class="mj-outer-td">\n'+
 '<!--[if mso]><table role="presentation" width="'+mso+'" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->\n'+
 '<div class="mj-body-box" style="max-width:'+b.mailWidth+";margin:0 auto;background:"+bodyBoxBg+";border-radius:"+bodyRadius+';overflow:hidden;">\n'+
 headerHtml+"\n"+
