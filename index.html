@@ -2253,7 +2253,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.20.1";
+var APP_VERSION = "3.20.2";
 var APP_UPDATED = "2026-09-03";
 
 
@@ -8222,54 +8222,21 @@ function extractTokens(code){
   return out;
 }
 function guessTokenDefault(token){
-  var t = token.toUpperCase();
-
-  var LOREM_SHORT = "Lorem ipsum dolor sit";
-  var LOREM_SENTENCE = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
-  var LOREM_LONG = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam.";
-  if(/^URL_ICON/.test(t)) return "";
-  if(/URL|LINK|HREF/.test(t)) return "https://przyklad.pl";
-  if(/EMAIL/.test(t)) return "kontakt@przyklad.pl";
-  if(/TELEFON|PHONE/.test(t)) return "+48 600 100 200";
-  if(/GODZIN/.test(t)) return "Pn.–pt. 9:00–17:00";
-
-  if(/DEADLINE|DATA_GRANICZNA|TERMIN/.test(t)) return "15 sierpnia 2026";
-  if(/CENA_OMNIBUS|OMNIBUS/.test(t)) return "Najniższa cena: 169 zł";
-  if(/CENA_OLD|CENA_PROMO/.test(t)) return "134,20 zł";
-  if(/CENA|PRICE/.test(t)) return "129,00 zł";
-  if(/^KOD/.test(t) || /KOD_RABATOWY/.test(t)) return "LATO25";
-  if(/ETYKIETA_KODU/.test(t)) return LOREM_SHORT;
-  if(/WARUNKI_PROMOCJI/.test(t)) return LOREM_LONG;
-
-  if(/^NAGLOWEK/.test(t)) return LOREM_SHORT;
-  if(/TEKST_CTA_GORNY|TEKST_CTA|CTA_LABEL/.test(t)) return LOREM_SHORT;
-  if(/TEKST_PLAKIETKI/.test(t)) return LOREM_SHORT;
-  if(/OPIS_BENEFITU|OPIS_FEATURE|OPIS_KROKU|TRESC_OFERTY|TRESC_PRZED_DATA/.test(t)) return LOREM_SENTENCE;
-  if(/TRESC_PO_DACIE/.test(t)) return LOREM_SENTENCE;
-  if(/PUNKT_LISTY/.test(t)) return LOREM_SHORT;
-  if(/NAZWA_MARKI|BRAND_NAME/.test(t)) return "Marka";
-
-  if(/META_AUTORA/.test(t)) return "Klientka od 2023";
-  if(/AUTOR|AUTHOR/.test(t)) return "Anna K.";
-  if(/TRESC_OPINII/.test(t)) return LOREM_SENTENCE;
-  if(/^NUMER$/.test(t)) return "1";
-  if(/WARTOSC$/.test(t)) return "300 zł";
-  if(/TYTUL_WARTOSCI/.test(t)) return LOREM_SHORT;
-  if(/OPIS_WARTOSCI/.test(t)) return LOREM_SENTENCE;
-  if(/STAT_\d_LICZBA/.test(t)) return "48k+";
-  if(/STAT_\d_OPIS/.test(t)) return LOREM_SHORT;
-  if(/ZACHETA_DO_POBRANIA/.test(t)) return LOREM_SENTENCE;
-  if(/MECHANIZM_CASHBACKU/.test(t)) return LOREM_LONG;
-
-  if(/PELNA_NAZWA_PRAWNA|PELNA_NAZWA_SPOLKI/.test(t)) return "Marka Sp. z o.o., ul. Przykładowa 1, 00-001 Warszawa, KRS 0000000000, NIP 0000000000, REGON 000000000";
-  if(/PELNA_NAZWA_I_ADRES/.test(t)) return "Marka Sp. z o.o., ul. Przykładowa 1, 00-001 Warszawa";
-  if(/ADRES/.test(t)) return "ul. Przykładowa 1, 00-001 Warszawa";
-  if(/FOOTER_NAGLOWEK/.test(t)) return LOREM_SHORT;
-  if(/FOOTER_PODPIS/.test(t)) return "zespół Marki";
-  if(/TOP_BAR_ITEM/.test(t)) return LOREM_SHORT;
-  if(/ALT_/.test(t)) return "";
-  if(/^URL/.test(t)) return "https://przyklad.pl";
-  return LOREM_SENTENCE;
+  // Previously guessed a plausible-looking fake value per token name (a URL,
+  // an email, a price, or — for anything unmatched — a Lorem Ipsum
+  // sentence). User: "Wycofaj podstawianie Lorem Ipsum'ów w miejsce kluczy.
+  // Wygląda to fatalnie. Wolę widzieć klucze." An untouched token's preview
+  // value is now just its own bracket, unchanged — every call site here
+  // substitutes "[[TOKEN]]" back in for "[[TOKEN]]" (a no-op), so the raw
+  // key stays visible in every preview surface that uses this (Component
+  // Editor preview + phrase form, Mail Stack Live Preview, card thumbnails)
+  // until the user actually types something. This also fixes an unrelated
+  // side effect: an untouched IMAGE token used to get literal Lorem Ipsum
+  // text stuffed into its `src="..."` before fillTokensForPreview ever got
+  // a chance to swap in its purpose-built placeholder icon (which only
+  // matches a still-literal "[[TOKEN]]" inside `src="..."`) — leaving the
+  // bracket intact lets that existing mechanism work as designed again.
+  return "[[" + token + "]]";
 }
 
 
