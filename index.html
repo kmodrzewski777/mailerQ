@@ -1965,6 +1965,22 @@
         <label for="componentCodeInput">MJML code</label>
         <textarea class="code" id="componentCodeInput" spellcheck="false" style="height:260px; width:100%"></textarea>
       </div>
+      <div class="bf-group" id="componentAiSupportGroup" style="margin-top:16px">
+        <p class="bf-group-title" id="componentAiSupportTitle" style="display:flex; align-items:center; gap:5px">
+          <svg width="18" height="18" viewBox="0 -960 960 960" fill="var(--accent)" aria-hidden="true"><path d="M740-616.16 697.69-710l-93.84-42.31 93.84-42.3L740-888.46l42.31 93.85 93.84 42.3L782.31-710 740-616.16Zm0 544.62-42.31-93.85-93.84-42.3L697.69-250 740-343.84 782.31-250l93.84 42.31-93.84 42.3L740-71.54ZM355.38-208.47l-84.61-186.92L83.85-480l186.92-84.61 84.61-186.92L440-564.61 626.92-480 440-395.39l-84.62 186.92Z"></path></svg>
+          AI Support
+        </p>
+        <p id="componentAiConnectHint" style="display:none; font-size:12.5px; color:var(--ink-faint); margin:0 0 8px">
+          Connect your Claude account to build this component with AI. <a href="#" id="componentAiConnectLink">Connect Claude</a>
+        </p>
+        <div id="componentAiActiveBlock">
+          <textarea id="componentAiPrompt" class="code" style="height:64px; width:100%" spellcheck="false" placeholder="Describe the component you want to build…"></textarea>
+          <div class="bf-actions" style="justify-content:flex-end; gap:8px; border-top:none; padding-top:10px; margin-top:0">
+            <button class="btn ghost small" type="button" id="componentAiUndoBtn" style="display:none">Wstecz</button>
+            <button class="btn small" type="button" id="componentAiProceedBtn">Proceed</button>
+          </div>
+        </div>
+      </div>
       <div class="bf-actions">
         <button class="btn ghost small" type="button" id="componentFormCancel">Cancel</button>
         <button class="btn small" type="button" id="componentFormSave">Save</button>
@@ -2005,14 +2021,20 @@
               </div>
             </div>
           </div>
-          <div class="bf-group" id="editAiSupportGroup" style="margin-top:16px; display:none">
+          <div class="bf-group" id="editAiSupportGroup" style="margin-top:16px">
             <p class="bf-group-title" id="editAiSupportTitle" style="display:flex; align-items:center; gap:5px">
               <svg width="18" height="18" viewBox="0 -960 960 960" fill="var(--accent)" aria-hidden="true"><path d="M740-616.16 697.69-710l-93.84-42.31 93.84-42.3L740-888.46l42.31 93.85 93.84 42.3L782.31-710 740-616.16Zm0 544.62-42.31-93.85-93.84-42.3L697.69-250 740-343.84 782.31-250l93.84 42.31-93.84 42.3L740-71.54ZM355.38-208.47l-84.61-186.92L83.85-480l186.92-84.61 84.61-186.92L440-564.61 626.92-480 440-395.39l-84.62 186.92Z"></path></svg>
               AI Support
             </p>
-            <textarea id="editAiPrompt" class="code" style="height:64px; width:100%" spellcheck="false" disabled>This feature isn't available yet.</textarea>
-            <div class="bf-actions" style="justify-content:flex-end; border-top:none; padding-top:10px; margin-top:0">
-              <button class="btn small" type="button" id="editAiProceedBtn" disabled>Proceed</button>
+            <p id="editAiConnectHint" style="display:none; font-size:12.5px; color:var(--ink-faint); margin:0 0 8px">
+              Connect your Claude account to build or edit this component with AI. <a href="#" id="editAiConnectLink">Connect Claude</a>
+            </p>
+            <div id="editAiActiveBlock">
+              <textarea id="editAiPrompt" class="code" style="height:64px; width:100%" spellcheck="false" placeholder="Describe what you want to build or change…"></textarea>
+              <div class="bf-actions" style="justify-content:flex-end; gap:8px; border-top:none; padding-top:10px; margin-top:0">
+                <button class="btn ghost small" type="button" id="editAiUndoBtn" style="display:none">Wstecz</button>
+                <button class="btn small" type="button" id="editAiProceedBtn">Proceed</button>
+              </div>
             </div>
           </div>
         </div>
@@ -2257,7 +2279,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.23.0";
+var APP_VERSION = "3.24.0";
 var APP_UPDATED = "2026-09-04";
 
 
@@ -8063,7 +8085,7 @@ var COMPONENT_FIELDS = [
 COMPONENT_FIELDS[2].options = CATEGORIES.slice().sort(function(a,b){ return a.label.localeCompare(b.label); }).map(function(c){ return [c.id, c.label]; });
 
 
-var componentForm = { draft:null, variants:[], activeVariantId:null, defaultCode:"", defaultLabel:"Default" };
+var componentForm = { draft:null, variants:[], activeVariantId:null, defaultCode:"", defaultLabel:"Default", aiCodeHistory:[] };
 
 function slugifyKey(s){ return slugify(s); }
 function uniqueComponentKey(base){
@@ -8082,6 +8104,10 @@ function openComponentForm(){
   byId("componentFormDesc").style.display = "none";
   byId("componentCodeField").style.display = "";
   byId("componentCodeInput").value = "";
+  componentForm.aiCodeHistory = [];
+  byId("componentAiPrompt").value = "";
+  byId("componentAiUndoBtn").style.display = "none";
+  syncAiSupportBlocks();
   renderComponentFormFields();
   byId("componentFormOverlay").classList.add("open");
 }
@@ -8389,7 +8415,7 @@ function guessTokenDefault(token){
 }
 
 
-var editState = { componentId:null, listUid:null, values:{}, touched:{}, defaultCode:"", activeVariantId:null, lastMetaChanged:false };
+var editState = { componentId:null, listUid:null, values:{}, touched:{}, defaultCode:"", activeVariantId:null, lastMetaChanged:false, aiCodeHistory:[] };
 
 
 var ICON_PENCIL = '<svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M200-200h50.46l409.46-409.46-50.46-50.46L200-250.46V-200Zm-60 60v-135.38l527.62-527.39q9.07-8.24 20.03-12.73 10.97-4.5 23-4.5t23.3 4.27q11.28 4.27 19.97 13.58l48.85 49.46q9.31 8.69 13.27 20 3.96 11.31 3.96 22.62 0 12.07-4.12 23.03-4.12 10.97-13.11 20.04L275.38-140H140Zm620.38-570.15-50.23-50.23 50.23 50.23Zm-126.13 75.9-24.79-25.67 50.46 50.46-25.67-24.79Z"/></svg>';
@@ -8909,6 +8935,10 @@ function openComponentEditor(componentId, listUid){
 
 
   byId("editCodePreview").value = baseCode;
+  editState.aiCodeHistory = [];
+  byId("editAiPrompt").value = "";
+  byId("editAiUndoBtn").style.display = "none";
+  syncAiSupportBlocks();
   syncEditFavBtn(componentId);
   byId("editFavBtn").onclick = function(){ toggleCompFavorite(componentId); syncEditFavBtn(componentId); };
   byId("editOverlay").classList.add("open");
@@ -12966,6 +12996,173 @@ function fetchProductGridData(urls, apiKey){
   });
 }
 
+// "AI Support" — Claude as an MJML developer, wired into the component
+// editor and the "New component" form. User: "Wprowadź funkcję rozmowy z
+// Claude Code (tak jak przy Product Gridzie Generator) w budowaniu/edycji
+// komponentu... ma być zajebistym MJML developerem nastawionym na
+// maksymalną kompatybilność kodu z wszystkimi klientami pocztowymi." Reuses
+// the exact same direct-browser Anthropic API pattern as
+// fetchProductGridData above — no backend needed, unlike the real-MJML
+// compile work earlier this session.
+
+// One line per COMPONENTS/READY_EMAILS entry — NOT full code (177+73 full
+// components would be enormous and expensive on the user's own API key).
+// Built fresh every call straight from the in-memory arrays, so it never
+// goes stale as components get added/edited.
+function buildComponentCatalogSummary(){
+  var compLines = COMPONENTS.map(function(c){
+    return c.id+" · "+c.label+" · category:"+c.category+" · "+(c.desc||"");
+  });
+  var emailLines = READY_EMAILS.map(function(e){
+    return e.id+" · "+e.label+" · "+((e.componentIds||[]).length)+" components";
+  });
+  return "Existing components ("+COMPONENTS.length+"):\n"+compLines.join("\n")+
+    "\n\nExisting ready-made emails ("+READY_EMAILS.length+"):\n"+emailLines.join("\n");
+}
+
+// Two REAL components copied verbatim as few-shot examples — not invented —
+// so Claude's output matches this codebase's actual conventions instead of
+// generic MJML style. One shows the <mj-raw>+hand-table pattern (needed for
+// anything beyond simple text/button/image/divider/spacer, since the LOCAL
+// compiler that powers every Live Preview only understands 7 mj-* tags —
+// see the system prompt below), the other shows plain native mj-column use.
+var MJML_AI_FEWSHOT_RAW_EXAMPLE =
+'<mj-section padding="0px {{brand.contentPadding}} 16px" css-class="mj-gutter">\n'+
+'  <mj-text background-color="{{brand.surface2}}" css-class="mj-radius" border-radius="{{brand.radius}}" padding="20px">\n'+
+'    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:8px"><tr>\n'+
+'      <td valign="middle"><span style="display:inline-block;background:{{brand.accent}};color:{{brand.accentOn}};border-radius:5px;padding:6px 10px;font-size:13px;">[[NUMER]]</span></td>\n'+
+'      <td width="10"></td>\n'+
+'      <td valign="middle"><span style="font-family:{{brand.fontBody}};font-weight:{{brand.h4Weight}};font-size:{{brand.h4Size}}px;color:{{brand.h4Color}};">[[NAGLOWEK_BENEFITU]]</span></td>\n'+
+'    </tr></table>\n'+
+'    <p style="margin:0px;line-height:1.6;font-size:16px;font-family:{{brand.fontBody}};color:{{brand.text}};">[[OPIS_BENEFITU]]</p>\n'+
+'  </mj-text>\n'+
+'</mj-section>';
+var MJML_AI_FEWSHOT_COLUMN_EXAMPLE =
+'<mj-section padding="24px {{brand.contentPadding}} 0px" css-class="mj-gutter">\n'+
+'  <mj-text font-size="14px" color="{{brand.muted}}" font-weight="500" font-family="{{brand.fontBody}}" padding="0px 0px 12px"><span style="color:{{brand.text}};font-weight:600;">Pobierz aplikację</span><br />[[ZACHETA_DO_POBRANIA]]</mj-text>\n'+
+'  <mj-column width="27%" padding="0px">\n'+
+'    <mj-image src="[[URL_BADGE_APP_STORE]]" href="[[URL_APP_STORE]]" alt="Pobierz w App Store" align="left" width="140px" padding="0px"></mj-image>\n'+
+'  </mj-column>\n'+
+'  <mj-column width="27%" padding="0px">\n'+
+'    <mj-image src="[[URL_BADGE_GOOGLE_PLAY]]" href="[[URL_GOOGLE_PLAY]]" alt="Pobierz w Google Play" align="left" width="140px" padding="0px"></mj-image>\n'+
+'  </mj-column>\n'+
+'</mj-section>';
+
+function mjmlAiSystemPrompt(b){
+  var brandKeys = Object.keys(b).sort().join(", ");
+  return "You are an elite MJML developer for Maximus, an internal RetentionQ email-component-authoring tool. Your #1 priority is maximum rendering compatibility across ALL email clients (Outlook desktop/Windows via Word engine, Gmail webmail+app, Apple Mail, Outlook.com, Yahoo) — table-based layout, inline styles only (no <style> blocks, no CSS Grid/Flexbox), and Outlook-safe patterns (<!--[if mso]> conditional comments for fixed-width tables, VML for bulletproof buttons where relevant).\n\n"+
+    "CRITICAL — Maximus has TWO compilers, and your code must work in both:\n"+
+    "1. A local hand-rolled compiler powers every LIVE PREVIEW in the app. It ONLY understands these mj-* tags: mj-section, mj-column, mj-text, mj-button, mj-image, mj-divider, mj-spacer, mj-raw. ANY other mj-* tag (mj-social, mj-carousel, mj-hero, mj-navbar, mj-accordion, mj-group, etc.) silently loses its structure in Live Preview even though it's valid real MJML — DO NOT use them.\n"+
+    "2. A real MJML backend powers Export Code / Full Preview only.\n"+
+    "For anything beyond simple text/button/image/divider/spacer/section/column layout — icon rows, badges, multi-column cards, custom tables — use <mj-raw> with hand-authored, inline-styled HTML tables, exactly like the existing component library already does. Two REAL examples from this codebase, follow this style:\n\n"+
+    "--- Example 1 (mj-raw + hand table) ---\n"+MJML_AI_FEWSHOT_RAW_EXAMPLE+"\n\n"+
+    "--- Example 2 (native mj-column layout) ---\n"+MJML_AI_FEWSHOT_COLUMN_EXAMPLE+"\n\n"+
+    "Conventions you MUST follow:\n"+
+    "- {{brand.KEY}} tokens for every color/font/spacing value — NEVER hardcode a color or font. Only use a KEY from this exact whitelist (an unlisted key silently resolves to empty string, a real bug): "+brandKeys+"\n"+
+    "- [[BRACKET_NAME]] (UPPER_SNAKE_CASE, descriptive, mixed Polish/English like the rest of this codebase — e.g. [[NAGLOWEK]], [[FEATURE_1_TITLE]]) for every piece of editable content (headings, body text, image URLs, link URLs) — never hardcode real copy or URLs.\n"+
+    "- Match the existing catalog's naming/category conventions where relevant (below) — don't duplicate something that already exists; reuse its pattern instead.\n\n"+
+    buildComponentCatalogSummary()+"\n\n"+
+    "You will be given the CURRENT code (may be empty, meaning build from scratch) and an instruction describing what the user wants changed or built. Call report_component_code exactly once with the complete resulting MJML code (the full component, not a diff/patch) and a short one-sentence explanation of what you did — do not respond with plain text instead.";
+}
+
+function mjmlAiToolSchema(){
+  return {
+    type:"object",
+    properties:{
+      code:{ type:"string", description:"The complete MJML code for the component (not a diff) — ready to paste directly into Maximus's code editor." },
+      explanation:{ type:"string", description:"One short sentence describing what was built or changed." }
+    },
+    required:["code","explanation"]
+  };
+}
+
+function askMjmlAi(instruction, currentCode, apiKey, b){
+  var userMessage = mjmlAiSystemPrompt(b)+"\n\n"+
+    "CURRENT CODE"+(currentCode && currentCode.trim() ? ":\n"+currentCode : ": (empty — build a brand new component from scratch)")+
+    "\n\nINSTRUCTION:\n"+instruction;
+  return fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{
+      "x-api-key": apiKey,
+      "anthropic-version":"2023-06-01",
+      "content-type":"application/json",
+      "anthropic-dangerous-direct-browser-access":"true"
+    },
+    body: JSON.stringify({
+      model:"claude-sonnet-5",
+      max_tokens:8192,
+      messages:[{ role:"user", content: userMessage }],
+      tools:[{ name:"report_component_code", description:"Report the resulting MJML component code.", input_schema: mjmlAiToolSchema() }]
+    })
+  }).then(function(res){
+    if(!res.ok){
+      return res.json().catch(function(){ return null; }).then(function(body){
+        var msg = (body && body.error && body.error.message) || ("HTTP "+res.status);
+        throw new Error(msg);
+      });
+    }
+    return res.json();
+  }).then(function(data){
+    var toolUse = (data.content||[]).filter(function(b){ return b.type==="tool_use" && b.name==="report_component_code"; })[0];
+    if(!toolUse || !toolUse.input || typeof toolUse.input.code!=="string" || !toolUse.input.code.trim()){
+      throw new Error("Claude didn't return code — try again, or rephrase the instruction");
+    }
+    return { code: toolUse.input.code, explanation: toolUse.input.explanation||"" };
+  });
+}
+
+// Shows/hides the "connect first" hint vs the real prompt+button in both AI
+// Support blocks (edit modal + New component form), based on hasClaudeConnected().
+// Called on modal open and right after a successful Connect Claude save.
+function syncAiSupportBlocks(){
+  [
+    { hint:"editAiConnectHint", active:"editAiActiveBlock" },
+    { hint:"componentAiConnectHint", active:"componentAiActiveBlock" }
+  ].forEach(function(ids){
+    var hintEl = byId(ids.hint), activeEl = byId(ids.active);
+    if(!hintEl || !activeEl) return;
+    var connected = hasClaudeConnected();
+    hintEl.style.display = connected ? "none" : "";
+    activeEl.style.display = connected ? "" : "none";
+  });
+}
+
+// Shared "ask Claude, apply the result" logic for both AI Support blocks —
+// opts: { promptId, proceedBtnId, undoBtnId, codeFieldId, history (array,
+// mutated in place — editState.aiCodeHistory or componentForm.aiCodeHistory),
+// onApplied (optional — re-runs whatever a manual edit to the field would
+// trigger, e.g. the live preview refresh in the edit modal). "Wstecz" —
+// user: "Dodaj też opcję 'Wstecz' na wypadek gdybym chciał przywrócić
+// poprzedni kod."
+function runMjmlAiAssist(opts){
+  var promptEl = byId(opts.promptId);
+  var instruction = promptEl.value.trim();
+  if(!instruction){ showToast("Describe what you want to build or change first"); return; }
+  if(!hasClaudeConnected()){ showToast("Connect your Claude account first"); return; }
+  var codeField = byId(opts.codeFieldId);
+  var currentCode = codeField.value;
+  var b = brand();
+  withBtnLoading(byId(opts.proceedBtnId), function(){
+    return askMjmlAi(instruction, currentCode, MQ_CURRENT_USER.anthropicApiKey, b).then(function(result){
+      opts.history.push(currentCode);
+      byId(opts.undoBtnId).style.display = "";
+      codeField.value = result.code;
+      promptEl.value = "";
+      if(opts.onApplied) opts.onApplied();
+      showToast(result.explanation || "Done");
+    }).catch(function(err){
+      showToast((err && err.message) || "AI request failed", "error");
+    });
+  });
+}
+function runMjmlAiUndo(opts){
+  if(!opts.history.length) return;
+  var prev = opts.history.pop();
+  byId(opts.codeFieldId).value = prev;
+  if(!opts.history.length) byId(opts.undoBtnId).style.display = "none";
+  if(opts.onApplied) opts.onApplied();
+}
+
 var productGridOpenId = null;
 function findProductGrid(id){ for(var i=0;i<PRODUCT_GRIDS.length;i++){ if(PRODUCT_GRIDS[i].id===id) return PRODUCT_GRIDS[i]; } return null; }
 function uniqueProductGridKey(base){
@@ -15064,6 +15261,32 @@ byId("productGridBackBtn").addEventListener("click", showProductGridConfigView);
 byId("productGridSaveBtn").addEventListener("click", saveProductGridForm);
 byId("productGridAddToMailStackBtn").addEventListener("click", addProductGridToMailStack);
 
+byId("editAiConnectLink").addEventListener("click", function(e){ e.preventDefault(); openConnectClaudeModal(); });
+byId("editAiProceedBtn").addEventListener("click", function(){
+  runMjmlAiAssist({
+    promptId:"editAiPrompt", proceedBtnId:"editAiProceedBtn", undoBtnId:"editAiUndoBtn",
+    codeFieldId:"editCodePreview", history: editState.aiCodeHistory,
+    onApplied: function(){ scheduleEditPreviewUpdate(); updateEditSaveOnlyBtnState(); }
+  });
+});
+byId("editAiUndoBtn").addEventListener("click", function(){
+  runMjmlAiUndo({
+    codeFieldId:"editCodePreview", undoBtnId:"editAiUndoBtn", history: editState.aiCodeHistory,
+    onApplied: function(){ scheduleEditPreviewUpdate(); updateEditSaveOnlyBtnState(); }
+  });
+});
+
+byId("componentAiConnectLink").addEventListener("click", function(e){ e.preventDefault(); openConnectClaudeModal(); });
+byId("componentAiProceedBtn").addEventListener("click", function(){
+  runMjmlAiAssist({
+    promptId:"componentAiPrompt", proceedBtnId:"componentAiProceedBtn", undoBtnId:"componentAiUndoBtn",
+    codeFieldId:"componentCodeInput", history: componentForm.aiCodeHistory
+  });
+});
+byId("componentAiUndoBtn").addEventListener("click", function(){
+  runMjmlAiUndo({ codeFieldId:"componentCodeInput", undoBtnId:"componentAiUndoBtn", history: componentForm.aiCodeHistory });
+});
+
 
 byId("discountClose").addEventListener("click", closeDiscountOverlay);
 bindOverlayBackdropClose("discountOverlay", closeDiscountOverlay);
@@ -16584,6 +16807,7 @@ byId("connectClaudeSave").addEventListener("click", function(){
       MQ_CURRENT_USER.anthropicApiKey = key;
       closeConnectClaudeModal();
       showToast("Claude connected");
+      syncAiSupportBlocks();
     }).catch(function(err){
       errEl.textContent = err.message || "Couldn't validate this key";
       errEl.style.display = "";
