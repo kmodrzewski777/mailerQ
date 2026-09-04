@@ -2257,7 +2257,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.21.5";
+var APP_VERSION = "3.21.6";
 var APP_UPDATED = "2026-09-04";
 
 
@@ -14403,7 +14403,16 @@ function simulateLiquidForPreview(html, b){
 
 
   html = html.replace(/\{\{\s*customer\.(\w+)[\s\S]*?\}\}/g, function(m, field){
-    return CUSTOMER_PREVIEW_FIELDS[field] || "Jan Kowalski";
+    // "Jan Kowalski" is a plausible stand-in ONLY for actual name/email
+    // fields (the small CUSTOMER_PREVIEW_FIELDS whitelist below) — every
+    // other customer.* attribute (balances, counters, dates, anything a
+    // brand made up, e.g. customer.program800_total) is NOT a person's
+    // name, so it gets the same readable [field] label as every other
+    // unrecognized merge tag instead. User: "w miejscu {{customer ....
+    // podstawiasz Jan Kowalski xD Weź przestań podstawiać jakieś głupie
+    // wartości w live preview."
+    if(field in CUSTOMER_PREVIEW_FIELDS) return CUSTOMER_PREVIEW_FIELDS[field];
+    return "["+field+"]";
   });
   html = html.replace(/\{\{\s*snippets\.\w+\s*\}\}/g, "Cześć");
 
