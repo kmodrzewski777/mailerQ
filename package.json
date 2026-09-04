@@ -1,0 +1,11 @@
+{
+  "name": "mailerq-api",
+  "private": true,
+  "description": "Vercel serverless functions for Maximus (index.html, deployed separately via GitHub Pages). This package.json exists only so Vercel installs dependencies for the /api functions.",
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "mjml": "^4.15.3"
+  }
+}
