@@ -2257,7 +2257,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.22.0";
+var APP_VERSION = "3.23.0";
 var APP_UPDATED = "2026-09-04";
 
 
@@ -3363,6 +3363,13 @@ function simulateGmailDarkRules(b){
   push("a.mj-btn-tertiary", "color", gmailInvertTextForBg(b.btnTertiaryText, bgDark));
   return lines.join("");
 }
+
+// Vercel serverless endpoint running the real `mjml` npm package — see
+// compileMjmlFragmentReal/compileEmailHtmlReal below. Filled in once the
+// backend (mailerQ-repo/api/compile-mjml.js) is deployed; see project memory
+// for the deploy steps and this URL's current value.
+var MJML_BACKEND_URL = "https://maximus-ten.vercel.app/api/compile-mjml";
+
 function compileEmailHtml(bodyMjml, b, opts){
 
   opts = opts || {};
@@ -3391,6 +3398,31 @@ function compileEmailHtml(bodyMjml, b, opts){
   }
   var footerHtml = (!opts.noChrome && footerSrc) ? compileMjmlFragment(resolveBrandTokens(footerSrc, b), { fontBody: b.fontBody }) : "";
 
+
+  var showTopBar = opts.showTopBar!==false;
+  var topBarCompiled = (!opts.noChrome && showTopBar && b.topBarContent) ? compileMjmlFragment(resolveBrandTokens(b.topBarContent, b), { fontBody: b.fontBody }) : "";
+
+  return assembleEmailShell({ headerHtml: headerHtml, bodyHtml: bodyHtml, footerHtml: footerHtml, topBarCompiled: topBarCompiled }, b, opts);
+}
+
+// compileMjmlFragmentReal/compileEmailHtmlReal (below) compile through real
+// MJML via a Vercel backend instead of the local hand-rolled compiler —
+// user: "Pisałeś, że Maximus ma 'udawany' MJML... Chcę to zrobić." Only
+// Export Code + Full Preview use these (agreed scope — every live-typing
+// preview stays on the instant local compiler; a network round trip on
+// every keystroke would make editing feel laggy). assembleEmailShell is the
+// part of the OLD compileEmailHtml that ran after fragments were already
+// compiled to HTML strings (dark-mode CSS, responsive rules, MSO wrapping,
+// canvas/letterbox, doctype/head/body shell) — extracted so BOTH the local
+// sync path above and the real-MJML async path below share it byte-for-byte
+// instead of drifting apart as two copies of the same ~100 lines.
+function assembleEmailShell(compiled, b, opts, extraHeadStyle){
+  opts = opts || {};
+  extraHeadStyle = extraHeadStyle || "";
+  var headerHtml = compiled.headerHtml || "";
+  var bodyHtml = compiled.bodyHtml || "";
+  var footerHtml = compiled.footerHtml || "";
+  var topBarCompiled = compiled.topBarCompiled || "";
 
   if(opts.editable && headerHtml) headerHtml = '<div data-mf-chrome="header">'+headerHtml+'</div>';
   if(opts.editable && footerHtml) footerHtml = '<div data-mf-chrome="footer">'+footerHtml+'</div>';
@@ -3445,9 +3477,10 @@ function compileEmailHtml(bodyMjml, b, opts){
   // own width instead of stretching edge to edge.
   // opts.showTopBar (default true) lets a caller turn a CONFIGURED top bar
   // off for this one compile — user: "dodaj mi funkcje włączania/
-  // wyłączania top bara przed skompilowaniem kodu".
-  var showTopBar = opts.showTopBar!==false;
-  var topBarCompiled = (!opts.noChrome && showTopBar && b.topBarContent) ? compileMjmlFragment(resolveBrandTokens(b.topBarContent, b), { fontBody: b.fontBody }) : "";
+  // wyłączania top bara przed skompilowaniem kodu". Whether to compile it at
+  // all (opts.noChrome/showTopBar/b.topBarContent) is decided by the caller
+  // (compileEmailHtml / compileEmailHtmlReal) before this function ever
+  // runs — topBarCompiled here is just whatever they handed in (possibly "").
   var topBarHtml = topBarCompiled ? (
     '<!--[if mso]><table role="presentation" width="'+mso+'" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->\n'+
     '<div style="max-width:'+b.mailWidth+';margin:0 auto;">\n'+
@@ -3486,7 +3519,9 @@ boxOuterInsetMobileRule+
 "    .mj-body-box{margin-top:5px!important}\n"+
 "  }\n"+
 forcedDarkStyleBlock+
-"</style>\n</head>\n"+
+"</style>\n"+
+extraHeadStyle+
+"</head>\n"+
 '<body style="margin:0;padding:0;background:'+pageBg+';">\n'+
 '<div class="mj-canvas-bg" style="background:'+pageBg+';">\n'+
 topBarHtml+
@@ -3510,6 +3545,73 @@ footerHtml+
 ) : "")+
 "</td></tr>\n</table>\n</div>\n</body>\n</html>"
   );
+}
+
+// Compiles one MJML fragment through the real `mjml` npm package via the
+// Vercel backend, instead of the local hand-rolled compiler. `source` must
+// already have {{brand.x}} tokens resolved (resolveBrandTokens) — same
+// contract as compileMjmlFragment. Wraps it in the minimal valid document
+// real MJML requires, then unwraps the response back down to a fragment.
+async function compileMjmlFragmentReal(source){
+  var doc = "<mjml><mj-body>"+source+"</mj-body></mjml>";
+  var res;
+  try{
+    res = await fetch(MJML_BACKEND_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mjml: doc })
+    });
+  }catch(e){
+    throw new Error("Nie udało się połączyć z serwerem kompilacji MJML: "+((e && e.message) || e));
+  }
+  var data = null;
+  try{ data = await res.json(); }catch(e){ /* non-JSON error body — data stays null */ }
+  if(!res.ok){
+    throw new Error((data && data.error) || ("Serwer kompilacji MJML zwrócił błąd "+res.status));
+  }
+  return { bodyHtml: (data && data.bodyHtml) || "", headStyle: (data && data.headStyle) || "" };
+}
+
+// Real-MJML counterpart to compileEmailHtml — same header/footer/topBar
+// selection logic (opts.headerVariant/footerVariant/noChrome/showTopBar),
+// but every fragment goes through compileMjmlFragmentReal (network) instead
+// of compileMjmlFragment (local), run in parallel via Promise.all, then
+// handed to the SAME assembleEmailShell the sync path uses — so dark mode,
+// responsive rules, MSO wrapping etc. behave identically either way. Deliberately
+// does not support opts.itemMjmlList (the editable Mail Stack live preview) —
+// out of scope, that stays on the instant local compiler; only Export Code
+// and Full Preview call this. The tiny inter-component gap spacer (if this
+// were ever extended to itemMjmlList) is trivial enough that the local
+// compiler already renders it identically to real MJML — not worth a network
+// round trip on its own.
+async function compileEmailHtmlReal(bodyMjml, b, opts){
+  opts = opts || {};
+  b = Object.assign({}, b, { unsubscribeLink: resolveCrmUnsubscribeLink(b) });
+
+  var headerSrc = opts.headerVariant===3 ? b.header3Code : opts.headerVariant===2 ? b.header2Code : b.headerCode;
+  var footerSrc = opts.footerVariant===3 ? b.footer3Code : opts.footerVariant===2 ? b.footer2Code : b.footerCode;
+  var showTopBar = opts.showTopBar!==false;
+
+  var wantHeader = !opts.noChrome && !!headerSrc;
+  var wantFooter = !opts.noChrome && !!footerSrc;
+  var wantTopBar = !opts.noChrome && showTopBar && !!b.topBarContent;
+
+  var headerP = wantHeader ? compileMjmlFragmentReal(resolveBrandTokens(headerSrc, b)) : null;
+  var bodyP = compileMjmlFragmentReal(resolveBrandTokens(bodyMjml, b));
+  var footerP = wantFooter ? compileMjmlFragmentReal(resolveBrandTokens(footerSrc, b)) : null;
+  var topBarP = wantTopBar ? compileMjmlFragmentReal(resolveBrandTokens(b.topBarContent, b)) : null;
+
+  var results = await Promise.all([headerP, bodyP, footerP, topBarP]);
+  var headStyles = [];
+  function take(r){ if(r && r.headStyle) headStyles.push(r.headStyle); return r ? r.bodyHtml : ""; }
+
+  var headerHtml = take(results[0]);
+  var bodyHtml = take(results[1]);
+  var footerHtml = take(results[2]);
+  var topBarCompiled = take(results[3]);
+
+  var extraHeadStyle = headStyles.length ? headStyles.join("\n") : "";
+  return assembleEmailShell({ headerHtml: headerHtml, bodyHtml: bodyHtml, footerHtml: footerHtml, topBarCompiled: topBarCompiled }, b, opts, extraHeadStyle);
 }
 
 
@@ -14669,11 +14771,37 @@ function requestDeleteReadyEmail(emailId){
 }
 
 
-function openFullEmailInNewTab(bodyMjml, b, opts){
-  var html = compileEmailHtml(bodyMjml, b, opts);
+// Compiles through real MJML (compileEmailHtmlReal, network) — one of the
+// two agreed "official moment" call sites, see MJML_BACKEND_URL. window.open
+// has to happen SYNCHRONOUSLY inside the click handler, before any `await`,
+// or popup blockers can kill it — so a blank tab opens immediately with a
+// "compiling" placeholder, then gets filled in once the real MJML result
+// comes back, instead of calling window.open(blobUrl) after the await like
+// the old sync version did.
+async function openFullEmailInNewTab(bodyMjml, b, opts){
+  var win = window.open("", "_blank");
+  if(win){
+    win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kompilowanie…</title></head><body style="margin:0;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;color:#888;">Kompilowanie przez MJML…</body></html>');
+    win.document.close();
+  }
+  var html;
+  try{
+    html = await compileEmailHtmlReal(bodyMjml, b, opts);
+  }catch(e){
+    var msg = (e && e.message) || String(e);
+    if(win){ win.document.open(); win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Błąd</title></head><body style="margin:0;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;color:#c0392b;padding:24px;text-align:center;">'+esc(msg)+'</body></html>'); win.document.close(); }
+    showToast(msg, "error");
+    return;
+  }
   html = simulateLiquidForPreview(fillTokensForPreview(html, b), b);
-  var blob = new Blob([html], { type:"text/html" });
-  window.open(URL.createObjectURL(blob), "_blank");
+  if(win){
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+  } else {
+    var blob = new Blob([html], { type:"text/html" });
+    window.open(URL.createObjectURL(blob), "_blank");
+  }
 }
 function openEmailPreview(emailId){
   var e = findEmail(emailId), b = brand();
@@ -15631,6 +15759,21 @@ function buildExportCode(){
   var bodyMjml = stitchComponentCodes(codes, b.componentGap);
   return minifyEmailHtml(compileEmailHtml(bodyMjml, b, { headerVariant: state.headerVariant, footerVariant: state.footerVariant, showTopBar: previewShowTopBar }));
 }
+// Real-MJML counterpart of buildExportCode — used ONLY by the actual "Compile"
+// button click (see #copyBtn below), never by the live-refreshing
+// previewExportCode/previewCodeBox panel (that stays on the instant local
+// compiler — the panel re-runs on every edit, and a network round trip on
+// every keystroke would make editing feel laggy, which was explicitly ruled
+// out). Same inputs as buildExportCode, just compiled through the Vercel
+// backend instead of the hand-rolled compiler.
+async function buildExportCodeReal(){
+  var b = brand();
+  if(state.list.length===0) return "";
+  var codes = state.list.map(function(item){ return resolveItemCode(item, b); }).filter(function(code){ return code!=null; });
+  var bodyMjml = stitchComponentCodes(codes, b.componentGap);
+  var html = await compileEmailHtmlReal(bodyMjml, b, { headerVariant: state.headerVariant, footerVariant: state.footerVariant, showTopBar: previewShowTopBar });
+  return minifyEmailHtml(html);
+}
 var previewExportCode = "";
 function fallbackCopy(txt, successMessage){
   var ta = document.createElement("textarea");
@@ -15653,15 +15796,26 @@ function copyShareUrl(params){
     fallbackCopy(url, "Link copied");
   }
 }
+// Compiles through real MJML on click (buildExportCodeReal, network) — the
+// second of the two agreed "official moment" call sites. withBtnLoading
+// shows a spinner on the button for the round trip; on failure a toast
+// carries the backend's actual error, nothing gets copied (no silent
+// fallback to the local compiler's possibly-different output).
 byId("copyBtn").addEventListener("click", function(){
-  var txt = previewExportCode;
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(txt)
-      .then(function(){ showToast("Compiled successfully and copied to clipboard"); })
-      .catch(function(){ fallbackCopy(txt, "Compiled successfully and copied to clipboard"); });
-  } else {
-    fallbackCopy(txt, "Compiled successfully and copied to clipboard");
-  }
+  withBtnLoading(byId("copyBtn"), function(){
+    return buildExportCodeReal().then(function(txt){
+      if(!txt){ showToast("Nothing to compile — Mail Stack is empty", "error"); return; }
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        return navigator.clipboard.writeText(txt)
+          .then(function(){ showToast("Compiled with real MJML and copied to clipboard"); })
+          .catch(function(){ fallbackCopy(txt, "Compiled with real MJML and copied to clipboard"); });
+      } else {
+        fallbackCopy(txt, "Compiled with real MJML and copied to clipboard");
+      }
+    });
+  }).catch(function(err){
+    showToast((err && err.message) || String(err), "error");
+  });
 });
 
 
