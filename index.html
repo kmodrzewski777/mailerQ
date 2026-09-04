@@ -2257,7 +2257,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.21.6";
+var APP_VERSION = "3.22.0";
 var APP_UPDATED = "2026-09-04";
 
 
@@ -3152,29 +3152,19 @@ function resolveBrandTokens(mjml, b){
   });
 }
 
-function stripTrailingComponentGap(code){
-  var idx = code.lastIndexOf("<mj-section");
-  if(idx===-1) return code;
-  var tagEnd = code.indexOf(">", idx);
-  if(tagEnd===-1) return code;
-  var tag = code.slice(idx, tagEnd+1);
-  if(!/padding="/.test(tag)) return code;
-  var newTag = tag.replace(/padding="([^"]*)"/, function(m, val){
-    var parts = val.trim().split(/\s+/);
-    if(parts.length===1) parts = [parts[0],parts[0],parts[0],parts[0]];
-    else if(parts.length===2) parts = [parts[0],parts[1],parts[0],parts[1]];
-    else if(parts.length===3) parts = [parts[0],parts[1],parts[2],parts[1]];
-    parts[2] = "0px";
-    return 'padding="'+parts[0]+" "+parts[1]+" "+parts[2]+" "+parts[3]+'"';
-  });
-  return code.slice(0,idx) + newTag + code.slice(tagEnd+1);
-}
 function stitchComponentCodes(codes, gap){
+  // Used to zero out each non-last component's own trailing bottom padding
+  // via stripTrailingComponentGap (assuming the componentGap spacer below
+  // already provided enough breathing room) — removed entirely per user:
+  // "Wyłącz zerowanie globalnie" (a component's own padding was silently
+  // disappearing the moment anything followed it in the Mail Stack, e.g. a
+  // section with border-radius rounding only its top corners never actually
+  // touches the next section seamlessly anyway, since a spacer always sits
+  // between them). Every component now always keeps its own padding
+  // exactly as authored, regardless of its position in the stack.
   var list = codes.filter(function(c){ return c; });
   var spacer = '\n\n<mj-spacer height="'+(gap||"24px")+'" css-class="mj-gap"></mj-spacer>\n\n';
-  return list.map(function(code, i){
-    return i < list.length-1 ? stripTrailingComponentGap(code) : code;
-  }).join(spacer);
+  return list.join(spacer);
 }
 
 var GOOGLE_FONTS_ALLOWLIST = {
@@ -3389,10 +3379,11 @@ function compileEmailHtml(bodyMjml, b, opts){
   var bodyHtml;
   if(opts.itemMjmlList){
     var gapHtml = compileMjmlFragment('<mj-spacer height="'+(b.componentGap||"24px")+'" css-class="mj-gap"></mj-spacer>', { fontBody: b.fontBody });
-    var n = opts.itemMjmlList.length;
     bodyHtml = opts.itemMjmlList.map(function(it, i){
-      var mjml = i < n-1 ? stripTrailingComponentGap(it.mjml) : it.mjml;
-      var compiled = compileMjmlFragment(resolveBrandTokens(mjml, b), { fontBody: b.fontBody });
+      // No more stripTrailingComponentGap here either (removed globally,
+      // see stitchComponentCodes) — every item keeps its own padding as
+      // authored, same rule in both rendering paths.
+      var compiled = compileMjmlFragment(resolveBrandTokens(it.mjml, b), { fontBody: b.fontBody });
       return '<div class="mf-item-wrap" data-mf-item-uid="'+it.uid+'">'+compiled+'</div>';
     }).join(gapHtml);
   } else {
