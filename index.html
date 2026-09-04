@@ -2257,8 +2257,8 @@
 "use strict";
 
 
-var APP_VERSION = "3.21.4";
-var APP_UPDATED = "2026-09-03";
+var APP_VERSION = "3.21.5";
+var APP_UPDATED = "2026-09-04";
 
 
 var BRANDS = {
@@ -14424,7 +14424,12 @@ function simulateLiquidForPreview(html, b){
     var base = expr.split("|")[0].trim();
     var segMatch = /([A-Za-z0-9_]+)\s*$/.exec(base);
     if(segMatch) return "["+segMatch[1]+"]";
-    return "Sample content";
+    // No readable field name could be extracted (e.g. event['Klucz'] bracket
+    // syntax, array indices, quoted literals) — user: "zamieniasz kod liquid
+    // na Sample Content - nie chcę tego / masz podawać kod". Show the actual
+    // Liquid tag as typed instead of inventing placeholder wording, so the
+    // real code is always what's on screen, never a made-up stand-in.
+    return m;
   });
   return html;
 }
