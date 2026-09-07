@@ -2279,7 +2279,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.24.0";
+var APP_VERSION = "3.24.1";
 var APP_UPDATED = "2026-09-04";
 
 
@@ -3656,12 +3656,16 @@ function defaultHeaderCode(b, style, opts){
   if(style==="left"){
     return (
 '<mj-section padding="24px {{brand.contentPadding}}" border-bottom="1px solid {{brand.border}}" css-class="mj-gutter">\n'+
-'  <mj-image src="'+logoSrc+'" href="[[URL_STRONA_GLOWNA]]" alt="{{brand.logoAlt}}" width="{{brand.logoWidth}}" align="left" padding="0px" css-class="mj-logo"></mj-image>\n'+
+'  <mj-column>\n'+
+'    <mj-image src="'+logoSrc+'" href="[[URL_STRONA_GLOWNA]]" alt="{{brand.logoAlt}}" width="{{brand.logoWidth}}" align="left" padding="0px" css-class="mj-logo"></mj-image>\n'+
+'  </mj-column>\n'+
 '</mj-section>');
   }
   return (
 '<mj-section padding="28px {{brand.contentPadding}}" css-class="mj-gutter">\n'+
-'  <mj-image src="'+logoSrc+'" href="[[URL_STRONA_GLOWNA]]" alt="{{brand.logoAlt}}" width="{{brand.logoWidth}}" align="center" padding="0px" css-class="mj-logo"></mj-image>\n'+
+'  <mj-column>\n'+
+'    <mj-image src="'+logoSrc+'" href="[[URL_STRONA_GLOWNA]]" alt="{{brand.logoAlt}}" width="{{brand.logoWidth}}" align="center" padding="0px" css-class="mj-logo"></mj-image>\n'+
+'  </mj-column>\n'+
 '</mj-section>');
 }
 function defaultFooterCode(b, style){
