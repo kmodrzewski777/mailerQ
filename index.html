@@ -2279,7 +2279,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.24.2";
+var APP_VERSION = "3.24.3";
 var APP_UPDATED = "2026-09-08";
 
 
@@ -3589,8 +3589,18 @@ footerHtml+
 // already have {{brand.x}} tokens resolved (resolveBrandTokens) — same
 // contract as compileMjmlFragment. Wraps it in the minimal valid document
 // real MJML requires, then unwraps the response back down to a fragment.
-async function compileMjmlFragmentReal(source){
-  var doc = "<mjml><mj-body>"+source+"</mj-body></mjml>";
+async function compileMjmlFragmentReal(source, fontBody){
+  // Real MJML defaults font-family to its OWN hardcoded "Ubuntu, Helvetica,
+  // Arial, sans-serif" on any mj-text/mj-button that doesn't set it
+  // explicitly — this compiler's local default is ctx.fontBody (the
+  // brand's own font) instead, which is why every component that omits
+  // font-family already looks brand-correct in Live Preview. User: "font
+  // wpierdala jakiś UBUNTU" — <mj-attributes><mj-all font-family="..."/>
+  // in <mj-head> is real MJML's own official mechanism for a document-wide
+  // default, so this fixes EVERY component sent through this path, not
+  // just the one that got reported — no component markup needs to change.
+  var head = fontBody ? "<mj-head><mj-attributes><mj-all font-family=\""+String(fontBody).replace(/"/g,"&quot;")+"\" /></mj-attributes></mj-head>" : "";
+  var doc = "<mjml>"+head+"<mj-body>"+source+"</mj-body></mjml>";
   var res;
   try{
     res = await fetch(MJML_BACKEND_URL, {
@@ -3633,10 +3643,10 @@ async function compileEmailHtmlReal(bodyMjml, b, opts){
   var wantFooter = !opts.noChrome && !!footerSrc;
   var wantTopBar = !opts.noChrome && showTopBar && !!b.topBarContent;
 
-  var headerP = wantHeader ? compileMjmlFragmentReal(resolveBrandTokens(headerSrc, b)) : null;
-  var bodyP = compileMjmlFragmentReal(resolveBrandTokens(bodyMjml, b));
-  var footerP = wantFooter ? compileMjmlFragmentReal(resolveBrandTokens(footerSrc, b)) : null;
-  var topBarP = wantTopBar ? compileMjmlFragmentReal(resolveBrandTokens(b.topBarContent, b)) : null;
+  var headerP = wantHeader ? compileMjmlFragmentReal(resolveBrandTokens(headerSrc, b), b.fontBody) : null;
+  var bodyP = compileMjmlFragmentReal(resolveBrandTokens(bodyMjml, b), b.fontBody);
+  var footerP = wantFooter ? compileMjmlFragmentReal(resolveBrandTokens(footerSrc, b), b.fontBody) : null;
+  var topBarP = wantTopBar ? compileMjmlFragmentReal(resolveBrandTokens(b.topBarContent, b), b.fontBody) : null;
 
   var results = await Promise.all([headerP, bodyP, footerP, topBarP]);
   var headStyles = [];
