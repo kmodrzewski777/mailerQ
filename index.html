@@ -2279,7 +2279,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.24.3";
+var APP_VERSION = "3.24.4";
 var APP_UPDATED = "2026-09-08";
 
 
@@ -3289,7 +3289,23 @@ function buildResponsiveMediaRules(b){
 
   var gutterMobile = b.contentPaddingMobile;
   if(gutterMobile!=null && gutterMobile!=="" && String(gutterMobile)!==String(b.contentPadding)){
-    lines.push("    .mj-gutter{padding-left:"+gutterMobile+"!important;padding-right:"+gutterMobile+"!important}\n");
+    // This compiler's local compiler puts css-class="mj-gutter" directly on
+    // the padding-bearing <td> (mjCompileSection). Real MJML puts the SAME
+    // class on an outer wrapping <div> that has no padding of its own — the
+    // real padding lives one level deeper, on an un-classed <td>. User:
+    // "na mobilce w ogole nie są respektowane brand.contentPadding- pobiera
+    // dane desktopowe" — confirmed via a real headless-browser render of
+    // real MJML's own output: the plain `.mj-gutter` selector matched an
+    // empty div, never touched the actual padding, so the mobile override
+    // silently did nothing and the desktop value always won. A loose
+    // descendant selector (`.mj-gutter td`) would ALSO catch deeper nested
+    // tds inside the column's own content table and wrongly override THEIR
+    // padding too — so this uses the exact direct-child chain real MJML
+    // actually emits (div.mj-gutter > table > tbody > tr > td) to hit only
+    // the one td that holds the real gutter padding. `.mj-gutter` alone
+    // keeps working unchanged for the local compiler (where the class
+    // already sits on the td itself, no separate wrapping div involved).
+    lines.push("    .mj-gutter,.mj-gutter>table>tbody>tr>td{padding-left:"+gutterMobile+"!important;padding-right:"+gutterMobile+"!important}\n");
   }
   return lines.join("");
 }
