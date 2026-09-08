@@ -2279,7 +2279,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.24.5";
+var APP_VERSION = "3.24.6";
 var APP_UPDATED = "2026-09-08";
 
 
@@ -3492,30 +3492,22 @@ function assembleEmailShell(compiled, b, opts, extraHeadStyle){
   var outerBgMobileRule = (!opts.noChrome && b.outerBgMobile && b.outerBgMobile!==b.outerBg)
     ? "    body,.mj-canvas-bg{background:"+b.outerBgMobile+"!important}\n" : "";
 
-  // boxPadding (mj-body-content, header/footer excluded) stays a separate,
-  // already-correct concern — user previously insisted it must NOT reach
-  // header/footer. This is a different problem: below max-width (mobile),
-  // .mj-body-box itself has no reserved gap from the true screen/letterbox
-  // edge (max-width never binds once the viewport is already narrower than
-  // mailWidth, and the inline "margin:0 auto" centering collapses to zero on
-  // a box that already fills 100% of its container) — so outerBg never
-  // shows through no matter what boxPadding is set to. User: "{{brand.
-  // boxPadding}} w ogóle się nie nakłada na wrapper maila na mobilce ...
-  // powinien wystąpić jakiś margines między body content a krawędzią letter
-  // box". Reuses the same boxPadding/boxPaddingMobile value, mobile-only —
-  // additive to, not a replacement of, the existing inner .mj-body-content
-  // padding. Targets the OUTER <td> (padding), not a margin on
-  // .mj-body-box itself: a margin on a block with max-width nested in a
-  // width="100%" table cell hits a real table-auto-layout quirk — the
-  // browser's shrink-to-fit sizing for the cell doesn't reserve room for an
-  // external margin the same way it does for padding, so the table (and
-  // the whole page) silently grows past 100% and overflows horizontally
-  // (confirmed empirically: td computed to 408px on a 375px viewport).
-  // Padding directly on the td has no such quirk — it is simply part of the
-  // cell's own box.
-  var boxOuterInsetMobile = !opts.noChrome ? (b.boxPaddingMobile || b.boxPadding || "0px") : "0px";
-  var boxOuterInsetMobileRule = (boxOuterInsetMobile && boxOuterInsetMobile!=="0px")
-    ? "    .mj-outer-td{padding:"+boxOuterInsetMobile+"!important}\n" : "";
+  // Previously this reused boxPadding/boxPaddingMobile to ALSO pad the OUTER
+  // <td> (.mj-outer-td, the letterbox around the whole white box — header +
+  // content + footer), on top of its real job of padding just
+  // .mj-body-content. That was a deliberate earlier fix for a different
+  // complaint (outerBg invisible on mobile since .mj-body-box has no
+  // reserved gap from the screen edge below max-width) — but it meant
+  // "Wrapper padding" silently leaked onto the ENTIRE email, not just the
+  // Mail Stack content wrapper it's labeled for. User, after checking the
+  // real compiled output: "powinien otaczać TYLKO I WYŁĄCZNIE content
+  // /wrapper z Mail Stacka... widzę że ten sam padding nakłada się jeszcze
+  // na cały email" — explicitly asked to drop the outer-td reuse and accept
+  // the box touching the screen edge on mobile again (the letterbox-margin
+  // problem this used to paper over is not solved here; whoever revisits it
+  // should use a field that isn't also "Wrapper padding" for a second,
+  // unrelated purpose).
+  var boxOuterInsetMobileRule = "";
 
   // Top Bar Content (Brand Kit, "Email background" group) — sits OUTSIDE
   // the white mail box, on the letterbox background, above it — e.g. a
