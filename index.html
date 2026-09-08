@@ -2279,7 +2279,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.24.6";
+var APP_VERSION = "3.24.7";
 var APP_UPDATED = "2026-09-08";
 
 
@@ -3607,7 +3607,27 @@ async function compileMjmlFragmentReal(source, fontBody){
   // in <mj-head> is real MJML's own official mechanism for a document-wide
   // default, so this fixes EVERY component sent through this path, not
   // just the one that got reported — no component markup needs to change.
-  var head = fontBody ? "<mj-head><mj-attributes><mj-all font-family=\""+String(fontBody).replace(/"/g,"&quot;")+"\" /></mj-attributes></mj-head>" : "";
+  // Real MJML's own built-in default `padding` also differs from this
+  // compiler's local default — not just font-family above. An <mj-text>/
+  // <mj-divider> with no explicit `padding` attribute defaults to
+  // "10px 25px" in real MJML (25px LEFT/RIGHT nobody asked for) vs this
+  // compiler's own "10px 0px" (zero horizontal) — confirmed against the
+  // real `mjml` package directly. Same silent "looks right in Live
+  // Preview, shifted sideways after compiling" pattern as the font-family
+  // gotcha. User: "wiersz w stopce z mailem jest wyjebany w bok" — traced
+  // to exactly this: an <mj-text> without its own padding (one row of a
+  // two-row contact block) picked up real MJML's 25px-left default while
+  // its sibling above it explicitly zeroed its own padding, so only the
+  // unset one shifted right after compiling. Realigned via the same
+  // official <mj-head><mj-attributes> per-tag-default mechanism, for every
+  // mj-text/mj-divider sent through this path — an element that sets its
+  // OWN padding is unaffected, mj-attributes only ever supplies a
+  // fallback. Unlike font-family, these two defaults are unconditional
+  // (not gated on an argument) since this compiler's own default is a
+  // fixed, non-brand-specific value.
+  var attrs = '<mj-text padding="10px 0px" /><mj-divider padding="10px 0px" />';
+  if(fontBody) attrs += '<mj-all font-family="'+String(fontBody).replace(/"/g,"&quot;")+'" />';
+  var head = "<mj-head><mj-attributes>"+attrs+"</mj-attributes></mj-head>";
   var doc = "<mjml>"+head+"<mj-body>"+source+"</mj-body></mjml>";
   var res;
   try{
