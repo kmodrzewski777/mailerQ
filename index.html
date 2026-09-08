@@ -2279,8 +2279,8 @@
 "use strict";
 
 
-var APP_VERSION = "3.24.1";
-var APP_UPDATED = "2026-09-04";
+var APP_VERSION = "3.24.2";
+var APP_UPDATED = "2026-09-08";
 
 
 var BRANDS = {
@@ -3023,7 +3023,22 @@ function mjCompileButton(el, ctx){
   var fontSize = mjGetAttr(el,"font-size","16px");
   var fontWeight = mjGetAttr(el,"font-weight","600");
   var fontFamily = mjGetAttr(el,"font-family",ctx.fontBody);
-  var padding = mjGetAttr(el,"padding","14px 32px");
+  // Real MJML's mj-button uses `padding` for the OUTER cell (spacing around
+  // the button, default "10px 25px") and a SEPARATE `inner-padding` for the
+  // button's own visual size — the exact opposite of what THIS compiler's
+  // `padding` has always meant (the button's own size — `container-padding`
+  // is this compiler's own name for the outer cell). User: "Mam w Brand Kit
+  // btnPrimaryPadding na 14px 32px. A co dostaję po skompilowaniu? 10px
+  // 25px" — real MJML was silently using its own inner-padding default
+  // since nothing set it. `inner-padding` is opt-in here on purpose: ~15
+  // existing components already rely on `padding` meaning "the button's own
+  // size" and must not change. When a component explicitly sets
+  // inner-padding, IT wins for the button's own size and `padding` reverts
+  // to real MJML's actual meaning (the outer cell) — so the two compilers
+  // agree for any component migrated to this pattern, with zero effect on
+  // every component that doesn't use it.
+  var hasInnerPadding = el.hasAttribute("inner-padding");
+  var padding = hasInnerPadding ? el.getAttribute("inner-padding") : mjGetAttr(el,"padding","14px 32px");
   var href = mjGetAttr(el,"href","#");
   var align = mjGetAttr(el,"align","center");
   var tt = mjGetAttr(el,"text-transform","none");
@@ -3035,7 +3050,7 @@ function mjCompileButton(el, ctx){
   var cssClass = mjGetAttr(el,"css-class","");
   var classNames = (isFull ? ["mj-btn-full"] : []).concat(cssClass ? [cssClass] : []);
   var classAttr = classNames.length ? ' class="'+classNames.join(" ")+'"' : "";
-  var containerPadding = mjGetAttr(el,"container-padding","0px");
+  var containerPadding = hasInnerPadding ? mjGetAttr(el,"padding","0px") : mjGetAttr(el,"container-padding","0px");
   var a = '<a href="'+href+'" target="_blank"'+classAttr+' style="display:inline-block;background:'+bg+';color:'+color+';font-family:'+fontFamily+';font-size:'+fontSize+';font-weight:'+fontWeight+';text-transform:'+tt+';'+ls+'line-height:120%;text-decoration:none;padding:'+padding+';border-radius:'+radius+";"+border+'">'+el.innerHTML+"</a>";
   var table = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="'+align+'" style="padding:'+containerPadding+';">'+a+"</td></tr></table>";
   return mjHideWrap(el, table);
