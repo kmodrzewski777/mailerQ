@@ -2281,7 +2281,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.25.1";
+var APP_VERSION = "3.25.2";
 var APP_UPDATED = "2026-09-09";
 
 
@@ -3608,12 +3608,43 @@ footerHtml+
   );
 }
 
+// Real-MJML gotcha #6: this compiler's own mjGetAttr(el,name,fallback)
+// treats an attribute that's PRESENT but resolves to an empty string
+// EXACTLY like an attribute that's absent — both fall back to `fallback`
+// (see mjGetAttr: `(val==null||val==="") ? fallback : val`). Real MJML does
+// NOT: it only falls back to an <mj-attributes> default when the attribute
+// is genuinely absent from the element — a present-but-empty attribute
+// (e.g. font-family="" left over from a blank {{brand.x}} token, or a
+// per-instance field someone cleared) is used AS-IS, producing a literal
+// empty CSS declaration like `font-family:;` in the compiled output.
+// Confirmed directly against the real mjml package. User's screenshot: a
+// disclaimer line's <td> in DevTools showing "520 x 0" — genuinely
+// invisible in Gmail. A plain browser just falls back to its own default
+// font for that one malformed declaration (confirmed: computed font-size
+// on the div stayed correct, only font-family fell back to serif) — but
+// Gmail's own inbound HTML sanitizer is stricter about malformed inline
+// CSS and can drop the WHOLE style attribute for that element, at which
+// point it inherits font-size:0 from the parent <td> (real MJML's own
+// anti-whitespace-gap wrapper) and the text collapses to zero height.
+// STRIP_EMPTY_ATTRS lists the style-bearing attributes this compiler
+// itself resolves leniently via mjGetAttr and that real MJML also has (or
+// will eventually have via <mj-all>) a sensible fallback for — NOT
+// structural/content attributes like alt/href/src/width, where an
+// intentionally empty value has real meaning (e.g. alt="" on a purely
+// decorative image) and must be left alone.
+var STRIP_EMPTY_STYLE_ATTRS = ["font-family","color","font-size","font-weight","font-style","line-height","letter-spacing","text-transform","text-decoration","background-color","border-color","border-width","border-radius"];
+var STRIP_EMPTY_STYLE_ATTRS_RE = new RegExp("\\s(?:"+STRIP_EMPTY_STYLE_ATTRS.join("|")+")=\"\"", "g");
+function stripEmptyStyleAttrs(source){
+  return String(source||"").replace(STRIP_EMPTY_STYLE_ATTRS_RE, "");
+}
+
 // Compiles one MJML fragment through the real `mjml` npm package via the
 // Vercel backend, instead of the local hand-rolled compiler. `source` must
 // already have {{brand.x}} tokens resolved (resolveBrandTokens) — same
 // contract as compileMjmlFragment. Wraps it in the minimal valid document
 // real MJML requires, then unwraps the response back down to a fragment.
 async function compileMjmlFragmentReal(source, fontBody){
+  source = stripEmptyStyleAttrs(source);
   // Real MJML defaults font-family to its OWN hardcoded "Ubuntu, Helvetica,
   // Arial, sans-serif" on any mj-text/mj-button that doesn't set it
   // explicitly — this compiler's local default is ctx.fontBody (the
