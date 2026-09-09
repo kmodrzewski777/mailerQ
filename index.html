@@ -2281,7 +2281,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.25.2";
+var APP_VERSION = "3.25.3";
 var APP_UPDATED = "2026-09-09";
 
 
@@ -2297,7 +2297,7 @@ var BRANDS = {
     radius:"4px", cardBorder:false,
     fontBody:"Arial, 'Helvetica Neue', Helvetica, sans-serif", fontHeading:"Arial, 'Helvetica Neue', Helvetica, sans-serif", fontMono:"'Courier New', monospace", headingWeight:"700",
     h1Size:32, h2Size:24, h3Size:20, h4Size:16, bodySize:16,
-    bodyRadius:"0px", componentGap:"24px", contentPadding:"40px", boxPadding:"0px", logoWidth:"140px", logoAlt:"Neutralny (white-label)", btnPrimarySize:15, btnPrimaryPadding:"14px 32px",
+    bodyRadius:"0px", componentGap:"24px", contentPadding:"40px", contentPaddingVertical:"0px", boxPadding:"0px", logoWidth:"140px", logoAlt:"Neutralny (white-label)", btnPrimarySize:15, btnPrimaryPadding:"14px 32px",
     inferred:false, custom:false
   },
   zeronest: {
@@ -2312,7 +2312,7 @@ var BRANDS = {
     fontBody:"'DM Sans', Arial, sans-serif", fontHeading:"'DM Sans', Arial, sans-serif", fontMono:"'DM Sans', Arial, sans-serif", headingWeight:"700",
     h1Size:32, h2Size:24, h3Size:20, h4Size:16, bodySize:18,
     footerBg:"#191c1e", footerText:"#ffffff",
-    bodyRadius:"12px", componentGap:"24px", contentPadding:"40px", boxPadding:"0px", logoWidth:"140px", logoAlt:"Zeronest", btnPrimarySize:15, btnPrimaryPadding:"14px 32px",
+    bodyRadius:"12px", componentGap:"24px", contentPadding:"40px", contentPaddingVertical:"0px", boxPadding:"0px", logoWidth:"140px", logoAlt:"Zeronest", btnPrimarySize:15, btnPrimaryPadding:"14px 32px",
     inferred:false, custom:false
   },
   berty: {
@@ -2326,7 +2326,7 @@ var BRANDS = {
     radius:"4px", cardBorder:true,
     fontBody:"'Poppins', Arial, sans-serif", fontHeading:"'Poppins', Arial, sans-serif", fontMono:"'IBM Plex Mono', 'Courier New', monospace", headingWeight:"600",
     h1Size:28, h2Size:22, h3Size:18, h4Size:15, bodySize:16,
-    bodyRadius:"16px", componentGap:"24px", contentPadding:"40px", boxPadding:"0px", logoWidth:"140px", logoAlt:"Berty", btnPrimarySize:15, btnPrimaryPadding:"14px 32px",
+    bodyRadius:"16px", componentGap:"24px", contentPadding:"40px", contentPaddingVertical:"0px", boxPadding:"0px", logoWidth:"140px", logoAlt:"Berty", btnPrimarySize:15, btnPrimaryPadding:"14px 32px",
     inferred:false, custom:false
   },
   pstryk: {
@@ -2340,7 +2340,7 @@ var BRANDS = {
     radius:"8px", cardBorder:false,
     fontBody:"Helvetica, Arial, sans-serif", fontHeading:"Helvetica, Arial, sans-serif", fontMono:"'Courier New', monospace", headingWeight:"700",
     h1Size:28, h2Size:22, h3Size:18, h4Size:15, bodySize:16,
-    bodyRadius:"10px", componentGap:"24px", contentPadding:"40px", boxPadding:"0px", logoWidth:"120px", logoAlt:"Pstryk", btnPrimarySize:15, btnPrimaryPadding:"14px 32px",
+    bodyRadius:"10px", componentGap:"24px", contentPadding:"40px", contentPaddingVertical:"0px", boxPadding:"0px", logoWidth:"120px", logoAlt:"Pstryk", btnPrimarySize:15, btnPrimaryPadding:"14px 32px",
     inferred:true, custom:false
   },
   foodify: {
@@ -2354,7 +2354,7 @@ var BRANDS = {
     radius:"24px", cardBorder:false,
     fontBody:"Helvetica, Arial, sans-serif", fontHeading:"Helvetica, Arial, sans-serif", fontMono:"'Courier New', monospace", headingWeight:"600",
     h1Size:32, h2Size:22, h3Size:18, h4Size:15, bodySize:16,
-    bodyRadius:"20px", componentGap:"24px", contentPadding:"40px", boxPadding:"0px", logoWidth:"140px", logoAlt:"Foodify", btnPrimarySize:15, btnPrimaryPadding:"14px 32px",
+    bodyRadius:"20px", componentGap:"24px", contentPadding:"40px", contentPaddingVertical:"0px", boxPadding:"0px", logoWidth:"140px", logoAlt:"Foodify", btnPrimarySize:15, btnPrimaryPadding:"14px 32px",
     inferred:false, custom:false
   },
 
@@ -2371,7 +2371,7 @@ var BRANDS = {
     radius:"0px", cardBorder:false,
     fontBody:"Helvetica, Arial, sans-serif", fontHeading:"Helvetica, Arial, sans-serif", fontMono:"'Courier New', monospace", headingWeight:"700",
     h1Size:28, h2Size:24, h3Size:20, h4Size:18, bodySize:16,
-    bodyRadius:"0px", componentGap:"24px", contentPadding:"20px", boxPadding:"0px", logoWidth:"250px", logoAlt:"e-Kwiaty", btnPrimarySize:16, btnPrimaryPadding:"20px 90px",
+    bodyRadius:"0px", componentGap:"24px", contentPadding:"20px", contentPaddingVertical:"0px", boxPadding:"0px", logoWidth:"250px", logoAlt:"e-Kwiaty", btnPrimarySize:16, btnPrimaryPadding:"20px 90px",
     inferred:false, custom:false
   }
 };
@@ -3281,6 +3281,13 @@ var RESPONSIVE_STYLE_MAP = [
   // long comment in assembleEmailShell for the history of what this field
   // used to do.
   {cssClass:"mj-canvas-bg", prop:"padding", key:"boxPadding", unit:""},
+  // contentPaddingVertical ("Content padding (top/bottom)") pads
+  // .mj-body-content, top+bottom ONLY — two separate props (not the
+  // shorthand "padding") so the mobile override never touches left/right
+  // (that stays pinned at 0 always, see assembleEmailShell — each
+  // section's own {{brand.contentPadding}} already owns horizontal).
+  {cssClass:"mj-body-content", prop:"padding-top", key:"contentPaddingVertical", unit:""},
+  {cssClass:"mj-body-content", prop:"padding-bottom", key:"contentPaddingVertical", unit:""},
   {cssClass:"mj-logo", prop:"max-width", key:"logoWidth", unit:""}
 ];
 function buildResponsiveMediaRules(b){
@@ -3491,6 +3498,15 @@ function assembleEmailShell(compiled, b, opts, extraHeadStyle){
   var bodyBoxBg = opts.noChrome ? PREVIEW_CANVAS_BG : b.bg;
   var bodyRadius = opts.noChrome ? "0px" : (b.bodyRadius || "0px");
   var boxPadding = opts.noChrome ? "0px" : (b.boxPadding || "0px");
+  // Sibling of contentPadding ("Section side padding", horizontal, applied
+  // per mj-section via {{brand.contentPadding}} baked into every
+  // component). This one instead pads .mj-body-content ONCE — top+bottom
+  // only, left/right pinned at 0 so it never doubles up with each
+  // section's own side padding. User: "musisz jeszcze dodać ten content
+  // padding inny oprócz section side padding... jak góra/dół ma wynosić
+  // padding i to ma siedzieć w boxie" — inside the white box (unlike
+  // boxPadding/"Letterbox margin", which is outside it, around the box).
+  var contentPaddingVertical = opts.noChrome ? "0px" : (b.contentPaddingVertical || "0px");
   var mso = parseInt(b.mailWidth,10)||600;
   var responsiveRules = buildResponsiveMediaRules(b);
 
@@ -3592,7 +3608,7 @@ topBarHtml+
 headerHtml+"\n"+
 
 
-'<div class="mj-body-content">\n'+
+'<div class="mj-body-content" style="padding:'+contentPaddingVertical+' 0">\n'+
 bodyHtml+
 "\n</div>\n"+
 "\n</div>\n"+
@@ -9328,6 +9344,21 @@ var BRAND_FIELDS = [
   { title:"Body", fields:[
     {key:"bg", label:"Background color", type:"color"},
     {key:"contentPadding", label:"Section side padding", type:"text", unitPx:true, responsive:true},
+    // Sibling of "Section side padding", NOT the same mechanism — user:
+    // "musisz jeszcze dodać ten content padding inny oprócz section side
+    // padding, to niech zostanie ale musisz dodać jeszcze drugi który
+    // będzie mówił jak góra/dół ma wynosić padding i to ma siedzieć w
+    // boxie." contentPadding (side padding) is applied PER mj-section
+    // (baked into all 177 components' own MJML via {{brand.contentPadding}}
+    // — retrofitting 177 components with individually-different, deliberate
+    // vertical rhythms into one shared vertical value would flatten that
+    // design language, not fix anything). This one instead pads
+    // .mj-body-content ONCE, top+bottom only, left/right pinned at 0 (never
+    // doubles up with each section's own side padding) — see
+    // assembleEmailShell. "siedzieć w boxie" = inside the white box, not
+    // the letterbox (that's boxPadding/"Letterbox margin", a completely
+    // different, already-settled field — see its own long comment history).
+    {key:"contentPaddingVertical", label:"Content padding (top/bottom)", type:"text", unitPx:true, responsive:true},
     {key:"bodyRadius", label:"Corner radius", type:"text", unitPx:true}
   ]},
 
@@ -9462,7 +9493,7 @@ function defaultBrandDraft(){
     radius:"6px", cardBorder:false,
     fontBody:"Arial, Helvetica, sans-serif", fontHeading:"Arial, Helvetica, sans-serif", fontMono:"'Courier New', monospace", headingWeight:"700",
     h1Size:28, h2Size:22, h3Size:18, h4Size:15, bodySize:16,
-    bodyRadius:"0px", componentGap:"24px", contentPadding:"40px", boxPadding:"0px", logoWidth:"140px", logoAlt:"", crmLogoUrl:"", btnPrimarySize:15, btnPrimaryPadding:"14px 32px",
+    bodyRadius:"0px", componentGap:"24px", contentPadding:"40px", contentPaddingVertical:"0px", boxPadding:"0px", logoWidth:"140px", logoAlt:"", crmLogoUrl:"", btnPrimarySize:15, btnPrimaryPadding:"14px 32px",
     inferred:false, custom:true
   };
   withDerivedStyleDefaults(d);
