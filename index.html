@@ -881,9 +881,11 @@
   #crmSettingsModal.settings-modal-wide{max-width:860px}
   .user-manage-table{overflow-x:auto}
   .user-manage-head,.user-manage-row{
-    display:grid; grid-template-columns:30px 1fr 1fr 1.6fr 96px 60px 60px 96px;
-    gap:8px; align-items:center; min-width:760px;
+    display:grid; grid-template-columns:30px 1fr 1fr 1.6fr 96px 78px 60px 60px 96px;
+    gap:8px; align-items:center; min-width:820px;
   }
+  .user-manage-checkbox{display:flex; align-items:center; justify-content:center; cursor:pointer}
+  .user-manage-checkbox input[disabled]{cursor:not-allowed}
   .user-manage-head{padding:0 4px 6px; font-size:10.5px; font-weight:500; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-faint); border-bottom:1px solid var(--line-strong)}
   .user-manage-row{padding:7px 4px; border-bottom:1px solid var(--line)}
   .user-manage-row:last-child{border-bottom:0}
@@ -2279,8 +2281,8 @@
 "use strict";
 
 
-var APP_VERSION = "3.24.7";
-var APP_UPDATED = "2026-09-08";
+var APP_VERSION = "3.25.0";
+var APP_UPDATED = "2026-09-09";
 
 
 var BRANDS = {
@@ -7742,6 +7744,16 @@ function isAdminUser(){
   if(MQ_CURRENT_USER.role==="admin") return true;
   return !!(MQ_CURRENT_USER.email && MQ_CURRENT_USER.email.toLowerCase()===ADMIN_EMAIL);
 }
+// Brand Kit editing used to be strictly admin-only ("Only an admin can edit
+// the Brand Kit"). User: "Dodaj opcję w edycji userów abym mógł wybranej
+// osobie włączyć czy ma dostęp do edycji Brand Kitów" — wants to grant this
+// ONE permission to a specific member without making them a full admin.
+// Admins keep it implicitly (unchanged); a member additionally gets it only
+// when their own per-user canEditBrandKit flag is set (Site Settings ->
+// Users, admin-only to toggle — see usersManagerRowHtml/toggleUserBrandKitAccess).
+function canEditBrandKits(){
+  return isAdminUser() || !!(MQ_CURRENT_USER && MQ_CURRENT_USER.canEditBrandKit);
+}
 function isRecordOwner(record){
   return !!(MQ_CURRENT_USER && record && record.createdBy && record.createdBy.uid===MQ_CURRENT_USER.uid);
 }
@@ -9430,7 +9442,7 @@ var brandForm = { mode:"new", editingKey:null, draft:null, device:"desktop" };
 
 
 function openBrandForm(mode, sourceKey){
-  if(!isAdminUser()){ showToast("Only an admin can edit the Brand Kit", "error"); return; }
+  if(!canEditBrandKits()){ showToast("You don't have access to edit the Brand Kit — ask an admin to grant it", "error"); return; }
   brandForm.device = "desktop";
   if(mode==="new"){
     brandForm.mode = "new"; brandForm.editingKey = null; brandForm.draft = defaultBrandDraft();
@@ -10023,7 +10035,7 @@ function renderSwatches(){
   // nic." The pencil icon per row and the "+ Add new" row simply don't
   // render for anyone else — openBrandForm() itself also refuses non-admins
   // (defense in depth: URL-driven opens, not just this menu, funnel through it).
-  var canEditBrands = isAdminUser();
+  var canEditBrands = canEditBrandKits();
   menu.innerHTML = BRAND_ORDER.slice().sort(function(a,b){ return BRANDS[a].short.localeCompare(BRANDS[b].short); }).map(function(key){
     var b = BRANDS[key];
     var label = b.short + (b.custom ? " (custom)" : "");
@@ -10095,6 +10107,14 @@ function usersManagerRowHtml(u){
   var nameParts = (u.displayName||"").trim().split(/\s+/).filter(Boolean);
   var firstVal = u.firstName || nameParts[0] || "";
   var lastVal = u.lastName || nameParts.slice(1).join(" ") || "";
+  // Brand Kit access: admins always have it (via isAdminUser() in
+  // canEditBrandKits()), so the checkbox is shown checked+disabled for them —
+  // toggling it wouldn't change anything real and would just be confusing.
+  // For a member it reflects (and edits) their own canEditBrandKit flag.
+  var isAdminRole = u.role==="admin";
+  var brandKitChecked = isAdminRole || !!u.canEditBrandKit;
+  var brandKitDisabled = isAdminRole || isSelf;
+  var brandKitTitle = isAdminRole ? "Admins always have Brand Kit access" : "Let this person edit Brand Kits";
   return '<div class="user-manage-row'+(u.disabled?' is-disabled':'')+'" data-user-row="'+u.uid+'">'+
     '<span>'+avatarHtml(u, 26)+'</span>'+
     '<input type="text" class="user-manage-name-input" data-user-first="'+u.uid+'" value="'+esc(firstVal)+'" placeholder="First name">'+
@@ -10104,6 +10124,7 @@ function usersManagerRowHtml(u){
       '<option value="member"'+(u.role==="member"?' selected':'')+'>Member</option>'+
       '<option value="admin"'+(u.role==="admin"?' selected':'')+'>Admin</option>'+
     '</select>'+
+    '<label class="user-manage-checkbox" title="'+esc(brandKitTitle)+'"><input type="checkbox" data-user-brandkit="'+u.uid+'"'+(brandKitChecked?' checked':'')+(brandKitDisabled?' disabled':'')+'></label>'+
     '<span class="user-manage-count" title="Components created">'+compCount+'</span>'+
     '<span class="user-manage-count" title="E-mails created">'+emailCount+'</span>'+
     '<button type="button" class="btn ghost small" data-user-toggle-disabled="'+u.uid+'"'+selfLock+'>'+(u.disabled?'Enable':'Disable')+'</button>'+
@@ -10119,7 +10140,7 @@ async function renderUsersManager(){
   catch(e){ box.innerHTML = '<p class="drawer-empty" style="padding:14px 0">Couldn’t load the user list.</p>'; return; }
   users.sort(function(a,b){ return (a.email||"").localeCompare(b.email||""); });
   usersManagerCache = users;
-  var head = '<div class="user-manage-head"><span></span><span>First name</span><span>Last name</span><span>Email</span><span>Role</span><span>Comp.</span><span>Emails</span><span>Access</span></div>';
+  var head = '<div class="user-manage-head"><span></span><span>First name</span><span>Last name</span><span>Email</span><span>Role</span><span>Brand Kit</span><span>Comp.</span><span>Emails</span><span>Access</span></div>';
   box.innerHTML = head + users.map(usersManagerRowHtml).join("");
   box.querySelectorAll("[data-user-first]").forEach(function(el){
     el.addEventListener("blur", function(){ saveUserNameField(el.getAttribute("data-user-first"), "firstName", el.value); });
@@ -10129,6 +10150,9 @@ async function renderUsersManager(){
   });
   box.querySelectorAll("[data-user-role]").forEach(function(el){
     el.addEventListener("change", function(){ setUserRole(el.getAttribute("data-user-role"), el.value); });
+  });
+  box.querySelectorAll("[data-user-brandkit]").forEach(function(el){
+    el.addEventListener("change", function(){ toggleUserBrandKitAccess(el.getAttribute("data-user-brandkit"), el.checked); });
   });
   box.querySelectorAll("[data-user-toggle-disabled]").forEach(function(btn){
     btn.addEventListener("click", function(){ toggleUserDisabled(btn.getAttribute("data-user-toggle-disabled")); });
@@ -10152,8 +10176,22 @@ function saveUserNameField(uid, field, value){
 function setUserRole(uid, role){
   if(!window.MQUsers) return;
   window.MQUsers.setRole(uid, role)
-    .then(function(){ var u = findManagedUser(uid); if(u) u.role = role; showToast("Role updated"); })
+    .then(function(){
+      var u = findManagedUser(uid); if(u) u.role = role;
+      showToast("Role updated");
+      // Re-render: the Brand Kit checkbox's checked/disabled state depends
+      // on role (admins always have access), so it needs to reflect this
+      // change immediately, not just after the next full open.
+      renderUsersManager();
+    })
     .catch(function(){ showToast("Couldn't update role — check your connection", "error"); renderUsersManager(); });
+}
+function toggleUserBrandKitAccess(uid, allowed){
+  var u = findManagedUser(uid);
+  if(!u || !window.MQUsers) return;
+  window.MQUsers.setBrandKitAccess(uid, allowed)
+    .then(function(){ u.canEditBrandKit = allowed; showToast(allowed ? "Brand Kit access granted" : "Brand Kit access revoked"); })
+    .catch(function(){ showToast("Couldn't update Brand Kit access — check your connection", "error"); renderUsersManager(); });
 }
 function toggleUserDisabled(uid){
   var u = findManagedUser(uid);
@@ -16922,7 +16960,7 @@ byId("profileFormSave").addEventListener("click", function(){
 
 window.MQBoot = async function(user){
   hideAuthGate();
-  MQ_CURRENT_USER = { uid:user.uid, displayName:user.displayName||null, photoURL:user.photoURL||null, email:user.email, role:"member" };
+  MQ_CURRENT_USER = { uid:user.uid, displayName:user.displayName||null, photoURL:user.photoURL||null, email:user.email, role:"member", canEditBrandKit:false };
 
 
   if(window.MQUsers){
@@ -16930,6 +16968,7 @@ window.MQBoot = async function(user){
       var directory = await window.MQUsers.upsertSelf();
       if(directory){
         MQ_CURRENT_USER.role = directory.role || "member";
+        MQ_CURRENT_USER.canEditBrandKit = !!directory.canEditBrandKit;
         if(directory.anthropicApiKey) MQ_CURRENT_USER.anthropicApiKey = directory.anthropicApiKey;
         if(directory.disabled){
           if(window.MQAuth) await window.MQAuth.logout();
@@ -17208,6 +17247,7 @@ window.MQUsers = {
   },
   setRole(uid, role){ return updateDoc(usersDocRef(uid), { role: role, updatedAt: Date.now() }); },
   setDisabled(uid, disabled){ return updateDoc(usersDocRef(uid), { disabled: disabled, updatedAt: Date.now() }); },
+  setBrandKitAccess(uid, allowed){ return updateDoc(usersDocRef(uid), { canEditBrandKit: allowed, updatedAt: Date.now() }); },
   updateProfileFields(uid, fields){
     const clean = Object.assign({}, fields, { updatedAt: Date.now() });
     return updateDoc(usersDocRef(uid), clean);
