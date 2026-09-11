@@ -2281,7 +2281,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.26.0";
+var APP_VERSION = "3.27.0";
 var APP_UPDATED = "2026-09-11";
 
 
@@ -3259,6 +3259,17 @@ function resolveBrandTokens(mjml, b){
   });
 }
 
+// A special Mail Stack item — id "gap-remover" (see COMPONENTS below) —
+// whose code() returns THIS exact string instead of real MJML. It never
+// reaches any compiler: stitchComponentCodes intercepts it, using its
+// PRESENCE (not its content) as an instruction to skip the componentGap
+// spacer that would otherwise go between its neighbors, then drops it
+// entirely. Truthy/non-empty on purpose so it survives every existing
+// `.filter(code => code!=null)` at the various call sites unchanged — no
+// call site needed to change to support this, only stitchComponentCodes
+// itself.
+var GAP_REMOVER_ID = "gap-remover";
+var GAP_REMOVER_TOKEN = "__MAXIMUS_GAP_REMOVER__";
 function stitchComponentCodes(codes, gap){
   // Used to zero out each non-last component's own trailing bottom padding
   // via stripTrailingComponentGap (assuming the componentGap spacer below
@@ -3271,7 +3282,20 @@ function stitchComponentCodes(codes, gap){
   // exactly as authored, regardless of its position in the stack.
   var list = codes.filter(function(c){ return c; });
   var spacer = '\n\n<mj-spacer height="'+(gap||"24px")+'" css-class="mj-gap"></mj-spacer>\n\n';
-  return list.join(spacer);
+  // User: "Gap Remover" — dropped between two components, means NO
+  // componentGap spacer at that one position, everywhere else unchanged.
+  // It contributes no content of its own (silently dropped, never sent to
+  // either compiler) — only its PRESENCE in `list`, checked one slot back,
+  // decides whether the spacer before the next real component is skipped.
+  // Handles being first/last (no spacer would exist there anyway — no-op),
+  // and multiple consecutive removers (still just skips the one spacer).
+  var parts = [];
+  list.forEach(function(c, i){
+    if(c===GAP_REMOVER_TOKEN) return;
+    if(parts.length>0 && list[i-1]!==GAP_REMOVER_TOKEN) parts.push(spacer);
+    parts.push(c);
+  });
+  return parts.join("");
 }
 
 var GOOGLE_FONTS_ALLOWLIST = {
@@ -5307,6 +5331,30 @@ function spacerPreview(b, px){
     preview:function(b){ return spacerPreview(b, px); },
     code:function(b){ return '<mj-spacer height="'+px+'px"></mj-spacer>'; }
   });
+});
+
+// User: "specjalny komponent 'Gap Remover'... jak go wrzucę na Mail Stacka
+// to w tym miejscu — między poprzednim a następnym komponentem — ma NIE
+// WSTAWIAĆ SIĘ component gap." Unlike the fixed-height spacers above (which
+// ADD extra space on top of the automatic Brand Kit gap), this CANCELS that
+// one automatic gap at its own position — it isn't email content at all,
+// code() returns GAP_REMOVER_TOKEN (see stitchComponentCodes), which never
+// reaches either compiler. "ma mieć czerwony kolor fontu na Mail Stacku" —
+// see the isGapRemover special-case in renderList().
+function gapRemoverPreview(b){
+  return frame(b,
+    '<div style="display:flex;flex-direction:column;align-items:center;width:100%">'+
+      '<div style="width:70%;height:10px;background:'+b.border+'"></div>'+
+      '<div style="font-size:10px;font-weight:600;line-height:1;color:#dc2626;padding:2px 0">no gap</div>'+
+      '<div style="width:70%;height:10px;background:'+b.border+'"></div>'+
+    '</div>'
+  );
+}
+COMPONENTS.push({
+  id:GAP_REMOVER_ID, category:"spacing", source:"MAXIMUS",
+  label:"Gap Remover", desc:"Cancels the automatic Brand Kit gap at this one position in the Mail Stack — removes the space between the component right before it and the one right after it. Adds no content or spacing of its own.",
+  preview:function(b){ return gapRemoverPreview(b); },
+  code:function(b){ return GAP_REMOVER_TOKEN; }
 });
 
 
@@ -15346,6 +15394,7 @@ function openMailPreview(){
 
 
   var itemMjmlList = state.list.map(function(item){
+    if(item.componentId===GAP_REMOVER_ID) return null; // contributes nothing to bodyMjml (see stitchComponentCodes) — no uid to attach an inline delete button to
     var code = resolveItemCodeEditableForPreview(item, b);
     return code==null ? null : { uid: item.uid, mjml: code };
   }).filter(function(it){ return it!=null; });
@@ -15937,6 +15986,11 @@ function renderList(){
       return;
     }
     var edited = item.code ? ' title="content edited" style="color:var(--accent-strong)"' : "";
+    // User: "Gap Remover ma mieć czerwony kolor fontu na Mail Stacku" — a
+    // visual flag on the list row itself, so it's obvious at a glance which
+    // slot in the stack is silently cancelling the gap next to it (easy to
+    // forget it's there otherwise, since it renders nothing in the email).
+    if(item.componentId===GAP_REMOVER_ID) edited = ' title="'+esc(c.desc)+'" style="color:#dc2626;font-weight:600"';
 
 
     var variant = item.variantId ? (c.variants||[]).filter(function(v){ return v.id===item.variantId; })[0] : null;
