@@ -2281,7 +2281,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.27.0";
+var APP_VERSION = "3.27.1";
 var APP_UPDATED = "2026-09-11";
 
 
@@ -3571,13 +3571,18 @@ function compileEmailHtml(bodyMjml, b, opts){
   var bodyHtml;
   if(opts.itemMjmlList){
     var gapHtml = compileMjmlFragment('<mj-spacer height="'+(b.componentGap||"24px")+'" css-class="mj-gap"></mj-spacer>', { fontBody: b.fontBody });
-    bodyHtml = opts.itemMjmlList.map(function(it, i){
-      // No more stripTrailingComponentGap here either (removed globally,
-      // see stitchComponentCodes) — every item keeps its own padding as
-      // authored, same rule in both rendering paths.
+    // No more stripTrailingComponentGap here either (removed globally, see
+    // stitchComponentCodes) — every item keeps its own padding as authored,
+    // same rule in both rendering paths. Can't use a plain .join(gapHtml)
+    // any more though: a Gap Remover item sets noGapAfter on the item
+    // right before it (see openMailPreview), and that one specific gap
+    // must be omitted here too, not just in the compiled/exported output.
+    bodyHtml = "";
+    opts.itemMjmlList.forEach(function(it, i){
       var compiled = compileMjmlFragment(resolveBrandTokens(it.mjml, b), { fontBody: b.fontBody });
-      return '<div class="mf-item-wrap" data-mf-item-uid="'+it.uid+'">'+compiled+'</div>';
-    }).join(gapHtml);
+      if(i>0 && !opts.itemMjmlList[i-1].noGapAfter) bodyHtml += gapHtml;
+      bodyHtml += '<div class="mf-item-wrap" data-mf-item-uid="'+it.uid+'">'+compiled+'</div>';
+    });
   } else {
     bodyHtml = compileMjmlFragment(resolveBrandTokens(bodyMjml, b), { fontBody: b.fontBody });
   }
@@ -15393,11 +15398,25 @@ function openMailPreview(){
   var bodyMjml = stitchComponentCodes(codes, b.componentGap);
 
 
-  var itemMjmlList = state.list.map(function(item){
-    if(item.componentId===GAP_REMOVER_ID) return null; // contributes nothing to bodyMjml (see stitchComponentCodes) — no uid to attach an inline delete button to
+  // Gap Remover has no uid/mjml of its own (see stitchComponentCodes), so it
+  // never becomes an entry here — but the editable per-item Live Preview
+  // (unlike bodyMjml above) doesn't go through stitchComponentCodes, it
+  // joins itemMjmlList itself in compileEmailHtml. Without this, a Gap
+  // Remover would simply vanish from the list with no trace, and the join
+  // would still insert a gap between its former neighbors — the gap only
+  // disappeared after compiling, never in Live Preview. Mark the PREVIOUS
+  // real item's noGapAfter instead, same position-based logic as
+  // stitchComponentCodes, so compileEmailHtml can suppress that one gap too.
+  var itemMjmlList = [];
+  state.list.forEach(function(item){
+    if(item.componentId===GAP_REMOVER_ID){
+      if(itemMjmlList.length>0) itemMjmlList[itemMjmlList.length-1].noGapAfter = true;
+      return;
+    }
     var code = resolveItemCodeEditableForPreview(item, b);
-    return code==null ? null : { uid: item.uid, mjml: code };
-  }).filter(function(it){ return it!=null; });
+    if(code==null) return;
+    itemMjmlList.push({ uid: item.uid, mjml: code });
+  });
   mountMjmlIframe("previewIframeWrap", bodyMjml, b, { editable:true, itemMjmlList: itemMjmlList, headerVariant: state.headerVariant, footerVariant: state.footerVariant, darkPreview: previewTheme==="dark", showTopBar: previewShowTopBar });
   resetPreviewCodeToggle();
   var addBtn = byId("previewAddBtn");
