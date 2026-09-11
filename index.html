@@ -260,6 +260,14 @@
   .dock-head h3{font-size:15px; font-weight:500; margin:0}
   .dock-body{flex:none; padding:14px 18px}
   .dock-foot{padding:14px 18px; flex:none}
+  .dock-select-bar{display:flex; align-items:center; gap:8px; padding:0 18px 12px; flex:none}
+  .dock-select-bar span{font-size:12.5px; color:var(--ink-muted); margin-right:auto}
+  .li-select{width:16px; height:16px; margin:0; flex:none; accent-color:var(--accent-strong)}
+  .list-item-wrapper{flex-direction:column; align-items:stretch; gap:6px}
+  .list-item-wrapper-head{display:flex; align-items:center; gap:8px}
+  .list-item-wrapper-swatch{width:16px; height:16px; border-radius:4px; border:1px solid var(--line); flex:none}
+  .list-item-wrapper-children{display:flex; flex-direction:column; gap:4px; padding-left:24px; border-left:2px solid var(--line); margin-left:6px}
+  .list-item-wrapper-child{font-size:12px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .dock-scrim{display:none}
 
   .dock-pill{
@@ -615,6 +623,7 @@
   .li-actions{display:flex; gap:3px; flex:none}
 
   .icon-btn{width:29px; height:29px; border:1px solid var(--line); background:var(--surface); border-radius:5px; color:var(--ink-muted); font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center}
+  .icon-btn.active{background:var(--accent-strong); border-color:var(--accent-strong); color:#fff}
 
   .icon-btn-field{width:29px; height:auto; align-self:stretch}
   .icon-btn:hover{border-color:var(--line-strong); color:var(--ink)}
@@ -1430,11 +1439,17 @@
     <h3>Mail Stack</h3>
     <span class="drawer-count" id="listCount">(0)</span>
     <span class="li-actions" style="margin-left:auto">
+      <button class="icon-btn" id="selectModeBtn" type="button" title="Select multiple items to wrap them in a shared background/padding section" aria-label="Select items to wrap in a section"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="6" height="6" rx="1"></rect><path d="M4.5 7l1 1 2-2"></path><line x1="12" y1="7" x2="21" y2="7"></line><rect x="3" y="14" width="6" height="6" rx="1"></rect><line x1="12" y1="17" x2="21" y2="17"></line></svg></button>
       <button class="icon-btn" id="refreshAllBtn" type="button" style="display:none" title="Syncs every item with the latest catalog version. Filled-in content stays." aria-label="Refresh whole list from catalog"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg></button>
       <button class="icon-btn" id="clearListBtn" type="button" disabled title="Clear Mail Stack" aria-label="Clear Mail Stack"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M292.31-140q-29.92 0-51.12-21.19Q220-182.39 220-212.31V-720h-40v-60h180v-35.38h240V-780h180v60h-40v507.69Q740-182 719-161q-21 21-51.31 21H292.31ZM680-720H280v507.69q0 5.39 3.46 8.85t8.85 3.46h375.38q4.62 0 8.46-3.85 3.85-3.84 3.85-8.46V-720ZM376.16-280h59.99v-360h-59.99v360Zm147.69 0h59.99v-360h-59.99v360ZM280-720v520-520Z"/></svg></button>
       <button class="icon-btn" id="saveEmailBtn" type="button" disabled title="Save as e-mail" aria-label="Save as e-mail"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M820-671.54v459.23Q820-182 799-161q-21 21-51.31 21H212.31Q182-140 161-161q-21-21-21-51.31v-535.38Q140-778 161-799q21-21 51.31-21h459.23L820-671.54ZM760-646 646-760H212.31q-5.39 0-8.85 3.46t-3.46 8.85v535.38q0 5.39 3.46 8.85t8.85 3.46h535.38q5.39 0 8.85-3.46t3.46-8.85V-646ZM550.77-298.46Q580-327.69 580-369.23q0-41.54-29.23-70.77-29.23-29.23-70.77-29.23-41.54 0-70.77 29.23Q380-410.77 380-369.23q0 41.54 29.23 70.77 29.23 29.23 70.77 29.23 41.54 0 70.77-29.23ZM255.39-564.62h328.45v-139.99H255.39v139.99ZM200-646v446-560 114Z"/></svg></button>
       <button class="modal-close" id="dockClose" type="button" aria-label="Close Mail Stack"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
     </span>
+  </div>
+  <div class="dock-select-bar" id="dockSelectBar" style="display:none">
+    <span id="dockSelectCount">0 selected</span>
+    <button class="btn small" id="wrapSelectedBtn" type="button" disabled title="Select 2 or more adjacent items to wrap them together">Wrap in section</button>
+    <button class="btn ghost small" id="cancelSelectBtn" type="button">Cancel</button>
   </div>
   <div class="dock-body" id="listBody"></div>
   <div class="dock-foot">
@@ -1570,6 +1585,42 @@
       <div class="bf-actions">
         <button class="btn ghost small" type="button" id="saveEmailFormCancel">Cancel</button>
         <button class="btn small" type="button" id="saveEmailFormSave">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="wrapSectionFormOverlay" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head">
+      <h3 id="wrapSectionFormTitle">Wrap in section</h3>
+      <button class="modal-close" id="wrapSectionFormClose" aria-label="Close"><svg width="18" height="18" viewBox="0 -960 960 960" fill="currentColor"><path d="M256-213.85 213.85-256l224-224-224-224L256-746.15l224 224 224-224L746.15-704l-224 224 224 224L704-213.85l-224-224-224 224Z"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <p id="wrapSectionFormDesc" style="font-size:13px; color:var(--ink-muted); margin:0 0 14px">These items will be grouped under one shared background and top/bottom padding — no need to build a combined component by hand.</p>
+      <div class="brand-form">
+        <div class="bf-group">
+          <div class="bf-row">
+            <div class="bf-field">
+              <label for="wrapSectionBg">Background color (optional)</label>
+              <input type="text" id="wrapSectionBg" placeholder="e.g. #f7f7f5 or {{brand.surface}}">
+            </div>
+          </div>
+          <div class="bf-row">
+            <div class="bf-field">
+              <label for="wrapSectionPadTop">Padding top</label>
+              <input type="text" id="wrapSectionPadTop" placeholder="24px">
+            </div>
+            <div class="bf-field">
+              <label for="wrapSectionPadBottom">Padding bottom</label>
+              <input type="text" id="wrapSectionPadBottom" placeholder="24px">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bf-actions">
+        <button class="btn ghost small" type="button" id="wrapSectionFormCancel">Cancel</button>
+        <button class="btn small" type="button" id="wrapSectionFormSave">Wrap</button>
       </div>
     </div>
   </div>
@@ -2281,7 +2332,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.27.1";
+var APP_VERSION = "3.28.0";
 var APP_UPDATED = "2026-09-11";
 
 
@@ -3203,10 +3254,33 @@ function mjCompileSection(el, ctx){
   var tdClassAttr = cssClass ? ' class="'+cssClass+'"' : "";
   return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"'+bgAttr+'><tr><td'+tdClassAttr+' style="'+tdStyle+'">'+inner+"</td></tr></table>";
 }
+// <mj-wrapper> — real MJML's own primitive for grouping several <mj-section>
+// elements under one shared background/padding (used by "Wrap in section" —
+// selecting several Mail Stack items and wrapping them together). The real
+// MJML backend already understands mj-wrapper natively, no backend change
+// needed there — this is purely for Live Preview parity, same reasoning as
+// every other local-compiler addition this session. Kept deliberately
+// simpler than real MJML's own output (which nests each child section in
+// its own extra max-width div/table, confirmed against the real mjml
+// package) — this local compiler never gives individual sections that
+// wrapper either (it relies on the single shared .mj-body-box for width),
+// so mj-wrapper here is modeled the same way: one more div/table/td layer
+// around the already-compiled children, nothing more.
+function mjCompileWrapper(el, ctx){
+  var bg = mjGetAttr(el,"background-color","");
+  var padding = mjGetAttr(el,"padding","0px");
+  var cssClass = mjGetAttr(el,"css-class","");
+  var children = Array.prototype.slice.call(el.children);
+  var inner = children.map(function(c){ return mjCompileNode(c, ctx); }).join("\n");
+  var tdStyle = "padding:"+padding+";"+(bg?"background:"+bg+";":"");
+  var tdClassAttr = cssClass ? ' class="'+cssClass+'"' : "";
+  return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td'+tdClassAttr+' style="'+tdStyle+'">'+inner+"</td></tr></table>";
+}
 function mjCompileNode(el, ctx){
   switch(el.tagName.toLowerCase()){
     case "mj-raw-ph": return '<mj-raw-ph data-idx="'+el.getAttribute("data-idx")+'"></mj-raw-ph>';
     case "mj-section": return mjCompileSection(el, ctx);
+    case "mj-wrapper": return mjCompileWrapper(el, ctx);
     case "mj-text": return mjCompileText(el, ctx);
     case "mj-button": return mjCompileButton(el, ctx);
     case "mj-image": return mjCompileImage(el, ctx);
@@ -3270,6 +3344,15 @@ function resolveBrandTokens(mjml, b){
 // itself.
 var GAP_REMOVER_ID = "gap-remover";
 var GAP_REMOVER_TOKEN = "__MAXIMUS_GAP_REMOVER__";
+
+// A Mail Stack item can also be a "wrapper" — several ordinary items grouped
+// under one shared <mj-wrapper background-color=... padding=...>, created by
+// selecting 2+ adjacent items and choosing "Wrap in section" (see wrapForm*
+// functions and the li-select checkboxes in renderList). Shape:
+// { uid, type:WRAPPER_ITEM_TYPE, background, paddingTop, paddingBottom, children:[item, item, ...] }
+// — children are ordinary items (or, recursively, further wrappers), moved
+// OUT of the top-level state.list into this item's own children array.
+var WRAPPER_ITEM_TYPE = "wrapper";
 function stitchComponentCodes(codes, gap){
   // Used to zero out each non-last component's own trailing bottom padding
   // via stripTrailingComponentGap (assuming the componentGap spacer below
@@ -3293,6 +3376,32 @@ function stitchComponentCodes(codes, gap){
   list.forEach(function(c, i){
     if(c===GAP_REMOVER_TOKEN) return;
     if(parts.length>0 && list[i-1]!==GAP_REMOVER_TOKEN) parts.push(spacer);
+    parts.push(c);
+  });
+  return parts.join("");
+}
+
+// Same position-based Gap Remover logic as stitchComponentCodes above, but
+// for components joined INSIDE an <mj-wrapper> (see "Wrap in section" —
+// selecting several Mail Stack items and grouping them under one shared
+// background/padding). Real MJML only allows mj-section or mj-raw as a
+// DIRECT child of mj-wrapper — confirmed against the real mjml package,
+// mj-spacer is rejected there ("mj-spacer cannot be used inside mj-wrapper")
+// — so the gap between wrapped children can't reuse stitchComponentCodes'
+// own <mj-spacer> gap; it uses a plain <mj-raw> height div instead, which IS
+// a valid direct child of mj-wrapper (confirmed) and sits safely in the
+// wrapper's own content flow rather than being foster-parented the way a
+// <mj-raw> nested inside an <mj-column> would be (see the mj-raw/mj-column
+// gotcha elsewhere in this file) — this div is a sibling of mj-section, not
+// nested inside one.
+function stitchWrapperChildren(codes, gap){
+  var list = codes.filter(function(c){ return c; });
+  var gapPx = gap || "24px";
+  var gapRaw = '\n\n<mj-raw><div class="mj-gap" style="height:'+gapPx+';line-height:'+gapPx+';font-size:1px;">&nbsp;</div></mj-raw>\n\n';
+  var parts = [];
+  list.forEach(function(c, i){
+    if(c===GAP_REMOVER_TOKEN) return;
+    if(parts.length>0 && list[i-1]!==GAP_REMOVER_TOKEN) parts.push(gapRaw);
     parts.push(c);
   });
   return parts.join("");
@@ -7863,7 +7972,7 @@ var DM_TYPES = [
 var DM_ENTRIES = [];
 
 
-var state = { brand:"neutral", category:"all", section:"home", emailFlow:"all", list:[] ,
+var state = { brand:"neutral", category:"all", section:"home", emailFlow:"all", list:[], selectMode:false, selectedUids:[] ,
 
 
   flowCategory:"all",
@@ -8023,7 +8132,37 @@ function resolveItemBaseCode(item, b){
   }
   return c.code(b);
 }
+// Shared by resolveItemCode and resolveItemCodeEditableForPreview — a
+// wrapper item has no componentId/code/values of its own, it only has
+// children, each resolved through whichever of the two resolver functions
+// the caller itself is (passed in as resolveChildFn) so nested content stays
+// on the same editable-vs-plain code path as its parent.
+// Two small maintenance helpers so a wrapper's children stay consistent with
+// the rest of state.list instead of drifting into stale references — both
+// recurse into item.children the same way resolveWrapperCode does.
+function renameComponentIdInList(list, oldId, newId){
+  list.forEach(function(item){
+    if(item.type===WRAPPER_ITEM_TYPE){ renameComponentIdInList(item.children||[], oldId, newId); return; }
+    if(item.componentId===oldId) item.componentId = newId;
+  });
+}
+function removeComponentIdFromList(list, id){
+  return list.filter(function(item){ return item.componentId!==id; }).map(function(item){
+    if(item.type===WRAPPER_ITEM_TYPE) item.children = removeComponentIdFromList(item.children||[], id);
+    return item;
+  });
+}
+function resolveWrapperCode(item, b, resolveChildFn){
+  var childCodes = (item.children||[]).map(function(child){ return resolveChildFn(child, b); }).filter(function(c){ return c!=null; });
+  if(childCodes.length===0) return null;
+  var inner = stitchWrapperChildren(childCodes, b.componentGap);
+  var padTop = item.paddingTop || "0px";
+  var padBottom = item.paddingBottom || "0px";
+  var bgAttr = item.background ? ' background-color="'+item.background+'"' : "";
+  return '<mj-wrapper padding="'+padTop+' 0px '+padBottom+' 0px"'+bgAttr+'>\n'+inner+'\n</mj-wrapper>';
+}
 function resolveItemCode(item, b){
+  if(item.type===WRAPPER_ITEM_TYPE) return resolveWrapperCode(item, b, resolveItemCode);
   var raw = resolveItemBaseCode(item, b);
   if(raw==null) return null;
 
@@ -8800,6 +8939,7 @@ function applyValuesToCodeEditable(code, values, keyPrefix){
 }
 
 function resolveItemCodeEditableForPreview(item, b){
+  if(item.type===WRAPPER_ITEM_TYPE) return resolveWrapperCode(item, b, resolveItemCodeEditableForPreview);
   var raw = resolveItemBaseCode(item, b);
   if(raw==null) return null;
   var tokens = extractTokens(raw);
@@ -9148,7 +9288,7 @@ function commitEditMeta(){
   if(requestedId !== comp.id){
     var oldId = comp.id;
     comp.id = requestedId;
-    state.list.forEach(function(item){ if(item.componentId===oldId) item.componentId = requestedId; });
+    renameComponentIdInList(state.list, oldId, requestedId);
     READY_EMAILS.forEach(function(e){ e.componentIds = e.componentIds.map(function(cid){ return cid===oldId ? requestedId : cid; }); });
     editState.componentId = requestedId;
   }
@@ -9383,7 +9523,7 @@ function deleteComponentRecord(id){
     DELETED_BUILTIN_COMPONENT_IDS.push(id);
   }
   COMPONENTS = COMPONENTS.filter(function(c){ return c.id!==id; });
-  state.list = state.list.filter(function(item){ return item.componentId!==id; });
+  state.list = removeComponentIdFromList(state.list, id);
   READY_EMAILS.forEach(function(e){ e.componentIds = e.componentIds.filter(function(cid){ return cid!==id; }); });
   return saveToStorage();
 }
@@ -15890,13 +16030,25 @@ function saveEmailFormSubmit(){
   }
 
 
+  // READY_EMAILS has no concept of a wrapper item — componentIds/Values/
+  // Variants are flat parallel arrays. Flatten any wrapper's children in
+  // (losing only its own background/padding grouping in this snapshot, not
+  // the components themselves) rather than silently dropping the whole
+  // group the way `if(!findComp(item.componentId)) return` used to for a
+  // wrapper (componentId is undefined on a wrapper item, findComp(undefined)
+  // is falsy, so the group — and everything inside it — vanished with no
+  // warning).
   var componentIds = [], componentValues = [], componentVariants = [];
-  state.list.forEach(function(item){
-    if(!findComp(item.componentId)) return;
-    componentIds.push(item.componentId);
-    componentValues.push(item.values ? Object.assign({}, item.values) : null);
-    componentVariants.push(item.variantId || null);
-  });
+  function collectFlatComponentsForSave(list){
+    list.forEach(function(item){
+      if(item.type===WRAPPER_ITEM_TYPE){ collectFlatComponentsForSave(item.children||[]); return; }
+      if(!findComp(item.componentId)) return;
+      componentIds.push(item.componentId);
+      componentValues.push(item.values ? Object.assign({}, item.values) : null);
+      componentVariants.push(item.variantId || null);
+    });
+  }
+  collectFlatComponentsForSave(state.list);
   if(componentIds.length===0){ showToast("The list doesn't contain any recognizable components"); return; }
 
   if(saveEmailForm.updateId){
@@ -15987,7 +16139,39 @@ function renderList(){
   byId("refreshAllBtn").style.display = state.list.some(function(i){ return !!i.code; }) ? "" : "none";
   if(state.list.length===0){ body.innerHTML = '<p class="drawer-empty">Your mail stack is empty.<br>Click "+ Add" on a component.</p>'; return; }
   body.innerHTML = "";
+  function selectCheckboxHtml(item){
+    if(!state.selectMode) return "";
+    var checked = state.selectedUids.indexOf(item.uid)!==-1 ? " checked" : "";
+    return '<input type="checkbox" class="li-select" data-select="'+item.uid+'" aria-label="Select for wrapping"'+checked+'>';
+  }
   state.list.forEach(function(item,idx){
+    if(item.type===WRAPPER_ITEM_TYPE){
+      var row2 = document.createElement("div"); row2.className = "list-item list-item-wrapper";
+      row2.dataset.uid = item.uid;
+      var childLabels = (item.children||[]).map(function(child){
+        if(child.type===WRAPPER_ITEM_TYPE) return "Wrapped section";
+        var cc = findComp(child.componentId);
+        return cc ? cc.label : child.componentId;
+      });
+      row2.innerHTML =
+        '<div class="list-item-wrapper-head">'+
+          selectCheckboxHtml(item)+
+          '<span class="li-handle" draggable="true" aria-label="Drag to reorder" title="Drag to reorder">'+ICON_DRAG+'</span>'+
+          '<span class="list-item-wrapper-swatch" style="background:'+esc(item.background||"transparent")+'" title="Background: '+esc(item.background||"none")+'"></span>'+
+          '<span class="li-key-wrap"><span class="li-label" title="Wrapped section · '+childLabels.length+' component(s) · padding '+esc(item.paddingTop||"0px")+' / '+esc(item.paddingBottom||"0px")+'">Wrapped section ('+childLabels.length+')</span></span>'+
+          '<span class="li-actions">'+
+            '<button class="btn ghost small" data-wrap-edit="'+item.uid+'">Edit</button>'+
+            '<button class="btn ghost small" data-wrap-unwrap="'+item.uid+'" title="Dissolve the group — children go back to being separate Mail Stack items">Unwrap</button>'+
+            '<button class="icon-btn" data-duplicate="'+item.uid+'" aria-label="Duplicate">'+ICON_DUPLICATE+'</button>'+
+            '<button class="icon-btn" data-remove="'+item.uid+'" aria-label="Remove">'+ICON_CLOSE+'</button>'+
+          '</span>'+
+        '</div>'+
+        '<div class="list-item-wrapper-children">'+
+          childLabels.map(function(l){ return '<span class="list-item-wrapper-child">'+esc(l)+'</span>'; }).join("")+
+        '</div>';
+      body.appendChild(row2);
+      return;
+    }
     var c = findComp(item.componentId);
     var row = document.createElement("div"); row.className = "list-item";
     row.dataset.uid = item.uid;
@@ -15996,6 +16180,7 @@ function renderList(){
 
       row.classList.add("list-item-broken");
       row.innerHTML =
+        selectCheckboxHtml(item)+
         '<span class="li-handle" draggable="true" aria-label="Drag to reorder" title="Drag to reorder">'+ICON_DRAG+'</span>'+
         '<span class="li-key mono" title="A component with this ID no longer exists — remove this item">⚠ '+esc(item.componentId)+' (not found)</span>'+
         '<span class="li-actions">'+
@@ -16017,6 +16202,7 @@ function renderList(){
 
 
     row.innerHTML =
+      selectCheckboxHtml(item)+
       '<span class="li-handle" draggable="true" aria-label="Drag to reorder" title="Drag to reorder">'+ICON_DRAG+'</span>'+
       '<span class="li-key-wrap">'+
         '<span class="li-label"'+edited+' title="'+esc(c.label)+(item.code?' · content edited':'')+'">'+esc(c.label)+(item.code?' '+ICON_PENCIL:'')+variantSuffix+'</span>'+
@@ -16031,6 +16217,9 @@ function renderList(){
   });
   body.querySelectorAll("[data-edit-item]").forEach(function(b2){ b2.addEventListener("click", function(){ openComponentEditor(state.list.filter(function(i){return i.uid===+b2.getAttribute("data-edit-item");})[0].componentId, +b2.getAttribute("data-edit-item")); }); });
   body.querySelectorAll("[data-refresh-item]").forEach(function(b2){ b2.addEventListener("click", function(){ refreshItemFromCatalog(+b2.getAttribute("data-refresh-item")); }); });
+  body.querySelectorAll("[data-wrap-edit]").forEach(function(b2){ b2.addEventListener("click", function(){ openWrapSectionForm(+b2.getAttribute("data-wrap-edit")); }); });
+  body.querySelectorAll("[data-wrap-unwrap]").forEach(function(b2){ b2.addEventListener("click", function(){ unwrapSection(+b2.getAttribute("data-wrap-unwrap")); }); });
+  body.querySelectorAll("[data-select]").forEach(function(b2){ b2.addEventListener("change", function(){ toggleSelectUid(+b2.getAttribute("data-select"), b2.checked); }); });
   body.querySelectorAll("[data-duplicate]").forEach(function(b2){ b2.addEventListener("click", function(){ duplicateItem(+b2.getAttribute("data-duplicate")); }); });
   body.querySelectorAll("[data-remove]").forEach(function(b2){ b2.addEventListener("click", function(){ removeItem(+b2.getAttribute("data-remove")); }); });
   wireDragReorder(body);
@@ -16283,11 +16472,29 @@ function refreshAllFromCatalog(){
   showToast(n + (n===1 ? " item synced" : " items synced") + " with the catalog");
 }
 
+function cloneWrapperItem(orig){
+  return {
+    uid: uidSeq++,
+    type: WRAPPER_ITEM_TYPE,
+    background: orig.background || "",
+    paddingTop: orig.paddingTop || "0px",
+    paddingBottom: orig.paddingBottom || "0px",
+    children: (orig.children||[]).map(function(child){
+      return child.type===WRAPPER_ITEM_TYPE ? cloneWrapperItem(child) : {
+        uid: uidSeq++,
+        componentId: child.componentId,
+        variantId: child.variantId || null,
+        code: child.code || null,
+        values: child.values ? Object.assign({}, child.values) : null
+      };
+    })
+  };
+}
 function duplicateItem(uid){
   var idx = state.list.findIndex(function(x){ return x.uid===uid; });
   if(idx===-1) return;
   var orig = state.list[idx];
-  var copy = {
+  var copy = orig.type===WRAPPER_ITEM_TYPE ? cloneWrapperItem(orig) : {
     uid: uidSeq++,
     componentId: orig.componentId,
     variantId: orig.variantId || null,
@@ -16296,9 +16503,104 @@ function duplicateItem(uid){
   };
   state.list.splice(idx+1, 0, copy);
   renderList(); renderGrid();
-  var c = findComp(orig.componentId);
-  showToast("Duplicated “"+(c ? c.label : orig.componentId)+"”");
+  var label = orig.type===WRAPPER_ITEM_TYPE ? "Wrapped section" : (findComp(orig.componentId) ? findComp(orig.componentId).label : orig.componentId);
+  showToast("Duplicated “"+label+"”");
 }
+
+// "Wrap in section" — user: "wybranie kilku komponentów w Mail Stacku, a
+// następnie owinięcie ich w dodatkową sekcję z backgroundem i paddingiem...
+// żebym nie musiał robić nowego łączonego komponentu ręcznie." Select 2+
+// ADJACENT top-level items (contiguous in state.list — grouping non-adjacent
+// items would leave a confusing gap where the in-between items used to be),
+// splice them out and replace with one wrapper item wrapping them all. See
+// WRAPPER_ITEM_TYPE / resolveWrapperCode / mjCompileWrapper for how a
+// wrapper item actually becomes real MJML.
+function toggleSelectUid(uid, checked){
+  var idx = state.selectedUids.indexOf(uid);
+  if(checked && idx===-1) state.selectedUids.push(uid);
+  else if(!checked && idx!==-1) state.selectedUids.splice(idx,1);
+  updateSelectBar();
+}
+function selectedIndices(){
+  return state.selectedUids
+    .map(function(uid){ return state.list.findIndex(function(i){ return i.uid===uid; }); })
+    .filter(function(i){ return i!==-1; })
+    .sort(function(a,b){ return a-b; });
+}
+function selectionIsContiguous(){
+  var indices = selectedIndices();
+  if(indices.length<2 || indices.length!==state.selectedUids.length) return false;
+  return indices[indices.length-1]-indices[0]+1===indices.length;
+}
+function updateSelectBar(){
+  byId("dockSelectCount").textContent = state.selectedUids.length + " selected";
+  byId("wrapSelectedBtn").disabled = !selectionIsContiguous();
+}
+function enterSelectMode(){
+  state.selectMode = true;
+  state.selectedUids = [];
+  byId("dockSelectBar").style.display = "flex";
+  byId("selectModeBtn").classList.add("active");
+  updateSelectBar();
+  renderList();
+}
+function exitSelectMode(){
+  state.selectMode = false;
+  state.selectedUids = [];
+  byId("dockSelectBar").style.display = "none";
+  byId("selectModeBtn").classList.remove("active");
+  renderList();
+}
+var wrapSectionForm = { editUid:null };
+function openWrapSectionForm(existingUid){
+  var existing = existingUid ? state.list.filter(function(i){ return i.uid===existingUid && i.type===WRAPPER_ITEM_TYPE; })[0] : null;
+  wrapSectionForm.editUid = existing ? existing.uid : null;
+  byId("wrapSectionFormTitle").textContent = existing ? "Edit wrapped section" : "Wrap in section";
+  byId("wrapSectionFormDesc").style.display = existing ? "none" : "";
+  byId("wrapSectionBg").value = existing ? (existing.background||"") : "";
+  byId("wrapSectionPadTop").value = existing ? (existing.paddingTop||"24px") : "24px";
+  byId("wrapSectionPadBottom").value = existing ? (existing.paddingBottom||"24px") : "24px";
+  byId("wrapSectionFormOverlay").classList.add("open");
+}
+function closeWrapSectionForm(){ byId("wrapSectionFormOverlay").classList.remove("open"); }
+function wrapSectionFormSubmit(){
+  var bg = byId("wrapSectionBg").value.trim();
+  var padTop = byId("wrapSectionPadTop").value.trim() || "0px";
+  var padBottom = byId("wrapSectionPadBottom").value.trim() || "0px";
+  if(wrapSectionForm.editUid){
+    var existing = state.list.filter(function(i){ return i.uid===wrapSectionForm.editUid; })[0];
+    if(existing){ existing.background = bg; existing.paddingTop = padTop; existing.paddingBottom = padBottom; }
+  } else {
+    if(!selectionIsContiguous()){ showToast("Select 2 or more adjacent items first", "error"); return; }
+    var indices = selectedIndices();
+    var startIdx = indices[0];
+    var children = state.list.slice(startIdx, indices[indices.length-1]+1);
+    var wrapper = { uid: uidSeq++, type: WRAPPER_ITEM_TYPE, background: bg, paddingTop: padTop, paddingBottom: padBottom, children: children };
+    state.list.splice(startIdx, children.length, wrapper);
+    state.selectMode = false;
+    state.selectedUids = [];
+    byId("dockSelectBar").style.display = "none";
+    byId("selectModeBtn").classList.remove("active");
+  }
+  closeWrapSectionForm();
+  renderList(); renderGrid();
+  showToast(wrapSectionForm.editUid ? "Section updated" : "Wrapped in a new section");
+}
+function unwrapSection(uid){
+  var idx = state.list.findIndex(function(i){ return i.uid===uid && i.type===WRAPPER_ITEM_TYPE; });
+  if(idx===-1) return;
+  var wrapper = state.list[idx];
+  state.list.splice.apply(state.list, [idx, 1].concat(wrapper.children||[]));
+  renderList(); renderGrid();
+  showToast("Section unwrapped");
+}
+byId("selectModeBtn").addEventListener("click", function(){ if(state.selectMode) exitSelectMode(); else enterSelectMode(); });
+byId("cancelSelectBtn").addEventListener("click", exitSelectMode);
+byId("wrapSelectedBtn").addEventListener("click", function(){ openWrapSectionForm(null); });
+byId("wrapSectionFormClose").addEventListener("click", closeWrapSectionForm);
+byId("wrapSectionFormCancel").addEventListener("click", closeWrapSectionForm);
+byId("wrapSectionFormSave").addEventListener("click", wrapSectionFormSubmit);
+bindOverlayBackdropClose("wrapSectionFormOverlay", closeWrapSectionForm);
 var toastTimer;
 function showToast(msg, type){
   var t = byId("toast"); t.textContent = msg;
