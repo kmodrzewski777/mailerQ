@@ -2336,7 +2336,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.28.1";
+var APP_VERSION = "3.29.0";
 var APP_UPDATED = "2026-09-11";
 
 
@@ -8168,6 +8168,34 @@ function removeComponentIdFromList(list, id){
     return item;
   });
 }
+// READY_EMAILS equivalent of removeComponentIdFromList — componentIds/
+// componentValues/componentVariants are flat parallel arrays (unlike Mail
+// Stack items, so no recursion needed), but removing entries from the
+// MIDDLE shifts every later index — wrapperGroups' own startIndex/count
+// must shift and shrink to match, or a saved wrapper would silently grab
+// the wrong components (or an empty range) the next time this email is
+// opened. Also fixes a pre-existing bug in the caller this replaces: it
+// filtered componentIds but never touched componentValues/componentVariants,
+// letting those three parallel arrays drift out of sync with each other.
+function removeComponentIdFromReadyEmail(e, id){
+  var newIds = [], newValues = [], newVariants = [], removedIndices = [];
+  e.componentIds.forEach(function(cid, i){
+    if(cid===id){ removedIndices.push(i); return; }
+    newIds.push(cid);
+    newValues.push(e.componentValues ? e.componentValues[i] : null);
+    newVariants.push(e.componentVariants ? e.componentVariants[i] : null);
+  });
+  if(removedIndices.length && e.wrapperGroups && e.wrapperGroups.length){
+    e.wrapperGroups = e.wrapperGroups.map(function(g){
+      var removedBefore = removedIndices.filter(function(ri){ return ri < g.startIndex; }).length;
+      var removedInside = removedIndices.filter(function(ri){ return ri >= g.startIndex && ri < g.startIndex+g.count; }).length;
+      return { startIndex: g.startIndex - removedBefore, count: g.count - removedInside, background: g.background };
+    }).filter(function(g){ return g.count>0; });
+  }
+  e.componentIds = newIds;
+  e.componentValues = newValues;
+  e.componentVariants = newVariants;
+}
 // Padding (28px top/bottom), border-radius ({{brand.radius}}) and the 6px
 // separation from neighboring Mail Stack content are all FIXED, not
 // per-wrapper settings — user: "padding-top/bottom ma być zawsze 28px" /
@@ -8197,6 +8225,46 @@ function resolveItemCode(item, b){
 
 
   return item.values ? applyValuesToCode(raw, item.values) : raw;
+}
+
+// READY_EMAILS (the "Gotowy Mail" library) is a flatter, older data model
+// than the Mail Stack's own state.list — componentIds/componentValues/
+// componentVariants are plain parallel arrays with no grouping concept at
+// all. `wrapperGroups` (optional, absent on every email saved before this)
+// layers wrapper info ON TOP without touching that flat shape: each entry
+// is `{startIndex, count, background}`, describing a contiguous run within
+// those same flat arrays that should render as one <mj-wrapper> — user:
+// "jak zapisuję maila gotowego to ten zapisany wrapper też się ma zapisać
+// w tym mailu" (a wrapped group used to silently flatten away with no
+// trace when saved as a Ready Email). This reconstructs real Mail-Stack-
+// shaped items (plain items, or wrapper items with `children`) from that
+// flat+groups representation — every place that renders a Ready Email's
+// body (the read-only preview, its catalog thumbnail, the Flow Install
+// step preview, and loading it back into the Mail Stack) goes through this
+// so wrapper reconstruction only has to be right once.
+function buildItemsFromReadyEmailComponents(e, nextUid){
+  nextUid = nextUid || (function(){ var n=0; return function(){ return --n; }; })();
+  var leafItems = e.componentIds.map(function(cid, i){
+    var vals = e.componentValues && e.componentValues[i];
+    var variantId = e.componentVariants && e.componentVariants[i];
+    return { uid: nextUid(), componentId: cid, code: null, variantId: variantId || null, values: vals ? Object.assign({}, vals) : null };
+  });
+  var groups = (e.wrapperGroups||[]).slice().sort(function(a,b){ return a.startIndex-b.startIndex; });
+  var items = [], i = 0, gi = 0;
+  while(i < leafItems.length){
+    var g = groups[gi];
+    if(g && g.startIndex===i && g.count>0){
+      items.push({ uid: nextUid(), type: WRAPPER_ITEM_TYPE, background: g.background || "{{brand.surface}}", children: leafItems.slice(g.startIndex, g.startIndex+g.count) });
+      i += g.count; gi++;
+    } else {
+      items.push(leafItems[i]); i++;
+    }
+  }
+  return items;
+}
+function buildBodyMjmlFromReadyEmail(e, b){
+  var codes = buildItemsFromReadyEmailComponents(e).map(function(item){ return resolveItemCode(item, b) || ""; });
+  return stitchComponentCodes(codes, b.componentGap);
 }
 
 
@@ -8371,6 +8439,7 @@ function applyBackupPayload(payload){
         READY_EMAILS.push({
           id:ce.id, flow:ce.flow, label:ce.label, desc:ce.desc, note:ce.note,
           componentIds:ce.componentIds, componentValues:ce.componentValues, componentVariants:ce.componentVariants,
+          wrapperGroups:ce.wrapperGroups||[],
           crmPlatforms:ce.crmPlatforms,
           linkedFlowId:ce.linkedFlowId||"", linkedStepIndex:(ce.linkedStepIndex!=null?ce.linkedStepIndex:(ce.linkedStageIndex!=null?ce.linkedStageIndex:null)),
           custom:true, createdBy:ce.createdBy
@@ -9558,7 +9627,7 @@ function deleteComponentRecord(id){
   }
   COMPONENTS = COMPONENTS.filter(function(c){ return c.id!==id; });
   state.list = removeComponentIdFromList(state.list, id);
-  READY_EMAILS.forEach(function(e){ e.componentIds = e.componentIds.filter(function(cid){ return cid!==id; }); });
+  READY_EMAILS.forEach(function(e){ removeComponentIdFromReadyEmail(e, id); });
   return saveToStorage();
 }
 var editDeleteArmed = false;
@@ -11559,12 +11628,7 @@ function renderFlowInstallStep2Emails(f){
       (stepName ? '<p style="font-size:12.5px; color:var(--ink-faint); margin:2px 0 0">Step: '+esc(stepName)+'</p>' : '')+
     '</div>'+
     '<div class="bf-mjml-preview-scroll"><div class="modal-preview-box bf-mjml-preview-frame pg-live-preview-frame"><div class="bf-mjml-preview-inner" style="width:100%; max-width:'+esc(b.mailWidth||"640px")+'; margin:0 auto"><div id="flowInstallEmailPreviewMount" style="width:100%"></div></div></div></div>';
-  var bodyMjml = stitchComponentCodes(e.componentIds.map(function(cid, i){
-    var vals = e.componentValues && e.componentValues[i];
-    var variantId = e.componentVariants && e.componentVariants[i];
-    var raw = resolveItemCode({ componentId:cid, variantId: variantId || null, code:null, values: vals || null }, b);
-    return raw || "";
-  }), b.componentGap);
+  var bodyMjml = buildBodyMjmlFromReadyEmail(e, b);
   mountMjmlIframe("flowInstallEmailPreviewMount", bodyMjml, b, { noChrome:true });
   footer.innerHTML =
     '<span style="font-size:12.5px; color:var(--ink-faint); align-self:center; margin-right:auto">Email '+(flowInstallState.emailIndex+1)+' of '+total+'</span>'+
@@ -14881,12 +14945,7 @@ function emailVisibleForCrmFilter(e){
 
 function renderEmailThumb(e, b){
   try{
-    var bodyMjml = stitchComponentCodes(e.componentIds.map(function(cid, i){
-      var vals = e.componentValues && e.componentValues[i];
-      var variantId = e.componentVariants && e.componentVariants[i];
-      var raw = resolveItemCode({ componentId: cid, variantId: variantId || null, code: null, values: vals || null }, b);
-      return raw || "";
-    }), b.componentGap);
+    var bodyMjml = buildBodyMjmlFromReadyEmail(e, b);
     var compiled = compileMjmlFragment(resolveBrandTokens(bodyMjml, b), { fontBody: b.fontBody });
     compiled = simulateLiquidForPreview(fillTokensForPreview(compiled, b), b);
     var mailWidth = parseInt(b.mailWidth, 10) || 600;
@@ -14987,13 +15046,7 @@ function renderCrmFilterRow(){
 
 function addEmailToList(emailId){
   var e = findEmail(emailId);
-
-
-  e.componentIds.forEach(function(cid, i){
-    var vals = e.componentValues && e.componentValues[i];
-    var variantId = e.componentVariants && e.componentVariants[i];
-    state.list.push({ uid: uidSeq++, componentId: cid, code: null, variantId: variantId || null, values: vals ? Object.assign({}, vals) : null });
-  });
+  buildItemsFromReadyEmailComponents(e, function(){ return uidSeq++; }).forEach(function(item){ state.list.push(item); });
   renderList(); renderGrid();
   showToast(e.label + " — added " + e.componentIds.length + " blocks to the list");
 }
@@ -15523,12 +15576,7 @@ function openEmailPreview(emailId){
   box.innerHTML = '<div id="previewIframeWrap"></div>';
 
 
-  var bodyMjml = stitchComponentCodes(e.componentIds.map(function(cid, i){
-    var vals = e.componentValues && e.componentValues[i];
-    var variantId = e.componentVariants && e.componentVariants[i];
-    var raw = resolveItemCode({ componentId: cid, variantId: variantId || null, code: null, values: vals || null }, b);
-    return raw || "";
-  }), b.componentGap);
+  var bodyMjml = buildBodyMjmlFromReadyEmail(e, b);
   mountMjmlIframe("previewIframeWrap", bodyMjml, b, { headerVariant: state.headerVariant, footerVariant: state.footerVariant, darkPreview: previewTheme==="dark", showTopBar: previewShowTopBar });
   resetPreviewCodeToggle();
   byId("previewExportBar").style.display = "none";
@@ -16065,17 +16113,22 @@ function saveEmailFormSubmit(){
 
 
   // READY_EMAILS has no concept of a wrapper item — componentIds/Values/
-  // Variants are flat parallel arrays. Flatten any wrapper's children in
-  // (losing only its own background/padding grouping in this snapshot, not
-  // the components themselves) rather than silently dropping the whole
-  // group the way `if(!findComp(item.componentId)) return` used to for a
-  // wrapper (componentId is undefined on a wrapper item, findComp(undefined)
-  // is falsy, so the group — and everything inside it — vanished with no
-  // warning).
-  var componentIds = [], componentValues = [], componentVariants = [];
+  // Variants are flat parallel arrays — wrapperGroups (see
+  // buildItemsFromReadyEmailComponents) layers wrapper info on top without
+  // changing that flat shape, so a wrapped group now survives being saved
+  // as a Ready Email instead of silently flattening away — user: "jak
+  // zapisuję maila gotowego to ten zapisany wrapper też się ma zapisać w
+  // tym mailu".
+  var componentIds = [], componentValues = [], componentVariants = [], wrapperGroups = [];
   function collectFlatComponentsForSave(list){
     list.forEach(function(item){
-      if(item.type===WRAPPER_ITEM_TYPE){ collectFlatComponentsForSave(item.children||[]); return; }
+      if(item.type===WRAPPER_ITEM_TYPE){
+        var startIndex = componentIds.length;
+        collectFlatComponentsForSave(item.children||[]);
+        var count = componentIds.length - startIndex;
+        if(count>0) wrapperGroups.push({ startIndex: startIndex, count: count, background: item.background || "{{brand.surface}}" });
+        return;
+      }
       if(!findComp(item.componentId)) return;
       componentIds.push(item.componentId);
       componentValues.push(item.values ? Object.assign({}, item.values) : null);
@@ -16094,6 +16147,7 @@ function saveEmailFormSubmit(){
     existing.componentIds = componentIds;
     existing.componentValues = componentValues;
     existing.componentVariants = componentVariants;
+    existing.wrapperGroups = wrapperGroups;
     existing.linkedFlowId = d.linkedFlowId || "";
     existing.linkedStepIndex = (d.linkedStepIndex!=="" && d.linkedStepIndex!=null) ? +d.linkedStepIndex : null;
 
@@ -16117,6 +16171,7 @@ function saveEmailFormSubmit(){
     componentIds: componentIds,
     componentValues: componentValues,
     componentVariants: componentVariants,
+    wrapperGroups: wrapperGroups,
     linkedFlowId: d.linkedFlowId || "",
     linkedStepIndex: (d.linkedStepIndex!=="" && d.linkedStepIndex!=null) ? +d.linkedStepIndex : null,
     custom: true,
