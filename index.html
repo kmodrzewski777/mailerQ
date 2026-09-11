@@ -2281,7 +2281,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.25.5";
+var APP_VERSION = "3.26.0";
 var APP_UPDATED = "2026-09-11";
 
 
@@ -3117,8 +3117,18 @@ function mjCompileColumnGroup(cols, ctx){
     var va = mjGetAttr(c,"vertical-align","top");
     var pad = mjGetAttr(c,"padding","0px");
     var colCssClass = mjGetAttr(c,"css-class","");
-    html += '<!--[if mso]><td width="'+w+'" valign="'+va+'" style="padding:'+pad+';"><![endif]-->\n';
-    html += '<div class="mj-col-stack'+(colCssClass?" "+colCssClass:"")+'" style="display:inline-block;width:100%;max-width:'+w+";vertical-align:"+va+";padding:"+pad+';box-sizing:border-box;">\n';
+    // mj-column's own background-color/border-radius — previously read
+    // nowhere in this function at all (a column could never paint its own
+    // background/rounded corners, in a 2+-column layout OR the single-
+    // column path below). Applied on the wrapping div, same as the single-
+    // column fix — visually equivalent to real MJML's own choice of
+    // painting the inner <table> instead, and simpler to reason about for
+    // a preview-only compiler.
+    var colBg = mjGetAttr(c,"background-color","");
+    var colRadius = mjGetAttr(c,"border-radius","0px");
+    var colBgStyle = (colBg?"background:"+colBg+";":"")+(colRadius&&colRadius!=="0px"?"border-radius:"+colRadius+";":"");
+    html += '<!--[if mso]><td width="'+w+'" valign="'+va+'" style="padding:'+pad+(colBgStyle?";"+colBgStyle:"")+';"><![endif]-->\n';
+    html += '<div class="mj-col-stack'+(colCssClass?" "+colCssClass:"")+'" style="display:inline-block;width:100%;max-width:'+w+";vertical-align:"+va+";padding:"+pad+';box-sizing:border-box;'+colBgStyle+'">\n';
     html += '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td>'+mjCompileChildren(c, ctx)+"</td></tr></table>\n";
     html += "</div>\n";
     html += "<!--[if mso]></td><![endif]-->\n";
@@ -3126,6 +3136,38 @@ function mjCompileColumnGroup(cols, ctx){
   html += "</div>\n";
   html += "<!--[if mso]></tr></table><![endif]-->";
   return html;
+}
+// A LONE <mj-column> (the common case — most sections have just one) never
+// went through mjCompileColumnGroup at all: mjCompileSection called
+// mjCompileChildren(group[0], ctx) directly, meaning the column's OWN
+// background-color/border-radius/css-class/padding/vertical-align were
+// silently never read, full stop — no way to give a single-column
+// "card" its own background no matter where you put the attribute. User:
+// moved background-color+border-radius from <mj-text> (where real MJML
+// doesn't support them at all — a separate, already-fixed gotcha) to
+// <mj-column> as instructed, and it correctly showed up after compiling
+// with real MJML — but "w Live Preview go nie ma" — the local compiler
+// had this same gap all along, just never exercised until now.
+// Backward-compat fast path: when the column sets NONE of these (background-
+// color/border-radius/css-class/non-zero padding) — true for the vast
+// majority of this library's existing single-column sections — return the
+// exact same unwrapped output as before, byte-for-byte, so nothing about
+// spacing or selector depth changes for anything that isn't opting into
+// this.
+function mjCompileSingleColumn(col, ctx){
+  var bg = mjGetAttr(col,"background-color","");
+  var radius = mjGetAttr(col,"border-radius","0px");
+  var pad = mjGetAttr(col,"padding","0px");
+  var cssClass = mjGetAttr(col,"css-class","");
+  var va = mjGetAttr(col,"vertical-align","top");
+  var inner = mjCompileChildren(col, ctx);
+  if(!bg && radius==="0px" && pad==="0px" && !cssClass) return inner;
+  var style = "display:block;width:100%;vertical-align:"+va+";padding:"+pad+";box-sizing:border-box;"+
+    (bg?"background:"+bg+";":"")+
+    (radius && radius!=="0px" ? "border-radius:"+radius+";" : "");
+  return '<div'+(cssClass?' class="'+cssClass+'"':"")+' style="'+style+'">'+
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td>'+inner+"</td></tr></table>"+
+    "</div>";
 }
 function mjCompileSection(el, ctx){
   var bg = mjGetAttr(el,"background-color","");
@@ -3142,7 +3184,7 @@ function mjCompileSection(el, ctx){
     if(c.tagName.toLowerCase()==="mj-column"){
       var group = [];
       while(i < children.length && children[i].tagName.toLowerCase()==="mj-column"){ group.push(children[i]); i++; }
-      innerParts.push(group.length>=2 ? mjCompileColumnGroup(group, ctx) : mjCompileChildren(group[0], ctx));
+      innerParts.push(group.length>=2 ? mjCompileColumnGroup(group, ctx) : mjCompileSingleColumn(group[0], ctx));
     } else {
       innerParts.push(mjCompileNode(c, ctx));
       i++;
