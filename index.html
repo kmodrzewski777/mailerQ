@@ -2281,8 +2281,8 @@
 "use strict";
 
 
-var APP_VERSION = "3.25.3";
-var APP_UPDATED = "2026-09-09";
+var APP_VERSION = "3.25.4";
+var APP_UPDATED = "2026-09-11";
 
 
 var BRANDS = {
@@ -3066,9 +3066,35 @@ function mjCompileImage(el, ctx){
   var radius = mjGetAttr(el,"border-radius","0px");
   var containerPadding = mjGetAttr(el,"container-padding","0px");
   var cssClass = mjGetAttr(el,"css-class","");
-  var img = '<img src="'+src+'" alt="'+alt+'"'+(cssClass?' class="'+cssClass+'"':"")+' width="'+(parseInt(width,10)||600)+'" style="display:block;width:100%;max-width:'+width+";height:auto;border-radius:"+radius+';" />';
+  // Real MJML's own `fluid-on-mobile="true"` lets an image ignore its own
+  // width cap on mobile and fill its (already-gutter-respecting) stacked
+  // column instead — real MJML's mechanism: class="mj-full-width-mobile" on
+  // the image's wrapping <table> AND <td>, paired with a media rule
+  // (table.mj-full-width-mobile{width:100%!important} td.mj-full-width-
+  // mobile{width:auto!important}, added unconditionally in assembleEmailShell
+  // next to .mj-col-stack/.mj-btn-full). This compiler previously had no
+  // idea this attribute existed at all — it just silently ignored it, so an
+  // image stayed capped at its own `width` value in Live Preview even
+  // though real MJML would correctly stretch it. User: added
+  // fluid-on-mobile="true" (per my own earlier suggestion, verified only
+  // against real MJML) and Live Preview showed NO change at all — "w live
+  // preview to wygląda tragicznie" — the local compiler needed this taught
+  // to it too, not just the real-MJML path, so both compilers agree again.
+  var fluidMobile = el.getAttribute("fluid-on-mobile")==="true";
+  var fluidClassAttr = fluidMobile ? ' class="mj-full-width-mobile"' : "";
+  // Real MJML also drops `max-width` from the img's OWN style entirely when
+  // fluid-on-mobile is set (confirmed directly against the real mjml
+  // package) — NOT just adding the class above. Without dropping it, the
+  // img stays capped at its own `width` value regardless of how wide its
+  // table/td wrapper becomes, so the class+media-rule alone accomplish
+  // nothing. Desktop appearance is unaffected in practice: the image still
+  // renders at `width:100%` of its (typically narrower, e.g. a 40% mj-
+  // column) container either way — the old `max-width` cap was usually
+  // never the binding constraint on desktop to begin with.
+  var maxWidthPart = fluidMobile ? "" : "max-width:"+width+";";
+  var img = '<img src="'+src+'" alt="'+alt+'"'+(cssClass?' class="'+cssClass+'"':"")+' width="'+(parseInt(width,10)||600)+'" style="display:block;width:100%;'+maxWidthPart+"height:auto;border-radius:"+radius+';" />';
   if(href) img = '<a href="'+href+'" target="_blank">'+img+"</a>";
-  var table = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="'+align+'" style="padding:'+containerPadding+';">'+img+"</td></tr></table>";
+  var table = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"'+fluidClassAttr+'><tr><td align="'+align+'" style="padding:'+containerPadding+';"'+fluidClassAttr+'>'+img+"</td></tr></table>";
   return mjHideWrap(el, table);
 }
 function mjCompileDivider(el){
@@ -3315,10 +3341,37 @@ function buildResponsiveMediaRules(b){
     // tds inside the column's own content table and wrongly override THEIR
     // padding too — so this uses the exact direct-child chain real MJML
     // actually emits (div.mj-gutter > table > tbody > tr > td) to hit only
-    // the one td that holds the real gutter padding. `.mj-gutter` alone
-    // keeps working unchanged for the local compiler (where the class
-    // already sits on the td itself, no separate wrapping div involved).
-    lines.push("    .mj-gutter,.mj-gutter>table>tbody>tr>td{padding-left:"+gutterMobile+"!important;padding-right:"+gutterMobile+"!important}\n");
+    // the one td that holds the real gutter padding.
+    //
+    // Second gotcha, found later: the compound half MUST be scoped to
+    // `div.mj-gutter` specifically, not bare `.mj-gutter` — this compiler's
+    // OWN css-class="mj-gutter" sits directly on a <td> (mjCompileSection),
+    // and whenever that <td>'s content is raw HTML starting with its own
+    // <table><tr><td> (an <mj-image> with no mj-column, or an <mj-raw>
+    // table placed directly in the section — both common, deliberate
+    // patterns in this library), that INNER td sits exactly 4 levels below
+    // the classed element too — table>tbody>tr>td — so the bare compound
+    // selector matched it AS WELL, forcing an unrelated, unintended
+    // padding-left/right onto content that already had its own correct
+    // padding (or none at all). Confirmed on 3 different real cases: a
+    // pill-button's own inner padding got squeezed from its authored
+    // "20px"/"8px" to a flat 12px/12px; a centered hero <mj-image> (no
+    // mj-column) picked up an extra, unwanted symmetric inset (left ended
+    // up 24px instead of the correct 12px, because the image is centered
+    // and the phantom extra padding on its own wrapper td shrank the
+    // available centering width); an <mj-raw> feature-row's icon <td>
+    // (naturally 0 padding) got an unintended forced 12px. The fix is to
+    // require the `div` tag on the compound selector's OWN root — real
+    // MJML's gutter wrapper is ALWAYS a <div>, this compiler's is ALWAYS a
+    // <td>, so `div.mj-gutter>table>tbody>tr>td` still matches every real
+    // case it needs to while it can never match a local-compiler <td>'s own
+    // nested content (a <td> is not a <div>, so nothing anchored under it
+    // can match a selector that requires a div ancestor at that exact
+    // spot). Bare `.mj-gutter` (first half) is untouched — it's tag-
+    // agnostic on purpose, since it has to match a <div> for real MJML AND
+    // a <td> for this compiler's own sections, and it was never the part
+    // that over-matched.
+    lines.push("    .mj-gutter,div.mj-gutter>table>tbody>tr>td{padding-left:"+gutterMobile+"!important;padding-right:"+gutterMobile+"!important}\n");
   }
   return lines.join("");
 }
@@ -3588,6 +3641,8 @@ googleFontsLinkHtml(b)+
 "    .mj-col-stack:not(.mj-col-nostack){display:block!important;width:100%!important;max-width:100%!important}\n"+
 "    .mj-btn-full{display:block!important;width:auto!important}\n"+
 "    .mj-hide-mobile{display:none!important}\n"+
+"    table.mj-full-width-mobile{width:100%!important}\n"+
+"    td.mj-full-width-mobile{width:auto!important}\n"+
 responsiveRules+
 outerBgMobileRule+
 "  }\n"+
