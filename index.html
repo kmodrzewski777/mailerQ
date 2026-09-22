@@ -3164,7 +3164,16 @@ function mjCompileImage(el, ctx){
   // column) container either way — the old `max-width` cap was usually
   // never the binding constraint on desktop to begin with.
   var maxWidthPart = fluidMobile ? "" : "max-width:"+width+";";
-  var img = '<img src="'+src+'" alt="'+alt+'"'+(cssClass?' class="'+cssClass+'"':"")+' width="'+(parseInt(width,10)||600)+'" style="display:block;width:100%;'+maxWidthPart+"height:auto;border-radius:"+radius+';" />';
+  // display:block on the img (needed so it isn't rendered with the small
+  // baseline gap inline images get) means the parent <td align="..."> can no
+  // longer center/right-align it — text-align only ever affects inline
+  // content, never a block box's own position, so a block img whose
+  // computed width is capped below 100% (true for anything but a
+  // full-bleed image, e.g. every logo) just sits flush-left regardless of
+  // the td's align. A block box needs its own margin to move: mirror the
+  // requested align onto the img's margin so center/right actually work.
+  var imgMargin = align==="right" ? "margin:0 0 0 auto;" : (align==="left" ? "margin:0;" : "margin:0 auto;");
+  var img = '<img src="'+src+'" alt="'+alt+'"'+(cssClass?' class="'+cssClass+'"':"")+' width="'+(parseInt(width,10)||600)+'" style="display:block;width:100%;'+maxWidthPart+imgMargin+"height:auto;border-radius:"+radius+';" />';
   if(href) img = '<a href="'+href+'" target="_blank">'+img+"</a>";
   var table = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"'+fluidClassAttr+'><tr><td align="'+align+'" style="padding:'+containerPadding+';"'+fluidClassAttr+'>'+img+"</td></tr></table>";
   return mjHideWrap(el, table);
