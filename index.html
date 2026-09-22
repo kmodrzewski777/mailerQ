@@ -1185,7 +1185,9 @@
         <label for="authPassword">Password</label>
         <input type="password" id="authPassword" autocomplete="current-password">
       </div>
+      <p style="text-align:right; margin:6px 0 0"><a href="#" id="authForgotPasswordLink" class="btn-preview" style="font-size:12px">Forgot password?</a></p>
       <p id="authError" style="color:#b42318; font-size:12.5px; margin:10px 0 0; display:none"></p>
+      <p id="authResetMsg" style="color:#1a7f37; font-size:12.5px; margin:10px 0 0; display:none"></p>
       <div class="bf-actions" style="justify-content:space-between; align-items:center">
         <button type="button" class="btn-preview" id="authModeToggle">Need an account? Register</button>
         <button type="button" class="btn small" id="authSubmitBtn" disabled>Loading…</button>
@@ -2296,6 +2298,21 @@
     </div>
     <div class="bf-actions">
       <button class="btn small" type="button" id="feedbackSubmitBtn">Send</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="unsavedChangesOverlay" role="dialog" aria-modal="true" style="z-index:200">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head">
+      <h3>Unsaved changes</h3>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13.5px; color:var(--ink-muted); margin:0 0 18px; line-height:1.5">You have unsaved changes. Do you want to discard them, or save and exit?</p>
+      <div class="bf-actions" style="justify-content:flex-end; gap:8px">
+        <button type="button" class="btn ghost small" id="unsavedChangesDiscardBtn" style="color:#b42318; border-color:#b42318">Discard changes</button>
+        <button type="button" class="btn small" id="unsavedChangesSaveBtn">Save and exit</button>
+      </div>
     </div>
   </div>
 </div>
@@ -9471,6 +9488,13 @@ function openComponentEditor(componentId, listUid){
 }
 function closeEditor(){ byId("editOverlay").classList.remove("open"); urlOpenComponentId = null; syncUrlFromState(); }
 
+function showUnsavedChangesConfirm(){ byId("unsavedChangesOverlay").classList.add("open"); }
+function hideUnsavedChangesConfirm(){ byId("unsavedChangesOverlay").classList.remove("open"); }
+function requestCloseEditor(){
+  if(editHasUnsavedChanges()) showUnsavedChangesConfirm();
+  else closeEditor();
+}
+
 
 function editHasUnsavedChanges(){
   var codeChanged = byId("editCodePreview").value.trim() !== editState.defaultCode.trim();
@@ -9616,7 +9640,7 @@ function saveComponentEdit(){
     });
   });
 }
-byId("editClose").addEventListener("click", closeEditor);
+byId("editClose").addEventListener("click", requestCloseEditor);
 
 function deleteComponentRecord(id){
   var compForDelete = findComp(id);
@@ -9660,7 +9684,22 @@ byId("editModeToggle").querySelectorAll("[data-edit-mode]").forEach(function(btn
     syncEditModeUI();
   });
 });
-bindOverlayBackdropClose("editOverlay", closeEditor);
+bindOverlayBackdropClose("editOverlay", requestCloseEditor);
+
+byId("unsavedChangesDiscardBtn").addEventListener("click", function(){
+  hideUnsavedChangesConfirm();
+  closeEditor();
+});
+byId("unsavedChangesSaveBtn").addEventListener("click", function(){
+  hideUnsavedChangesConfirm();
+  if(editState.listUid){
+    saveComponentEdit();
+  } else {
+    var result = saveComponentCatalogChanges();
+    if(result && typeof result.then==="function") result.then(closeEditor);
+  }
+});
+bindOverlayBackdropClose("unsavedChangesOverlay", hideUnsavedChangesConfirm);
 
 
 var WEIGHT_OPTIONS = [["400","400 (regular)"],["500","500 (medium)"],["600","600 (semibold)"],["700","700 (bold)"]];
@@ -10343,7 +10382,10 @@ function bindBrandFormActions(){
 document.addEventListener("keydown", function(e){
 
 
-  if(e.key==="Escape"){ closeEditor(); closeBrandSelectMenu(); closeCrmSettings(); }
+  if(e.key==="Escape"){
+    if(byId("unsavedChangesOverlay").classList.contains("open")){ hideUnsavedChangesConfirm(); return; }
+    requestCloseEditor(); closeBrandSelectMenu(); closeCrmSettings();
+  }
 });
 
 
@@ -17392,6 +17434,8 @@ function setAuthMode(mode){
 
   byId("authNameRow").style.display = mode==="register" ? "flex" : "none";
   byId("authAvatarField").style.display = mode==="register" ? "" : "none";
+  byId("authForgotPasswordLink").style.display = mode==="login" ? "" : "none";
+  byId("authResetMsg").style.display = "none";
   if(mode==="login") clearAuthAvatarSelection();
 }
 byId("authModeToggle").addEventListener("click", function(){ setAuthMode(authMode==="login"?"register":"login"); });
@@ -17470,6 +17514,27 @@ function authSubmit(){
   });
 }
 byId("authSubmitBtn").addEventListener("click", authSubmit);
+
+function authForgotPassword(e){
+  e.preventDefault();
+  if(!window.MQAuth) return;
+  var email = byId("authEmail").value.trim();
+  if(!email){ authShowError("Enter your email above first, then click \"Forgot password?\"."); return; }
+  byId("authError").style.display = "none";
+  byId("authResetMsg").style.display = "none";
+  var link = byId("authForgotPasswordLink");
+  var original = link.textContent;
+  link.textContent = "Sending…";
+  window.MQAuth.resetPassword(email).then(function(){
+    byId("authResetMsg").textContent = "Password reset email sent to " + email + " — check your inbox.";
+    byId("authResetMsg").style.display = "";
+  }).catch(function(err){
+    authShowError(AUTH_ERROR_MESSAGES[err.code] || "Couldn't send the reset email — try again.");
+  }).then(function(){
+    link.textContent = original;
+  });
+}
+byId("authForgotPasswordLink").addEventListener("click", authForgotPassword);
 byId("authPassword").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); authSubmit(); } });
 
 var profileAvatarFile = null;
@@ -17787,7 +17852,7 @@ setTimeout(function(){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  signOut, onAuthStateChanged, updateProfile
+  signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, arrayUnion, arrayRemove
@@ -17886,6 +17951,7 @@ window.MQAuth = {
     return cred;
   },
   login(email, password){ return signInWithEmailAndPassword(auth, email, password); },
+  resetPassword(email){ return sendPasswordResetEmail(auth, email); },
   logout(){ return signOut(auth); },
   updateProfile(profile){
     if(!auth.currentUser) return Promise.reject(new Error("not signed in"));
