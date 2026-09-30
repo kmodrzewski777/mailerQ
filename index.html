@@ -2716,7 +2716,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.34.0";
+var APP_VERSION = "3.34.1";
 var APP_UPDATED = "2026-09-30";
 
 
@@ -18789,7 +18789,7 @@ function setOutEmpty(h,p){const o=$("#cg-out");o.className="cg-out cg-doc cg-emp
 function renderOut(streamText){
   const d=draft(),o=$("#cg-out");
   const text=streamText??(d.versions[d.vi]?.text);
-  $("#cg-btn-copy-out").textContent=d.format==="mail"?"Kopiuj kod":"Kopiuj";
+  $("#cg-btn-copy-out").textContent=(d.versions[d.vi]?.format||d.format)==="mail"?"Kopiuj kod":"Kopiuj";
   if(!text){
     S.mailKey="";
     if(!apiKey())return;
@@ -18797,7 +18797,9 @@ function renderOut(streamText){
     else setOutEmpty("Tu pojawi się gotowe copy.","Wybierz klienta, kanał i opcjonalnie sekwencję, wpisz brief i kliknij Stwórz. Model dostaje brand voice, wytyczne, uwagi i wszystkie zasady wyuczone z Twoich poprawek.");
     $("#cg-versions").innerHTML="";$("#cg-out-meta").textContent="";return;
   }
-  if(d.format==="mail"&&(streamText==null||parseMail(text).html||/<<<HTML/.test(text)))return renderMail(text,streamText!=null);
+  // a version renders by its own channel: switching an e-mail copy draft to "mail" keeps showing that copy
+  const vFmt=streamText!=null?d.format:(d.versions[d.vi]?.format||d.format);
+  if(vFmt==="mail"&&(streamText==null||parseMail(text).html||/<<<HTML/.test(text)))return renderMail(text,streamText!=null);
   S.mailKey="";
   o.className="cg-out cg-doc";o.innerHTML=md(text);
   const p=plain(text);
@@ -19319,7 +19321,7 @@ document.addEventListener("click",async e=>{
     case "stop":S.ctl?.abort();return;
     case "new-draft":{const keepFmt=draft().format,keepStr=draft().structure,keepType=draft().mailType;S.drafts[S.clientId]={...blankDraft(),format:keepFmt,structure:keepStr,mailType:keepType||"promo"};S.lastLearned=[];document.querySelectorAll(".cg-root [data-bf]").forEach(i=>i.value="");$("#cg-save-name").value="";$("#cg-feedback").value="";persistDraft();renderCreate();$("#cg-b-goal").focus();return}
     case "ver":{const d=draft();d.vi=+b.dataset.i;persistDraft();renderOut();return}
-    case "copy-out":{const d=draft(),t=d.versions[d.vi]?.text;if(t){if(d.format==="mail")copyText(parseMail(t).html);else copyText(plain(t),md(t))}return}
+    case "copy-out":{const d=draft(),t=d.versions[d.vi]?.text;if(t){if((d.versions[d.vi]?.format||d.format)==="mail")copyText(parseMail(t).html);else copyText(plain(t),md(t))}return}
     case "mail-view":S.mailView=b.dataset.v;renderOut();return;
     case "mail-device":S.mailDevice=b.dataset.v;renderOut();return;
     case "mail-profile":S.mailProfile=b.dataset.v;renderOut();return;
@@ -19456,6 +19458,15 @@ function start(){
   if(S.started)return;
   S.started=true;S.db=window.MQCopyDB;S.sample=claudeCall;S.loaded={};
   S.drafts=store.get("cl-drafts",{});
+  // Drafts from before Mail Generator AI sat on the old "E-mail" (copy) default: move them to finished
+  // mails and tag their copy versions, so that copy is carried into the mail as context.
+  if(store.get("cl-drafts-v",1)<2){
+    Object.values(S.drafts).forEach(d=>{
+      (d.versions||[]).forEach(v=>{if(!v.format)v.format=d.format||"email"});
+      if((d.format||"email")==="email"){d.format="mail";d.mailType=d.mailType||"promo"}
+    });
+    store.set("cl-drafts",S.drafts);store.set("cl-drafts-v",2);
+  }
   S.tab=store.get("cl-tab","create");if(S.tab!=="library")S.tab="create";
   $("#cg-format").innerHTML=Object.entries(FORMATS).map(([k,v])=>`<option value="${k}">${esc(v.label)}</option>`).join("");
   const sub=(col,key)=>S.subs.push(S.db.collection(col).onSnapshot(s=>{S[key]=mapSnap(s);S.loaded[key]=true;renderAll()},e=>{console.error(col,e);if(e?.code==="permission_denied")rulesToast();else toast("Utracono połączenie z bazą Mail Generatora AI – odśwież stronę","error")}));
