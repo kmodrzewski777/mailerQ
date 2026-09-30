@@ -815,6 +815,7 @@
   .bf-group{border:1px solid var(--line); border-radius:6px; padding:12px 14px}
   .bf-group-title{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 10px}
   .bf-group-title-row{display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 10px}
+  .bf-copy-note{font-size:12.5px; color:var(--ink-muted); margin:8px 0 0}
   .bf-group-title-row .bf-group-title{margin:0}
 
   .bf-crm-logo-badge{display:flex; align-items:center; gap:5px; color:var(--ink-faint); font-weight:500; font-size:13px; flex:none}
@@ -2353,7 +2354,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.30.0";
+var APP_VERSION = "3.31.0";
 var APP_UPDATED = "2026-09-30";
 
 
@@ -9962,7 +9963,78 @@ function uniqueBrandKey(base){
   return key;
 }
 
-var brandForm = { mode:"new", editingKey:null, draft:null, device:"desktop" };
+var brandForm = { mode:"new", editingKey:null, draft:null, device:"desktop", copy:null };
+
+// Copy Generator settings shown in the Brand Kit (website, guidelines + counts).
+// They live in copylab/main/clients/{brandKey}, not in BRANDS, because the
+// Copy Generator writes them too and the shared Maximus payload is overwritten
+// as a whole on every save.
+function loadBrandFormCopy(key){
+  brandForm.copy = { key:key, status: key ? "loading" : "ready", website:"", guidelines:"", dirty:false, stats:null };
+  if(!key || !window.MQStore || !window.MQStore.loadCopyProfile) { if(key) brandForm.copy.status = "error"; return; }
+  var req = brandForm.copy;
+  window.MQStore.loadCopyProfile(key).then(function(p){
+    if(brandForm.copy!==req) return;
+    req.status = "ready"; req.website = p.website; req.guidelines = p.guidelines;
+    req.stats = { files:p.files, rules:p.rules, notes:p.notes };
+    renderBrandFormCopy();
+  }).catch(function(e){
+    console.warn("copy profile", e);
+    if(brandForm.copy!==req) return;
+    req.status = "error"; renderBrandFormCopy();
+  });
+}
+function brandFormCopyHtml(){
+  var c = brandForm.copy || {};
+  var key = brandForm.mode==="edit" ? brandForm.editingKey : null;
+  var body;
+  if(c.status==="loading"){
+    body = '<p class="bf-copy-note">Loading…</p>';
+  } else if(c.status==="error"){
+    body = '<p class="bf-copy-note">Couldn\'t load Copy Generator settings — check the Firestore rules for copylab.</p>';
+  } else {
+    var st = c.stats;
+    body = '<div class="bf-row">'+
+        '<div class="bf-field" style="flex-basis:100%"><label for="bfCopyWebsite">Website</label>'+
+          '<input type="text" id="bfCopyWebsite" data-bf-copy="website" value="'+esc(c.website||"")+'" placeholder="www.client.com" autocomplete="off"></div>'+
+        '<div class="bf-field" style="flex-basis:100%"><label for="bfCopyGuidelines">Copy guidelines</label>'+
+          '<textarea id="bfCopyGuidelines" data-bf-copy="guidelines" rows="6" style="width:100%; font:inherit" placeholder="Persona, how to address the customer, banned words, lengths, emoji yes/no, sign-off.">'+esc(c.guidelines||"")+'</textarea></div>'+
+      '</div>'+
+      (st ? '<p class="bf-copy-note">Brand voice files: '+st.files+' · Learned rules: '+st.rules+' · Working notes: '+st.notes+'</p>' : '')+
+      (key ? '<p class="bf-copy-note"><a class="btn ghost small" style="text-decoration:none" href="copy-generator.html?client='+encodeURIComponent(key)+'&tab=memory" target="_blank" rel="noopener">Manage brand voice, rules &amp; notes in Copy Generator</a></p>'
+           : '<p class="bf-copy-note">Brand voice files, rules and notes can be added in Copy Generator after the brand is saved.</p>');
+  }
+  return '<div class="bf-group" id="bfCopyGroup"><div class="bf-group-title-row"><p class="bf-group-title">Copy Generator</p></div>'+body+'</div>';
+}
+function bindBrandFormCopy(){
+  var box = byId("bfCopyGroup");
+  if(!box) return;
+  box.querySelectorAll("[data-bf-copy]").forEach(function(el){
+    el.addEventListener("input", function(){
+      if(!brandForm.copy) return;
+      brandForm.copy[el.getAttribute("data-bf-copy")] = el.value;
+      brandForm.copy.dirty = true;
+    });
+  });
+}
+function renderBrandFormCopy(){
+  var box = byId("bfCopyGroup");
+  if(!box) return;
+  box.outerHTML = brandFormCopyHtml();
+  bindBrandFormCopy();
+}
+function saveBrandFormCopy(key, fromKey){
+  var c = brandForm.copy;
+  if(!c || c.status!=="ready" || !window.MQStore || !window.MQStore.saveCopyProfile) return Promise.resolve();
+  var website = (c.website||"").trim(), guidelines = (c.guidelines||"").trim();
+  // Unchanged edit of the same brand: nothing to write. "Save as New" carries the values over.
+  if(!c.dirty && key===fromKey) return Promise.resolve();
+  if(!c.dirty && !website && !guidelines) return Promise.resolve();
+  return window.MQStore.saveCopyProfile(key, { website: website, guidelines: guidelines }).catch(function(e){
+    console.warn("copy profile save", e);
+    showToast("Brand saved, but Copy Generator settings couldn't be saved — check the Firestore rules", "error");
+  });
+}
 
 
 function openBrandForm(mode, sourceKey){
@@ -9970,11 +10042,13 @@ function openBrandForm(mode, sourceKey){
   brandForm.device = "desktop";
   if(mode==="new"){
     brandForm.mode = "new"; brandForm.editingKey = null; brandForm.draft = defaultBrandDraft();
+    loadBrandFormCopy(null);
     byId("brandFormTitle").textContent = "New Brand Kit";
     byId("brandFormSubtitle").textContent = "Define the design system a client's emails compile against.";
   } else if(mode==="edit"){
     var cur = BRANDS[sourceKey];
     brandForm.mode = "edit"; brandForm.editingKey = sourceKey;
+    loadBrandFormCopy(sourceKey);
     brandForm.draft = Object.assign({}, cur, { accent2: cur.accent2 || "", logoUrl: cur.logoUrl || null });
     byId("brandFormTitle").textContent = cur.name;
     byId("brandFormSubtitle").textContent = "Every component and email compiles against these values.";
@@ -10149,8 +10223,10 @@ function renderBrandFormFields(){
     }
     html += '</div>';
   });
+  if(!mobile) html += brandFormCopyHtml();
   form.innerHTML = html;
   updateCrmLogoBadge();
+  bindBrandFormCopy();
 
   form.querySelectorAll(".bf-tab-btn").forEach(function(btn){
     btn.addEventListener("click", function(){
@@ -10326,8 +10402,9 @@ function saveBrandForm(asNew, newName){
   if(BRAND_ORDER.indexOf(key)===-1) BRAND_ORDER.push(key);
   state.brand = key;
   var saveBtn = asNew ? byId("brandFormSaveAsNewConfirm") : byId("brandFormSave");
+  var fromKey = brandForm.mode==="edit" ? brandForm.editingKey : null;
   return withBtnLoading(saveBtn, function(){
-    return saveToStorage().then(function(){
+    return Promise.all([saveToStorage(), saveBrandFormCopy(key, fromKey)]).then(function(){
       closeBrandForm();
       renderAll();
       showToast((asNew?"Saved as a new brand “":"Brand saved “")+name+"”");
@@ -16528,8 +16605,8 @@ function restoreStateFromUrl(){
     state.section = "components";
     if(category && (category==="all" || CATEGORIES.some(function(c){ return c.id===category; }))){ state.category = category; }
   } else if(section==="brandkit"){
-
-
+    var brandParam = params.get("brand");
+    if(brandParam && BRANDS[brandParam]) state.brand = brandParam;
     openBrandForm("edit", state.brand);
   } else if(section==="flows"){
     state.section = "flows";
@@ -17869,7 +17946,8 @@ import {
   signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, arrayUnion, arrayRemove
+  getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, arrayUnion, arrayRemove,
+  query, where, getCountFromServer
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 import {
   getStorage, ref, uploadBytes, getDownloadURL
@@ -18038,6 +18116,24 @@ window.MQStore = {
   async loadPublicCalendar(token){
     const snap = await getDoc(doc(db, "publicCalendars", token));
     return snap.exists() ? snap.data().payload : null;
+  },
+
+  // Copy Generator keeps its per-client settings in copylab/main/clients/{brandKey}
+  // (the brand kit key is the client id), so the Brand Kit form edits the same doc.
+  async loadCopyProfile(brandKey){
+    const [snap, files] = await Promise.all([
+      getDoc(doc(db, "copylab", "main", "clients", brandKey)),
+      getCountFromServer(query(collection(db, "copylab", "main", "files"), where("clientId", "==", brandKey)))
+    ]);
+    const d = snap.exists() ? snap.data() : {};
+    return {
+      website: d.website || "", guidelines: d.guidelines || "",
+      rules: (d.learnings || []).length, notes: (d.notes || []).length,
+      files: files.data().count
+    };
+  },
+  saveCopyProfile(brandKey, patch){
+    return setDoc(doc(db, "copylab", "main", "clients", brandKey), JSON.parse(JSON.stringify(patch)), { merge: true });
   }
 };
 

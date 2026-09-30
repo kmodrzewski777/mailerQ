@@ -223,7 +223,7 @@ main{padding-block:22px 60px}
         <label for="client">Klient</label>
         <select id="client"></select>
         <button class="btn" data-act="edit-client">Edytuj klienta</button>
-        <button class="btn" data-act="open-newclient">+ Nowy klient</button>
+        <a class="btn" id="brandkit-link" href="index.html?section=brandkit" title="Klienci to brand kity z Maximus">Brand Kit</a>
         <a class="mx-back" href="index.html?section=home">← Maximus</a>
       </div>
     </div>
@@ -238,10 +238,12 @@ main{padding-block:22px 60px}
 
   <main class="wrap">
     <div id="noclient" class="empty-note" hidden>
-      <p><strong>Nie masz jeszcze klientów.</strong></p>
-      <p>Dodaj pierwszego klienta, wrzuć jego brand voice i wytyczne, a potem pisz briefy.</p>
-      <p><button class="btn primary" data-act="open-newclient">+ Dodaj klienta</button></p>
+      <p><strong>Nie ma jeszcze klientów.</strong></p>
+      <p>Klienci Copy Generatora to brand kity z Maximus. Dodaj brand kit klienta w Maximus, a pojawi się tutaj.</p>
+      <p><a class="btn primary" href="index.html?section=brandkit">Otwórz Brand Kit w Maximus</a></p>
     </div>
+
+    <div id="orphans" class="empty-note" hidden></div>
 
     <!-- CREATE -->
     <section id="tab-create" class="desk">
@@ -428,32 +430,12 @@ main{padding-block:22px 60px}
         </div>
         <div class="panel">
           <div class="panel-head"><h2>Klient</h2></div>
-          <div class="row" style="flex-wrap:nowrap">
-            <input type="text" id="client-name" placeholder="Nazwa klienta">
-            <button class="btn" data-act="rename-client">Zmień nazwę</button>
-          </div>
-          <div class="row" style="margin-top:12px"><button class="btn danger" data-act="delete-client">Usuń klienta</button><span class="small muted">Zapisane copy zostają w bazie.</span></div>
+          <p class="small muted" style="margin:0 0 10px">Nazwę, logo i wygląd klienta ustawiasz w jego Brand Kicie w Maximus. Adres strony i wytyczne z tej karty też są tam widoczne.</p>
+          <div class="row"><a class="btn" id="client-brandkit" href="index.html?section=brandkit">Otwórz Brand Kit klienta</a></div>
         </div>
       </div>
     </section>
   </main>
-</div>
-
-<!-- new client -->
-<div class="overlay" id="ov-newclient" hidden>
-  <div class="modal">
-    <h2>Nowy klient</h2>
-    <div class="field"><label class="lbl" for="nc-name">Nazwa</label><input type="text" id="nc-name" placeholder="Np. Foodify"></div>
-    <div class="field"><label class="lbl" for="nc-guidelines">Wytyczne i uwagi (opcjonalnie)</label><textarea id="nc-guidelines" rows="4" placeholder="Wszystko, czego nie ma w plikach"></textarea></div>
-    <div class="field">
-      <span class="lbl">Brand voice i inne pliki (opcjonalnie)</span>
-      <label class="drop"><input type="file" id="nc-files" multiple accept=".txt,.md,.markdown,.pdf,.docx,.html,.htm,.csv,.json"><strong>Wybierz pliki</strong><br><span class="small" id="nc-files-label">PDF, DOCX, TXT, MD</span></label>
-    </div>
-    <div class="row end">
-      <button class="btn ghost" data-act="close-overlay">Anuluj</button>
-      <button class="btn primary" data-act="create-client" id="nc-create">Dodaj klienta</button>
-    </div>
-  </div>
 </div>
 
 <!-- share -->
@@ -486,6 +468,9 @@ const colRef = name => collection(fdb, "copylab", "main", name);
 const docRef = path => { const [c,id] = path.split("/"); return c==="shares" ? doc(fdb, "copylabShares", id) : doc(fdb, "copylab", "main", c, id); };
 const clean = o => JSON.parse(JSON.stringify(o));
 const fbErr = e => { const c=(e&&e.code)||""; return {code: c==="permission-denied"?"permission_denied": (c==="resource-exhausted"||c==="invalid-argument")?"quota_exceeded":"unavailable", message:e&&e.message}; };
+// Clients are Maximus brand kits: sharedLibrary/config payload.brands (read-only here). Copy settings
+// per brand live in copylab/main/clients/{brandKey}, so Maximus' Brand Kit form edits the same doc.
+const BRANDS_DOC = doc(fdb, "sharedLibrary", "config");
 const DBA = {
   collection: name => ({ onSnapshot: (next, err) => onSnapshot(colRef(name),
     snap => next({ docs: snap.docs.map(d => ({ id:d.id, data:()=>d.data() })) }),
@@ -493,6 +478,7 @@ const DBA = {
   doc: path => { const r = docRef(path); return {
     set: d => setDoc(r, clean(d)).catch(e => { throw fbErr(e); }),
     update: d => updateDoc(r, clean(d)).catch(e => { throw fbErr(e); }),
+    merge: d => setDoc(r, clean(d), { merge:true }).catch(e => { throw fbErr(e); }),
     delete: () => deleteDoc(r).catch(e => { throw fbErr(e); }),
     get: async () => { try { const x = await getDoc(r); return { exists:x.exists(), data:()=>x.data() }; } catch(e) { throw fbErr(e); } }
   }; }
@@ -575,7 +561,7 @@ const PROMPT_CAP = 240000; // bytes, below the 256 KiB sample cap
 
 /* ---------- state ---------- */
 const S = {db:null,apiKey:"",me:null,sample:null,
-  clients:[],files:[],copies:[],groups:[],clientId:null,tab:"create",
+  clients:[],brands:[],copyDocs:[],orphans:[],files:[],copies:[],groups:[],clientId:null,tab:"create",
   drafts:{},busy:false,ctl:null,subs:[],lastLearned:[],started:false};
 
 /* ---------- utils ---------- */
@@ -678,17 +664,34 @@ function startApp(){
   S.drafts=store.get("cl-drafts",{});
   S.clientId=store.get("cl-client",null);
   S.tab=store.get("cl-tab","create");
+  const qs=new URLSearchParams(location.search);
+  if(qs.get("client")){S.clientId=qs.get("client");store.set("cl-client",S.clientId)}
+  if(["create","library","memory"].includes(qs.get("tab")))S.tab=qs.get("tab");
   $("#format").innerHTML=Object.entries(FORMATS).map(([k,v])=>`<option value="${k}">${esc(v.label)}</option>`).join("");
   const sub=(col,key)=>S.subs.push(S.db.collection(col).onSnapshot(s=>{S[key]=mapSnap(s);S.loaded[key]=true;renderAll()},e=>{console.error(col,e);if(e?.code==="permission_denied")showRulesGate();else toast("Utracono połączenie z bazą – odśwież stronę")}));
   S.loaded={};
-  sub("clients","clients");sub("files","files");sub("copies","copies");sub("groups","groups");
+  S.subs.push(onSnapshot(BRANDS_DOC,snap=>{S.brands=brandList(snap.exists()?snap.data().payload:null);S.loaded.brands=true;renderAll()},e=>{console.error("brands",e);if(e?.code==="permission-denied")showRulesGate();else toast("Nie udało się wczytać klientów z Maximus – odśwież stronę")}));
+  sub("clients","copyDocs");sub("files","files");sub("copies","copies");sub("groups","groups");
   if(!S.apiKey){$("#btn-create").disabled=true;$("#btn-revise").disabled=true;setOutEmpty("Połącz Claude, żeby generować","W Maximus otwórz menu konta → Connect Claude i wklej klucz API z console.anthropic.com. Potem odśwież tę stronę.")}
   bindStatic();setTab(S.tab);
 }
 
 /* ---------- rendering ---------- */
+function brandList(payload){
+  const bs=(payload&&payload.brands)||{};
+  return Object.keys(bs).filter(k=>k!=="neutral"&&bs[k]).map(k=>({key:k,name:bs[k].name||bs[k].short||k}));
+}
+function mergeClients(){
+  const byId=Object.fromEntries(S.copyDocs.map(c=>[c.id,c]));
+  const keys=new Set(S.brands.map(b=>b.key));
+  S.clients=S.brands.map(b=>({notes:[],learnings:[],guidelines:"",...(byId[b.key]||{}),id:b.key,name:b.name}));
+  // copylab clients created before the Brand Kit link (random ids) wait to be attached to a brand
+  S.orphans=S.copyDocs.filter(c=>!keys.has(c.id));
+  S.loaded.clients=true;
+}
 function renderAll(){
-  if(!S.loaded.clients)return;
+  if(!S.loaded.brands||!S.loaded.copyDocs)return;
+  mergeClients();
   S.clients.sort((a,b)=>(a.name||"").localeCompare(b.name||"","pl"));
   if(!S.clients.find(c=>c.id===S.clientId))S.clientId=S.clients[0]?.id||null;
   const sel=$("#client");
@@ -701,7 +704,42 @@ function renderAll(){
   $("#n-lib").textContent=S.clientId?clientCopies(S.clientId).length:0;
   const cl=client();
   $("#n-mem").textContent=cl?((cl.learnings||[]).length):0;
-  renderCreate();renderLibrary();renderMemory();renderBV();
+  const bk="index.html?section=brandkit"+(S.clientId?"&brand="+encodeURIComponent(S.clientId):"");
+  $("#brandkit-link").href=bk;$("#client-brandkit").href=bk;
+  renderOrphans();renderCreate();renderLibrary();renderMemory();renderBV();
+}
+const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"");
+function renderOrphans(){
+  const box=$("#orphans");
+  if(!S.orphans.length||!S.clients.length){box.hidden=true;return}
+  if(box.contains(document.activeElement))return;
+  box.hidden=false;
+  const cnt=id=>{const n=S.copies.filter(c=>c.clientId===id).length,f=S.files.filter(x=>x.clientId===id).length;return `${n} copy · ${f} plików`};
+  box.innerHTML=`<p><strong>Klienci z Copy Generatora bez Brand Kitu</strong></p><p class="small">Klienci są teraz brand kitami z Maximus. Wskaż, do którego brand kitu należy każdy z tych klientów – copy, pliki, sekwencje, zasady i uwagi zostaną przeniesione.</p>`+
+    S.orphans.map(o=>{const guess=S.clients.find(c=>norm(c.name)===norm(o.name))?.id||"";
+      return `<div class="row" style="margin-top:8px"><strong>${esc(o.name||"Bez nazwy")}</strong><span class="small muted">${cnt(o.id)}</span>
+      <select data-orphan="${o.id}"><option value="">Wybierz brand kit…</option>${S.clients.map(c=>`<option value="${c.id}" ${c.id===guess?"selected":""}>${esc(c.name)}</option>`).join("")}</select>
+      <button class="btn primary" data-act="link-orphan" data-id="${o.id}">Połącz</button></div>`}).join("");
+}
+async function linkOrphan(oid,key){
+  const o=S.orphans.find(x=>x.id===oid),t=S.clients.find(c=>c.id===key);if(!o||!t)return;
+  const g=[t.guidelines,o.guidelines].map(x=>(x||"").trim()).filter(Boolean);
+  await S.db.doc("clients/"+key).merge({
+    guidelines:[...new Set(g)].join("\n\n"),
+    notes:[...(t.notes||[]),...(o.notes||[])],
+    learnings:[...(t.learnings||[]),...(o.learnings||[])],
+    website:t.website||o.website||"",
+    bvDraft:t.bvDraft||o.bvDraft||null,
+    createdAt:t.createdAt||o.createdAt||now()
+  });
+  for(const col of ["files","copies","groups"])
+    for(const x of S[col].filter(x=>x.clientId===oid))await S.db.doc(col+"/"+x.id).update({clientId:key});
+  await S.db.doc("clients/"+oid).delete();
+  if(S.drafts[oid]){if(!S.drafts[key])S.drafts[key]=S.drafts[oid];delete S.drafts[oid];persistDraft()}
+  // public links carry the client name – rewrite them under the brand's name
+  await new Promise(r=>setTimeout(r,50));
+  for(const c of S.copies.filter(c=>c.clientId===key&&c.shareId))await writeCopyShare(c).catch(e=>console.warn("share",e));
+  for(const gr of S.groups.filter(x=>x.clientId===key&&x.shareId))await writeGroupShare(gr).catch(e=>console.warn("share",e));
 }
 
 function setTab(t,quiet){
@@ -814,7 +852,6 @@ function renderLibrary(){
 function renderMemory(){
   const cl=client();if(!cl)return;
   if(document.activeElement?.dataset?.edit)return; // don't clobber an open inline edit
-  if(document.activeElement!==$("#client-name"))$("#client-name").value=cl.name||"";
   const g=$("#guidelines");
   if(g.dataset.cid!==cl.id||(!g.dataset.dirty&&document.activeElement!==g)){g.value=cl.guidelines||"";g.dataset.cid=cl.id;g.dataset.dirty=""}
   const fs=clientFiles(cl.id);
@@ -938,7 +975,7 @@ async function learnFrom(cl,fb,cur){
     if(!rules.length)return;
     const fresh=S.clients.find(c=>c.id===cl.id);if(!fresh)return;
     const list=[...(fresh.learnings||[]),...rules.map(({clientId,...r})=>r)];
-    await S.db.doc("clients/"+cl.id).update({learnings:list});
+    await S.db.doc("clients/"+cl.id).merge({learnings:list});
     S.lastLearned=rules;renderLearned();
     toast(`Zapamiętano ${rules.length} ${rules.length===1?"zasadę":rules.length<5?"zasady":"zasad"}`);
   }catch(e){console.warn("learn",e)}
@@ -973,7 +1010,7 @@ async function doSave(asNew){
 /* ---------- shares ---------- */
 function shareItem(c){return {name:c.name,format:c.format,text:c.text,createdAt:c.createdAt}}
 async function writeCopyShare(c){
-  await S.db.doc("shares/"+c.shareId).set({kind:"copy",refId:c.id,clientName:client()?.name||"",title:c.name,createdAt:c.createdAt,updatedAt:now(),items:[shareItem(c)]});
+  await S.db.doc("shares/"+c.shareId).set({kind:"copy",refId:c.id,clientName:S.clients.find(x=>x.id===c.clientId)?.name||client()?.name||"",title:c.name,createdAt:c.createdAt,updatedAt:now(),items:[shareItem(c)]});
 }
 async function writeGroupShare(g){
   const cs=groupCopies(g.id);
@@ -1167,7 +1204,7 @@ async function bvRun(cl,prompt,extra){
     const {doc,summary}=parseBV(text);
     if(!doc)throw {code:"empty_completion"};
     const prev=S.clients.find(c=>c.id===cl.id)?.bvDraft||{};
-    await S.db.doc("clients/"+cl.id).update({bvDraft:{status:"ready",url:extra.url??prev.url??"",sources:sources||prev.sources||[],at:now(),doc,summary,feedback:extra.feedback??prev.feedback??[]},...(extra.url?{website:extra.url}:{})});
+    await S.db.doc("clients/"+cl.id).merge({bvDraft:{status:"ready",url:extra.url??prev.url??"",sources:sources||prev.sources||[],at:now(),doc,summary,feedback:extra.feedback??prev.feedback??[]},...(extra.url?{website:extra.url}:{})});
     return true;
   }catch(e){if(e?.code!=="cancelled")toast(e?.code?sampleMsg(e):"Nie udało się zapisać szkicu");return false}
   finally{S.bvBusy=false;renderBV()}
@@ -1175,7 +1212,7 @@ async function bvRun(cl,prompt,extra){
 const stripProto=u=>String(u||"").trim().replace(/^(https?:)?\/\/+/i,"").replace(/^https?:\/*/i,"");
 function normUrl(u){u=stripProto(u);if(!u)return "";try{const x=new URL("https://"+u);return x.hostname.includes(".")?x.href:""}catch{return ""}}
 /* ---------- client memory ops ---------- */
-async function patchClient(patch){const cl=client();if(!cl)return;try{await S.db.doc("clients/"+cl.id).update(patch)}catch(e){dbErr(e,"client")}}
+async function patchClient(patch){const cl=client();if(!cl)return;try{await S.db.doc("clients/"+cl.id).merge(patch)}catch(e){dbErr(e,"client")}}
 
 /* ---------- events ---------- */
 function bindStatic(){
@@ -1195,7 +1232,6 @@ function bindStatic(){
   drop.addEventListener("dragover",e=>{e.preventDefault();drop.classList.add("over")});
   drop.addEventListener("dragleave",()=>drop.classList.remove("over"));
   drop.addEventListener("drop",async e=>{e.preventDefault();drop.classList.remove("over");const cl=client();if(cl&&e.dataTransfer.files.length)await addFiles(e.dataTransfer.files,cl.id,$("#file-kind").value,$("#file-status"))});
-  $("#nc-files").addEventListener("change",e=>{$("#nc-files-label").textContent=[...e.target.files].map(f=>f.name).join(", ")||"PDF, DOCX, TXT, MD"});
   document.addEventListener("change",async e=>{
     const t=e.target;if(t.dataset.role==="add-to"&&t.value){
       const gid=t.dataset.gid,cid=t.value;const c=S.copies.find(x=>x.id===cid);const old=c?.groupId;
@@ -1223,18 +1259,7 @@ document.addEventListener("click",async e=>{
     case "copy-out":{const d=draft(),t=d.versions[d.vi]?.text;if(t)copyText(plain(t),md(t));return}
     case "save":return doSave(false);
     case "save-new":return doSave(true);
-    case "open-newclient":{$("#nc-name").value="";$("#nc-guidelines").value="";$("#nc-files").value="";$("#nc-files-label").textContent="PDF, DOCX, TXT, MD";$("#ov-newclient").hidden=false;$("#nc-name").focus();return}
     case "close-overlay":document.querySelectorAll(".overlay").forEach(o=>o.hidden=true);return;
-    case "create-client":{
-      const name=$("#nc-name").value.trim();if(!name){$("#nc-name").focus();return toast("Podaj nazwę klienta")}
-      b.disabled=true;const cid=rid();
-      try{
-        await S.db.doc("clients/"+cid).set({name,guidelines:$("#nc-guidelines").value.trim(),notes:[],learnings:[],createdAt:now()});
-        const fl=$("#nc-files").files;if(fl.length){b.textContent="Czytam pliki…";await addFiles(fl,cid,"brandvoice",null)}
-        S.clientId=cid;store.set("cl-client",cid);$("#ov-newclient").hidden=true;toast("Dodano klienta "+name);renderAll();
-      }catch(er){dbErr(er)}finally{b.disabled=false;b.textContent="Dodaj klienta"}
-      return;
-    }
     case "create-group":case "create-group-inline":{
       const inp=act==="create-group"?$("#newgroup-name"):$("#newgroup-inline-name");const name=inp.value.trim();
       if(!name){inp.focus();return toast("Podaj nazwę sekwencji")}
@@ -1312,14 +1337,20 @@ document.addEventListener("click",async e=>{
         if($("#bv-replace").checked)for(const f of clientFiles(cl.id).filter(f=>f.kind==="brandvoice"))await S.db.doc("files/"+f.id).delete();
         let host="";try{host=new URL(d.url).hostname.replace(/^www\./,"")}catch{}
         await S.db.doc("files/"+rid()).set({clientId:cl.id,name:`Brand voice${host?" – "+host:""} (${fmtDay(now())})`,kind:"brandvoice",text:d.doc,chars:d.doc.length,truncated:false,at:now()});
-        await S.db.doc("clients/"+cl.id).update({bvDraft:null});
+        await S.db.doc("clients/"+cl.id).merge({bvDraft:null});
         $("#bv-replace").checked=false;toast("Brand voice załadowany – model użyje go od teraz");
       }catch(er){dbErr(er)}finally{b.disabled=false}
       return;
     }
-    case "bv-discard":{if(!armed(b,"Na pewno?"))return;const cl=client();try{await S.db.doc("clients/"+cl.id).update({bvDraft:null})}catch(er){dbErr(er)}return}
+    case "bv-discard":{if(!armed(b,"Na pewno?"))return;const cl=client();try{await S.db.doc("clients/"+cl.id).merge({bvDraft:null})}catch(er){dbErr(er)}return}
     case "struct":{draft().structure=b.dataset.k;persistDraft();renderStructs();return}
     case "edit-client":setTab("memory");return;
+    case "link-orphan":{
+      const key=document.querySelector(`[data-orphan="${id}"]`)?.value;if(!key)return toast("Wybierz brand kit");
+      b.disabled=true;b.textContent="Przenoszę…";
+      try{await linkOrphan(id,key);toast("Połączono z brand kitem")}catch(er){dbErr(er)}finally{b.disabled=false;b.textContent="Połącz"}
+      return;
+    }
     case "edit":{S.editing=b.dataset.kind+":"+id;S.peek=null;renderMemory();const f=document.querySelector("[data-edit]#"+(b.dataset.kind==="file"?"ef-text":b.dataset.kind==="rule"?"er-text":"en-text"));f?.focus();return}
     case "cancel-edit":S.editing=null;document.activeElement?.blur();renderMemory();return;
     case "save-file":{
@@ -1344,8 +1375,6 @@ document.addEventListener("click",async e=>{
     case "del-note":{const cl=client();await patchClient({notes:(cl.notes||[]).filter(n=>n.id!==id)});return}
     case "add-rule":{const v=$("#rule-input").value.trim();if(!v)return;const cl=client();await patchClient({learnings:[...(cl.learnings||[]),{id:rid(10),type:$("#rule-type").value,text:v,at:now()}]});$("#rule-input").value="";return}
     case "del-rule":{const cl=client();await patchClient({learnings:(cl.learnings||[]).filter(r=>r.id!==id)});return}
-    case "rename-client":{const v=$("#client-name").value.trim();if(v)await patchClient({name:v});toast("Zmieniono nazwę");return}
-    case "delete-client":{if(!armed(b,"Usunąć klienta?"))return;const cl=client();try{for(const f of clientFiles(cl.id))await S.db.doc("files/"+f.id).delete();await S.db.doc("clients/"+cl.id).delete();S.clientId=null;toast("Usunięto klienta")}catch(er){dbErr(er)}return}
   }
 });
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){const id=document.activeElement?.id;
