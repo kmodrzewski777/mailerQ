@@ -1040,7 +1040,9 @@
   @keyframes cgIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   .cg-root #cg-view-brief{max-width:640px;margin:20px auto 48px}
   .cg-root .cg-ask-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:28px 28px 22px;display:flex;flex-direction:column;gap:10px}
-  .cg-root .cg-top{display:flex;justify-content:space-between;align-items:center;gap:12px;max-width:1180px;margin:8px auto 22px}
+  .cg-root .cg-top{display:flex;justify-content:space-between;align-items:center;gap:12px;max-width:1180px;margin:8px auto 22px;transition:max-width .35s cubic-bezier(.2,.7,.2,1)}
+  /* the tab row takes the width of what is under it: the brief card or the preview + panel grid */
+  .cg-root[data-tab="create"][data-view="brief"] .cg-top,.cg-root[data-tab="create"][data-view="run"] .cg-top{max-width:640px}
   .cg-root .cg-top .cg-bar{margin:0}
   .cg-root .cg-brand-slot{margin-left:auto}
   .cg-root #cg-tab-create,.cg-root #cg-tab-library{max-width:1180px;margin-left:auto;margin-right:auto}
@@ -2862,7 +2864,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.37.0";
+var APP_VERSION = "3.37.1";
 var APP_UPDATED = "2026-09-30";
 
 
@@ -18909,7 +18911,7 @@ async function linkOrphan(oid,key){
 }
 
 function setTab(t,quiet){
-  S.tab=t;store.set("cl-tab",t);
+  S.tab=t;store.set("cl-tab",t);$("#copyGenPage").dataset.tab=t;
   document.querySelectorAll(".cg-tab").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===t)));
   if(!S.clientId)return;
   $("#cg-tab-create").hidden=t!=="create";$("#cg-tab-library").hidden=t!=="library";
@@ -18986,6 +18988,7 @@ function renderStructs(){
 }
 function renderAsk(){const d=draft();$("#cg-ask-q").textContent=(ASK[d.format]||ASK.other)[0]}
 function setView(v){
+  $("#copyGenPage").dataset.view=v;
   if(S.view===v)return;S.view=v;
   for(const k of ["brief","run","result"]){
     const el=$("#cg-view-"+k),on=k===v;el.hidden=!on;
