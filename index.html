@@ -2353,8 +2353,8 @@
 "use strict";
 
 
-var APP_VERSION = "3.29.0";
-var APP_UPDATED = "2026-09-11";
+var APP_VERSION = "3.30.0";
+var APP_UPDATED = "2026-09-30";
 
 
 var BRANDS = {
@@ -11237,7 +11237,8 @@ var NAV_GROUPS = [
   { id:"ai", label:"AI", sections:["skills"] },
   { id:"services", label:"Services", sections:["discounts"], hidden:true },
   { id:"reporting", label:"Reporting", sections:["reports"], hidden:true },
-  { id:"knowledge", label:"Knowledge Base", sections:["knowledge"] }
+  { id:"knowledge", label:"Knowledge Base", sections:["knowledge"] },
+  { id:"copygen", label:"Copy Generator", sections:[], href:"copy-generator.html" }
 ];
 function groupForSection(section){
   return NAV_GROUPS.filter(function(g){ return g.sections.indexOf(section)!==-1; })[0] || null;
@@ -11256,6 +11257,10 @@ function renderTopbarGroups(){
 
 
     nav.innerHTML = NAV_GROUPS.filter(function(g){ return !g.hidden; }).map(function(g){
+      // Standalone page (not a section of this app) — plain link, same look as the other tabs.
+      if(g.href){
+        return '<a class="topbar-group-btn" style="text-decoration:none" data-navgroup="'+esc(g.id)+'" href="'+esc(g.href)+'">'+esc(g.label)+'</a>';
+      }
       if(g.sections.length<=1){
         return '<button type="button" class="topbar-group-btn" data-navgroup="'+esc(g.id)+'" data-nav-direct="'+esc(g.sections[0])+'">'+esc(g.label)+'</button>';
       }

@@ -1,0 +1,1360 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Copy Generator · Maximus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<style>
+/* Layout: a copywriter's desk — narrow brief column on the left, the working sheet on the right; library and client memory as sibling tabs. */
+:root{
+  --bg:#ffffff; --surface:#ffffff; --sunk:#f4f4f4; --ink:#27282A; --muted:#4b4b4f; --faint:#8a8a8e; --line:#e6e6e6;
+  --accent:#27282A; --accent-ink:#ffffff; --accent-soft:#FEF5F5; --coral:#FE7577;
+  --ok:#1d7349; --ok-soft:#e3f3e9; --no:#b42318; --no-soft:#fdecea; --warn:#8a5a10;
+  --f-display:"General Sans",Arial,sans-serif;
+  --f-body:"General Sans",Arial,sans-serif;
+  --f-mono:"General Sans",Arial,sans-serif;
+  --r:8px; --shadow:none; color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e0f10; --surface:#18191b; --sunk:#202123; --ink:#f5f5f3; --muted:#b8b7b2; --faint:#7a7975; --line:#2c2c2f;
+  --accent:#f5f5f3; --accent-ink:#141414; --accent-soft:rgba(254,117,119,.16); --coral:#FE7577;
+  --ok:#6fd19c; --ok-soft:#173226; --no:#ff9a86; --no-soft:#3a1f1a; --warn:#e7b567; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e0f10; --surface:#18191b; --sunk:#202123; --ink:#f5f5f3; --muted:#b8b7b2; --faint:#7a7975; --line:#2c2c2f;
+  --accent:#f5f5f3; --accent-ink:#141414; --accent-soft:rgba(254,117,119,.16); --coral:#FE7577;
+  --ok:#6fd19c; --ok-soft:#173226; --no:#ff9a86; --no-soft:#3a1f1a; --warn:#e7b567; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 var(--f-body);min-height:100vh}
+[hidden]{display:none!important}
+h1,h2,h3,h4{font-weight:500!important;letter-spacing:-0.02em}
+.panel,.sheet,.group,.share-item{border-radius:20px!important}
+.pill.acc{color:var(--ink)!important;background:var(--accent-soft)!important;box-shadow:inset 0 0 0 1px var(--coral)}
+.lbl,.pill,.mono,.small{font-variant-numeric:tabular-nums}
+.mx-brand{font-family:"Poppins",Arial,sans-serif;font-weight:500;font-size:22px;color:var(--ink);text-decoration:none;line-height:1}
+.mx-sep{color:var(--faint);font-size:18px}
+.mx-title{font-weight:500;font-size:16px}
+.mx-back{color:var(--muted);text-decoration:none;font-size:13px;white-space:nowrap}
+.mx-back:hover{color:var(--ink)}
+.rules{white-space:pre;overflow:auto;text-align:left;background:var(--sunk);border-radius:8px;padding:12px;font:12px/1.5 ui-monospace,Menlo,monospace}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3,h4{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.2}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:16px}
+@media(min-width:720px){.wrap{padding-inline:28px}}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding-block:12px}
+.brand{font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:-.01em;display:flex;align-items:baseline;gap:6px}
+.brand small{font:500 11px var(--f-mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.client-pick{display:flex;align-items:center;gap:8px;flex:1;min-width:0;justify-content:flex-end;flex-wrap:wrap}
+.client-pick label{font:500 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.client-pick select{min-width:0;max-width:220px;font-weight:600}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding-block:0 10px}
+.tab{border:0;background:none;padding:7px 12px;border-radius:8px;color:var(--muted);font-weight:500;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.tab .n{font:500 11px var(--f-mono);color:var(--muted);margin-left:4px}
+
+/* controls */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 14px;border-radius:8px;font-weight:500;cursor:pointer;line-height:1.2;white-space:nowrap}
+.btn:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.big{padding:12px 22px;font-size:16px}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted);padding:6px 8px}
+.btn.ghost:hover{color:var(--ink);background:var(--sunk)}
+.btn.danger{color:var(--no)}
+.btn.armed{background:var(--no);border-color:var(--no);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=text],input[type=search],select,textarea{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+select{width:auto;padding-right:28px}
+textarea{resize:vertical;min-height:90px;line-height:1.5}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.lbl{display:block;font:500 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.field{display:flex;flex-direction:column;min-width:0}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.row.end{justify-content:flex-end}
+.stack{display:flex;flex-direction:column;gap:14px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.mono{font-family:var(--f-mono);font-size:12px;font-variant-numeric:tabular-nums}
+.pill{display:inline-flex;align-items:center;gap:4px;font:500 11px var(--f-mono);letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.pill.acc{background:var(--accent-soft);color:var(--accent)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.no{background:var(--no-soft);color:var(--no)}
+
+main{padding-block:22px 60px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.panel h2{font-size:18px;margin-bottom:12px}
+.panel-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+.panel-head h2{margin:0}
+
+/* create */
+.desk{display:grid;gap:18px}
+@media(min-width:980px){.desk{grid-template-columns:minmax(320px,380px) minmax(0,1fr);align-items:start}.desk .brief{position:sticky;top:130px}}
+.ctx{display:flex;flex-wrap:wrap;gap:6px}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);min-width:0}
+.sheet-bar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.versions{display:flex;gap:4px;flex-wrap:wrap}
+.vbtn{font:500 12px var(--f-mono);border:1px solid var(--line);background:none;border-radius:6px;padding:3px 8px;cursor:pointer;color:var(--muted)}
+.vbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.out{padding:22px 24px 26px;min-height:260px;max-width:74ch;overflow-wrap:anywhere}
+.out.empty{display:flex;flex-direction:column;justify-content:center;gap:10px;color:var(--muted)}
+.out.thinking{color:var(--muted)}
+.doc h3{font-size:19px;margin:18px 0 8px}
+.doc h4{font-size:16px;margin:14px 0 6px}
+.doc h3:first-child,.doc h4:first-child{margin-top:0}
+.doc p{margin:0 0 10px}
+.doc ul,.doc ol{margin:0 0 10px;padding-left:22px}
+.doc blockquote{margin:12px 0;padding:8px 12px;border-left:3px solid var(--warn);background:var(--sunk);border-radius:0 8px 8px 0;font-size:14px;color:var(--muted)}
+.doc hr{border:0;border-top:1px dashed var(--line);margin:16px 0}
+.sheet-foot{border-top:1px solid var(--line);padding:16px 18px;display:grid;gap:16px}
+@media(min-width:760px){.sheet-foot{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
+.learned{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.rule{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;background:var(--sunk);font-size:14px}
+.rule .pill{margin-top:2px}
+.rule span.t{flex:1;min-width:0}
+.dots::after{content:"";animation:dots 1.2s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+@media (prefers-reduced-motion:reduce){.dots::after{animation:none;content:"..."}}
+
+.structs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.struct{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:8px 10px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+.struct b{font-weight:600;font-size:14px}
+.struct span{font-size:12px;color:var(--muted);line-height:1.35}
+.struct[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.struct[aria-checked="true"] b{color:var(--accent)}
+.bgrid{display:grid;gap:12px}
+.edit-box{grid-column:1/-1;display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.edit-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0}
+.edit-row input{flex:1;min-width:160px}
+.linkish{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font:inherit;text-decoration:underline;text-underline-offset:2px}
+
+.bv-grid{display:grid;gap:14px}
+.urlbox{display:flex;align-items:stretch;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.urlbox:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.urlbox span{display:flex;align-items:center;padding:0 2px 0 11px;font:13px var(--f-mono);color:var(--muted);user-select:none}
+.urlbox input{border:0;border-radius:0;padding-left:2px;min-width:0;flex:1}
+.urlbox input:focus{box-shadow:none}
+@media(min-width:860px){.bv-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)}}
+.bv-summary{background:var(--accent-soft);border-radius:10px;padding:14px 16px}
+.bv-summary ul{margin:0}
+.bv-details{border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.bv-details summary{cursor:pointer;font-weight:600}
+.bv-details .doc{margin-top:12px;max-height:520px;overflow:auto}
+.task{white-space:pre-wrap;background:var(--sunk);border-radius:8px;padding:12px;font:12px/1.5 var(--f-mono);max-height:220px;overflow:auto;margin:0}
+
+/* library */
+.lib{display:grid;gap:18px}
+@media(min-width:980px){.lib{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);align-items:start}}
+.list{display:flex;flex-direction:column}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:12px 0;border-top:1px solid var(--line);align-items:center}
+.item:first-child{border-top:0}
+.item .name{font-weight:600;overflow-wrap:anywhere}
+.item .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:3px}
+.item .acts{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
+.group{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}
+.group + .group{margin-top:10px}
+.group-steps{margin:10px 0 0;padding:0;list-style:none;counter-reset:step}
+.group-steps li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 0;border-top:1px dashed var(--line);counter-increment:step}
+.group-steps li::before{content:counter(step);font:500 12px var(--f-mono);color:var(--accent);background:var(--accent-soft);border-radius:6px;text-align:center;padding:2px 0}
+.empty-note{padding:18px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);text-align:center}
+.inline-form{display:none;gap:8px;margin-top:10px;flex-wrap:wrap}
+.inline-form.open{display:flex}
+.inline-form input{flex:1;min-width:160px}
+
+/* memory */
+.mem{display:grid;gap:18px}
+@media(min-width:980px){.mem{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}}
+.file{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:10px 0;border-top:1px solid var(--line)}
+.file:first-child{border-top:0}
+.file pre{grid-column:1/-1;white-space:pre-wrap;max-height:220px;overflow:auto;background:var(--sunk);padding:10px;border-radius:8px;font:12px/1.5 var(--f-mono);margin:4px 0 0}
+.drop{border:1.5px dashed var(--line);border-radius:12px;padding:16px;text-align:center;color:var(--muted);cursor:pointer;display:block}
+.drop:hover,.drop.over{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+.drop input{display:none}
+
+/* overlays */
+.overlay{position:fixed;inset:0;z-index:50;background:rgb(10 12 20/.45);display:flex;align-items:flex-start;justify-content:center;padding:max(40px,env(safe-area-inset-top,0px)) 16px 24px;overflow:auto}
+.overlay[hidden]{display:none!important}
+.modal{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);width:100%;max-width:560px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.modal h2{font-size:20px}
+.linkbox{display:flex;gap:8px;flex-wrap:wrap}
+.linkbox input{flex:1;min-width:200px;font:13px var(--f-mono)}
+.hint{font-size:13px;color:var(--muted);background:var(--sunk);border-radius:8px;padding:10px 12px}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:500;z-index:80;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+.gate{max-width:520px;margin:12vh auto;text-align:center;display:flex;flex-direction:column;gap:10px;padding-inline:16px}
+.gate h1{font-size:26px}
+
+/* client share view */
+.share{max-width:780px;margin:0 auto;padding:40px 16px 80px}
+.share-head{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:26px}
+.share-head .eyebrow{font:500 12px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.share-head h1{font-size:clamp(28px,5vw,40px);margin:6px 0 8px;letter-spacing:-.015em}
+.share-item{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
+.share-item header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line)}
+.share-item header h2{font-size:18px}
+.share-item .out{min-height:0}
+.step{font:500 12px var(--f-mono);color:var(--accent);margin-right:8px}
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate">
+  <h1>RetentionQ Copy Lab</h1>
+  <p class="muted dots">Łączę się z bazą</p>
+</div>
+
+<!-- ===== CLIENT SHARE VIEW ===== -->
+<div id="shareview" class="share" hidden></div>
+
+<!-- ===== APP ===== -->
+<div id="app" hidden>
+  <header class="top">
+    <div class="wrap">
+      <div class="brand" style="gap:10px;align-items:center"><a class="mx-brand" href="index.html?section=home" translate="no">Maximus</a><span class="mx-sep">/</span><span class="mx-title">Copy Generator</span></div>
+      <div class="client-pick">
+        <label for="client">Klient</label>
+        <select id="client"></select>
+        <button class="btn" data-act="edit-client">Edytuj klienta</button>
+        <button class="btn" data-act="open-newclient">+ Nowy klient</button>
+        <a class="mx-back" href="index.html?section=home">← Maximus</a>
+      </div>
+    </div>
+    <div class="wrap">
+      <nav class="tabs" role="tablist">
+        <button class="tab" role="tab" data-tab="create" aria-selected="true">Tworzenie</button>
+        <button class="tab" role="tab" data-tab="library">Biblioteka <span class="n" id="n-lib">0</span></button>
+        <button class="tab" role="tab" data-tab="memory">Edycja klienta <span class="n" id="n-mem">0</span></button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="noclient" class="empty-note" hidden>
+      <p><strong>Nie masz jeszcze klientów.</strong></p>
+      <p>Dodaj pierwszego klienta, wrzuć jego brand voice i wytyczne, a potem pisz briefy.</p>
+      <p><button class="btn primary" data-act="open-newclient">+ Dodaj klienta</button></p>
+    </div>
+
+    <!-- CREATE -->
+    <section id="tab-create" class="desk">
+      <div class="panel brief stack">
+        <div class="panel-head"><h2>Brief</h2><span id="edit-flag"></span></div>
+        <div class="row">
+          <div class="field" style="flex:1">
+            <label class="lbl" for="format">Kanał</label>
+            <select id="format" style="width:100%"></select>
+          </div>
+          <div class="field" style="flex:1">
+            <label class="lbl" for="group">Sekwencja</label>
+            <select id="group" style="width:100%"></select>
+          </div>
+        </div>
+        <div id="newgroup-inline" class="inline-form">
+          <input type="text" id="newgroup-inline-name" placeholder="Nazwa sekwencji, np. Onboarding – 5 maili">
+          <button class="btn" data-act="create-group-inline">Utwórz</button>
+        </div>
+        <div class="bgrid">
+          <div class="field"><label class="lbl" for="b-goal">Cel</label>
+            <input type="text" id="b-goal" data-bf="goal" placeholder="Np. powrót do koszyka w ciągu 24 h"></div>
+          <div class="field"><label class="lbl" for="b-segment">Segment</label>
+            <input type="text" id="b-segment" data-bf="segment" placeholder="Np. nowi klienci, porzucili koszyk przy 1. zamówieniu"></div>
+          <div class="field"><label class="lbl" for="b-argument">Argument</label>
+            <textarea id="b-argument" data-bf="argument" rows="2" style="min-height:0" placeholder="Np. darmowa dostawa tylko do niedzieli"></textarea></div>
+          <div class="field" id="structure-field"><span class="lbl" id="structs-lbl">Struktura maila</span>
+            <div class="structs" id="structs" role="radiogroup" aria-labelledby="structs-lbl"></div></div>
+          <div class="field"><label class="lbl" for="b-cta">CTA</label>
+            <input type="text" id="b-cta" data-bf="cta" placeholder="Np. Wracam do koszyka"></div>
+          <div class="field"><label class="lbl" for="brief">Dodatkowy kontekst <span style="text-transform:none;letter-spacing:0">(opcjonalnie)</span></label>
+            <textarea id="brief" data-bf="brief" rows="3" style="min-height:0" placeholder="Np. to mail #2 w sekwencji, wysyłka 2 h po porzuceniu, ton lżejszy niż w #1"></textarea></div>
+        </div>
+        <div class="row">
+          <button class="btn primary big" id="btn-create" data-act="create">Stwórz</button>
+          <button class="btn ghost" id="btn-stop" data-act="stop" hidden>Zatrzymaj</button>
+          <button class="btn ghost" data-act="new-draft">Nowy brief</button>
+        </div>
+        <div>
+          <span class="lbl">Kontekst, który dostanie model</span>
+          <div class="ctx" id="ctx"></div>
+        </div>
+      </div>
+
+      <div class="sheet">
+        <div class="sheet-bar">
+          <div class="row" style="gap:8px">
+            <strong id="sheet-title">Copy</strong>
+            <span class="mono muted" id="out-meta"></span>
+          </div>
+          <div class="row" style="gap:6px">
+            <div class="versions" id="versions"></div>
+            <button class="btn ghost" data-act="copy-out" id="btn-copy-out">Kopiuj</button>
+          </div>
+        </div>
+        <div class="out doc empty" id="out">
+          <p><strong>Tu pojawi się gotowe copy.</strong></p>
+          <p class="small">Wybierz klienta, kanał i opcjonalnie sekwencję, wpisz brief i kliknij <em>Stwórz</em>. Model dostaje brand voice, wytyczne, uwagi i wszystkie zasady wyuczone z Twoich poprawek.</p>
+        </div>
+        <div class="sheet-foot">
+          <div>
+            <label class="lbl" for="feedback">Uwagi do tej wersji</label>
+            <textarea id="feedback" rows="4" placeholder="Np. Za dużo wykrzykników. Nie używamy słowa „promocja”, zawsze „oferta”. Temat krótszy, max 40 znaków."></textarea>
+            <div class="row" style="margin-top:8px">
+              <button class="btn primary" data-act="revise" id="btn-revise">Nanieś uwagi</button>
+              <span class="small muted">Stałe zasady z uwag trafiają do pamięci klienta.</span>
+            </div>
+            <div class="learned" id="learned"></div>
+          </div>
+          <div>
+            <label class="lbl" for="save-name">Nazwa copy</label>
+            <input type="text" id="save-name" placeholder="Np. Porzucony koszyk #2 – darmowa dostawa">
+            <div class="row" style="margin-top:8px">
+              <button class="btn primary" data-act="save" id="btn-save">Zapisz na liście</button>
+              <button class="btn" data-act="save-new" id="btn-save-new" hidden>Zapisz jako nowe</button>
+            </div>
+            <p class="small muted" id="save-status" style="margin:8px 0 0"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIBRARY -->
+    <section id="tab-library" class="lib" hidden>
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Sekwencje</h2>
+          <button class="btn" data-act="toggle-newgroup">+ Nowa sekwencja</button>
+        </div>
+        <div id="newgroup-form" class="inline-form">
+          <input type="text" id="newgroup-name" placeholder="Nazwa, np. Winback 30 dni">
+          <button class="btn primary" data-act="create-group">Utwórz</button>
+        </div>
+        <div id="lib-groups" style="margin-top:12px"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Zapisane copy</h2>
+          <input type="search" id="lib-search" placeholder="Szukaj po nazwie lub treści" style="max-width:260px">
+        </div>
+        <div class="list" id="lib-copies"></div>
+      </div>
+    </section>
+
+    <!-- MEMORY -->
+    <section id="tab-memory" class="mem" hidden>
+      <div class="panel bv" id="bv-panel" style="grid-column:1/-1">
+        <div class="panel-head"><h2>Brand voice ze strony klienta</h2><span id="bv-badge"></span></div>
+        <div id="bv-start" class="bv-grid">
+          <div class="stack">
+            <div class="field"><label class="lbl" for="bv-url">Adres strony</label>
+              <div class="urlbox"><span aria-hidden="true">https://</span><input type="text" id="bv-url" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="www.klient.pl"></div></div>
+            <div class="row"><button class="btn primary" data-act="bv-build" id="bv-build">Zbuduj brand voice</button></div>
+            <p class="small muted" style="margin:0" id="bv-howto">Claude sam przejdzie po stronie i jej najważniejszych podstronach, a potem pokaże podsumowanie do akceptu. Jeśli strona blokuje roboty albo chcesz dorzucić np. newslettery, wklej teksty obok – wtedy brand voice powstanie z nich.</p>
+          </div>
+          <div class="field"><label class="lbl" for="bv-paste">Własne teksty <span style="text-transform:none;letter-spacing:0">(opcjonalnie)</span></label>
+            <textarea id="bv-paste" rows="7" placeholder="Wklej treść strony głównej, „O nas”, opisów produktów, FAQ, przykładowego newslettera. Im więcej, tym trafniej."></textarea></div>
+        </div>
+        <div id="bv-pending" class="stack" hidden></div>
+        <p id="bv-busy" class="muted dots" hidden>Analizuję teksty i piszę brand voice</p>
+        <div id="bv-ready" class="stack" hidden>
+          <p class="mono muted" id="bv-meta" style="margin:0"></p>
+          <div class="bv-summary doc" id="bv-summary"></div>
+          <details class="bv-details"><summary>Pełny dokument brand voice</summary><div class="doc" id="bv-doc"></div></details>
+          <div class="bv-grid">
+            <div class="field"><label class="lbl" for="bv-feedback">Uwagi do brand voice</label>
+              <textarea id="bv-feedback" rows="3" placeholder="Np. mniej formalnie, zwracamy się per Ty, dodaj że nie używamy emoji w temacie maila"></textarea>
+              <div class="row" style="margin-top:8px"><button class="btn" data-act="bv-revise" id="bv-revise">Nanieś uwagi</button></div></div>
+            <div class="stack" style="gap:10px;align-self:end">
+              <label class="small row" style="gap:8px;flex-wrap:nowrap"><input type="checkbox" id="bv-replace"> Usuń dotychczasowe pliki brand voice tego klienta</label>
+              <div class="row"><button class="btn primary" data-act="bv-accept">Akceptuję, ładuję</button><button class="btn ghost danger" data-act="bv-discard">Odrzuć szkic</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="panel">
+          <div class="panel-head"><h2>Brand voice i pliki</h2></div>
+          <div class="row" style="margin-bottom:10px">
+            <label class="lbl" for="file-kind" style="margin:0">Typ pliku</label>
+            <select id="file-kind">
+              <option value="brandvoice">Brand voice</option>
+              <option value="guidelines">Wytyczne</option>
+              <option value="other">Inne materiały</option>
+            </select>
+          </div>
+          <label class="drop" id="drop">
+            <input type="file" id="file-input" multiple accept=".txt,.md,.markdown,.pdf,.docx,.html,.htm,.csv,.json">
+            <strong>Wrzuć pliki</strong><br><span class="small">PDF, DOCX, TXT, MD, HTML, CSV · kliknij albo przeciągnij</span>
+          </label>
+          <p class="small muted" id="file-status" style="margin:8px 0 0"></p>
+          <p class="small" style="margin:6px 0 0">albo <button class="linkish" data-act="toggle-paste">wklej tekst brand voice</button></p>
+          <div id="paste-form" class="edit-box" hidden>
+            <input type="text" id="paste-name" placeholder="Nazwa, np. Brand voice – wersja 2026">
+            <textarea id="paste-text" rows="8" placeholder="Wklej tu treść brand booka, tone of voice, przykładowe teksty…"></textarea>
+            <div class="row"><button class="btn primary" data-act="save-paste">Zapisz</button><button class="btn ghost" data-act="toggle-paste">Anuluj</button></div>
+          </div>
+          <div id="files" style="margin-top:8px"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Wytyczne</h2><span class="small muted" id="guide-status"></span></div>
+          <textarea id="guidelines" rows="7" placeholder="Stałe zasady klienta: persona, zwroty do klienta (Ty / Pan/Pani), zakazane słowa, długości, emoji tak/nie, podpis."></textarea>
+          <div class="row" style="margin-top:8px"><button class="btn primary" data-act="save-guidelines">Zapisz wytyczne</button></div>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="panel">
+          <div class="panel-head"><h2>Zasady wyuczone</h2><span class="pill acc" id="rules-count">0</span></div>
+          <p class="small muted" style="margin:0 0 10px">Wyciągane z Twoich uwag. Każde kolejne copy musi się ich trzymać.</p>
+          <div class="row" style="margin-bottom:10px;flex-wrap:nowrap">
+            <select id="rule-type"><option value="do">Rób</option><option value="dont">Nie rób</option></select>
+            <input type="text" id="rule-input" placeholder="Dodaj zasadę ręcznie">
+            <button class="btn" data-act="add-rule">Dodaj</button>
+          </div>
+          <div class="learned" id="rules"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Uwagi z prac</h2></div>
+          <div class="row" style="flex-wrap:nowrap">
+            <input type="text" id="note-input" placeholder="Np. Od października nie wspominamy o darmowej dostawie">
+            <button class="btn" data-act="add-note">Dodaj</button>
+          </div>
+          <div id="notes" style="margin-top:10px"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Klient</h2></div>
+          <div class="row" style="flex-wrap:nowrap">
+            <input type="text" id="client-name" placeholder="Nazwa klienta">
+            <button class="btn" data-act="rename-client">Zmień nazwę</button>
+          </div>
+          <div class="row" style="margin-top:12px"><button class="btn danger" data-act="delete-client">Usuń klienta</button><span class="small muted">Zapisane copy zostają w bazie.</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- new client -->
+<div class="overlay" id="ov-newclient" hidden>
+  <div class="modal">
+    <h2>Nowy klient</h2>
+    <div class="field"><label class="lbl" for="nc-name">Nazwa</label><input type="text" id="nc-name" placeholder="Np. Foodify"></div>
+    <div class="field"><label class="lbl" for="nc-guidelines">Wytyczne i uwagi (opcjonalnie)</label><textarea id="nc-guidelines" rows="4" placeholder="Wszystko, czego nie ma w plikach"></textarea></div>
+    <div class="field">
+      <span class="lbl">Brand voice i inne pliki (opcjonalnie)</span>
+      <label class="drop"><input type="file" id="nc-files" multiple accept=".txt,.md,.markdown,.pdf,.docx,.html,.htm,.csv,.json"><strong>Wybierz pliki</strong><br><span class="small" id="nc-files-label">PDF, DOCX, TXT, MD</span></label>
+    </div>
+    <div class="row end">
+      <button class="btn ghost" data-act="close-overlay">Anuluj</button>
+      <button class="btn primary" data-act="create-client" id="nc-create">Dodaj klienta</button>
+    </div>
+  </div>
+</div>
+
+<!-- share -->
+<div class="overlay" id="ov-share" hidden>
+  <div class="modal" id="share-modal"></div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+/* ---------- Maximus Firebase (same project as index.html) ---------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyCzXWLpAK-GDGMcp1Hkwoztz7IN8VuaN_o",
+  authDomain: "mailerq.firebaseapp.com",
+  projectId: "mailerq",
+  storageBucket: "mailerq.firebasestorage.app",
+  messagingSenderId: "149160081533",
+  appId: "1:149160081533:web:e1843467e285848604d914"
+};
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const fdb = getFirestore(fbApp);
+
+// Data lives in copylab/main/{clients,files,copies,groups}; public client links in copylabShares/{token}.
+const colRef = name => collection(fdb, "copylab", "main", name);
+const docRef = path => { const [c,id] = path.split("/"); return c==="shares" ? doc(fdb, "copylabShares", id) : doc(fdb, "copylab", "main", c, id); };
+const clean = o => JSON.parse(JSON.stringify(o));
+const fbErr = e => { const c=(e&&e.code)||""; return {code: c==="permission-denied"?"permission_denied": (c==="resource-exhausted"||c==="invalid-argument")?"quota_exceeded":"unavailable", message:e&&e.message}; };
+const DBA = {
+  collection: name => ({ onSnapshot: (next, err) => onSnapshot(colRef(name),
+    snap => next({ docs: snap.docs.map(d => ({ id:d.id, data:()=>d.data() })) }),
+    e => err && err(fbErr(e))) }),
+  doc: path => { const r = docRef(path); return {
+    set: d => setDoc(r, clean(d)).catch(e => { throw fbErr(e); }),
+    update: d => updateDoc(r, clean(d)).catch(e => { throw fbErr(e); }),
+    delete: () => deleteDoc(r).catch(e => { throw fbErr(e); }),
+    get: async () => { try { const x = await getDoc(r); return { exists:x.exists(), data:()=>x.data() }; } catch(e) { throw fbErr(e); } }
+  }; }
+};
+
+/* ---------- Claude API (user's key from Maximus → Connect Claude) ---------- */
+function apiHeaders(){return {"x-api-key":S.apiKey,"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"}}
+async function apiError(res){
+  const b=await res.json().catch(()=>null);const msg=b&&b.error&&b.error.message||("HTTP "+res.status);
+  const code=res.status===401||res.status===403?"bad_key":res.status===429?"rate_limited":(res.status===529||res.status===503)?"overloaded":res.status>=500?"upstream_error":"bad_request";
+  return {code,message:msg};
+}
+async function claudeCall(prompt,opts={}){
+  if(!S.apiKey)throw {code:"no_key"};
+  const messages=typeof prompt==="string"?[{role:"user",content:prompt}]:prompt;
+  let res;
+  try{res=await fetch(API_URL,{method:"POST",signal:opts.signal,headers:apiHeaders(),body:JSON.stringify({model:MODEL,max_tokens:opts.maxTokens||8000,stream:true,messages})})}
+  catch(e){throw {code:e&&e.name==="AbortError"?"cancelled":"network"}}
+  if(!res.ok)throw await apiError(res);
+  const reader=res.body.getReader(),dec=new TextDecoder();let buf="",text="",truncated=false;
+  try{
+    for(;;){
+      const {done,value}=await reader.read();if(done)break;
+      buf+=dec.decode(value,{stream:true});let i;
+      while((i=buf.indexOf("\n\n"))>=0){
+        const chunk=buf.slice(0,i);buf=buf.slice(i+2);
+        const line=chunk.split("\n").find(l=>l.startsWith("data:"));if(!line)continue;
+        let ev;try{ev=JSON.parse(line.slice(5))}catch{continue}
+        if(ev.type==="content_block_delta"&&ev.delta&&ev.delta.type==="text_delta"){text+=ev.delta.text;opts.onText&&opts.onText({text,delta:ev.delta.text})}
+        else if(ev.type==="message_delta"&&ev.delta&&ev.delta.stop_reason==="max_tokens")truncated=true;
+        else if(ev.type==="error")throw {code:ev.error&&ev.error.type==="overloaded_error"?"overloaded":"upstream_error",message:ev.error&&ev.error.message};
+      }
+    }
+  }catch(e){if(e&&e.name==="AbortError")throw {code:"cancelled",text};throw e&&e.code?{...e,text}:{code:"upstream_error",text}}
+  if(!text.trim())throw {code:"empty_completion"};
+  return {text,truncated};
+}
+claudeCall.json=async(prompt,opts={})=>{
+  const r=await claudeCall(prompt,{...opts,maxTokens:2000});
+  const m=r.text.match(/\{[\s\S]*\}/);if(!m)throw {code:"invalid_json",text:r.text};
+  try{return JSON.parse(m[0])}catch{throw {code:"invalid_json",text:r.text}}
+};
+
+/* ---------- config ---------- */
+const MODEL = "claude-opus-5-5";
+const API_URL = "https://api.anthropic.com/v1/messages";
+const FORMATS = {
+  email:  {label:"E-mail", guide:"Struktura: **Temat:** (3 warianty, max ok. 45 znaków), **Preheader:** (max ok. 90 znaków), potem treść maila z nagłówkiem (## ), krótkimi akapitami, ewentualnie listą korzyści, i **CTA:** (tekst przycisku, 2-4 słowa)."},
+  sms:    {label:"SMS", guide:"Podaj 3 warianty SMS, każdy max 160 znaków (wliczając link placeholder {link}), pod każdym licznik znaków w nawiasie. Nadawca nie jest częścią treści."},
+  push:   {label:"Push", guide:"Podaj 3 warianty: **Tytuł:** max 45 znaków, **Treść:** max 110 znaków. Pod każdym licznik znaków."},
+  inapp:  {label:"In-app / on-site", guide:"Struktura: **Nagłówek:**, **Treść:** (1-3 zdania), **CTA główne:**, opcjonalnie **CTA drugie:**. Podaj 2 warianty."},
+  landing:{label:"Landing / sekcja strony", guide:"Rozpisz sekcje (## Nazwa sekcji): hero (nagłówek, podtytuł, CTA), korzyści, dowody, FAQ jeśli pasuje, CTA końcowe."},
+  social: {label:"Social / reklama", guide:"Podaj 3 warianty: **Tekst główny:**, **Nagłówek:** (max 40 znaków), **Opis:** (max 30 znaków), **CTA:**."},
+  other:  {label:"Inne", guide:"Dobierz strukturę do briefu."}
+};
+const STRUCTS = {
+  marketing:{label:"Marketingowy",desc:"Nagłówek, krótkie akapity, lista korzyści, przycisk",guide:"Treść w układzie marketingowym: nagłówek (## ), 2-4 krótkie akapity, lista 3-4 korzyści, wyraźny przycisk CTA."},
+  letter:{label:"List osobisty",desc:"Jak od człowieka z firmy, bez nagłówków, z podpisem",guide:"Treść jak osobisty list od konkretnej osoby z firmy: zwrot na początku, płynne akapity bez nagłówków i list, CTA wplecione w tekst jako link, podpis imieniem i rolą (placeholder [Imię], jeśli go nie znasz)."},
+  plain:{label:"Krótki plain-text",desc:"3–5 zdań jak od znajomego, link zamiast przycisku",guide:"Bardzo krótki mail w stylu plain-text: 3-5 zdań, zero nagłówków i formatowania, jedna prośba albo jedno pytanie, CTA jako zwykły link w zdaniu."},
+  story:{label:"Storytelling",desc:"Historia albo insight, wartość, miękkie CTA",guide:"Otwórz historią, sceną albo ciekawym insightem, potem daj wartość (wiedza, porada), sprzedaż dopiero na końcu i delikatnie. Śródtytuły tylko przy dłuższym tekście."},
+  product:{label:"Produktowy",desc:"Moduły produktów z opisem i CTA przy każdym",guide:"Krótkie intro, potem 2-4 moduły produktów lub ofert (### Nazwa, 1-2 zdania opisu, **CTA modułu:**), na końcu CTA główne."},
+  info:{label:"Informacyjny",desc:"Konkret, daty i kroki, minimum sprzedaży",guide:"Mail informacyjny: najważniejsza informacja w pierwszym zdaniu, konkrety (daty, kroki, liczby) w krótkiej liście, bez nachalnej sprzedaży."}
+};
+const BF = [["goal","Cel"],["segment","Segment"],["argument","Argument"],["cta","CTA"],["brief","Dodatkowy kontekst"]];
+function briefText(d){
+  const out=[];
+  for(const [k,l] of BF.slice(0,3)){if((d[k]||"").trim())out.push(`${l}: ${d[k].trim()}`)}
+  if(d.format==="email"){const s=STRUCTS[d.structure||"marketing"];out.push(`Struktura maila: ${s.label} (${s.desc})`)}
+  for(const [k,l] of BF.slice(3)){if((d[k]||"").trim())out.push(`${l}: ${d[k].trim()}`)}
+  return out.join("\n");
+}
+const hasBrief = d => BF.some(([k])=>(d[k]||"").trim());
+function formatGuide(d){
+  if(d.format!=="email")return FORMATS[d.format].guide;
+  const s=STRUCTS[d.structure||"marketing"];
+  return `Zawsze na górze: **Temat:** (3 warianty, max ok. 45 znaków) i **Preheader:** (max ok. 90 znaków). Potem treść. ${s.guide} Na końcu **CTA:** z tekstem przycisku lub linku (użyj CTA z briefu, jeśli jest podane).`;
+}
+const KIND = {brandvoice:"Brand voice", guidelines:"Wytyczne", other:"Materiały"};
+const PROMPT_CAP = 240000; // bytes, below the 256 KiB sample cap
+
+/* ---------- state ---------- */
+const S = {db:null,apiKey:"",me:null,sample:null,
+  clients:[],files:[],copies:[],groups:[],clientId:null,tab:"create",
+  drafts:{},busy:false,ctl:null,subs:[],lastLearned:[],started:false};
+
+/* ---------- utils ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const rid = (n=12) => { const a="abcdefghijkmnopqrstuvwxyz23456789"; let s=""; const r=crypto.getRandomValues(new Uint8Array(n)); for(const x of r) s+=a[x%a.length]; return s; };
+const now = () => Date.now();
+const fmtDate = t => t ? new Intl.DateTimeFormat("pl-PL",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(t)) : "";
+const fmtDay = t => t ? new Intl.DateTimeFormat("pl-PL",{day:"numeric",month:"short",year:"numeric"}).format(new Date(t)) : "";
+const bytes = s => new TextEncoder().encode(s).length;
+const store = {
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+};
+let toastT;
+function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2600)}
+function armed(btn,label="Na pewno?"){
+  if(btn.dataset.armed==="1"){btn.dataset.armed="";btn.classList.remove("armed");btn.textContent=btn.dataset.orig;return true}
+  btn.dataset.orig=btn.textContent;btn.dataset.armed="1";btn.classList.add("armed");btn.textContent=label;
+  setTimeout(()=>{if(btn.dataset.armed==="1"){btn.dataset.armed="";btn.classList.remove("armed");btn.textContent=btn.dataset.orig}},3500);
+  return false;
+}
+async function copyText(text,html){
+  try{
+    if(html && window.ClipboardItem){
+      await navigator.clipboard.write([new ClipboardItem({"text/plain":new Blob([text],{type:"text/plain"}),"text/html":new Blob([html],{type:"text/html"})})]);
+    } else await navigator.clipboard.writeText(text);
+    toast("Skopiowano");
+  }catch{
+    try{await navigator.clipboard.writeText(text);toast("Skopiowano")}
+    catch{toast("Nie udało się skopiować – zaznacz tekst ręcznie")}
+  }
+}
+
+/* ---------- markdown-lite ---------- */
+function inline(s){return esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/(^|[^*\w])\*(?!\s)([^*]+?)\*(?!\*)/g,"$1<em>$2</em>")}
+function md(src){
+  const lines=String(src||"").replace(/\r/g,"").split("\n");let html="",para=[],list=null;
+  const fp=()=>{if(para.length){html+="<p>"+para.map(inline).join("<br>")+"</p>";para=[]}};
+  const fl=()=>{if(list){html+=`<${list.t}>`+list.items.map(i=>"<li>"+inline(i)+"</li>").join("")+`</${list.t}>`;list=null}};
+  for(const raw of lines){
+    const l=raw.trimEnd();let m;
+    if(!l.trim()){fp();fl();continue}
+    if(m=l.match(/^(#{1,4})\s+(.*)$/)){fp();fl();html+=(m[1].length<=2?"<h3>":"<h4>")+inline(m[2])+(m[1].length<=2?"</h3>":"</h4>");continue}
+    if(/^\s*(-{3,}|\*{3,})\s*$/.test(l)){fp();fl();html+="<hr>";continue}
+    if(m=l.match(/^>\s?(.*)$/)){fp();fl();html+="<blockquote>"+inline(m[1])+"</blockquote>";continue}
+    if(m=l.match(/^\s*[-*•]\s+(.*)$/)){fp();if(!list||list.t!=="ul"){fl();list={t:"ul",items:[]}}list.items.push(m[1]);continue}
+    if(m=l.match(/^\s*\d+[.)]\s+(.*)$/)){fp();if(!list||list.t!=="ol"){fl();list={t:"ol",items:[]}}list.items.push(m[1]);continue}
+    fl();para.push(l);
+  }
+  fp();fl();return html;
+}
+const plain = s => String(s||"").replace(/\*\*(.+?)\*\*/g,"$1").replace(/^#{1,4}\s+/gm,"").replace(/^>\s?/gm,"").trim();
+
+/* ---------- data helpers ---------- */
+const client = () => S.clients.find(c=>c.id===S.clientId) || null;
+const clientFiles = id => S.files.filter(f=>f.clientId===id).sort((a,b)=>a.at-b.at);
+const clientCopies = id => S.copies.filter(c=>c.clientId===id).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+const clientGroups = id => S.groups.filter(g=>g.clientId===id).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+const groupCopies = gid => S.copies.filter(c=>c.groupId===gid).sort((a,b)=>(a.groupPos??0)-(b.groupPos??0)||(a.createdAt-b.createdAt));
+function mapSnap(snap){return snap.docs.map(d=>({id:d.id,...d.data()}))}
+async function dbErr(e,what){console.error(what,e);if(e?.code==="permission_denied")return showRulesGate();toast(e?.code==="quota_exceeded"?"Dokument jest za duży – skróć plik":"Nie udało się zapisać ("+(e?.code||"błąd")+"). Spróbuj ponownie.")}
+
+/* ---------- draft ---------- */
+function blankDraft(){return {format:"email",structure:"marketing",groupId:"",goal:"",segment:"",argument:"",cta:"",brief:"",versions:[],vi:-1,copyId:null,name:""}}
+function draft(){if(!S.clientId)return blankDraft();if(!S.drafts[S.clientId])S.drafts[S.clientId]=blankDraft();return S.drafts[S.clientId]}
+let saveDraftT;
+function persistDraft(){clearTimeout(saveDraftT);saveDraftT=setTimeout(()=>store.set("cl-drafts",S.drafts),400)}
+
+/* ---------- boot ---------- */
+function boot(){
+  S.db = DBA; S.sample = claudeCall;
+  const share=new URLSearchParams(location.search).get("share");
+  if(share&&/^[a-z0-9]{8,32}$/.test(share))return showShare(share);
+  onAuthStateChanged(auth, async user=>{
+    if(!user){showGate("Zaloguj się w Maximus","Copy Generator korzysta z konta Maximus: tych samych klientów, bazy i Twojego klucza Claude.",`<p><a class="btn primary" href="index.html?section=home">Przejdź do logowania</a></p>`);return}
+    let u={};
+    try{const snap=await getDoc(doc(fdb,"users",user.uid));u=snap.exists()?snap.data():{}}catch(e){console.warn(e)}
+    if(u.disabled){showGate("Konto wyłączone","Poproś administratora Maximus o włączenie konta.");return}
+    S.me={uid:user.uid,email:user.email,name:user.displayName||user.email};
+    S.apiKey=(u.anthropicApiKey||"").trim();
+    $("#gate").hidden=true;$("#shareview").hidden=true;$("#app").hidden=false;
+    if(!S.started)startApp();
+  });
+}
+function showGate(h,p,extra){const g=$("#gate");g.hidden=false;g.innerHTML=`<h1>${esc(h)}</h1><p class="muted">${esc(p)}</p>${extra||""}`;$("#app").hidden=true;$("#shareview").hidden=true}
+const RULES_SNIPPET=`match /copylab/{path=**} {
+  allow read, write: if request.auth != null
+    && request.auth.token.email.matches('.*@retentionq[.]com$');
+}
+match /copylabShares/{token} {
+  allow read: if true;
+  allow write: if request.auth != null
+    && request.auth.token.email.matches('.*@retentionq[.]com$');
+}`;
+function showRulesGate(){showGate("Baza nie wpuszcza Copy Generatora","Firestore odrzucił dostęp do nowych kolekcji. Dodaj te reguły w Firebase Console → Firestore → Rules (wewnątrz match /databases/{database}/documents) i opublikuj, potem odśwież stronę.",`<pre class="rules">${esc(RULES_SNIPPET)}</pre>`)}
+
+function startApp(){
+  S.started=true;
+  S.drafts=store.get("cl-drafts",{});
+  S.clientId=store.get("cl-client",null);
+  S.tab=store.get("cl-tab","create");
+  $("#format").innerHTML=Object.entries(FORMATS).map(([k,v])=>`<option value="${k}">${esc(v.label)}</option>`).join("");
+  const sub=(col,key)=>S.subs.push(S.db.collection(col).onSnapshot(s=>{S[key]=mapSnap(s);S.loaded[key]=true;renderAll()},e=>{console.error(col,e);if(e?.code==="permission_denied")showRulesGate();else toast("Utracono połączenie z bazą – odśwież stronę")}));
+  S.loaded={};
+  sub("clients","clients");sub("files","files");sub("copies","copies");sub("groups","groups");
+  if(!S.apiKey){$("#btn-create").disabled=true;$("#btn-revise").disabled=true;setOutEmpty("Połącz Claude, żeby generować","W Maximus otwórz menu konta → Connect Claude i wklej klucz API z console.anthropic.com. Potem odśwież tę stronę.")}
+  bindStatic();setTab(S.tab);
+}
+
+/* ---------- rendering ---------- */
+function renderAll(){
+  if(!S.loaded.clients)return;
+  S.clients.sort((a,b)=>(a.name||"").localeCompare(b.name||"","pl"));
+  if(!S.clients.find(c=>c.id===S.clientId))S.clientId=S.clients[0]?.id||null;
+  const sel=$("#client");
+  sel.innerHTML=S.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")||`<option value="">—</option>`;
+  sel.value=S.clientId||"";
+  const none=!S.clients.length;
+  $("#noclient").hidden=!none;
+  ["#tab-create","#tab-library","#tab-memory"].forEach(id=>{if(none)$(id).hidden=true});
+  if(!none)setTab(S.tab,true);
+  $("#n-lib").textContent=S.clientId?clientCopies(S.clientId).length:0;
+  const cl=client();
+  $("#n-mem").textContent=cl?((cl.learnings||[]).length):0;
+  renderCreate();renderLibrary();renderMemory();renderBV();
+}
+
+function setTab(t,quiet){
+  S.tab=t;store.set("cl-tab",t);
+  document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===t)));
+  if(!S.clients.length&&S.loaded?.clients)return;
+  $("#tab-create").hidden=t!=="create";$("#tab-library").hidden=t!=="library";$("#tab-memory").hidden=t!=="memory";
+  if(!quiet)window.scrollTo({top:0});
+}
+
+function renderCreate(){
+  const d=draft(),cl=client();
+  const gs=cl?clientGroups(cl.id):[];
+  $("#group").innerHTML=`<option value="">Bez sekwencji</option>`+gs.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join("")+`<option value="__new">+ Nowa sekwencja…</option>`;
+  if(d.groupId&&!gs.find(g=>g.id===d.groupId))d.groupId="";
+  $("#group").value=d.groupId||"";
+  $("#format").value=d.format||"email";
+  document.querySelectorAll("[data-bf]").forEach(inp=>{if(document.activeElement!==inp)inp.value=d[inp.dataset.bf]||""});
+  renderStructs();
+  if(document.activeElement!==$("#save-name"))$("#save-name").value=d.name||"";
+  // context chips
+  if(cl){
+    const fs=clientFiles(cl.id),ls=cl.learnings||[],ns=cl.notes||[],ex=clientCopies(cl.id).length;
+    const chip=(ok,txt)=>`<span class="pill ${ok?"ok":""}">${esc(txt)}</span>`;
+    $("#ctx").innerHTML=[
+      chip(fs.some(f=>f.kind==="brandvoice"),fs.some(f=>f.kind==="brandvoice")?"Brand voice":"Brak brand voice"),
+      chip(fs.length,`${fs.length} plik${fs.length===1?"":fs.length>1&&fs.length<5?"i":"ów"}`),
+      chip((cl.guidelines||"").trim(),(cl.guidelines||"").trim()?"Wytyczne":"Brak wytycznych"),
+      chip(ns.length,`${ns.length} uwag`),
+      chip(ls.length,`${ls.length} zasad`),
+      chip(ex,`${Math.min(ex,3)} wzorów copy`)
+    ].join("");
+  } else $("#ctx").innerHTML="";
+  // edit flag
+  const saved=d.copyId&&S.copies.find(c=>c.id===d.copyId);
+  $("#edit-flag").innerHTML=saved?`<span class="pill acc">Edytujesz zapisane</span>`:"";
+  $("#btn-save").textContent=saved?"Zapisz zmiany":"Zapisz na liście";
+  $("#btn-save-new").hidden=!saved;
+  $("#save-status").textContent=saved?`Utworzone ${fmtDate(saved.createdAt)}${saved.updatedAt&&saved.updatedAt!==saved.createdAt?" · zmienione "+fmtDate(saved.updatedAt):""}`:"";
+  if(!S.busy)renderOut();
+  renderLearned();
+}
+
+function renderStructs(){
+  const d=draft();$("#structure-field").hidden=d.format!=="email";
+  const cur=d.structure||"marketing";
+  $("#structs").innerHTML=Object.entries(STRUCTS).map(([k,s])=>`<button type="button" class="struct" role="radio" aria-checked="${k===cur}" data-act="struct" data-k="${k}"><b>${esc(s.label)}</b><span>${esc(s.desc)}</span></button>`).join("");
+}
+function setOutEmpty(h,p){const o=$("#out");o.className="out doc empty";o.innerHTML=`<p><strong>${esc(h)}</strong></p><p class="small">${esc(p)}</p>`}
+function renderOut(streamText){
+  const d=draft(),o=$("#out");
+  const text=streamText??(d.versions[d.vi]?.text);
+  if(!text){
+    if(!S.apiKey)return;
+    setOutEmpty("Tu pojawi się gotowe copy.","Wybierz klienta, kanał i opcjonalnie sekwencję, wpisz brief i kliknij Stwórz. Model dostaje brand voice, wytyczne, uwagi i wszystkie zasady wyuczone z Twoich poprawek.");
+    $("#versions").innerHTML="";$("#out-meta").textContent="";return;
+  }
+  o.className="out doc";o.innerHTML=md(text);
+  const p=plain(text);
+  $("#out-meta").textContent=`${FORMATS[d.format]?.label||""} · ${p.length} znaków`;
+  $("#versions").innerHTML=streamText!=null?"":d.versions.map((v,i)=>`<button class="vbtn" data-act="ver" data-i="${i}" aria-pressed="${i===d.vi}" title="${esc(fmtDate(v.at))}${v.feedback?" · po uwagach":""}">v${i+1}</button>`).join("");
+}
+function setThinking(msg){const o=$("#out");o.className="out doc thinking";o.innerHTML=`<p class="dots">${esc(msg)}</p><p class="small muted">Najmocniejszy model myśli przed pisaniem – zwykle 10–60 s.</p>`;$("#versions").innerHTML="";$("#out-meta").textContent=""}
+
+function renderLearned(){
+  const box=$("#learned");
+  if(!S.lastLearned.length||S.lastLearned[0].clientId!==S.clientId){box.innerHTML="";return}
+  const cl=client();const ids=new Set((cl?.learnings||[]).map(r=>r.id));
+  const items=S.lastLearned.filter(r=>ids.has(r.id));
+  box.innerHTML=items.length?`<span class="lbl" style="margin:4px 0 0">Zapamiętane z tych uwag</span>`+items.map(r=>ruleHTML(r)).join(""):"";
+}
+function ruleHTML(r,editable){return `<div class="rule"><span class="pill ${r.type==="dont"?"no":"ok"}">${r.type==="dont"?"Nie":"Tak"}</span><span class="t">${esc(r.text)}</span>${editable?`<button class="btn ghost small" data-act="edit" data-kind="rule" data-id="${r.id}">Edytuj</button>`:""}<button class="btn ghost small" data-act="del-rule" data-id="${r.id}" aria-label="Usuń zasadę">Usuń</button></div>`}
+
+function renderLibrary(){
+  const cl=client();if(!cl){$("#lib-groups").innerHTML="";$("#lib-copies").innerHTML="";return}
+  const q=($("#lib-search").value||"").toLowerCase().trim();
+  const gs=clientGroups(cl.id);
+  $("#lib-groups").innerHTML=gs.length?gs.map(g=>{
+    const cs=groupCopies(g.id);
+    const others=clientCopies(cl.id).filter(c=>c.groupId!==g.id);
+    return `<div class="group">
+      <div class="panel-head" style="margin:0">
+        <div><div class="name" style="font-weight:600">${esc(g.name)}</div>
+        <div class="meta row small muted" style="gap:6px;margin-top:2px"><span>${cs.length} copy</span><span>·</span><span>utworzona ${esc(fmtDay(g.createdAt))}</span>${g.shareId?`<span class="pill acc">Udostępniona</span>`:""}</div></div>
+        <div class="row" style="gap:4px"><button class="btn" data-act="share-group" data-id="${g.id}">Udostępnij</button><button class="btn ghost danger" data-act="del-group" data-id="${g.id}">Usuń</button></div>
+      </div>
+      ${cs.length?`<ol class="group-steps">${cs.map((c,i)=>`<li><span style="min-width:0;overflow-wrap:anywhere"><a href="#" data-act="open-copy" data-id="${c.id}" style="color:inherit">${esc(c.name)}</a> <span class="pill">${esc(FORMATS[c.format]?.label||"")}</span></span>
+        <span class="row" style="gap:0">
+          <button class="btn ghost" data-act="move" data-id="${c.id}" data-dir="-1" ${i===0?"disabled":""} aria-label="W górę">↑</button>
+          <button class="btn ghost" data-act="move" data-id="${c.id}" data-dir="1" ${i===cs.length-1?"disabled":""} aria-label="W dół">↓</button>
+          <button class="btn ghost" data-act="ungroup" data-id="${c.id}" aria-label="Wyjmij z sekwencji">✕</button>
+        </span></li>`).join("")}</ol>`:`<p class="small muted" style="margin:8px 0 0">Pusta. Wybierz tę sekwencję w briefie albo dodaj zapisane copy poniżej.</p>`}
+      ${others.length?`<div class="row" style="margin-top:10px;flex-wrap:nowrap"><select data-role="add-to" data-gid="${g.id}" style="flex:1;min-width:0"><option value="">Dodaj zapisane copy…</option>${others.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select></div>`:""}
+    </div>`}).join(""):`<div class="empty-note small">Sekwencja zbiera kilka copy, np. 4 maile onboardingu. Całą sekwencję udostępniasz jednym linkiem.</div>`;
+  let cs=clientCopies(cl.id);
+  if(q)cs=cs.filter(c=>(c.name||"").toLowerCase().includes(q)||(c.text||"").toLowerCase().includes(q));
+  $("#lib-copies").innerHTML=cs.length?cs.map(c=>{
+    const g=c.groupId&&S.groups.find(x=>x.id===c.groupId);
+    return `<div class="item">
+      <div style="min-width:0"><div class="name">${esc(c.name)}</div>
+        <div class="meta"><span class="pill">${esc(FORMATS[c.format]?.label||"")}</span>${g?`<span class="pill acc">${esc(g.name)}</span>`:""}${c.shareId?`<span class="pill ok">Udostępnione</span>`:""}<span class="mono muted">${esc(fmtDate(c.createdAt))}</span></div></div>
+      <div class="acts">
+        <button class="btn" data-act="open-copy" data-id="${c.id}">Otwórz</button>
+        <button class="btn" data-act="share-copy" data-id="${c.id}">Udostępnij</button>
+        <button class="btn ghost" data-act="copy-saved" data-id="${c.id}">Kopiuj</button>
+        <button class="btn ghost danger" data-act="del-copy" data-id="${c.id}">Usuń</button>
+      </div></div>`}).join(""):`<div class="empty-note small">${q?"Nic nie pasuje do wyszukiwania.":"Brak zapisanych copy. Gdy copy będzie gotowe, nadaj mu nazwę i kliknij Zapisz na liście."}</div>`;
+}
+
+function renderMemory(){
+  const cl=client();if(!cl)return;
+  if(document.activeElement?.dataset?.edit)return; // don't clobber an open inline edit
+  if(document.activeElement!==$("#client-name"))$("#client-name").value=cl.name||"";
+  const g=$("#guidelines");
+  if(g.dataset.cid!==cl.id||(!g.dataset.dirty&&document.activeElement!==g)){g.value=cl.guidelines||"";g.dataset.cid=cl.id;g.dataset.dirty=""}
+  const fs=clientFiles(cl.id);
+  const kindOpts=k=>Object.entries(KIND).map(([v,l])=>`<option value="${v}" ${v===k?"selected":""}>${esc(l)}</option>`).join("");
+  $("#files").innerHTML=fs.length?fs.map(f=>{const ed=S.editing==="file:"+f.id;return `<div class="file">
+    <div style="min-width:0"><div style="font-weight:600;overflow-wrap:anywhere">${esc(f.name)}</div>
+      <div class="meta row" style="gap:6px"><span class="pill ${f.kind==="brandvoice"?"acc":""}">${esc(KIND[f.kind]||"")}</span><span class="mono muted">${(f.chars||0).toLocaleString("pl-PL")} znaków${f.truncated?" · przycięty":""} · ${esc(fmtDay(f.at))}</span></div></div>
+    <div class="row" style="gap:4px">${ed?"":`<button class="btn ghost" data-act="peek-file" data-id="${f.id}">${S.peek===f.id?"Zwiń":"Podgląd"}</button><button class="btn ghost" data-act="edit" data-kind="file" data-id="${f.id}">Edytuj</button>`}<button class="btn ghost danger" data-act="del-file" data-id="${f.id}">Usuń</button></div>
+    ${ed?`<div class="edit-box"><div class="row" style="flex-wrap:nowrap"><input type="text" data-edit="1" id="ef-name" value="${esc(f.name)}"><select data-edit="1" id="ef-kind">${kindOpts(f.kind)}</select></div>
+      <textarea data-edit="1" id="ef-text" rows="14">${esc(f.text||"")}</textarea>
+      <div class="row"><button class="btn primary" data-act="save-file" data-id="${f.id}">Zapisz</button><button class="btn ghost" data-act="cancel-edit">Anuluj</button></div></div>`
+    :S.peek===f.id?`<pre>${esc((f.text||"").slice(0,4000))}${(f.text||"").length>4000?"\n…":""}</pre>`:""}
+  </div>`}).join(""):`<p class="small muted" style="margin:0">Brak plików. Wrzuć albo wklej brand voice klienta – model użyje go przy każdym copy.</p>`;
+  const ls=cl.learnings||[];
+  $("#rules-count").textContent=ls.length;
+  $("#rules").innerHTML=ls.length?[...ls].sort((a,b)=>b.at-a.at).map(r=>S.editing==="rule:"+r.id
+    ?`<div class="edit-row"><select data-edit="1" id="er-type"><option value="do" ${r.type!=="dont"?"selected":""}>Rób</option><option value="dont" ${r.type==="dont"?"selected":""}>Nie rób</option></select><input type="text" data-edit="1" id="er-text" value="${esc(r.text)}"><button class="btn primary" data-act="save-rule" data-id="${r.id}">Zapisz</button><button class="btn ghost" data-act="cancel-edit">Anuluj</button></div>`
+    :ruleHTML(r,true)).join(""):`<p class="small muted" style="margin:0">Jeszcze nic. Pierwsze zasady pojawią się po Twoich uwagach do copy.</p>`;
+  const ns=cl.notes||[];
+  $("#notes").innerHTML=ns.length?[...ns].sort((a,b)=>b.at-a.at).map(n=>S.editing==="note:"+n.id
+    ?`<div class="edit-row"><input type="text" data-edit="1" id="en-text" value="${esc(n.text)}"><button class="btn primary" data-act="save-note" data-id="${n.id}">Zapisz</button><button class="btn ghost" data-act="cancel-edit">Anuluj</button></div>`
+    :`<div class="rule"><span class="mono muted" style="white-space:nowrap">${esc(fmtDay(n.at))}</span><span class="t">${esc(n.text)}</span><button class="btn ghost small" data-act="edit" data-kind="note" data-id="${n.id}">Edytuj</button><button class="btn ghost small" data-act="del-note" data-id="${n.id}">Usuń</button></div>`).join(""):`<p class="small muted" style="margin:0">Tu dopisujesz bieżące ustalenia z klientem.</p>`;
+}
+
+
+/* ---------- prompt building ---------- */
+function buildContext(cl,fileBudget){
+  const parts=[];
+  parts.push(`Jesteś senior copywriterem w agencji marketing automation specjalizującej się w retencji i komunikacji lifecycle (e-mail, SMS, push, in-app). Piszesz copy dla klienta: ${cl.name}. Piszesz po polsku, chyba że brief mówi inaczej.`);
+  const fs=clientFiles(cl.id);
+  if(fs.length){
+    let left=fileBudget;parts.push("\n## Materiały klienta (brand voice, wytyczne)");
+    for(const f of [...fs].sort((a,b)=>(a.kind==="brandvoice"?0:1)-(b.kind==="brandvoice"?0:1))){
+      if(left<500)break;let t=f.text||"";if(t.length>left)t=t.slice(0,left)+"\n[…przycięte]";left-=t.length;
+      parts.push(`### ${f.name} (${KIND[f.kind]||"plik"})\n${t}`);
+    }
+  }
+  if((cl.guidelines||"").trim())parts.push(`\n## Wytyczne klienta\n${cl.guidelines.trim()}`);
+  const ns=cl.notes||[];
+  if(ns.length)parts.push(`\n## Uwagi i ustalenia z bieżących prac (nowsze mają pierwszeństwo)\n`+[...ns].sort((a,b)=>a.at-b.at).map(n=>`- (${fmtDay(n.at)}) ${n.text}`).join("\n"));
+  const ls=cl.learnings||[];
+  if(ls.length){
+    const dos=ls.filter(r=>r.type!=="dont"),donts=ls.filter(r=>r.type==="dont");
+    parts.push(`\n## Zasady wyuczone z poprzednich poprawek – trzymaj się ich bezwzględnie`+(dos.length?`\nRÓB:\n`+dos.map(r=>"- "+r.text).join("\n"):"")+(donts.length?`\nNIE RÓB:\n`+donts.map(r=>"- "+r.text).join("\n"):""));
+  }
+  const ex=clientCopies(cl.id).slice(0,3);
+  if(ex.length)parts.push(`\n## Zaakceptowane wcześniej copy tego klienta (wzór tonu, nie kopiuj treści)\n`+ex.map(c=>`--- ${c.name} (${FORMATS[c.format]?.label||""}) ---\n${(c.text||"").slice(0,2500)}`).join("\n\n"));
+  return parts.join("\n");
+}
+function sequenceContext(d){
+  if(!d.groupId)return "";
+  const g=S.groups.find(x=>x.id===d.groupId);if(!g)return "";
+  const cs=groupCopies(g.id).filter(c=>c.id!==d.copyId);
+  let s=`\n## Sekwencja: ${g.name}\nTo copy jest częścią sekwencji marketing automation. Zachowaj spójność tonu i nie powtarzaj tych samych argumentów i otwarć co w pozostałych krokach.`;
+  if(cs.length)s+="\nPozostałe kroki sekwencji:\n"+cs.map((c,i)=>`${i+1}. ${c.name} (${FORMATS[c.format]?.label||""}): ${plain(c.text).slice(0,700).replace(/\n+/g," ")}`).join("\n");
+  return s;
+}
+const OUTPUT_RULES = `\n## Jak oddać odpowiedź\nZwróć WYŁĄCZNIE gotowe copy w prostym Markdown (## nagłówki, **pogrubienia**, listy). Bez wstępu, bez komentarzy o tym, co zrobiłeś. Jeśli musiałeś coś założyć, bo brief tego nie mówi, dodaj na samym końcu jedną linię zaczynającą się od "> Założenie:".`;
+function fitPrompt(make){
+  for(const budget of [150000,100000,60000,30000,10000,0]){const p=make(budget);if(bytes(p)<PROMPT_CAP)return p}
+  return make(0);
+}
+function genPrompt(cl,d){
+  return fitPrompt(b=>buildContext(cl,b)+sequenceContext(d)+`\n\n## Zadanie\nKanał: ${FORMATS[d.format].label}. ${formatGuide(d)}\n\nBrief:\n${briefText(d)}`+OUTPUT_RULES);
+}
+function revisePrompt(cl,d,fb){
+  const cur=d.versions[d.vi]?.text||"";
+  const hist=d.versions.slice(1,d.vi+1).map(v=>v.feedback).filter(Boolean);
+  return fitPrompt(b=>buildContext(cl,b)+sequenceContext(d)+`\n\n## Zadanie\nKanał: ${FORMATS[d.format].label}. ${formatGuide(d)}\n\nPierwotny brief:\n${briefText(d)}`+
+    (hist.length?`\n\nWcześniejsze uwagi (już naniesione, nadal obowiązują):\n`+hist.map(h=>"- "+h).join("\n"):"")+
+    `\n\nAktualna wersja copy:\n"""\n${cur}\n"""\n\nNowe uwagi do naniesienia:\n${fb}\n\nNanieś uwagi i zwróć pełną, poprawioną wersję w tym samym układzie. Zmieniaj tylko to, czego dotyczą uwagi, chyba że uwagi mówią inaczej.`+OUTPUT_RULES);
+}
+function learnPrompt(cl,fb,cur){
+  const ls=(cl.learnings||[]).map(r=>`- [${r.type==="dont"?"NIE":"TAK"}] ${r.text}`).join("\n")||"(brak)";
+  return `Pracujesz jako pamięć zespołu copywriterskiego. Poniżej uwagi, które specjalista dał do copy dla klienta "${cl.name}". Wyciągnij z nich TRWAŁE zasady na przyszłość – takie, które dotyczą stylu, słownictwa, tonu, długości, struktury, zakazanych lub wymaganych słów, emoji, zwrotów do odbiorcy. Pomiń uwagi dotyczące wyłącznie tego jednego tekstu (np. "zmień drugi akapit", "dodaj datę 12.10"). Nie powtarzaj zasad, które już istnieją.\n\nIstniejące zasady:\n${ls}\n\nCopy, którego dotyczyły uwagi:\n"""\n${cur.slice(0,4000)}\n"""\n\nUwagi:\n${fb}\n\nZwróć JSON i nic więcej: {"rules":[{"type":"do"|"dont","text":"..."}]}. Maksymalnie 5 zasad, każda po polsku, w trybie rozkazującym, max 140 znaków. Jeśli nie ma trwałych zasad, zwróć {"rules":[]}.`;
+}
+const SAMPLE_MSG={not_granted:"Nie masz zgody na użycie Claude na tej stronie. Odśwież i zezwól, gdy pojawi się pytanie.",sampling_disabled:"Claude jest wyłączony dla tego konta.",rate_limited:"Limit zapytań – odczekaj chwilę i kliknij ponownie.",session_expired:"Sesja wygasła – zaloguj się ponownie do Claude.",prompt_too_large:"Za dużo kontekstu – usuń lub skróć największe pliki klienta.",refused:"Model odmówił odpowiedzi na ten brief. Przeformułuj go.",empty_completion:"Model nic nie zwrócił. Uprość brief i spróbuj jeszcze raz.",upstream_error:"Połączenie przerwane. Kliknij ponownie."};
+Object.assign(SAMPLE_MSG,{no_key:"Brak klucza API – dodaj go w Maximus: menu konta → Connect Claude.",bad_key:"Klucz API nie działa – sprawdź go w Maximus: menu konta → Connect Claude.",overloaded:"Claude jest teraz przeciążony – spróbuj za chwilę.",network:"Brak połączenia z API Claude – sprawdź internet.",rate_limited:"Limit zapytań API – odczekaj chwilę i spróbuj ponownie.",invalid_json:"Model zwrócił nieczytelną odpowiedź – spróbuj jeszcze raz."});
+const sampleMsg=e=>SAMPLE_MSG[e?.code]||(e?.message?("Claude: "+e.message):("Nie udało się ("+(e?.code||"błąd")+"). Spróbuj ponownie."));
+
+/* ---------- actions: generate ---------- */
+function setBusy(b){S.busy=b;$("#btn-create").disabled=b||!S.apiKey;$("#btn-revise").disabled=b||!S.apiKey;$("#btn-stop").hidden=!b;$("#btn-save").disabled=b}
+async function runSample(prompt,label){
+  S.ctl=new AbortController();setBusy(true);setThinking(label);
+  try{
+    const res=await S.sample(prompt,{modelTier:"complex",cache:false,signal:S.ctl.signal,onText:({text})=>renderOut(text)});
+    if(res.truncated)toast("Odpowiedź ucięta – poproś o krótszy tekst");
+    return res.text.trim();
+  }catch(e){
+    if(e?.code!=="cancelled")toast(sampleMsg(e));
+    if(e?.text&&e.code!=="refused")return e.text.trim();
+    return null;
+  }finally{setBusy(false)}
+}
+async function doCreate(){
+  const cl=client();if(!cl)return toast("Najpierw wybierz albo dodaj klienta");
+  const d=draft();document.querySelectorAll("[data-bf]").forEach(i=>d[i.dataset.bf]=i.value);
+  if(!hasBrief(d)){$("#b-goal").focus();return toast("Uzupełnij brief – przynajmniej cel")}
+  if(d.copyId){d.copyId=null;d.name=""}
+  const text=await runSample(genPrompt(cl,d),"Piszę copy");
+  if(text){d.versions=[{text,at:now(),feedback:null}];d.vi=0;S.lastLearned=[];persistDraft()}
+  renderCreate();
+}
+async function doRevise(){
+  const cl=client(),d=draft();const fb=$("#feedback").value.trim();
+  if(!d.versions[d.vi])return toast("Najpierw stwórz copy");
+  if(!fb){$("#feedback").focus();return toast("Wpisz uwagi")}
+  const cur=d.versions[d.vi].text;
+  const text=await runSample(revisePrompt(cl,d,fb),"Nanoszę uwagi");
+  if(text){
+    d.versions=d.versions.slice(0,d.vi+1);d.versions.push({text,at:now(),feedback:fb});d.vi=d.versions.length-1;
+    $("#feedback").value="";persistDraft();renderCreate();
+    learnFrom(cl,fb,cur);
+  } else renderCreate();
+}
+async function learnFrom(cl,fb,cur){
+  try{
+    const res=await S.sample.json(learnPrompt(cl,fb,cur),{modelTier:"default",cache:false});
+    const rules=(res?.rules||[]).filter(r=>r&&typeof r.text==="string"&&r.text.trim()).slice(0,5)
+      .map(r=>({id:rid(10),type:r.type==="dont"?"dont":"do",text:r.text.trim().slice(0,200),at:now(),clientId:cl.id}));
+    if(!rules.length)return;
+    const fresh=S.clients.find(c=>c.id===cl.id);if(!fresh)return;
+    const list=[...(fresh.learnings||[]),...rules.map(({clientId,...r})=>r)];
+    await S.db.doc("clients/"+cl.id).update({learnings:list});
+    S.lastLearned=rules;renderLearned();
+    toast(`Zapamiętano ${rules.length} ${rules.length===1?"zasadę":rules.length<5?"zasady":"zasad"}`);
+  }catch(e){console.warn("learn",e)}
+}
+
+/* ---------- actions: save ---------- */
+async function doSave(asNew){
+  const cl=client(),d=draft();const cur=d.versions[d.vi];
+  if(!cur)return toast("Nie ma jeszcze copy do zapisania");
+  const name=$("#save-name").value.trim();
+  if(!name){$("#save-name").focus();return toast("Nadaj nazwę copy")}
+  d.name=name;
+  const existing=!asNew&&d.copyId&&S.copies.find(c=>c.id===d.copyId);
+  const id=existing?existing.id:rid();
+  let groupPos=existing?.groupPos;
+  if(d.groupId&&(!existing||existing.groupId!==d.groupId)){groupPos=groupCopies(d.groupId).reduce((m,c)=>Math.max(m,c.groupPos??0),0)+1}
+  const body={clientId:cl.id,name,format:d.format,structure:d.format==="email"?(d.structure||"marketing"):null,goal:d.goal||"",segment:d.segment||"",argument:d.argument||"",cta:d.cta||"",brief:d.brief||"",text:cur.text,
+    versions:d.versions.slice(-10).map(v=>({text:v.text,at:v.at,feedback:v.feedback||null})),
+    groupId:d.groupId||null,groupPos:groupPos??null,
+    createdAt:existing?.createdAt||now(),updatedAt:now(),shareId:existing?.shareId||null};
+  $("#btn-save").disabled=true;
+  try{
+    await S.db.doc("copies/"+id).set(body);
+    d.copyId=id;persistDraft();
+    toast(existing?"Zapisano zmiany":"Zapisano na liście");
+    const oldGroup=existing?.groupId;
+    await refreshShares({...body,id},oldGroup);
+  }catch(e){dbErr(e,"save")}
+  finally{$("#btn-save").disabled=false;renderCreate()}
+}
+
+/* ---------- shares ---------- */
+function shareItem(c){return {name:c.name,format:c.format,text:c.text,createdAt:c.createdAt}}
+async function writeCopyShare(c){
+  await S.db.doc("shares/"+c.shareId).set({kind:"copy",refId:c.id,clientName:client()?.name||"",title:c.name,createdAt:c.createdAt,updatedAt:now(),items:[shareItem(c)]});
+}
+async function writeGroupShare(g){
+  const cs=groupCopies(g.id);
+  await S.db.doc("shares/"+g.shareId).set({kind:"group",refId:g.id,clientName:S.clients.find(x=>x.id===g.clientId)?.name||"",title:g.name,createdAt:g.createdAt,updatedAt:now(),items:cs.map(shareItem)});
+}
+async function refreshShares(c,oldGroupId){
+  // wait a tick so the snapshot of our own write is in S.copies
+  await new Promise(r=>setTimeout(r,50));
+  try{
+    if(c?.shareId)await writeCopyShare(c);
+    const gids=new Set([c?.groupId,oldGroupId].filter(Boolean));
+    for(const gid of gids){const g=S.groups.find(x=>x.id===gid);if(g?.shareId)await writeGroupShare(g)}
+  }catch(e){console.warn("share refresh",e)}
+}
+function shareLink(token){return location.origin+location.pathname+"?share="+token}
+async function openShare(kind,id){
+  const coll=kind==="group"?"groups":"copies";
+  const obj=(kind==="group"?S.groups:S.copies).find(x=>x.id===id);if(!obj)return;
+  if(kind==="group"&&!groupCopies(id).length)return toast("Sekwencja jest pusta");
+  let token=obj.shareId;
+  try{
+    if(!token){token=rid(16);await S.db.doc(`${coll}/${id}`).update({shareId:token})}
+    const fresh={...obj,shareId:token};
+    kind==="group"?await writeGroupShare(fresh):await writeCopyShare(fresh);
+  }catch(e){return dbErr(e,"share")}
+  renderShareModal(kind,id,token);
+  $("#ov-share").hidden=false;
+}
+function renderShareModal(kind,id,token){
+  const obj=(kind==="group"?S.groups:S.copies).find(x=>x.id===id);
+  const link=shareLink(token);
+  $("#share-modal").innerHTML=`
+    <h2>Udostępnij ${kind==="group"?"sekwencję":"copy"}</h2>
+    <p class="muted" style="margin:0">${esc(obj?.name||"")}</p>
+    <div class="field"><label class="lbl" for="share-link">Link dla klienta</label>
+      <div class="linkbox"><input type="text" id="share-link" readonly value="${esc(link)}"><button class="btn primary" data-act="copy-link">Kopiuj link</button></div></div>
+    <div class="hint">Klient otworzy link bez logowania i zobaczy tylko ${kind==="group"?"tę sekwencję":"to copy"}. Reszty bazy nie zobaczy. Zmiany zapisane w copy aktualizują link automatycznie.</div>
+    <div class="row">
+      <button class="btn" data-act="share-copytext" data-kind="${kind}" data-id="${id}">Kopiuj treść do maila</button>
+      <button class="btn" data-act="share-download" data-kind="${kind}" data-id="${id}">Pobierz plik .html</button>
+    </div>
+    <div class="row" style="justify-content:space-between">
+      <button class="btn ghost danger" data-act="unshare" data-kind="${kind}" data-id="${id}">Wyłącz link</button>
+      <button class="btn" data-act="close-overlay">Gotowe</button>
+    </div>`;
+}
+function exportItems(kind,id){
+  if(kind==="group"){const g=S.groups.find(x=>x.id===id);return {title:g?.name||"",items:groupCopies(id)}}
+  const c=S.copies.find(x=>x.id===id);return {title:c?.name||"",items:c?[c]:[]};
+}
+function exportText(kind,id){
+  const {title,items}=exportItems(kind,id);
+  return [title,""].concat(items.map((c,i)=>(kind==="group"?`${i+1}. `:"")+`${c.name} (${FORMATS[c.format]?.label||""})\n\n${plain(c.text)}`)).join("\n\n———\n\n");
+}
+function exportHTML(kind,id,full){
+  const {title,items}=exportItems(kind,id);const cn=client()?.name||"";
+  const body=`<h1 style="font-family:Georgia,serif">${esc(title)}</h1><p style="color:#666">${esc(cn)} · ${esc(fmtDay(now()))}</p>`+items.map((c,i)=>`<hr><h2>${kind==="group"?`${i+1}. `:""}${esc(c.name)} <small style="color:#888;font-weight:400">${esc(FORMATS[c.format]?.label||"")}</small></h2>${md(c.text)}`).join("");
+  return full?`<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>body{font:16px/1.6 -apple-system,Segoe UI,Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 16px;color:#1b1b1f}blockquote{color:#666;border-left:3px solid #ccc;margin:0;padding-left:12px}</style></head><body>${body}</body></html>`:body;
+}
+
+function showShareError(h,p){const v=$("#shareview");v.hidden=false;$("#gate").hidden=true;$("#app").hidden=true;v.innerHTML=`<div class="gate"><h1>${esc(h)}</h1><p class="muted">${esc(p)}</p></div>`}
+async function showShare(token){
+  $("#app").hidden=true;$("#gate").hidden=true;
+    const v=$("#shareview");v.hidden=false;v.innerHTML=`<p class="muted dots">Wczytuję</p>`;
+  let snap;try{snap=await S.db.doc("shares/"+token).get()}catch(e){return showShareError("Nie udało się wczytać","Odśwież stronę za chwilę.")}
+  if(!snap.exists)return showShareError("Link nieaktywny","Ten link wygasł albo został wyłączony. Poproś o nowy.");
+  const s=snap.data();const grp=s.kind==="group";
+  S.shareDoc=s;
+  v.innerHTML=`<div class="share-head">
+      <div class="eyebrow">${esc(s.clientName)} · ${grp?"sekwencja":"copy"} do akceptacji</div>
+      <h1>${esc(s.title)}</h1>
+      <div class="mono muted">Udostępniono ${esc(fmtDate(s.updatedAt))}${grp?` · ${s.items.length} kroków`:""}</div>
+    </div>`+(s.items||[]).map((c,i)=>`<article class="share-item">
+      <header><h2>${grp?`<span class="step">${i+1}/${s.items.length}</span>`:""}${esc(c.name)}</h2>
+        <div class="row" style="gap:6px"><span class="pill">${esc(FORMATS[c.format]?.label||"")}</span><span class="mono muted">${esc(fmtDay(c.createdAt))}</span><button class="btn ghost" data-act="share-item-copy" data-i="${i}">Kopiuj</button></div></header>
+      <div class="out doc">${md(c.text)}</div></article>`).join("");
+  document.title=s.title;
+}
+
+/* ---------- files ---------- */
+function loadScript(src){return new Promise((res,rej)=>{if(document.querySelector(`script[src="${src}"]`))return res();const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=()=>rej(new Error("load "+src));document.head.appendChild(s)})}
+async function extractText(file){
+  const ext=(file.name.split(".").pop()||"").toLowerCase();
+  if(ext==="pdf"){
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js");
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js");
+    const lib=window.pdfjsLib;lib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    const pdf=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+    let out=[];for(let i=1;i<=pdf.numPages;i++){const p=await pdf.getPage(i);const tc=await p.getTextContent();let line="",lines=[];for(const it of tc.items){line+=it.str;if(it.hasEOL){lines.push(line);line=""}}if(line)lines.push(line);out.push(lines.join("\n"))}
+    return out.join("\n\n");
+  }
+  if(ext==="docx"){
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js");
+    const r=await window.mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});return r.value;
+  }
+  const t=await file.text();
+  if(ext==="html"||ext==="htm"){const d=new DOMParser().parseFromString(t,"text/html");d.querySelectorAll("script,style").forEach(n=>n.remove());return d.body?.innerText||d.body?.textContent||""}
+  return t;
+}
+async function addFiles(fileList,clientId,kind,statusEl){
+  const files=[...fileList];let ok=0;
+  for(const f of files){
+    if(statusEl)statusEl.textContent=`Czytam ${f.name}…`;
+    try{
+      let text=(await extractText(f)).replace(/\u0000/g,"").replace(/[ \t]+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+      if(!text){toast(`${f.name}: brak tekstu do odczytania (skan?)`);continue}
+      const chars=text.length;let truncated=false;
+      while(bytes(text)>230000){text=text.slice(0,Math.floor(text.length*0.85));truncated=true}
+      await S.db.doc("files/"+rid()).set({clientId,name:f.name,kind,text,chars,truncated,at:now()});ok++;
+    }catch(e){console.error(e);toast(`Nie udało się odczytać ${f.name}`)}
+  }
+  if(statusEl)statusEl.textContent=ok?`Dodano ${ok} z ${files.length}.`:"";
+  return ok;
+}
+
+
+/* ---------- brand voice builder ---------- */
+const BV_SECTIONS = `# Brand voice: <nazwa marki>
+## Kim jest marka – 2-3 zdania: co robi, dla kogo, czym się wyróżnia
+## Do kogo mówimy – główna persona (kto, potrzeby, obawy, język, którym mówi)
+## Osobowość marki – 3-5 cech w formie "jesteśmy X, ale nie Y"
+## Ton i styl – forma zwracania się (Ty / Pan/Pani / Wy), formalność, długość zdań, humor, emoji, wykrzykniki, polskie znaki w SMS
+## Słownictwo – słowa i zwroty, których marka używa; słowa, których unika; pisownia nazw produktów i marki
+## Wyróżniki i argumenty – najmocniejsze USP i dowody (liczby, gwarancje, opinie)
+## Przykłady – 3-5 dosłownych cytatów ze strony, które najlepiej oddają ton, i 3 przykładowe zdania w tym tonie: temat maila, SMS, CTA
+## Czego nie robimy – lista zakazów`;
+const BV_OUT = `Najpierw zwróć pełny dokument brand voice w Markdown według tej struktury. Potem w osobnej linii wpisz dokładnie: ===PODSUMOWANIE=== a pod nią 5-7 punktów listy (- ...) z najważniejszymi wnioskami, żeby dało się szybko zaakceptować. Nic więcej, bez wstępu.`;
+function bvBuildPrompt(cl,url,pasted){
+  let t=pasted;while(bytes(t)>200000)t=t.slice(0,Math.floor(t.length*0.85));
+  return `Jesteś strategiem komunikacji w agencji marketing automation. Na podstawie tekstów ze strony klienta "${cl.name}"${url?` (${url})`:""} przygotuj dokument brand voice, którego copywriterzy i model AI będą używać do pisania maili, SMS-ów i pushy. Opieraj się na tym, jak marka faktycznie pisze w tych tekstach, nie na ogólnikach. Jeśli czegoś nie da się wywnioskować, napisz to wprost zamiast zgadywać.${(cl.guidelines||"").trim()?`\n\nZnane już wytyczne klienta (uwzględnij je):\n${cl.guidelines.trim()}`:""}\n\nStruktura dokumentu:\n${BV_SECTIONS}\n\nTeksty ze strony:\n"""\n${t}\n"""\n\n${BV_OUT}`;
+}
+function bvRevisePrompt(cl,d,fb){
+  const hist=(d.feedback||[]).map(f=>"- "+f.text).join("\n");
+  return `Poprawiasz dokument brand voice klienta "${cl.name}". Nanieś uwagi specjalisty i zwróć pełną nową wersję. Zmieniaj tylko to, czego dotyczą uwagi.\n\nStruktura dokumentu:\n${BV_SECTIONS}\n\n${hist?`Wcześniejsze uwagi (już naniesione, nadal obowiązują):\n${hist}\n\n`:""}Aktualny dokument:\n"""\n${d.doc}\n"""\n\nNowe uwagi:\n${fb}\n\n${BV_OUT}`;
+}
+function parseBV(text){
+  const parts=text.split(/^\s*=+\s*PODSUMOWANIE\s*=+\s*$/m);
+  const doc=(parts[0]||"").trim();let summary=(parts[1]||"").trim();
+  if(!summary){const lines=doc.split("\n").filter(l=>/^\s*[-*]\s/.test(l)).slice(0,6);summary=lines.join("\n")}
+  return {doc,summary};
+}
+function bvUrlPrompt(cl,url){
+  return `Jesteś strategiem komunikacji w agencji marketing automation. Przygotuj dokument brand voice klienta "${cl.name}" na podstawie jego strony: ${url}
+
+1. Pobierz narzędziem web_fetch stronę główną, a potem 4-8 najważniejszych podstron, do których linki znajdziesz na stronie (o nas, oferta lub produkty, FAQ, blog, newsletter, regulamin promocji). Nie zgaduj adresów, korzystaj z linków ze strony.
+2. Opieraj się na tym, jak marka faktycznie pisze na stronie, nie na ogólnikach. Czego nie da się wywnioskować, napisz wprost.${(cl.guidelines||"").trim()?`\n3. Uwzględnij znane już wytyczne klienta:\n${cl.guidelines.trim()}`:""}
+
+Struktura dokumentu:
+${BV_SECTIONS}
+
+Gdy skończysz pobieranie, wypisz w osobnej linii dokładnie: ===DOKUMENT=== a pod nią pełny dokument w Markdown. ${BV_OUT}`;
+}
+async function bvFromUrl(cl,url){
+  if(!S.apiKey)throw {code:"no_key"};
+  let messages=[{role:"user",content:bvUrlPrompt(cl,url)}];const blocks=[];
+  for(let round=0;round<5;round++){
+    let res;
+    try{res=await fetch(API_URL,{method:"POST",headers:apiHeaders(),body:JSON.stringify({model:MODEL,max_tokens:16000,messages,tools:[{type:"web_fetch_20250910",name:"web_fetch",max_uses:10,max_content_tokens:25000}]})})}
+    catch(e){throw {code:"network"}}
+    if(!res.ok)throw await apiError(res);
+    const data=await res.json();blocks.push(...(data.content||[]));
+    if(data.stop_reason==="pause_turn"){messages=[messages[0],{role:"assistant",content:blocks.slice()}];continue}
+    break;
+  }
+  let text=blocks.filter(b=>b.type==="text").map(b=>b.text).join("");
+  const k=text.lastIndexOf("===DOKUMENT===");if(k>=0)text=text.slice(k+14);
+  const sources=[...new Set(blocks.filter(b=>b.type==="server_tool_use"&&b.name==="web_fetch").map(b=>b.input&&b.input.url).filter(Boolean))];
+  return {text,sources};
+}
+function renderBV(){
+  const cl=client();if(!cl)return;
+  const d=cl.bvDraft||null,ready=d&&d.status==="ready"&&d.doc;
+  const urlIn=$("#bv-url");if(document.activeElement!==urlIn&&urlIn.dataset.cid!==cl.id){urlIn.value=stripProto(cl.website);urlIn.dataset.cid=cl.id;$("#bv-paste").value=""}
+  $("#bv-busy").hidden=!S.bvBusy;
+  $("#bv-start").hidden=!!ready||!!S.bvBusy;
+  $("#bv-ready").hidden=!ready||!!S.bvBusy;
+  $("#bv-pending").hidden=true;
+  $("#bv-badge").innerHTML=ready?`<span class="pill acc">Szkic do akceptu</span>`:"";
+  if(ready){
+    $("#bv-meta").textContent=`${d.url?d.url+" · ":""}${(d.sources||[]).length?(d.sources.length+(d.sources.length===1?" strona":d.sources.length<5?" strony":" stron")+" · "):""}${fmtDate(d.at)}${(d.feedback||[]).length?` · ${(d.feedback||[]).length}× poprawiony`:""}`;
+    $("#bv-summary").innerHTML=`<span class="lbl">Podsumowanie</span>`+md(d.summary||"");
+    $("#bv-doc").innerHTML=md(d.doc);
+    $("#bv-replace").disabled=!clientFiles(cl.id).some(f=>f.kind==="brandvoice");
+  }
+}
+async function bvRun(cl,prompt,extra){
+  S.bvBusy=true;$("#bv-busy").textContent=extra.fromUrl?"Claude przegląda stronę i podstrony, potem pisze brand voice (zwykle 1–3 min)":"Analizuję teksty i piszę brand voice";renderBV();
+  try{
+    let text,sources;
+    if(extra.fromUrl){({text,sources}=await bvFromUrl(cl,extra.url))}else{text=(await S.sample(prompt,{maxTokens:12000})).text}
+    const {doc,summary}=parseBV(text);
+    if(!doc)throw {code:"empty_completion"};
+    const prev=S.clients.find(c=>c.id===cl.id)?.bvDraft||{};
+    await S.db.doc("clients/"+cl.id).update({bvDraft:{status:"ready",url:extra.url??prev.url??"",sources:sources||prev.sources||[],at:now(),doc,summary,feedback:extra.feedback??prev.feedback??[]},...(extra.url?{website:extra.url}:{})});
+    return true;
+  }catch(e){if(e?.code!=="cancelled")toast(e?.code?sampleMsg(e):"Nie udało się zapisać szkicu");return false}
+  finally{S.bvBusy=false;renderBV()}
+}
+const stripProto=u=>String(u||"").trim().replace(/^(https?:)?\/\/+/i,"").replace(/^https?:\/*/i,"");
+function normUrl(u){u=stripProto(u);if(!u)return "";try{const x=new URL("https://"+u);return x.hostname.includes(".")?x.href:""}catch{return ""}}
+/* ---------- client memory ops ---------- */
+async function patchClient(patch){const cl=client();if(!cl)return;try{await S.db.doc("clients/"+cl.id).update(patch)}catch(e){dbErr(e,"client")}}
+
+/* ---------- events ---------- */
+function bindStatic(){
+  $("#client").addEventListener("change",e=>{S.clientId=e.target.value;store.set("cl-client",S.clientId);S.peek=null;S.editing=null;$("#feedback").value="";renderAll()});
+  document.querySelectorAll("[data-bf]").forEach(inp=>inp.addEventListener("input",e=>{draft()[inp.dataset.bf]=e.target.value;persistDraft()}));
+  $("#save-name").addEventListener("input",e=>{draft().name=e.target.value;persistDraft()});
+  $("#format").addEventListener("change",e=>{draft().format=e.target.value;persistDraft();renderStructs();renderOut()});
+  $("#group").addEventListener("change",e=>{
+    if(e.target.value==="__new"){$("#newgroup-inline").classList.add("open");$("#newgroup-inline-name").focus();e.target.value=draft().groupId||"";return}
+    draft().groupId=e.target.value;persistDraft();
+  });
+  $("#lib-search").addEventListener("input",()=>renderLibrary());
+  $("#bv-url").addEventListener("input",e=>{const v=stripProto(e.target.value);if(v!==e.target.value)e.target.value=v});
+  $("#guidelines").addEventListener("input",e=>{e.target.dataset.dirty="1";$("#guide-status").textContent="Niezapisane"});
+  $("#file-input").addEventListener("change",async e=>{const cl=client();if(!cl)return;await addFiles(e.target.files,cl.id,$("#file-kind").value,$("#file-status"));e.target.value=""});
+  const drop=$("#drop");
+  drop.addEventListener("dragover",e=>{e.preventDefault();drop.classList.add("over")});
+  drop.addEventListener("dragleave",()=>drop.classList.remove("over"));
+  drop.addEventListener("drop",async e=>{e.preventDefault();drop.classList.remove("over");const cl=client();if(cl&&e.dataTransfer.files.length)await addFiles(e.dataTransfer.files,cl.id,$("#file-kind").value,$("#file-status"))});
+  $("#nc-files").addEventListener("change",e=>{$("#nc-files-label").textContent=[...e.target.files].map(f=>f.name).join(", ")||"PDF, DOCX, TXT, MD"});
+  document.addEventListener("change",async e=>{
+    const t=e.target;if(t.dataset.role==="add-to"&&t.value){
+      const gid=t.dataset.gid,cid=t.value;const c=S.copies.find(x=>x.id===cid);const old=c?.groupId;
+      const pos=groupCopies(gid).reduce((m,x)=>Math.max(m,x.groupPos??0),0)+1;
+      try{await S.db.doc("copies/"+cid).update({groupId:gid,groupPos:pos});await refreshShares({...c,groupId:gid,groupPos:pos},old)}catch(er){dbErr(er)}
+    }
+  });
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape")document.querySelectorAll(".overlay").forEach(o=>o.hidden=true);
+    if((e.metaKey||e.ctrlKey)&&e.key==="Enter"){if(document.activeElement?.dataset?.bf)doCreate();else if(document.activeElement===$("#feedback"))doRevise()}
+  });
+}
+
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-act],[data-tab]");if(!b)return;
+  if(b.dataset.tab){setTab(b.dataset.tab);return}
+  const act=b.dataset.act,id=b.dataset.id;
+  if(b.tagName==="A")e.preventDefault();
+  switch(act){
+    case "create":return doCreate();
+    case "revise":return doRevise();
+    case "stop":S.ctl?.abort();return;
+    case "new-draft":{const keepFmt=draft().format,keepStr=draft().structure;S.drafts[S.clientId]={...blankDraft(),format:keepFmt,structure:keepStr};S.lastLearned=[];document.querySelectorAll("[data-bf]").forEach(i=>i.value="");$("#save-name").value="";$("#feedback").value="";persistDraft();renderCreate();$("#b-goal").focus();return}
+    case "ver":{const d=draft();d.vi=+b.dataset.i;persistDraft();renderOut();return}
+    case "copy-out":{const d=draft(),t=d.versions[d.vi]?.text;if(t)copyText(plain(t),md(t));return}
+    case "save":return doSave(false);
+    case "save-new":return doSave(true);
+    case "open-newclient":{$("#nc-name").value="";$("#nc-guidelines").value="";$("#nc-files").value="";$("#nc-files-label").textContent="PDF, DOCX, TXT, MD";$("#ov-newclient").hidden=false;$("#nc-name").focus();return}
+    case "close-overlay":document.querySelectorAll(".overlay").forEach(o=>o.hidden=true);return;
+    case "create-client":{
+      const name=$("#nc-name").value.trim();if(!name){$("#nc-name").focus();return toast("Podaj nazwę klienta")}
+      b.disabled=true;const cid=rid();
+      try{
+        await S.db.doc("clients/"+cid).set({name,guidelines:$("#nc-guidelines").value.trim(),notes:[],learnings:[],createdAt:now()});
+        const fl=$("#nc-files").files;if(fl.length){b.textContent="Czytam pliki…";await addFiles(fl,cid,"brandvoice",null)}
+        S.clientId=cid;store.set("cl-client",cid);$("#ov-newclient").hidden=true;toast("Dodano klienta "+name);renderAll();
+      }catch(er){dbErr(er)}finally{b.disabled=false;b.textContent="Dodaj klienta"}
+      return;
+    }
+    case "create-group":case "create-group-inline":{
+      const inp=act==="create-group"?$("#newgroup-name"):$("#newgroup-inline-name");const name=inp.value.trim();
+      if(!name){inp.focus();return toast("Podaj nazwę sekwencji")}
+      const gid=rid();
+      try{await S.db.doc("groups/"+gid).set({clientId:S.clientId,name,createdAt:now(),shareId:null});inp.value="";
+        if(act==="create-group-inline"){draft().groupId=gid;persistDraft();$("#newgroup-inline").classList.remove("open")}else $("#newgroup-form").classList.remove("open");
+        toast("Utworzono sekwencję")}catch(er){dbErr(er)}
+      return;
+    }
+    case "toggle-newgroup":$("#newgroup-form").classList.toggle("open");$("#newgroup-name").focus();return;
+    case "open-copy":{
+      const c=S.copies.find(x=>x.id===id);if(!c)return;
+      const vs=(c.versions&&c.versions.length)?c.versions:[{text:c.text,at:c.updatedAt||c.createdAt,feedback:null}];
+      S.drafts[c.clientId]={format:c.format||"email",structure:c.structure||"marketing",groupId:c.groupId||"",goal:c.goal||"",segment:c.segment||"",argument:c.argument||"",cta:c.cta||"",brief:c.brief||"",versions:vs.map(v=>({...v})),vi:vs.length-1,copyId:c.id,name:c.name};
+      S.lastLearned=[];persistDraft();document.querySelectorAll("[data-bf]").forEach(i=>i.value=S.drafts[c.clientId][i.dataset.bf]||"");$("#save-name").value=c.name;setTab("create");renderCreate();return;
+    }
+    case "copy-saved":{const c=S.copies.find(x=>x.id===id);if(c)copyText(plain(c.text),md(c.text));return}
+    case "del-copy":{
+      if(!armed(b))return;const c=S.copies.find(x=>x.id===id);
+      try{await S.db.doc("copies/"+id).delete();if(c?.shareId)await S.db.doc("shares/"+c.shareId).delete();
+        Object.values(S.drafts).forEach(d=>{if(d.copyId===id)d.copyId=null});persistDraft();
+        if(c?.groupId)await refreshShares({groupId:c.groupId});toast("Usunięto")}catch(er){dbErr(er)}
+      return;
+    }
+    case "del-group":{
+      if(!armed(b))return;const g=S.groups.find(x=>x.id===id);
+      try{for(const c of groupCopies(id))await S.db.doc("copies/"+c.id).update({groupId:null,groupPos:null});
+        await S.db.doc("groups/"+id).delete();if(g?.shareId)await S.db.doc("shares/"+g.shareId).delete();toast("Usunięto sekwencję, copy zostały")}catch(er){dbErr(er)}
+      return;
+    }
+    case "move":{
+      const c=S.copies.find(x=>x.id===id);if(!c)return;const list=groupCopies(c.groupId);const i=list.findIndex(x=>x.id===id),j=i+(+b.dataset.dir);
+      if(j<0||j>=list.length)return;
+      // normalize positions then swap
+      const order=list.map(x=>x.id);[order[i],order[j]]=[order[j],order[i]];
+      try{for(let k=0;k<order.length;k++){const x=list.find(y=>y.id===order[k]);if(x.groupPos!==k+1)await S.db.doc("copies/"+x.id).update({groupPos:k+1})}
+        await refreshShares({groupId:c.groupId})}catch(er){dbErr(er)}
+      return;
+    }
+    case "ungroup":{const c=S.copies.find(x=>x.id===id);try{await S.db.doc("copies/"+id).update({groupId:null,groupPos:null});await refreshShares({groupId:null},c?.groupId)}catch(er){dbErr(er)}return}
+    case "share-copy":return openShare("copy",id);
+    case "share-group":return openShare("group",id);
+    case "copy-link":{const v=$("#share-link");v.select();copyText(v.value);return}
+    case "share-copytext":return copyText(exportText(b.dataset.kind,id),exportHTML(b.dataset.kind,id,false));
+    case "share-download":{
+      const {title}=exportItems(b.dataset.kind,id);const fn=(title||"copy").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/ł/g,"l").replace(/Ł/g,"L").replace(/[^\w-]+/g,"-").replace(/-+/g,"-").slice(0,60)+".html";
+      const blob=new Blob([exportHTML(b.dataset.kind,id,true)],{type:"text/html"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+      return;
+    }
+    case "unshare":{
+      if(!armed(b,"Wyłączyć?"))return;const kind=b.dataset.kind;const obj=(kind==="group"?S.groups:S.copies).find(x=>x.id===id);
+      try{if(obj?.shareId)await S.db.doc("shares/"+obj.shareId).delete();await S.db.doc((kind==="group"?"groups/":"copies/")+id).update({shareId:null});$("#ov-share").hidden=true;toast("Link wyłączony")}catch(er){dbErr(er)}
+      return;
+    }
+    case "share-item-copy":{const c=S.shareDoc?.items?.[+b.dataset.i];if(c)copyText(plain(c.text),md(c.text));return}
+    case "peek-file":S.peek=S.peek===id?null:id;renderMemory();return;
+    case "bv-build":{
+      const cl=client();if(!cl)return;const url=normUrl($("#bv-url").value);const pasted=$("#bv-paste").value.trim();
+      if(!url&&!pasted){$("#bv-url").focus();return toast("Podaj adres strony")}
+      if($("#bv-url").value.trim()&&!url)return toast("To nie wygląda na adres strony");
+      if(!S.apiKey)return toast(SAMPLE_MSG.no_key);
+      const ok=pasted?await bvRun(cl,bvBuildPrompt(cl,url,pasted),{url,feedback:[]}):await bvRun(cl,null,{url,feedback:[],fromUrl:true});
+      if(ok){$("#bv-paste").value="";toast("Szkic brand voice gotowy – sprawdź i zaakceptuj")}
+      return;
+    }
+    case "bv-revise":{
+      const cl=client(),d=cl?.bvDraft;const fb=$("#bv-feedback").value.trim();
+      if(!d?.doc)return;if(!fb){$("#bv-feedback").focus();return toast("Wpisz uwagi")}
+      const ok=await bvRun(cl,bvRevisePrompt(cl,d,fb),{feedback:[...(d.feedback||[]),{text:fb,at:now()}]});
+      if(ok){$("#bv-feedback").value="";toast("Naniesiono uwagi")}return;
+    }
+    case "bv-accept":{
+      const cl=client(),d=cl?.bvDraft;if(!d?.doc)return;b.disabled=true;
+      try{
+        if($("#bv-replace").checked)for(const f of clientFiles(cl.id).filter(f=>f.kind==="brandvoice"))await S.db.doc("files/"+f.id).delete();
+        let host="";try{host=new URL(d.url).hostname.replace(/^www\./,"")}catch{}
+        await S.db.doc("files/"+rid()).set({clientId:cl.id,name:`Brand voice${host?" – "+host:""} (${fmtDay(now())})`,kind:"brandvoice",text:d.doc,chars:d.doc.length,truncated:false,at:now()});
+        await S.db.doc("clients/"+cl.id).update({bvDraft:null});
+        $("#bv-replace").checked=false;toast("Brand voice załadowany – model użyje go od teraz");
+      }catch(er){dbErr(er)}finally{b.disabled=false}
+      return;
+    }
+    case "bv-discard":{if(!armed(b,"Na pewno?"))return;const cl=client();try{await S.db.doc("clients/"+cl.id).update({bvDraft:null})}catch(er){dbErr(er)}return}
+    case "struct":{draft().structure=b.dataset.k;persistDraft();renderStructs();return}
+    case "edit-client":setTab("memory");return;
+    case "edit":{S.editing=b.dataset.kind+":"+id;S.peek=null;renderMemory();const f=document.querySelector("[data-edit]#"+(b.dataset.kind==="file"?"ef-text":b.dataset.kind==="rule"?"er-text":"en-text"));f?.focus();return}
+    case "cancel-edit":S.editing=null;document.activeElement?.blur();renderMemory();return;
+    case "save-file":{
+      let text=$("#ef-text").value.trim();if(!text)return toast("Plik nie może być pusty – użyj Usuń");
+      const chars=text.length;let truncated=false;while(bytes(text)>230000){text=text.slice(0,Math.floor(text.length*0.85));truncated=true}
+      try{await S.db.doc("files/"+id).update({name:$("#ef-name").value.trim()||"Plik",kind:$("#ef-kind").value,text,chars,truncated,at:now()});S.editing=null;document.activeElement?.blur();renderMemory();toast("Zapisano plik")}catch(er){dbErr(er)}
+      return;
+    }
+    case "save-rule":{const cl=client(),v=$("#er-text").value.trim();if(!v)return;const t=$("#er-type").value;S.editing=null;document.activeElement?.blur();await patchClient({learnings:(cl.learnings||[]).map(r=>r.id===id?{...r,text:v,type:t}:r)});renderMemory();return}
+    case "save-note":{const cl=client(),v=$("#en-text").value.trim();if(!v)return;S.editing=null;document.activeElement?.blur();await patchClient({notes:(cl.notes||[]).map(n=>n.id===id?{...n,text:v}:n)});renderMemory();return}
+    case "toggle-paste":{const f=$("#paste-form");f.hidden=!f.hidden;if(!f.hidden)$("#paste-text").focus();return}
+    case "save-paste":{
+      const cl=client();let text=$("#paste-text").value.trim();if(!cl||!text){$("#paste-text").focus();return toast("Wklej tekst")}
+      const chars=text.length;let truncated=false;while(bytes(text)>230000){text=text.slice(0,Math.floor(text.length*0.85));truncated=true}
+      try{await S.db.doc("files/"+rid()).set({clientId:cl.id,name:$("#paste-name").value.trim()||"Brand voice (wklejony)",kind:$("#file-kind").value,text,chars,truncated,at:now()});
+        $("#paste-text").value="";$("#paste-name").value="";$("#paste-form").hidden=true;toast("Zapisano")}catch(er){dbErr(er)}
+      return;
+    }
+    case "del-file":if(!armed(b))return;try{await S.db.doc("files/"+id).delete();toast("Usunięto plik")}catch(er){dbErr(er)}return;
+    case "save-guidelines":{const g=$("#guidelines");await patchClient({guidelines:g.value.trim()});g.dataset.dirty="";$("#guide-status").textContent="Zapisano";setTimeout(()=>$("#guide-status").textContent="",2000);return}
+    case "add-note":{const v=$("#note-input").value.trim();if(!v)return;const cl=client();await patchClient({notes:[...(cl.notes||[]),{id:rid(10),text:v,at:now()}]});$("#note-input").value="";return}
+    case "del-note":{const cl=client();await patchClient({notes:(cl.notes||[]).filter(n=>n.id!==id)});return}
+    case "add-rule":{const v=$("#rule-input").value.trim();if(!v)return;const cl=client();await patchClient({learnings:[...(cl.learnings||[]),{id:rid(10),type:$("#rule-type").value,text:v,at:now()}]});$("#rule-input").value="";return}
+    case "del-rule":{const cl=client();await patchClient({learnings:(cl.learnings||[]).filter(r=>r.id!==id)});return}
+    case "rename-client":{const v=$("#client-name").value.trim();if(v)await patchClient({name:v});toast("Zmieniono nazwę");return}
+    case "delete-client":{if(!armed(b,"Usunąć klienta?"))return;const cl=client();try{for(const f of clientFiles(cl.id))await S.db.doc("files/"+f.id).delete();await S.db.doc("clients/"+cl.id).delete();S.clientId=null;toast("Usunięto klienta")}catch(er){dbErr(er)}return}
+  }
+});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){const id=document.activeElement?.id;
+  if(id==="note-input"){e.preventDefault();document.querySelector('[data-act="add-note"]').click()}
+  if(id==="rule-input"){e.preventDefault();document.querySelector('[data-act="add-rule"]').click()}
+  if(id==="newgroup-name"){e.preventDefault();document.querySelector('[data-act="create-group"]').click()}
+  if(id==="newgroup-inline-name"){e.preventDefault();document.querySelector('[data-act="create-group-inline"]').click()}}});
+
+boot();
+</script>
+</body>
+</html>
