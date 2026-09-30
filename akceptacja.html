@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Mail do akceptacji</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<style>
+/* Client approval view of one mail from Mail Generator AI: preview + comments pinned to places in the mail. */
+:root{
+  --bg:#f6f6f5; --surface:#ffffff; --sunk:#f1f1ef; --ink:#27282A; --muted:#5b5b60; --faint:#8a8a8e; --line:#e6e6e4;
+  --accent:#FE7577; --accent-soft:#FEF5F5; --ok:#1d7349; --no:#b42318;
+  --f:"General Sans",Arial,sans-serif; color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e0f10; --surface:#18191b; --sunk:#202123; --ink:#f5f5f3; --muted:#b8b7b2; --faint:#7a7975; --line:#2c2c2f;
+  --accent-soft:rgba(254,117,119,.16); color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e0f10; --surface:#18191b; --sunk:#202123; --ink:#f5f5f3; --muted:#b8b7b2; --faint:#7a7975; --line:#2c2c2f; --accent-soft:rgba(254,117,119,.16); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f);min-height:100vh}
+[hidden]{display:none!important}
+h1,h2,h3{font-weight:500;letter-spacing:-.02em;margin:0;line-height:1.2}
+button,input,textarea{font:inherit;color:inherit}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--surface);padding:9px 16px;border-radius:10px;font-weight:500;cursor:pointer;white-space:nowrap;transition:border-color .2s,background .2s,transform .2s}
+.btn:hover{border-color:var(--faint)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.btn.primary:hover{transform:translateY(-1px)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+.gate{max-width:520px;margin:18vh auto;text-align:center;padding:0 16px}
+.gate p{color:var(--muted)}
+.page{max-width:1180px;margin:0 auto;padding:32px 16px 80px}
+.head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:22px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.head h1{font-size:clamp(24px,4vw,34px);margin-top:4px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start}
+@media(max-width:980px){.grid{grid-template-columns:1fr}}
+.client{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -36px rgba(0,0,0,.35)}
+.client-head{display:flex;gap:14px;padding:20px 22px;border-bottom:1px solid var(--line)}
+.avatar{flex:0 0 44px;height:44px;border-radius:50%;background:var(--sunk);display:flex;align-items:center;justify-content:center;overflow:hidden;font-weight:500}
+.avatar img{width:78%;height:auto;object-fit:contain}
+.from{font-size:14px;font-weight:500}
+.subj{font-size:18px;font-weight:500;letter-spacing:-.01em;margin-top:2px}
+.pre{font-size:14px;color:var(--muted)}
+.tools{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 22px;border-bottom:1px solid var(--line)}
+.seg{display:inline-flex;gap:2px;padding:3px;background:var(--sunk);border-radius:8px}
+.seg button{border:0;background:none;padding:5px 10px;border-radius:6px;font-size:13px;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.stage{display:flex;justify-content:center;padding:16px;background:var(--sunk)}
+.frame-wrap{position:relative;width:100%;max-width:700px;transition:max-width .3s}
+.frame-wrap.mobile{max-width:375px}
+.frame-wrap iframe{display:block;width:100%;height:640px;border:0;background:#fff;border-radius:8px}
+.pins{position:absolute;inset:0;pointer-events:none}
+.pin{position:absolute;width:28px;height:28px;margin:-28px 0 0 0;transform-origin:0 100%;border-radius:50% 50% 50% 4px;background:var(--accent);color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px -4px rgba(0,0,0,.35);pointer-events:auto;cursor:pointer;border:2px solid #fff;animation:pop .35s cubic-bezier(.3,1.6,.5,1) both;transition:transform .2s}
+.pin:hover,.pin.on{transform:scale(1.15)}
+.pin.draft{background:var(--ink)}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.adding .frame-wrap{outline:2px dashed var(--accent);outline-offset:4px;border-radius:10px}
+.pop{position:absolute;z-index:5;width:280px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 24px 60px -20px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:8px;animation:in .25s cubic-bezier(.2,.7,.2,1) both}
+.pop textarea,.pop input{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--surface)}
+.pop textarea{min-height:84px;resize:vertical}
+.pop textarea:focus,.pop input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.pop .row{display:flex;justify-content:flex-end;gap:6px}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.side{position:sticky;top:16px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px}
+@media(max-width:980px){.side{position:static}}
+.side h2{font-size:19px}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.banner{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:var(--accent-soft);font-size:13px}
+.list{display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow:auto}
+.c{display:flex;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;transition:border-color .2s,background .2s}
+.c:hover,.c.on{border-color:var(--accent);background:var(--accent-soft)}
+.c .n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.c p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.c small{color:var(--faint);font-size:12px}
+.empty{font-size:13px;color:var(--muted);padding:6px 0}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:20}
+</style>
+</head>
+<body>
+<div id="gate" class="gate"><p>Wczytuję…</p></div>
+<main id="page" class="page" hidden></main>
+<div class="toast" id="toast" hidden></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getFirestore, doc, getDoc, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+const token=new URLSearchParams(location.search).get("share")||"";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=t=>t?new Intl.DateTimeFormat("pl-PL",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}).format(new Date(t)):"";
+let toastT;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2800)}
+function gate(h,p){$("#gate").innerHTML=`<h1>${esc(h)}</h1><p>${esc(p)}</p>`}
+
+if(!/^[a-z0-9]{8,32}$/.test(token))gate("Nieprawidłowy link","Poproś o nowy link do akceptacji.");
+else start();
+
+async function start(){
+  const db=getFirestore(initializeApp({apiKey:"AIzaSyCzXWLpAK-GDGMcp1Hkwoztz7IN8VuaN_o",authDomain:"mailerq.firebaseapp.com",projectId:"mailerq",storageBucket:"mailerq.firebasestorage.app",messagingSenderId:"149160081533",appId:"1:149160081533:web:e1843467e285848604d914"}));
+  let snap;try{snap=await getDoc(doc(db,"copylabShares",token))}catch{return gate("Nie udało się wczytać","Odśwież stronę za chwilę.")}
+  if(!snap.exists())return gate("Link nieaktywny","Ten link wygasł albo został wyłączony. Poproś o nowy.");
+  const s=snap.data(),it=(s.items||[])[0];
+  if(!it?.previewHtml){location.replace("copy-generator.html?share="+token);return}
+  document.title=`${s.title} – do akceptacji`;
+  $("#gate").hidden=true;const page=$("#page");page.hidden=false;
+  page.innerHTML=`<div class="head"><div><div class="eyebrow">${esc(s.clientName)} · mail do akceptacji</div><h1>${esc(s.title)}</h1></div><div class="eyebrow">Wersja z ${esc(fmt(s.updatedAt))}</div></div>
+  <div class="grid">
+    <div class="client">
+      <div class="client-head"><div class="avatar">${it.logo?`<img src="${esc(it.logo)}" alt="">`:esc((s.clientName||"").slice(0,1))}</div>
+        <div><div class="from">${esc(s.clientName)}</div><div class="subj">${esc(it.subject||s.title)}</div><div class="pre">${esc(it.preheader||"")}</div></div></div>
+      <div class="tools"><span class="hint">Podgląd maila</span><div class="seg" role="group"><button data-dev="desktop" aria-pressed="true">Desktop</button><button data-dev="mobile" aria-pressed="false">Mobile</button></div></div>
+      <div class="stage"><div class="frame-wrap" id="wrap"><iframe id="frame" title="Podgląd maila" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe><div class="pins" id="pins"></div></div></div>
+    </div>
+    <aside class="side">
+      <h2>Komentarze <span id="count" class="hint"></span></h2>
+      <p class="hint">Kliknij „Dodaj komentarz” i wskaż w mailu miejsce, którego dotyczy uwaga.</p>
+      <button class="btn primary" id="add">Dodaj komentarz</button>
+      <div class="banner" id="banner" hidden><span>Kliknij w mailu miejsce komentarza</span><button class="btn ghost" id="cancelAdd">Anuluj</button></div>
+      <div class="list" id="list"><div class="empty">Brak komentarzy.</div></div>
+    </aside>
+  </div>`;
+
+  const frame=$("#frame"),wrap=$("#wrap"),pins=$("#pins");
+  let comments=[],adding=false,active=null,draftPin=null;
+  const fdoc=()=>frame.contentDocument;
+  const fit=()=>{try{frame.style.height=Math.max(420,fdoc().documentElement.scrollHeight)+"px"}catch{}placePins()};
+  frame.addEventListener("load",()=>{fit();setTimeout(fit,400);bindFrame()});
+  frame.srcdoc=it.previewHtml;
+  window.addEventListener("resize",()=>setTimeout(fit,50));
+
+  // Anchor = path of element indexes from <body> + relative point inside that element, so pins follow reflow (desktop/mobile).
+  function pathOf(el){const p=[];const b=fdoc().body;while(el&&el!==b&&el.parentElement){p.unshift([...el.parentElement.children].indexOf(el));el=el.parentElement}return p.join(".")}
+  function byPath(p){let el=fdoc().body;for(const i of String(p||"").split(".").filter(x=>x!=="")){el=el?.children?.[+i];if(!el)return null}return el}
+  function pointOf(c){
+    const el=c.path!=null?byPath(c.path):null;
+    if(el){const r=el.getBoundingClientRect();return {x:r.left+(c.rx||0)*r.width,y:r.top+(c.ry||0)*r.height}}
+    return {x:(c.xp||0)*wrap.clientWidth,y:c.y||0};
+  }
+  function placePins(){
+    if(!fdoc())return;
+    pins.innerHTML=comments.map((c,i)=>{const p=pointOf(c);return `<div class="pin${active===c.id?" on":""}" data-id="${c.id}" style="left:${p.x}px;top:${p.y}px" title="${esc(c.text)}">${i+1}</div>`}).join("")+(draftPin?`<div class="pin draft" style="left:${pointOf(draftPin).x}px;top:${pointOf(draftPin).y}px">+</div>`:"");
+  }
+  function renderList(){
+    $("#count").textContent=comments.length?`(${comments.length})`:"";
+    $("#list").innerHTML=comments.length?comments.map((c,i)=>`<div class="c${active===c.id?" on":""}" data-id="${c.id}"><span class="n">${i+1}</span><div><p>${esc(c.text)}</p><small>${esc(c.author||"Klient")} · ${esc(fmt(c.at))}</small></div></div>`).join(""):`<div class="empty">Brak komentarzy.</div>`;
+  }
+  function focusComment(id){active=id;renderList();placePins();const pin=pins.querySelector(`.pin[data-id="${id}"]`);if(pin)pin.scrollIntoView({behavior:"smooth",block:"center"})}
+  pins.addEventListener("click",e=>{const p=e.target.closest(".pin[data-id]");if(p){active=p.dataset.id;renderList();placePins();$("#list").querySelector(`[data-id="${p.dataset.id}"]`)?.scrollIntoView({behavior:"smooth",block:"nearest"})}});
+  $("#list").addEventListener("click",e=>{const c=e.target.closest(".c");if(c)focusComment(c.dataset.id)});
+  document.querySelectorAll("[data-dev]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("[data-dev]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));wrap.classList.toggle("mobile",b.dataset.dev==="mobile");setTimeout(fit,350)}));
+
+  function setAdding(on){adding=on;page.classList.toggle("adding",on);$("#banner").hidden=!on;$("#add").hidden=on;try{fdoc().body.style.cursor=on?"crosshair":""}catch{}}
+  $("#add").addEventListener("click",()=>{closePop();setAdding(true)});
+  $("#cancelAdd").addEventListener("click",()=>setAdding(false));
+
+  function bindFrame(){
+    const d=fdoc();if(!d)return;
+    d.querySelectorAll("a[href]").forEach(a=>a.target="_blank");
+    d.addEventListener("click",e=>{
+      if(!adding)return;
+      e.preventDefault();e.stopPropagation();
+      const el=e.target.nodeType===1?e.target:e.target.parentElement;const r=el.getBoundingClientRect();
+      draftPin={path:pathOf(el),rx:r.width?(e.clientX-r.left)/r.width:0,ry:r.height?(e.clientY-r.top)/r.height:0,xp:e.clientX/wrap.clientWidth,y:e.clientY};
+      setAdding(false);placePins();openPop();
+    },true);
+  }
+  function closePop(){document.querySelector(".pop")?.remove();draftPin=null;placePins()}
+  function openPop(){
+    const p=pointOf(draftPin);
+    const el=document.createElement("div");el.className="pop";
+    el.style.left=Math.min(Math.max(0,p.x+18),wrap.clientWidth-280)+"px";el.style.top=(p.y+10)+"px";
+    let name="";try{name=localStorage.getItem("mq-review-name")||""}catch{}
+    el.innerHTML=`<textarea id="ctext" aria-label="Treść komentarza"></textarea><input id="cname" aria-label="Twoje imię" value="${esc(name)}" placeholder="Twoje imię"><div class="row"><button class="btn ghost" id="cCancel">Anuluj</button><button class="btn primary" id="cSave">Zapisz</button></div>`;
+    wrap.appendChild(el);el.querySelector("#ctext").focus();
+    el.querySelector("#cCancel").addEventListener("click",closePop);
+    el.querySelector("#cSave").addEventListener("click",save);
+    el.querySelector("#ctext").addEventListener("keydown",e=>{if((e.metaKey||e.ctrlKey)&&e.key==="Enter")save();if(e.key==="Escape")closePop()});
+  }
+  async function save(){
+    const text=$("#ctext").value.trim(),author=$("#cname").value.trim().slice(0,60);
+    if(!text){$("#ctext").focus();return}
+    try{localStorage.setItem("mq-review-name",author)}catch{}
+    const c={text:text.slice(0,2000),author,path:draftPin.path,rx:+draftPin.rx.toFixed(4),ry:+draftPin.ry.toFixed(4),xp:+draftPin.xp.toFixed(4),y:Math.round(draftPin.y),at:Date.now()};
+    $("#cSave").disabled=true;
+    try{await addDoc(collection(db,"copylabShares",token,"comments"),c);closePop();toast("Komentarz dodany")}
+    catch(e){$("#cSave").disabled=false;toast(e?.code==="permission-denied"?"Komentarze nie są jeszcze włączone – daj znać osobie, która wysłała link":"Nie udało się zapisać komentarza. Spróbuj ponownie.")}
+  }
+  onSnapshot(collection(db,"copylabShares",token,"comments"),s=>{
+    comments=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.at||0)-(b.at||0));renderList();placePins();
+  },e=>{if(e?.code==="permission-denied")$("#list").innerHTML=`<div class="empty">Komentarze nie są jeszcze włączone dla tego linku.</div>`});
+}
+</script>
+</body>
+</html>
