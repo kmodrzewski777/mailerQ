@@ -1040,7 +1040,33 @@
   @keyframes cgIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   .cg-root #cg-view-brief{max-width:640px;margin:20px auto 48px}
   .cg-root .cg-ask-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:28px 28px 22px;display:flex;flex-direction:column;gap:10px}
-  .cg-root .cg-ask-top{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px}
+  .cg-root .cg-channels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:4px}
+  .cg-root .cg-channel{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;padding:14px 14px 13px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s,transform .2s}
+  .cg-root .cg-channel:hover{border-color:var(--ink-faint);transform:translateY(-1px)}
+  .cg-root .cg-channel svg{width:26px;height:26px;margin-bottom:6px;color:var(--ink-muted);transition:color .2s,transform .3s cubic-bezier(.2,.7,.2,1)}
+  .cg-root .cg-channel b{font-weight:500;font-size:15px}
+  .cg-root .cg-channel span{font-size:12px;line-height:1.35;color:var(--muted)}
+  .cg-root .cg-channel[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+  .cg-root .cg-channel[aria-checked="true"] svg{color:var(--accent);transform:scale(1.08)}
+  .cg-root .cg-channel:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  @media(max-width:560px){.cg-root .cg-channels{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .cg-root .cg-derive{display:inline-flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:13px}
+  .cg-root .cg-saved{margin-left:auto}
+  .cg-root .cg-lib{display:block}
+  .cg-root .cg-lib-bar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}
+  .cg-root .cg-lib-bar input{max-width:280px}
+  .cg-root .cg-lib-filter .cg-n{font-size:11px;color:var(--ink-faint);margin-left:2px}
+  .cg-root .cg-lib-month + .cg-lib-month{margin-top:28px}
+  .cg-root .cg-lib-mh{font-size:15px;color:var(--muted);margin:0 0 12px}
+  .cg-root .cg-lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+  .cg-root .cg-lib-card{display:flex;flex-direction:column;gap:8px;padding:16px 16px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s;min-width:0}
+  .cg-root .cg-lib-card:hover{border-color:var(--ink-faint);box-shadow:0 14px 34px -24px rgba(0,0,0,.35);transform:translateY(-1px)}
+  .cg-root .cg-lib-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .cg-root .cg-lib-tags{display:flex;flex-wrap:wrap;gap:6px}
+  .cg-root .cg-lib-name{font-size:16px;line-height:1.3;margin:2px 0 0;overflow-wrap:anywhere}
+  .cg-root .cg-lib-snip{margin:0;font-size:13px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .cg-root .cg-lib-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto;padding-top:6px;border-top:1px solid var(--line)}
+  .cg-root .cg-lib-acts{display:flex;gap:2px}
   .cg-root .cg-ask{display:block;font-family:var(--f-display);font-weight:500;font-size:24px;letter-spacing:-.02em;line-height:1.25;color:var(--ink);margin:14px 0 4px}
   .cg-root .cg-ask-2{font-size:18px;margin-top:16px}
   .cg-root .cg-ask-card textarea,.cg-root .cg-fb-card textarea,.cg-root .cg-modal textarea{font-size:16px;line-height:1.5;resize:vertical;min-height:88px;padding:12px 14px;border-radius:12px;transition:border-color .15s,box-shadow .15s}
@@ -1662,34 +1688,21 @@
     <section id="cg-tab-create" class="cg-flow">
       <div class="cg-step" id="cg-view-brief">
         <div class="cg-ask-card">
-          <div class="cg-ask-top">
-            <div class="cg-field">
-              <label class="cg-lbl" for="cg-format">Kanał</label>
-              <select id="cg-format"></select>
-            </div>
-            <div class="cg-field">
-              <label class="cg-lbl" for="cg-group">Sekwencja</label>
-              <select id="cg-group"></select>
-            </div>
-          </div>
-          <div id="cg-newgroup-inline" class="cg-inline-form">
-            <input type="text" id="cg-newgroup-inline-name" placeholder="Nazwa sekwencji, np. Onboarding – 5 maili">
-            <button class="btn ghost small" data-act="create-group-inline">Utwórz</button>
-          </div>
+          <span class="cg-lbl" id="cg-format-lbl">Kanał</span>
+          <div class="cg-channels" id="cg-format" role="radiogroup" aria-labelledby="cg-format-lbl"></div>
           <label class="cg-ask" for="cg-b-goal" id="cg-ask-q">Jaki e-mail dziś tworzymy?</label>
-          <textarea id="cg-b-goal" data-bf="goal" rows="3" placeholder="Np. mail do leadów, którzy zaczęli podpisywać umowę i nie skończyli – chcę, żeby wrócili i ją dokończyli"></textarea>
+          <textarea id="cg-b-goal" data-bf="goal" rows="3"></textarea>
           <label class="cg-ask cg-ask-2" for="cg-brief">Czy jest coś ważnego, co muszę wiedzieć?</label>
-          <textarea id="cg-brief" data-bf="brief" rows="3" placeholder="Np. promocja trwa tylko dziś do 23:59, bonus 300 zł do Portfela, bez wspominania o Tarczy"></textarea>
+          <textarea id="cg-brief" data-bf="brief" rows="3"></textarea>
           <div class="cg-ask-actions">
             <button class="btn cg-btn-lg" id="cg-btn-create" data-act="create">Stwórz</button>
-            <button class="cg-linkish" id="cg-back-result" data-act="show-result" hidden>Wróć do ostatniego wyniku</button>
           </div>
-          <p class="cg-small cg-muted cg-ask-hint" id="cg-ctx-line"></p>
-          <span id="cg-edit-flag" hidden></span>
           <div hidden>
-            <div class="cg-field" id="cg-structure-field"><span class="cg-lbl" id="cg-structs-lbl">Struktura maila</span>
-              <div class="cg-structs" id="cg-structs" role="radiogroup" aria-labelledby="cg-structs-lbl"></div></div>
-            <div class="cg-ctx" id="cg-ctx"></div>
+            <span id="cg-edit-flag"></span>
+            <select id="cg-group"></select>
+            <div id="cg-newgroup-inline"><input type="text" id="cg-newgroup-inline-name"></div>
+            <div id="cg-structure-field"><span id="cg-structs-lbl"></span><div id="cg-structs"></div></div>
+            <div id="cg-ctx"></div>
             <span id="cg-out-meta"></span>
           </div>
         </div>
@@ -1721,17 +1734,15 @@
 
       <div class="cg-step" id="cg-view-result" hidden>
         <div class="cg-res-top">
-          <button class="cg-linkish" data-act="show-brief">← Brief</button>
-          <div class="cg-row" style="gap:10px">
-            <div class="cg-versions" id="cg-versions"></div>
-            <button class="btn ghost small" data-act="new-draft">Nowy</button>
-          </div>
+          <button class="cg-linkish" data-act="new-draft">← Tworzę coś nowego</button>
+          <div class="cg-versions" id="cg-versions"></div>
         </div>
         <div class="cg-out" id="cg-out"></div>
         <div class="cg-res-actions">
           <button class="btn cg-btn-lg" data-act="compile" id="cg-btn-copy-out">Kompiluj</button>
-          <button class="btn ghost" data-act="save" id="cg-btn-save">Zapisz w bibliotece</button>
-          <span class="cg-small cg-muted" id="cg-save-status"></span>
+          <span class="cg-derive" id="cg-derive"></span>
+          <span class="cg-small cg-muted cg-saved" id="cg-save-status"></span>
+          <button data-act="save" id="cg-btn-save" hidden></button>
           <input type="hidden" id="cg-save-name">
           <button data-act="save-new" id="cg-btn-save-new" hidden></button>
         </div>
@@ -1761,24 +1772,12 @@
 
     <!-- LIBRARY -->
     <section id="cg-tab-library" class="cg-lib" hidden>
-      <div class="cg-panel">
-        <div class="cg-panel-head">
-          <h2>Sekwencje</h2>
-          <button class="btn ghost small" data-act="toggle-newgroup">+ Nowa sekwencja</button>
-        </div>
-        <div id="cg-newgroup-form" class="cg-inline-form">
-          <input type="text" id="cg-newgroup-name" placeholder="Nazwa, np. Winback 30 dni">
-          <button class="btn small" data-act="create-group">Utwórz</button>
-        </div>
-        <div id="cg-lib-groups" style="margin-top:12px"></div>
+      <div class="cg-lib-bar">
+        <div class="cg-seg cg-lib-filter" id="cg-lib-filter" role="group" aria-label="Kanał"></div>
+        <input type="search" id="cg-lib-search" placeholder="Szukaj" aria-label="Szukaj w bibliotece">
       </div>
-      <div class="cg-panel">
-        <div class="cg-panel-head">
-          <h2>Zapisane copy</h2>
-          <input type="search" id="cg-lib-search" placeholder="Szukaj po nazwie lub treści" style="max-width:260px">
-        </div>
-        <div class="cg-list" id="cg-lib-copies"></div>
-      </div>
+      <div id="cg-lib-copies"></div>
+      <div hidden><div id="cg-lib-groups"></div><div id="cg-newgroup-form"><input type="text" id="cg-newgroup-name"></div></div>
     </section>
 
       </div>
@@ -2805,7 +2804,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.35.0";
+var APP_VERSION = "3.36.0";
 var APP_UPDATED = "2026-09-30";
 
 
@@ -18774,6 +18773,12 @@ function renderAll(){
   const prev=S.clientId;
   S.clientId=S.clients.find(c=>c.id===key)?key:null;
   if(prev!==S.clientId){S.peek=null;S.lastLearned=[];$("#cg-feedback").value=""}
+  // Tworzenie always opens on empty questions; finished work lives in the Library.
+  if(S.clientId&&(S.freshPending||prev!==S.clientId)&&!S.busy){
+    S.freshPending=false;S.showResult=false;
+    const od=S.drafts[S.clientId];
+    if(od&&(od.versions||[]).length){S.drafts[S.clientId]={...blankDraft(),format:CHANNELS.some(c=>c.id===od.format)?od.format:"mail"};persistDraft()}
+  }
   const none=!S.clientId;
   $("#cg-noclient").hidden=!none;
   $("#cg-bar").hidden=none;
@@ -18852,44 +18857,37 @@ function setTab(t,quiet){
 }
 
 function renderCreate(){
-  const d=draft(),cl=client();
-  const gs=cl?clientGroups(cl.id):[];
-  $("#cg-group").innerHTML=`<option value="">Bez sekwencji</option>`+gs.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join("")+`<option value="__new">+ Nowa sekwencja…</option>`;
-  if(d.groupId&&!gs.find(g=>g.id===d.groupId))d.groupId="";
-  $("#cg-group").value=d.groupId||"";
-  $("#cg-format").value=d.format||"mail";
+  const d=draft();
+  renderChannels();
   document.querySelectorAll(".cg-root [data-bf]").forEach(inp=>{if(document.activeElement!==inp)inp.value=d[inp.dataset.bf]||""});
-  renderStructs();renderAsk();
+  renderAsk();
   $("#cg-save-name").value=d.name||"";
-  setView(RUN.on?"run":(S.forceBrief||!d.versions[d.vi])?"brief":"result");
-  $("#cg-back-result").hidden=!(S.forceBrief&&d.versions[d.vi]);
-  if(cl){
-    const ns=(cl.notes||[]).length,ls=(cl.learnings||[]).length,hasBv=clientFiles(cl.id).some(f=>f.kind==="brandvoice"),ds=!!(mailBrand(cl.id).aiMailDesign||"").trim();
-    const bits=[hasBv?"brand voice":"",ds&&d.format==="mail"?"design system maili":"",ns?`${ns} ${ns===1?"uwagę":ns<5?"uwagi":"uwag"}`:"",ls?`${ls} ${ls===1?"zasadę":ls<5?"zasady":"zasad"}`:""].filter(Boolean);
-    $("#cg-ctx-line").textContent=(bits.length?`Pamiętam o marce ${cl.name}: ${bits.join(", ")}.`:`Marka ${cl.name} nie ma jeszcze brand voice ani uwag – dodasz je w Brand Kicie.`)+((d.thread||[]).length?` Kontynuuję: ${(d.thread||[]).map(t=>FORMATS[t.format]?.label||"copy").join(", ")}.`:"");
-  } else $("#cg-ctx-line").textContent="";
-  // context chips
-  if(cl){
-    const fs=clientFiles(cl.id),ls=cl.learnings||[],ns=cl.notes||[],ex=clientCopies(cl.id).length;
-    const chip=(ok,txt)=>`<span class="cg-pill ${ok?"cg-ok":""}">${esc(txt)}</span>`;
-    $("#cg-ctx").innerHTML=[
-      chip(fs.some(f=>f.kind==="brandvoice"),fs.some(f=>f.kind==="brandvoice")?"Brand voice":"Brak brand voice"),
-      chip(fs.length,`${fs.length} plik${fs.length===1?"":fs.length>1&&fs.length<5?"i":"ów"}`),
-      chip((cl.guidelines||"").trim(),(cl.guidelines||"").trim()?"Wytyczne":"Brak wytycznych"),
-      chip(ns.length,`${ns.length} uwag`),
-      chip(ls.length,`${ls.length} zasad`),
-      chip(ex,`${Math.min(ex,3)} wzorów copy`),
-      ...(d.thread||[]).map(t=>chip(true,`Kontynuuje: ${FORMATS[t.format]?.label||"copy"}`))
-    ].join("");
-  } else $("#cg-ctx").innerHTML="";
-  // edit flag
+  setView(RUN.on?"run":(S.showResult&&d.versions[d.vi])?"result":"brief");
   const saved=d.copyId&&S.copies.find(c=>c.id===d.copyId);
-  $("#cg-edit-flag").innerHTML=saved?`<span class="cg-pill cg-acc">Edytujesz zapisane</span>`:"";
-  $("#cg-btn-save").textContent=saved?"Zapisz zmiany":"Zapisz w bibliotece";
-  $("#cg-btn-save-new").hidden=!saved;
-  $("#cg-save-status").textContent=saved?`Utworzone ${fmtDate(saved.createdAt)}${saved.updatedAt&&saved.updatedAt!==saved.createdAt?" · zmienione "+fmtDate(saved.updatedAt):""}`:"";
+  $("#cg-save-status").textContent=saved?"Zapisane w Bibliotece":"";
+  const vf=d.versions[d.vi]?.format||d.format;
+  $("#cg-derive").innerHTML=d.versions[d.vi]?`<span class="cg-muted">Zrób z tego też:</span>`+CHANNELS.filter(c=>c.id!==vf).map(c=>`<button type="button" class="cg-linkish" data-act="derive" data-v="${c.id}">${esc(c.label)}</button>`).join(""):"";
   if(!S.busy)renderOut();
   renderLearned();
+}
+// The four channels offered in Tworzenie (older drafts may still carry other formats).
+const CH_ICON = {
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 7 8.5 6 8.5-6"/>',
+  sms:'<path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-9l-5 4v-4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M8 9.5h8M8 12.5h5"/>',
+  push:'<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+  inapp:'<rect x="6" y="2.5" width="12" height="19" rx="2.5"/><rect x="8.5" y="7" width="7" height="6" rx="1"/><path d="M10.5 18.5h3"/>'
+};
+const CHANNELS = [
+  {id:"mail",label:"E-mail",sub:"Gotowy mail z kodem"},
+  {id:"sms",label:"SMS",sub:"Krótko, do 160 znaków"},
+  {id:"push",label:"Push",sub:"Powiadomienie w telefonie"},
+  {id:"inapp",label:"In-App",sub:"Komunikat w aplikacji lub na stronie"}
+];
+function renderChannels(){
+  const d=draft();if(!CHANNELS.some(c=>c.id===d.format))d.format="mail";
+  const box=$("#cg-format");
+  const html=CHANNELS.map(c=>`<button type="button" class="cg-channel" role="radio" aria-checked="${c.id===d.format}" data-act="channel" data-v="${c.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${CH_ICON[c.id]}</svg><b>${esc(c.label)}</b><span>${esc(c.sub)}</span></button>`).join("");
+  if(box.dataset.sig!==d.format){box.innerHTML=html;box.dataset.sig=d.format}
 }
 
 function renderStructs(){
@@ -19041,40 +19039,35 @@ function renderLearned(){
 }
 function ruleHTML(r,editable){return `<div class="cg-rule"><span class="cg-pill ${r.type==="dont"?"cg-no":"cg-ok"}">${r.type==="dont"?"Nie":"Tak"}</span><span class="cg-t">${esc(r.text)}</span>${editable?`<button class="btn ghost small cg-quiet" data-act="edit" data-kind="rule" data-id="${r.id}">Edytuj</button>`:""}<button class="btn ghost small cg-quiet" data-act="del-rule" data-id="${r.id}" aria-label="Usuń zasadę">Usuń</button></div>`}
 
+// Library = catalogue of every piece of work for the brand: filter by channel, search, grouped by month.
+const LIB_FILTERS = [["all","Wszystko"],["mail","E-mail"],["sms","SMS"],["push","Push"],["inapp","In-App"],["other","Inne"]];
+const libBucket = c => ["mail","sms","push","inapp"].includes(c.format) ? c.format : "other";
+function libSnippet(c){
+  if(c.format==="mail"){const m=parseMail(c.text);return m.preheader||""}
+  return plain(c.text).replace(/\s+/g," ").slice(0,140);
+}
 function renderLibrary(){
-  const cl=client();if(!cl){$("#cg-lib-groups").innerHTML="";$("#cg-lib-copies").innerHTML="";return}
+  const cl=client();if(!cl){$("#cg-lib-copies").innerHTML="";return}
   const q=($("#cg-lib-search").value||"").toLowerCase().trim();
-  const gs=clientGroups(cl.id);
-  $("#cg-lib-groups").innerHTML=gs.length?gs.map(g=>{
-    const cs=groupCopies(g.id);
-    const others=clientCopies(cl.id).filter(c=>c.groupId!==g.id);
-    return `<div class="cg-group">
-      <div class="cg-panel-head" style="margin:0">
-        <div><div class="cg-name">${esc(g.name)}</div>
-        <div class="cg-meta cg-row cg-small cg-muted" style="gap:6px;margin-top:2px"><span>${cs.length} copy</span><span>·</span><span>utworzona ${esc(fmtDay(g.createdAt))}</span>${g.shareId?`<span class="cg-pill cg-acc">Udostępniona</span>`:""}</div></div>
-        <div class="cg-row" style="gap:4px"><button class="btn ghost small" data-act="share-group" data-id="${g.id}">Udostępnij</button><button class="btn ghost small cg-quiet cg-danger" data-act="del-group" data-id="${g.id}">Usuń</button></div>
-      </div>
-      ${cs.length?`<ol class="cg-group-steps">${cs.map((c,i)=>`<li><span style="min-width:0;overflow-wrap:anywhere"><a href="#" data-act="open-copy" data-id="${c.id}" style="color:inherit">${esc(c.name)}</a> <span class="cg-pill">${esc(FORMATS[c.format]?.label||"")}</span></span>
-        <span class="cg-row" style="gap:0">
-          <button class="btn ghost small cg-quiet" data-act="move" data-id="${c.id}" data-dir="-1" ${i===0?"disabled":""} aria-label="W górę">↑</button>
-          <button class="btn ghost small cg-quiet" data-act="move" data-id="${c.id}" data-dir="1" ${i===cs.length-1?"disabled":""} aria-label="W dół">↓</button>
-          <button class="btn ghost small cg-quiet" data-act="ungroup" data-id="${c.id}" aria-label="Wyjmij z sekwencji">✕</button>
-        </span></li>`).join("")}</ol>`:`<p class="cg-small cg-muted" style="margin:8px 0 0">Pusta. Wybierz tę sekwencję w briefie albo dodaj zapisane copy poniżej.</p>`}
-      ${others.length?`<div class="cg-row" style="margin-top:10px;flex-wrap:nowrap"><select data-role="add-to" data-gid="${g.id}" style="flex:1;min-width:0"><option value="">Dodaj zapisane copy…</option>${others.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select></div>`:""}
-    </div>`}).join(""):`<div class="cg-empty-note cg-small">Sekwencja zbiera kilka copy, np. 4 maile onboardingu. Całą sekwencję udostępniasz jednym linkiem.</div>`;
-  let cs=clientCopies(cl.id);
-  if(q)cs=cs.filter(c=>(c.name||"").toLowerCase().includes(q)||(c.text||"").toLowerCase().includes(q));
-  $("#cg-lib-copies").innerHTML=cs.length?cs.map(c=>{
-    const g=c.groupId&&S.groups.find(x=>x.id===c.groupId);
-    return `<div class="cg-item">
-      <div style="min-width:0"><div class="cg-name">${esc(c.name)}</div>
-        <div class="cg-meta"><span class="cg-pill">${esc(FORMATS[c.format]?.label||"")}</span>${g?`<span class="cg-pill cg-acc">${esc(g.name)}</span>`:""}${c.shareId?`<span class="cg-pill cg-ok">Udostępnione</span>`:""}<span class="cg-mono cg-muted">${esc(fmtDate(c.createdAt))}</span></div></div>
-      <div class="cg-acts">
-        <button class="btn ghost small" data-act="open-copy" data-id="${c.id}">Otwórz</button>
-        <button class="btn ghost small" data-act="share-copy" data-id="${c.id}">Udostępnij</button>
-        <button class="btn ghost small cg-quiet" data-act="copy-saved" data-id="${c.id}">Kopiuj</button>
-        <button class="btn ghost small cg-quiet cg-danger" data-act="del-copy" data-id="${c.id}">Usuń</button>
-      </div></div>`}).join(""):`<div class="cg-empty-note cg-small">${q?"Nic nie pasuje do wyszukiwania.":"Brak zapisanych copy. Gdy copy będzie gotowe, nadaj mu nazwę i kliknij Zapisz na liście."}</div>`;
+  const all=clientCopies(cl.id);
+  const f=S.libFilter||"all";
+  const counts=Object.fromEntries(LIB_FILTERS.map(([k])=>[k,k==="all"?all.length:all.filter(c=>libBucket(c)===k).length]));
+  $("#cg-lib-filter").innerHTML=LIB_FILTERS.filter(([k])=>k==="all"||counts[k]||k===f).map(([k,l])=>`<button type="button" data-act="lib-filter" data-v="${k}" aria-pressed="${k===f}">${esc(l)} <span class="cg-n">${counts[k]}</span></button>`).join("");
+  let cs=f==="all"?all:all.filter(c=>libBucket(c)===f);
+  if(q)cs=cs.filter(c=>(c.name||"").toLowerCase().includes(q)||(c.text||"").toLowerCase().includes(q)||(c.goal||"").toLowerCase().includes(q));
+  if(!cs.length){$("#cg-lib-copies").innerHTML=`<div class="cg-empty-note cg-small">${q||f!=="all"?"Nic tu nie pasuje.":"Biblioteka jest pusta. Każda praca z zakładki Tworzenie trafia tu automatycznie."}</div>`;return}
+  const month=t=>new Intl.DateTimeFormat("pl-PL",{month:"long",year:"numeric"}).format(new Date(t||0));
+  const groups=[];for(const c of cs){const m=month(c.updatedAt||c.createdAt);let g=groups.find(x=>x.m===m);if(!g)groups.push(g={m,items:[]});g.items.push(c)}
+  $("#cg-lib-copies").innerHTML=groups.map(g=>`<section class="cg-lib-month"><h3 class="cg-lib-mh">${esc(g.m.charAt(0).toUpperCase()+g.m.slice(1))}</h3><div class="cg-lib-grid">${g.items.map(c=>{
+    const type=c.format==="mail"&&MAIL_TYPES[c.mailType]?MAIL_TYPES[c.mailType].label:"";
+    const nv=(c.versions||[]).length;
+    return `<article class="cg-lib-card" data-act="open-copy" data-id="${c.id}" tabindex="0">
+      <div class="cg-lib-tags"><span class="cg-pill cg-acc">${esc(c.format==="mail"?"E-mail":FORMATS[c.format]?.label||"")}</span>${type?`<span class="cg-pill">${esc(type)}</span>`:""}</div>
+      <h4 class="cg-lib-name">${esc(c.name||"Bez nazwy")}</h4>
+      <p class="cg-lib-snip">${esc(libSnippet(c))}</p>
+      <div class="cg-lib-foot"><span class="cg-mono cg-muted">${esc(fmtDate(c.updatedAt||c.createdAt))}${nv>1?` · ${nv} wersje`:""}</span>
+        <span class="cg-lib-acts"><button class="btn ghost small cg-quiet" data-act="copy-saved" data-id="${c.id}">${c.format==="mail"?"Kompiluj":"Kopiuj"}</button><button class="btn ghost small cg-quiet cg-danger" data-act="del-copy" data-id="${c.id}">Usuń</button></span></div>
+    </article>`}).join("")}</div></section>`).join("");
 }
 
 function renderMemory(){
@@ -19199,8 +19192,9 @@ async function doCreate(){
     text=await runSample(isMail?mailPrompt(cl,d):genPrompt(cl,d),isMail?{maxTokens:32000}:null);
   }catch(e){if(e?.code!=="cancelled")toast(sampleMsg(e))}
   if(!text)d.thread=oldThread;
-  if(text){d.versions=[{text,at:now(),feedback:null,format:d.format}];d.vi=0;S.lastLearned=[];S.forceBrief=false;S.mailKey="";persistDraft()}
+  if(text){d.versions=[{text,at:now(),feedback:null,format:d.format}];d.vi=0;S.lastLearned=[];S.showResult=true;S.mailKey="";persistDraft()}
   await runEnd(!!text);setBusy(false);
+  if(text)await doSave(false,true);
   renderCreate();
 }
 async function doRevise(fbArg){
@@ -19221,6 +19215,7 @@ async function doRevise(fbArg){
     learnFrom(cl,fb,copyPlain(cur,fmt));
   }
   await runEnd(!!text);setBusy(false);
+  if(text)await doSave(false,true);
   renderCreate();
 }
 async function doCompile(){
@@ -19266,11 +19261,11 @@ async function learnFrom(cl,fb,cur){
 }
 
 /* ---------- actions: save ---------- */
-async function doSave(asNew){
+async function doSave(asNew,quiet){
   const cl=client(),d=draft();const cur=d.versions[d.vi];
   if(!cur)return toast("Nie ma jeszcze copy do zapisania");
   const vf=cur.format||d.format;
-  const name=$("#cg-save-name").value.trim()||(vf==="mail"?parseMail(cur.text).subject:"")||(d.goal||"").trim().slice(0,70)||`${FORMATS[vf]?.label||"Copy"} ${fmtDay(now())}`;
+  const name=(quiet&&vf==="mail"?parseMail(cur.text).subject:"")||$("#cg-save-name").value.trim()||(vf==="mail"?parseMail(cur.text).subject:"")||(d.goal||"").trim().slice(0,70)||`${FORMATS[vf]?.label||"Copy"} ${fmtDay(now())}`;
   d.name=name;
   const existing=!asNew&&d.copyId&&S.copies.find(c=>c.id===d.copyId);
   const id=existing?existing.id:rid();
@@ -19284,7 +19279,7 @@ async function doSave(asNew){
   try{
     await S.db.doc("copies/"+id).set(body);
     d.copyId=id;persistDraft();
-    toast(existing?"Zapisano zmiany":"Zapisano na liście");
+    if(!quiet)toast(existing?"Zapisano zmiany":"Zapisano w Bibliotece");
     const oldGroup=existing?.groupId;
     await refreshShares({...body,id},oldGroup);
   }catch(e){dbErr(e,"save")}
@@ -19484,7 +19479,7 @@ async function patchClient(cl,patch){if(!cl)return;try{await S.db.doc("clients/"
 function bindStatic(){
   document.querySelectorAll(".cg-root [data-bf]").forEach(inp=>inp.addEventListener("input",e=>{draft()[inp.dataset.bf]=e.target.value;persistDraft()}));
   $("#cg-save-name").addEventListener("input",e=>{draft().name=e.target.value;persistDraft()});
-  $("#cg-format").addEventListener("change",e=>{draft().format=e.target.value;persistDraft();renderStructs();renderAsk()});
+  // channel tiles are handled by the "channel" click action
   $("#cg-edit-modal").addEventListener("click",e=>{if(e.target.id==="cg-edit-modal")closeEditMeta()});
   $("#cg-group").addEventListener("change",e=>{
     if(e.target.value==="__new"){$("#cg-newgroup-inline").classList.add("cg-open");$("#cg-newgroup-inline-name").focus();e.target.value=draft().groupId||"";return}
@@ -19506,6 +19501,7 @@ function bindStatic(){
     }
   });
   document.addEventListener("keydown",e=>{
+    if(e.key==="Enter"&&e.target.classList?.contains("cg-lib-card")){e.preventDefault();e.target.click()}
     if(e.key==="Escape"){$("#cg-ov-share").classList.remove("open");if(!$("#cg-edit-modal").hidden)closeEditMeta()}
     if((e.metaKey||e.ctrlKey)&&e.key==="Enter"){const a=document.activeElement;if(a?.dataset?.bf)doCreate();else if(a===$("#cg-feedback"))doRevise();else if(a===$("#cg-edit-fb"))applyEditMeta()}
   });
@@ -19522,12 +19518,13 @@ document.addEventListener("click",async e=>{
     case "revise":return doRevise();
     case "stop":S.ctl?.abort();return;
     case "compile":return doCompile();
-    case "show-brief":S.forceBrief=true;renderCreate();setTimeout(()=>$("#cg-b-goal").focus(),250);return;
-    case "show-result":S.forceBrief=false;renderCreate();return;
+    case "channel":{const d=draft();d.format=b.dataset.v;persistDraft();renderChannels();renderAsk();return}
+    case "derive":{const d=draft();if(S.busy||!d.versions[d.vi])return;d.format=b.dataset.v;persistDraft();return doCreate()}
+    case "lib-filter":S.libFilter=b.dataset.v;renderLibrary();return;
     case "edit-meta":return openEditMeta(b.dataset.k);
     case "edit-cancel":return closeEditMeta();
     case "edit-apply":return applyEditMeta();
-    case "new-draft":{S.forceBrief=false;const keepFmt=draft().format,keepStr=draft().structure,keepType=draft().mailType;S.drafts[S.clientId]={...blankDraft(),format:keepFmt,structure:keepStr,mailType:keepType||"promo"};S.lastLearned=[];document.querySelectorAll(".cg-root [data-bf]").forEach(i=>i.value="");$("#cg-save-name").value="";$("#cg-feedback").value="";persistDraft();renderCreate();$("#cg-b-goal").focus();return}
+    case "new-draft":{S.showResult=false;const keepFmt=CHANNELS.some(c=>c.id===draft().format)?draft().format:"mail",keepStr=draft().structure,keepType=draft().mailType;S.drafts[S.clientId]={...blankDraft(),format:keepFmt,structure:keepStr,mailType:keepType||"promo"};S.lastLearned=[];document.querySelectorAll(".cg-root [data-bf]").forEach(i=>i.value="");$("#cg-save-name").value="";$("#cg-feedback").value="";persistDraft();renderCreate();$("#cg-b-goal").focus();return}
     case "ver":{const d=draft();d.vi=+b.dataset.i;persistDraft();renderOut();return}
     case "copy-out":return doCompile();
     case "mail-view":S.mailView=b.dataset.v;renderOut();return;
@@ -19552,7 +19549,7 @@ document.addEventListener("click",async e=>{
       const c=S.copies.find(x=>x.id===id);if(!c)return;
       const vs=(c.versions&&c.versions.length)?c.versions:[{text:c.text,at:c.updatedAt||c.createdAt,feedback:null}];
       S.drafts[c.clientId]={format:c.format||"email",structure:c.structure||"marketing",mailType:c.mailType||"promo",groupId:c.groupId||"",goal:c.goal||"",segment:c.segment||"",argument:c.argument||"",cta:c.cta||"",brief:c.brief||"",versions:vs.map(v=>({...v})),vi:vs.length-1,copyId:c.id,name:c.name};
-      S.lastLearned=[];S.forceBrief=false;S.mailKey="";persistDraft();document.querySelectorAll(".cg-root [data-bf]").forEach(i=>i.value=S.drafts[c.clientId][i.dataset.bf]||"");$("#cg-save-name").value=c.name;setTab("create");renderCreate();return;
+      S.lastLearned=[];S.showResult=true;S.mailKey="";persistDraft();document.querySelectorAll(".cg-root [data-bf]").forEach(i=>i.value=S.drafts[c.clientId][i.dataset.bf]||"");$("#cg-save-name").value=c.name;setTab("create");renderCreate();return;
     }
     case "copy-saved":{const c=S.copies.find(x=>x.id===id);if(c){if(c.format==="mail")copyText(parseMail(c.text).html);else copyText(plain(c.text),md(c.text))}return}
     case "del-copy":{
@@ -19676,7 +19673,6 @@ function start(){
     store.set("cl-drafts",S.drafts);store.set("cl-drafts-v",2);
   }
   S.tab=store.get("cl-tab","create");if(S.tab!=="library")S.tab="create";
-  $("#cg-format").innerHTML=Object.entries(FORMATS).map(([k,v])=>`<option value="${k}">${esc(v.label)}</option>`).join("");
   const sub=(col,key)=>S.subs.push(S.db.collection(col).onSnapshot(s=>{S[key]=mapSnap(s);S.loaded[key]=true;renderAll()},e=>{console.error(col,e);if(e?.code==="permission_denied")rulesToast();else toast("Utracono połączenie z bazą Mail Generatora AI – odśwież stronę","error")}));
   sub("clients","copyDocs");sub("files","files");sub("copies","copies");sub("groups","groups");
   bindStatic();setTab(S.tab,true);
@@ -19688,7 +19684,7 @@ function renderKeyState(){
 }
 window.MQCopyGen={
   // Maximus calls this whenever the section is shown or its state (e.g. the picked brand) changes
-  showSection(){start();renderKeyState();renderAll()},
+  showSection(){start();S.freshPending=true;renderKeyState();renderAll()},
   // Brand Kit → "Brand voice & copy" tab for this brand
   openBrandPanel(key){start();if(S.memId!==key){S.memId=key;S.editing=null;S.peek=null;$("#cg-bv-url").dataset.cid="";$("#cg-guidelines").dataset.cid=""}renderAll();renderMemory();renderBV()}
 };
