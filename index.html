@@ -815,7 +815,6 @@
   .bf-group{border:1px solid var(--line); border-radius:6px; padding:12px 14px}
   .bf-group-title{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 10px}
   .bf-group-title-row{display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 10px}
-  .bf-copy-note{font-size:12.5px; color:var(--ink-muted); margin:8px 0 0}
   .bf-group-title-row .bf-group-title{margin:0}
 
   .bf-crm-logo-badge{display:flex; align-items:center; gap:5px; color:var(--ink-faint); font-weight:500; font-size:13px; flex:none}
@@ -963,6 +962,133 @@
   .app-footer-powered .rq-logo{height:14px; width:auto; display:block}
   .app-footer-powered:hover{opacity:.75}
   @media (max-width:520px){ .app-footer-inner{justify-content:flex-start} }
+  /* ---------- Copy Generator (section + Brand Kit "Brand voice & copy") ---------- */
+  .cg-root{--bg:var(--paper); --sunk:var(--surface-2); --muted:var(--ink-muted); --faint:var(--ink-faint);
+    --cg-accent:var(--ink); --cg-accent-soft:var(--accent-soft); --coral:var(--accent-strong);
+    --ok:#1d7349; --ok-soft:#e3f3e9; --no:#b42318; --no-soft:#fdecea; --warn:#8a5a10;
+    --f-display:var(--font-display); --f-body:var(--font-body); --f-mono:var(--font-mono); --shadow:none;
+    color:var(--ink); font-size:14px; line-height:1.5}
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .cg-root{--ok:#6fd19c; --ok-soft:#173226; --no:#ff9a86; --no-soft:#3a1f1a; --warn:#e7b567} }
+  :root[data-theme="dark"] .cg-root{--ok:#6fd19c; --ok-soft:#173226; --no:#ff9a86; --no-soft:#3a1f1a; --warn:#e7b567}
+  .cg-root [hidden]{display:none!important}
+  .cg-root h2,.cg-root h3,.cg-root h4{font-family:var(--f-display); font-weight:500; letter-spacing:-.02em; margin:0; line-height:1.2}
+  .cg-root input[type=text],.cg-root input[type=search],.cg-root select,.cg-root textarea{font:inherit; color:inherit; width:100%; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:9px 11px}
+  .cg-root .btn{white-space:nowrap; display:inline-flex; align-items:center; justify-content:center; gap:6px}
+  .cg-root .btn.cg-quiet{border-color:transparent}
+  .cg-root .btn.cg-quiet:hover{background:var(--surface-2); opacity:1}
+  .cg-root .btn.cg-danger{color:var(--no)}
+  .cg-root .btn.cg-armed{background:var(--no); border-color:var(--no); color:#fff}
+  .cg-root .cg-bar{display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin:0 0 18px}
+  .cg-root .cg-bar .cg-tabs{margin-right:auto}
+  .cg-root .cg-tabs{display:flex; gap:4px; padding:4px; background:var(--surface-2); border-radius:10px}
+  .cg-root .cg-tab{border:0; background:none; padding:7px 14px; border-radius:7px; color:var(--ink-muted); font:inherit; font-weight:500; cursor:pointer; white-space:nowrap}
+  .cg-root .cg-tab[aria-selected="true"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .cg-root .cg-tab .cg-n{font-size:11px; color:var(--ink-faint); margin-left:4px}
+  .cg-root .cg-share-modal{padding:20px; gap:14px; max-width:560px; overflow:auto}
+  .cg-root .cg-share-modal h2{font-size:20px}
+  .cg-root #cgBrandPanel{padding:4px 2px}
+  /* controls */
+  .cg-root .cg-lbl{display:block;font:500 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .cg-root .cg-field{display:flex;flex-direction:column;min-width:0}
+  .cg-root .cg-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .cg-root .cg-row.cg-end{justify-content:flex-end}
+  .cg-root .cg-stack{display:flex;flex-direction:column;gap:14px}
+  .cg-root .cg-muted{color:var(--muted)}
+  .cg-root .cg-small{font-size:13px}
+  .cg-root .cg-mono{font-family:var(--f-mono);font-size:12px;font-variant-numeric:tabular-nums}
+  .cg-root .cg-pill{display:inline-flex;align-items:center;gap:4px;font:500 11px var(--f-mono);letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+  .cg-root .cg-pill.cg-acc{background:var(--accent-soft);color:var(--accent)}
+  .cg-root .cg-pill.cg-ok{background:var(--ok-soft);color:var(--ok)}
+  .cg-root .cg-pill.cg-no{background:var(--no-soft);color:var(--no)}
+
+  .cg-root .cg-panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .cg-root .cg-panel h2{font-size:18px;margin-bottom:12px}
+  .cg-root .cg-panel-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+  .cg-root .cg-panel-head h2{margin:0}
+
+  /* create */
+  .cg-root .cg-desk{display:grid;gap:18px}
+  @media(min-width:980px){.cg-root .cg-desk{grid-template-columns:minmax(320px,380px) minmax(0,1fr);align-items:start}.cg-root .cg-desk .cg-brief{position:sticky;top:130px}}
+  .cg-root .cg-ctx{display:flex;flex-wrap:wrap;gap:6px}
+  .cg-root .cg-sheet{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);min-width:0}
+  .cg-root .cg-sheet-bar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid var(--line)}
+  .cg-root .cg-versions{display:flex;gap:4px;flex-wrap:wrap}
+  .cg-root .cg-vbtn{font:500 12px var(--f-mono);border:1px solid var(--line);background:none;border-radius:6px;padding:3px 8px;cursor:pointer;color:var(--muted)}
+  .cg-root .cg-vbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .cg-root .cg-out{padding:22px 24px 26px;min-height:260px;max-width:74ch;overflow-wrap:anywhere}
+  .cg-root .cg-out.cg-empty{display:flex;flex-direction:column;justify-content:center;gap:10px;color:var(--muted)}
+  .cg-root .cg-out.cg-thinking{color:var(--muted)}
+  .cg-root .cg-doc h3{font-size:19px;margin:18px 0 8px}
+  .cg-root .cg-doc h4{font-size:16px;margin:14px 0 6px}
+  .cg-root .cg-doc h3:first-child,.cg-root .cg-doc h4:first-child{margin-top:0}
+  .cg-root .cg-doc p{margin:0 0 10px}
+  .cg-root .cg-doc ul,.cg-root .cg-doc ol{margin:0 0 10px;padding-left:22px}
+  .cg-root .cg-doc blockquote{margin:12px 0;padding:8px 12px;border-left:3px solid var(--warn);background:var(--sunk);border-radius:0 8px 8px 0;font-size:14px;color:var(--muted)}
+  .cg-root .cg-doc hr{border:0;border-top:1px dashed var(--line);margin:16px 0}
+  .cg-root .cg-sheet-foot{border-top:1px solid var(--line);padding:16px 18px;display:grid;gap:16px}
+  @media(min-width:760px){.cg-root .cg-sheet-foot{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
+  .cg-root .cg-learned{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+  .cg-root .cg-rule{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;background:var(--sunk);font-size:14px}
+  .cg-root .cg-rule .cg-pill{margin-top:2px}
+  .cg-root .cg-rule span.cg-t{flex:1;min-width:0}
+  .cg-root .cg-dots::after{content:"";animation:dots 1.2s steps(4) infinite}
+  @keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+  @media (prefers-reduced-motion:reduce){.cg-root .cg-dots::after{animation:none;content:"..."}}
+
+  .cg-root .cg-structs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .cg-root .cg-struct{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:8px 10px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+  .cg-root .cg-struct b{font-weight:600;font-size:14px}
+  .cg-root .cg-struct span{font-size:12px;color:var(--muted);line-height:1.35}
+  .cg-root .cg-struct[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+  .cg-root .cg-struct[aria-checked="true"] b{color:var(--accent)}
+  .cg-root .cg-bgrid{display:grid;gap:12px}
+  .cg-root .cg-edit-box{grid-column:1/-1;display:flex;flex-direction:column;gap:8px;margin-top:6px}
+  .cg-root .cg-edit-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 0}
+  .cg-root .cg-edit-row input{flex:1;min-width:160px}
+  .cg-root .cg-linkish{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font:inherit;text-decoration:underline;text-underline-offset:2px}
+
+  .cg-root .cg-bv-grid{display:grid;gap:14px}
+  .cg-root .cg-urlbox{display:flex;align-items:stretch;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .cg-root .cg-urlbox:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .cg-root .cg-urlbox span{display:flex;align-items:center;padding:0 2px 0 11px;font:13px var(--f-mono);color:var(--muted);user-select:none}
+  .cg-root .cg-urlbox input{border:0;border-radius:0;padding-left:2px;min-width:0;flex:1}
+  .cg-root .cg-urlbox input:focus{box-shadow:none}
+  @media(min-width:860px){.cg-root .cg-bv-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)}}
+  .cg-root .cg-bv-summary{background:var(--accent-soft);border-radius:10px;padding:14px 16px}
+  .cg-root .cg-bv-summary ul{margin:0}
+  .cg-root .cg-bv-details{border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+  .cg-root .cg-bv-details summary{cursor:pointer;font-weight:600}
+  .cg-root .cg-bv-details .cg-doc{margin-top:12px;max-height:520px;overflow:auto}
+  .cg-root .cg-task{white-space:pre-wrap;background:var(--sunk);border-radius:8px;padding:12px;font:12px/1.5 var(--f-mono);max-height:220px;overflow:auto;margin:0}
+
+  /* library */
+  .cg-root .cg-lib{display:grid;gap:18px}
+  @media(min-width:980px){.cg-root .cg-lib{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);align-items:start}}
+  .cg-root .cg-list{display:flex;flex-direction:column}
+  .cg-root .cg-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:12px 0;border-top:1px solid var(--line);align-items:center}
+  .cg-root .cg-item:first-child{border-top:0}
+  .cg-root .cg-item .cg-name{font-weight:600;overflow-wrap:anywhere}
+  .cg-root .cg-item .cg-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:3px}
+  .cg-root .cg-item .cg-acts{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
+  .cg-root .cg-group{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}
+  .cg-root .cg-group + .cg-group{margin-top:10px}
+  .cg-root .cg-group-steps{margin:10px 0 0;padding:0;list-style:none;counter-reset:step}
+  .cg-root .cg-group-steps li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 0;border-top:1px dashed var(--line);counter-increment:step}
+  .cg-root .cg-group-steps li::before{content:counter(step);font:500 12px var(--f-mono);color:var(--accent);background:var(--accent-soft);border-radius:6px;text-align:center;padding:2px 0}
+  .cg-root .cg-empty-note{padding:18px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);text-align:center}
+  .cg-root .cg-inline-form{display:none;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .cg-root .cg-inline-form.cg-open{display:flex}
+  .cg-root .cg-inline-form input{flex:1;min-width:160px}
+
+  /* memory */
+  .cg-root .cg-mem{display:grid;gap:18px}
+  @media(min-width:980px){.cg-root .cg-mem{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}}
+  .cg-root .cg-file{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:10px 0;border-top:1px solid var(--line)}
+  .cg-root .cg-file:first-child{border-top:0}
+  .cg-root .cg-file pre{grid-column:1/-1;white-space:pre-wrap;max-height:220px;overflow:auto;background:var(--sunk);padding:10px;border-radius:8px;font:12px/1.5 var(--f-mono);margin:4px 0 0}
+  .cg-root .cg-drop{border:1.5px dashed var(--line);border-radius:12px;padding:16px;text-align:center;color:var(--muted);cursor:pointer;display:block}
+  .cg-root .cg-drop:hover,.cg-root .cg-drop.cg-over{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+  .cg-root .cg-drop input{display:none}
 </style>
 
 <a href="#workMain" class="skip-link">Skip to content</a>
@@ -1085,6 +1211,13 @@
         <span class="nav-label">Knowledge Base</span><span class="n" id="navCountKnowledge"></span>
       </button>
       <div class="nav-cats is-collapsed" id="navCatsKnowledge" role="group" aria-label="Knowledge base categories"></div>
+    </div>
+
+    <div class="nav-group" data-navgroup="copygen">
+      <button class="nav-item" type="button" data-nav="copygen">
+        <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>
+        <span class="nav-label">Copy Generator</span>
+      </button>
     </div>
   </nav>
 
@@ -1423,6 +1556,127 @@
           </div>
         </div>
         <div id="reportGenResult" style="display:none; max-width:640px; margin-top:16px"></div>
+      </div>
+
+
+      <div id="copyGenPage" class="cg-root" style="display:none">
+        <div class="cg-bar" id="cg-bar">
+          <nav class="cg-tabs" role="tablist" aria-label="Copy Generator">
+            <button type="button" class="cg-tab" role="tab" data-tab="create" aria-selected="true">Tworzenie</button>
+            <button type="button" class="cg-tab" role="tab" data-tab="library">Biblioteka <span class="cg-n" id="cg-n-lib">0</span></button>
+          </nav>
+          <span class="cg-small cg-muted">Piszesz dla: <strong id="cg-client-name"></strong></span>
+          <button type="button" class="btn ghost small" data-act="edit-client">Brand voice i wytyczne</button>
+        </div>
+        <div id="cg-nokey" class="cg-empty-note" hidden><strong>Połącz Claude, żeby generować.</strong> Otwórz menu konta → Connect Claude i wklej klucz API z console.anthropic.com.</div>
+        <div id="cg-orphans" class="cg-empty-note" hidden></div>
+        <div id="cg-noclient" class="cg-empty-note" hidden>
+          <p><strong>Wybierz klienta.</strong></p>
+          <p>Copy Generator pisze dla brandu wybranego w polu Brand u góry. Nowego klienta dodajesz jako Brand Kit.</p>
+        </div>
+    <!-- CREATE -->
+    <section id="cg-tab-create" class="cg-desk">
+      <div class="cg-panel cg-brief cg-stack">
+        <div class="cg-panel-head"><h2>Brief</h2><span id="cg-edit-flag"></span></div>
+        <div class="cg-row">
+          <div class="cg-field" style="flex:1">
+            <label class="cg-lbl" for="cg-format">Kanał</label>
+            <select id="cg-format" style="width:100%"></select>
+          </div>
+          <div class="cg-field" style="flex:1">
+            <label class="cg-lbl" for="cg-group">Sekwencja</label>
+            <select id="cg-group" style="width:100%"></select>
+          </div>
+        </div>
+        <div id="cg-newgroup-inline" class="cg-inline-form">
+          <input type="text" id="cg-newgroup-inline-name" placeholder="Nazwa sekwencji, np. Onboarding – 5 maili">
+          <button class="btn ghost small" data-act="create-group-inline">Utwórz</button>
+        </div>
+        <div class="cg-bgrid">
+          <div class="cg-field"><label class="cg-lbl" for="cg-b-goal">Cel</label>
+            <input type="text" id="cg-b-goal" data-bf="goal" placeholder="Np. powrót do koszyka w ciągu 24 h"></div>
+          <div class="cg-field"><label class="cg-lbl" for="cg-b-segment">Segment</label>
+            <input type="text" id="cg-b-segment" data-bf="segment" placeholder="Np. nowi klienci, porzucili koszyk przy 1. zamówieniu"></div>
+          <div class="cg-field"><label class="cg-lbl" for="cg-b-argument">Argument</label>
+            <textarea id="cg-b-argument" data-bf="argument" rows="2" style="min-height:0" placeholder="Np. darmowa dostawa tylko do niedzieli"></textarea></div>
+          <div class="cg-field" id="cg-structure-field"><span class="cg-lbl" id="cg-structs-lbl">Struktura maila</span>
+            <div class="cg-structs" id="cg-structs" role="radiogroup" aria-labelledby="cg-structs-lbl"></div></div>
+          <div class="cg-field"><label class="cg-lbl" for="cg-b-cta">CTA</label>
+            <input type="text" id="cg-b-cta" data-bf="cta" placeholder="Np. Wracam do koszyka"></div>
+          <div class="cg-field"><label class="cg-lbl" for="cg-brief">Dodatkowy kontekst <span style="text-transform:none;letter-spacing:0">(opcjonalnie)</span></label>
+            <textarea id="cg-brief" data-bf="brief" rows="3" style="min-height:0" placeholder="Np. to mail #2 w sekwencji, wysyłka 2 h po porzuceniu, ton lżejszy niż w #1"></textarea></div>
+        </div>
+        <div class="cg-row">
+          <button class="btn" id="cg-btn-create" data-act="create">Stwórz</button>
+          <button class="btn ghost small cg-quiet" id="cg-btn-stop" data-act="stop" hidden>Zatrzymaj</button>
+          <button class="btn ghost small cg-quiet" data-act="new-draft">Nowy brief</button>
+        </div>
+        <div>
+          <span class="cg-lbl">Kontekst, który dostanie model</span>
+          <div class="cg-ctx" id="cg-ctx"></div>
+        </div>
+      </div>
+
+      <div class="cg-sheet">
+        <div class="cg-sheet-bar">
+          <div class="cg-row" style="gap:8px">
+            <strong id="cg-sheet-title">Copy</strong>
+            <span class="cg-mono cg-muted" id="cg-out-meta"></span>
+          </div>
+          <div class="cg-row" style="gap:6px">
+            <div class="cg-versions" id="cg-versions"></div>
+            <button class="btn ghost small cg-quiet" data-act="copy-out" id="cg-btn-copy-out">Kopiuj</button>
+          </div>
+        </div>
+        <div class="cg-out cg-doc cg-empty" id="cg-out">
+          <p><strong>Tu pojawi się gotowe copy.</strong></p>
+          <p class="cg-small">Wybierz klienta, kanał i opcjonalnie sekwencję, wpisz brief i kliknij <em>Stwórz</em>. Model dostaje brand voice, wytyczne, uwagi i wszystkie zasady wyuczone z Twoich poprawek.</p>
+        </div>
+        <div class="cg-sheet-foot">
+          <div>
+            <label class="cg-lbl" for="cg-feedback">Uwagi do tej wersji</label>
+            <textarea id="cg-feedback" rows="4" placeholder="Np. Za dużo wykrzykników. Nie używamy słowa „promocja”, zawsze „oferta”. Temat krótszy, max 40 znaków."></textarea>
+            <div class="cg-row" style="margin-top:8px">
+              <button class="btn small" data-act="revise" id="cg-btn-revise">Nanieś uwagi</button>
+              <span class="cg-small cg-muted">Stałe zasady z uwag trafiają do pamięci klienta.</span>
+            </div>
+            <div class="cg-learned" id="cg-learned"></div>
+          </div>
+          <div>
+            <label class="cg-lbl" for="cg-save-name">Nazwa copy</label>
+            <input type="text" id="cg-save-name" placeholder="Np. Porzucony koszyk #2 – darmowa dostawa">
+            <div class="cg-row" style="margin-top:8px">
+              <button class="btn small" data-act="save" id="cg-btn-save">Zapisz na liście</button>
+              <button class="btn ghost small" data-act="save-new" id="cg-btn-save-new" hidden>Zapisz jako nowe</button>
+            </div>
+            <p class="cg-small cg-muted" id="cg-save-status" style="margin:8px 0 0"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIBRARY -->
+    <section id="cg-tab-library" class="cg-lib" hidden>
+      <div class="cg-panel">
+        <div class="cg-panel-head">
+          <h2>Sekwencje</h2>
+          <button class="btn ghost small" data-act="toggle-newgroup">+ Nowa sekwencja</button>
+        </div>
+        <div id="cg-newgroup-form" class="cg-inline-form">
+          <input type="text" id="cg-newgroup-name" placeholder="Nazwa, np. Winback 30 dni">
+          <button class="btn small" data-act="create-group">Utwórz</button>
+        </div>
+        <div id="cg-lib-groups" style="margin-top:12px"></div>
+      </div>
+      <div class="cg-panel">
+        <div class="cg-panel-head">
+          <h2>Zapisane copy</h2>
+          <input type="search" id="cg-lib-search" placeholder="Szukaj po nazwie lub treści" style="max-width:260px">
+        </div>
+        <div class="cg-list" id="cg-lib-copies"></div>
+      </div>
+    </section>
+
       </div>
 
 
@@ -2138,6 +2392,10 @@
         <p class="bk-sub" id="brandFormSubtitle"></p>
       </div>
       <div style="display:flex; align-items:center; gap:14px">
+        <div class="bf-device-toggle device-toggle" id="brandKitTabToggle" role="tablist" aria-label="Brand Kit">
+          <button type="button" class="bf-tab-btn" data-bk-tab="design" aria-pressed="true">Design</button>
+          <button type="button" class="bf-tab-btn" data-bk-tab="copy" aria-pressed="false">Brand voice &amp; copy</button>
+        </div>
         <div class="bf-device-toggle device-toggle" id="brandFormDeviceToggle" role="tablist">
           <button type="button" class="bf-tab-btn" data-bf-device="desktop" aria-pressed="true">Desktop</button>
           <button type="button" class="bf-tab-btn" data-bf-device="mobile" aria-pressed="false">Mobile</button>
@@ -2153,6 +2411,89 @@
           <div class="bf-preview-box" id="brandFormPreview"></div>
         </div>
       </div>
+        <div id="cgBrandPanel" class="cg-root" style="display:none">
+    <div class="cg-mem">
+      <div class="cg-panel cg-bv" id="cg-bv-panel" style="grid-column:1/-1">
+        <div class="cg-panel-head"><h2>Brand voice ze strony klienta</h2><span id="cg-bv-badge"></span></div>
+        <div id="cg-bv-start" class="cg-bv-grid">
+          <div class="cg-stack">
+            <div class="cg-field"><label class="cg-lbl" for="cg-bv-url">Adres strony</label>
+              <div class="cg-urlbox"><span aria-hidden="true">https://</span><input type="text" id="cg-bv-url" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="www.klient.pl"></div></div>
+            <div class="cg-row"><button class="btn small" data-act="bv-build" id="cg-bv-build">Zbuduj brand voice</button></div>
+            <p class="cg-small cg-muted" style="margin:0" id="cg-bv-howto">Claude sam przejdzie po stronie i jej najważniejszych podstronach, a potem pokaże podsumowanie do akceptu. Jeśli strona blokuje roboty albo chcesz dorzucić np. newslettery, wklej teksty obok – wtedy brand voice powstanie z nich.</p>
+          </div>
+          <div class="cg-field"><label class="cg-lbl" for="cg-bv-paste">Własne teksty <span style="text-transform:none;letter-spacing:0">(opcjonalnie)</span></label>
+            <textarea id="cg-bv-paste" rows="7" placeholder="Wklej treść strony głównej, „O nas”, opisów produktów, FAQ, przykładowego newslettera. Im więcej, tym trafniej."></textarea></div>
+        </div>
+        <div id="cg-bv-pending" class="cg-stack" hidden></div>
+        <p id="cg-bv-busy" class="cg-muted cg-dots" hidden>Analizuję teksty i piszę brand voice</p>
+        <div id="cg-bv-ready" class="cg-stack" hidden>
+          <p class="cg-mono cg-muted" id="cg-bv-meta" style="margin:0"></p>
+          <div class="cg-bv-summary cg-doc" id="cg-bv-summary"></div>
+          <details class="cg-bv-details"><summary>Pełny dokument brand voice</summary><div class="cg-doc" id="cg-bv-doc"></div></details>
+          <div class="cg-bv-grid">
+            <div class="cg-field"><label class="cg-lbl" for="cg-bv-feedback">Uwagi do brand voice</label>
+              <textarea id="cg-bv-feedback" rows="3" placeholder="Np. mniej formalnie, zwracamy się per Ty, dodaj że nie używamy emoji w temacie maila"></textarea>
+              <div class="cg-row" style="margin-top:8px"><button class="btn ghost small" data-act="bv-revise" id="cg-bv-revise">Nanieś uwagi</button></div></div>
+            <div class="cg-stack" style="gap:10px;align-self:end">
+              <label class="cg-small cg-row" style="gap:8px;flex-wrap:nowrap"><input type="checkbox" id="cg-bv-replace"> Usuń dotychczasowe pliki brand voice tego klienta</label>
+              <div class="cg-row"><button class="btn small" data-act="bv-accept">Akceptuję, ładuję</button><button class="btn ghost small cg-quiet cg-danger" data-act="bv-discard">Odrzuć szkic</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cg-stack">
+        <div class="cg-panel">
+          <div class="cg-panel-head"><h2>Brand voice i pliki</h2></div>
+          <div class="cg-row" style="margin-bottom:10px">
+            <label class="cg-lbl" for="cg-file-kind" style="margin:0">Typ pliku</label>
+            <select id="cg-file-kind">
+              <option value="brandvoice">Brand voice</option>
+              <option value="guidelines">Wytyczne</option>
+              <option value="other">Inne materiały</option>
+            </select>
+          </div>
+          <label class="cg-drop" id="cg-drop">
+            <input type="file" id="cg-file-input" multiple accept=".txt,.md,.markdown,.pdf,.docx,.html,.htm,.csv,.json">
+            <strong>Wrzuć pliki</strong><br><span class="cg-small">PDF, DOCX, TXT, MD, HTML, CSV · kliknij albo przeciągnij</span>
+          </label>
+          <p class="cg-small cg-muted" id="cg-file-status" style="margin:8px 0 0"></p>
+          <p class="cg-small" style="margin:6px 0 0">albo <button class="cg-linkish" data-act="toggle-paste">wklej tekst brand voice</button></p>
+          <div id="cg-paste-form" class="cg-edit-box" hidden>
+            <input type="text" id="cg-paste-name" placeholder="Nazwa, np. Brand voice – wersja 2026">
+            <textarea id="cg-paste-text" rows="8" placeholder="Wklej tu treść brand booka, tone of voice, przykładowe teksty…"></textarea>
+            <div class="cg-row"><button class="btn small" data-act="save-paste">Zapisz</button><button class="btn ghost small cg-quiet" data-act="toggle-paste">Anuluj</button></div>
+          </div>
+          <div id="cg-files" style="margin-top:8px"></div>
+        </div>
+        <div class="cg-panel">
+          <div class="cg-panel-head"><h2>Wytyczne</h2><span class="cg-small cg-muted" id="cg-guide-status"></span></div>
+          <textarea id="cg-guidelines" rows="7" placeholder="Stałe zasady klienta: persona, zwroty do klienta (Ty / Pan/Pani), zakazane słowa, długości, emoji tak/nie, podpis."></textarea>
+          <div class="cg-row" style="margin-top:8px"><button class="btn small" data-act="save-guidelines">Zapisz wytyczne</button></div>
+        </div>
+      </div>
+      <div class="cg-stack">
+        <div class="cg-panel">
+          <div class="cg-panel-head"><h2>Zasady wyuczone</h2><span class="cg-pill cg-acc" id="cg-rules-count">0</span></div>
+          <p class="cg-small cg-muted" style="margin:0 0 10px">Wyciągane z Twoich uwag. Każde kolejne copy musi się ich trzymać.</p>
+          <div class="cg-row" style="margin-bottom:10px;flex-wrap:nowrap">
+            <select id="cg-rule-type"><option value="do">Rób</option><option value="dont">Nie rób</option></select>
+            <input type="text" id="cg-rule-input" placeholder="Dodaj zasadę ręcznie">
+            <button class="btn ghost small" data-act="add-rule">Dodaj</button>
+          </div>
+          <div class="cg-learned" id="cg-rules"></div>
+        </div>
+        <div class="cg-panel">
+          <div class="cg-panel-head"><h2>Uwagi z prac</h2></div>
+          <div class="cg-row" style="flex-wrap:nowrap">
+            <input type="text" id="cg-note-input" placeholder="Np. Od października nie wspominamy o darmowej dostawie">
+            <button class="btn ghost small" data-act="add-note">Dodaj</button>
+          </div>
+          <div id="cg-notes" style="margin-top:10px"></div>
+        </div>
+      </div>
+    </div>
+        </div>
     </div>
     <div class="modal-footer-bar" style="display:flex">
       <div id="brandFormFooterDefault" style="display:flex; flex:1; justify-content:flex-end; gap:8px; align-items:center">
@@ -2168,6 +2509,10 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="overlay cg-root" id="cg-ov-share" data-act="close-overlay" role="dialog" aria-modal="true">
+  <div class="modal cg-share-modal" id="cg-share-modal"></div>
 </div>
 
 <div class="overlay" id="countdownOverlay" role="dialog" aria-modal="true">
@@ -2325,8 +2670,8 @@
     var section = new URLSearchParams(location.search).get("section");
     var MAIL_STACK_SECTIONS = {components:1, emails:1, liquid:1, productgrid:1};
     var SEGMENTS_STACK_SECTIONS = {segments:1};
-    var NOGRID_SECTIONS = {schedule:1, reports:1};
-    var KNOWN_SECTIONS = {components:1, emails:1, liquid:1, productgrid:1, flows:1, segments:1, skills:1, schedule:1, discounts:1, reports:1, knowledge:1};
+    var NOGRID_SECTIONS = {schedule:1, reports:1, copygen:1};
+    var KNOWN_SECTIONS = {components:1, emails:1, liquid:1, productgrid:1, flows:1, segments:1, skills:1, schedule:1, discounts:1, reports:1, knowledge:1, copygen:1};
     if(!section || !KNOWN_SECTIONS[section]) return;
     var app = document.getElementById("app");
     var noGrid = !!NOGRID_SECTIONS[section];
@@ -2345,6 +2690,8 @@
     document.getElementById("gridPagination").style.display = noGrid ? "none" : "";
     document.getElementById("dmWrap").style.display = section==="schedule" ? "" : "none";
     document.getElementById("reportGenPage").style.display = section==="reports" ? "" : "none";
+    document.getElementById("copyGenPage").style.display = section==="copygen" ? "" : "none";
+    if(section==="copygen") document.getElementById("filterbar").style.display = "none";
   }catch(e){}
 })();
 </script>
@@ -2354,7 +2701,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.31.0";
+var APP_VERSION = "3.32.0";
 var APP_UPDATED = "2026-09-30";
 
 
@@ -9963,92 +10310,21 @@ function uniqueBrandKey(base){
   return key;
 }
 
-var brandForm = { mode:"new", editingKey:null, draft:null, device:"desktop", copy:null };
-
-// Copy Generator settings shown in the Brand Kit (website, guidelines + counts).
-// They live in copylab/main/clients/{brandKey}, not in BRANDS, because the
-// Copy Generator writes them too and the shared Maximus payload is overwritten
-// as a whole on every save.
-function loadBrandFormCopy(key){
-  brandForm.copy = { key:key, status: key ? "loading" : "ready", website:"", guidelines:"", dirty:false, stats:null };
-  if(!key || !window.MQStore || !window.MQStore.loadCopyProfile) { if(key) brandForm.copy.status = "error"; return; }
-  var req = brandForm.copy;
-  window.MQStore.loadCopyProfile(key).then(function(p){
-    if(brandForm.copy!==req) return;
-    req.status = "ready"; req.website = p.website; req.guidelines = p.guidelines;
-    req.stats = { files:p.files, rules:p.rules, notes:p.notes };
-    renderBrandFormCopy();
-  }).catch(function(e){
-    console.warn("copy profile", e);
-    if(brandForm.copy!==req) return;
-    req.status = "error"; renderBrandFormCopy();
-  });
-}
-function brandFormCopyHtml(){
-  var c = brandForm.copy || {};
-  var key = brandForm.mode==="edit" ? brandForm.editingKey : null;
-  var body;
-  if(c.status==="loading"){
-    body = '<p class="bf-copy-note">Loading…</p>';
-  } else if(c.status==="error"){
-    body = '<p class="bf-copy-note">Couldn\'t load Copy Generator settings — check the Firestore rules for copylab.</p>';
-  } else {
-    var st = c.stats;
-    body = '<div class="bf-row">'+
-        '<div class="bf-field" style="flex-basis:100%"><label for="bfCopyWebsite">Website</label>'+
-          '<input type="text" id="bfCopyWebsite" data-bf-copy="website" value="'+esc(c.website||"")+'" placeholder="www.client.com" autocomplete="off"></div>'+
-        '<div class="bf-field" style="flex-basis:100%"><label for="bfCopyGuidelines">Copy guidelines</label>'+
-          '<textarea id="bfCopyGuidelines" data-bf-copy="guidelines" rows="6" style="width:100%; font:inherit" placeholder="Persona, how to address the customer, banned words, lengths, emoji yes/no, sign-off.">'+esc(c.guidelines||"")+'</textarea></div>'+
-      '</div>'+
-      (st ? '<p class="bf-copy-note">Brand voice files: '+st.files+' · Learned rules: '+st.rules+' · Working notes: '+st.notes+'</p>' : '')+
-      (key ? '<p class="bf-copy-note"><a class="btn ghost small" style="text-decoration:none" href="copy-generator.html?client='+encodeURIComponent(key)+'&tab=memory" target="_blank" rel="noopener">Manage brand voice, rules &amp; notes in Copy Generator</a></p>'
-           : '<p class="bf-copy-note">Brand voice files, rules and notes can be added in Copy Generator after the brand is saved.</p>');
-  }
-  return '<div class="bf-group" id="bfCopyGroup"><div class="bf-group-title-row"><p class="bf-group-title">Copy Generator</p></div>'+body+'</div>';
-}
-function bindBrandFormCopy(){
-  var box = byId("bfCopyGroup");
-  if(!box) return;
-  box.querySelectorAll("[data-bf-copy]").forEach(function(el){
-    el.addEventListener("input", function(){
-      if(!brandForm.copy) return;
-      brandForm.copy[el.getAttribute("data-bf-copy")] = el.value;
-      brandForm.copy.dirty = true;
-    });
-  });
-}
-function renderBrandFormCopy(){
-  var box = byId("bfCopyGroup");
-  if(!box) return;
-  box.outerHTML = brandFormCopyHtml();
-  bindBrandFormCopy();
-}
-function saveBrandFormCopy(key, fromKey){
-  var c = brandForm.copy;
-  if(!c || c.status!=="ready" || !window.MQStore || !window.MQStore.saveCopyProfile) return Promise.resolve();
-  var website = (c.website||"").trim(), guidelines = (c.guidelines||"").trim();
-  // Unchanged edit of the same brand: nothing to write. "Save as New" carries the values over.
-  if(!c.dirty && key===fromKey) return Promise.resolve();
-  if(!c.dirty && !website && !guidelines) return Promise.resolve();
-  return window.MQStore.saveCopyProfile(key, { website: website, guidelines: guidelines }).catch(function(e){
-    console.warn("copy profile save", e);
-    showToast("Brand saved, but Copy Generator settings couldn't be saved — check the Firestore rules", "error");
-  });
-}
+var brandForm = { mode:"new", editingKey:null, draft:null, device:"desktop", tab:"design" };
 
 
-function openBrandForm(mode, sourceKey){
-  if(!canEditBrandKits()){ showToast("You don't have access to edit the Brand Kit — ask an admin to grant it", "error"); return; }
+function openBrandForm(mode, sourceKey, opts){
+  var wantCopy = !!(opts && opts.tab==="copy") && mode==="edit";
+  // Brand voice & copy is open to everyone; the design side needs Brand Kit access.
+  if(!canEditBrandKits() && !wantCopy){ showToast("You don't have access to edit the Brand Kit — ask an admin to grant it", "error"); return; }
   brandForm.device = "desktop";
   if(mode==="new"){
     brandForm.mode = "new"; brandForm.editingKey = null; brandForm.draft = defaultBrandDraft();
-    loadBrandFormCopy(null);
     byId("brandFormTitle").textContent = "New Brand Kit";
     byId("brandFormSubtitle").textContent = "Define the design system a client's emails compile against.";
   } else if(mode==="edit"){
     var cur = BRANDS[sourceKey];
     brandForm.mode = "edit"; brandForm.editingKey = sourceKey;
-    loadBrandFormCopy(sourceKey);
     brandForm.draft = Object.assign({}, cur, { accent2: cur.accent2 || "", logoUrl: cur.logoUrl || null });
     byId("brandFormTitle").textContent = cur.name;
     byId("brandFormSubtitle").textContent = "Every component and email compiles against these values.";
@@ -10065,7 +10341,28 @@ function openBrandForm(mode, sourceKey){
   delBtn.textContent = "Delete Brand"; deleteArmed = false;
   byId("brandFormFooterPrompt").style.display = "none";
   byId("brandFormFooterDefault").style.display = "flex";
+  setBrandKitTab(wantCopy ? "copy" : "design");
   byId("brandKitOverlay").classList.add("open");
+}
+function setBrandKitTab(tab){
+  var canDesign = canEditBrandKits();
+  var hasBrand = brandForm.mode==="edit" && !!brandForm.editingKey;
+  if(tab==="copy" && !hasBrand) tab = "design";
+  if(tab==="design" && !canDesign) tab = "copy";
+  brandForm.tab = tab;
+  var copy = tab==="copy";
+  byId("brandKitTabToggle").querySelectorAll("[data-bk-tab]").forEach(function(b){
+    var t = b.getAttribute("data-bk-tab");
+    b.setAttribute("aria-pressed", t===tab ? "true" : "false");
+    b.disabled = (t==="copy" && !hasBrand) || (t==="design" && !canDesign);
+    b.title = (t==="copy" && !hasBrand) ? "Save the brand first" : (t==="design" && !canDesign) ? "You don't have access to edit the Brand Kit design" : "";
+  });
+  document.querySelector("#brandKitOverlay .brand-form-layout").style.display = copy ? "none" : "";
+  byId("cgBrandPanel").style.display = copy ? "" : "none";
+  byId("brandFormDeviceToggle").style.display = copy ? "none" : "";
+  byId("brandFormFooterDefault").style.display = copy ? "none" : "flex";
+  byId("brandFormFooterPrompt").style.display = "none";
+  if(copy && window.MQCopyGen) window.MQCopyGen.openBrandPanel(brandForm.editingKey);
 }
 function closeBrandForm(){
   byId("brandKitOverlay").classList.remove("open");
@@ -10223,10 +10520,8 @@ function renderBrandFormFields(){
     }
     html += '</div>';
   });
-  if(!mobile) html += brandFormCopyHtml();
   form.innerHTML = html;
   updateCrmLogoBadge();
-  bindBrandFormCopy();
 
   form.querySelectorAll(".bf-tab-btn").forEach(function(btn){
     btn.addEventListener("click", function(){
@@ -10402,9 +10697,8 @@ function saveBrandForm(asNew, newName){
   if(BRAND_ORDER.indexOf(key)===-1) BRAND_ORDER.push(key);
   state.brand = key;
   var saveBtn = asNew ? byId("brandFormSaveAsNewConfirm") : byId("brandFormSave");
-  var fromKey = brandForm.mode==="edit" ? brandForm.editingKey : null;
   return withBtnLoading(saveBtn, function(){
-    return Promise.all([saveToStorage(), saveBrandFormCopy(key, fromKey)]).then(function(){
+    return saveToStorage().then(function(){
       closeBrandForm();
       renderAll();
       showToast((asNew?"Saved as a new brand “":"Brand saved “")+name+"”");
@@ -10449,6 +10743,9 @@ function brandFormConfirmSaveAsNew(){
 function bindBrandFormActions(){
   byId("brandFormCancel").addEventListener("click", closeBrandForm);
   byId("brandFormSave").addEventListener("click", function(){ saveBrandForm(false); });
+  byId("brandKitTabToggle").querySelectorAll("[data-bk-tab]").forEach(function(b){
+    b.addEventListener("click", function(){ setBrandKitTab(b.getAttribute("data-bk-tab")); });
+  });
   byId("brandFormSaveAsNew").addEventListener("click", function(){
     var input = byId("brandFormSaveAsNewInput");
     input.value = (brandForm.draft.name||"") + " copy";
@@ -11315,7 +11612,7 @@ var NAV_GROUPS = [
   { id:"services", label:"Services", sections:["discounts"], hidden:true },
   { id:"reporting", label:"Reporting", sections:["reports"], hidden:true },
   { id:"knowledge", label:"Knowledge Base", sections:["knowledge"] },
-  { id:"copygen", label:"Copy Generator", sections:[], href:"copy-generator.html" }
+  { id:"copygen", label:"Copy Generator", sections:["copygen"] }
 ];
 function groupForSection(section){
   return NAV_GROUPS.filter(function(g){ return g.sections.indexOf(section)!==-1; })[0] || null;
@@ -14675,7 +14972,8 @@ var SECTION_META = {
   reports:    { title:"Monthly Reports", search:null, primary:null, stack:false },
 
 
-  knowledge:  { title:"Knowledge Base", search:"Search hints…", primary:"add-knowledge", stack:false }
+  knowledge:  { title:"Knowledge Base", search:"Search hints…", primary:"add-knowledge", stack:false },
+  copygen:    { title:"Copy Generator", search:null, primary:null, stack:false }
 };
 function syncSectionChrome(){
   var meta = SECTION_META[state.section] || SECTION_META.components;
@@ -14683,25 +14981,27 @@ function syncSectionChrome(){
   var isFlows = state.section==="flows";
   var isReports = state.section==="reports";
   var isHome = state.section==="home";
+  var isCopyGen = state.section==="copygen";
 
 
-  var noGrid = isSchedule || isReports || isHome;
+  var noGrid = isSchedule || isReports || isHome || isCopyGen;
 
   byId("cardGrid").style.display = noGrid ? "none" : "";
   byId("gridPagination").style.display = noGrid ? "none" : "";
   byId("dmWrap").style.display = isSchedule ? "" : "none";
   byId("reportGenPage").style.display = isReports ? "" : "none";
   byId("homePage").style.display = isHome ? "" : "none";
+  byId("copyGenPage").style.display = isCopyGen ? "" : "none";
 
 
-  if(isReports){
+  if(isReports || isCopyGen){
     byId("gridTitle").textContent = meta.title;
     byId("gridCount").textContent = "";
   }
 
 
   byId("pageHead").style.display = isHome ? "none" : "";
-  byId("filterbar").style.display = isHome ? "none" : "";
+  byId("filterbar").style.display = (isHome || isCopyGen) ? "none" : "";
   if(isReports) renderReportGenChrome();
   if(isHome) renderHomePage();
 
@@ -14716,7 +15016,7 @@ function syncSectionChrome(){
 
 
   byId("addComponentBtn").style.display = meta.primary==="add" ? "" : "none";
-  byId("brandSelectWrap").style.display = ["components","emails","liquid","skills","productgrid"].indexOf(state.section)!==-1 ? "" : "none";
+  byId("brandSelectWrap").style.display = ["components","emails","liquid","skills","productgrid","copygen"].indexOf(state.section)!==-1 ? "" : "none";
   byId("addFlowRepoBtn").style.display = meta.primary==="add-flow" ? "" : "none";
   byId("addSkillBtn").style.display = meta.primary==="add-skill" ? "" : "none";
   byId("addLiquidBtn").style.display = meta.primary==="add-liquid" ? "" : "none";
@@ -14744,6 +15044,7 @@ function syncSectionChrome(){
 
   byId("app").classList.toggle("no-nav", isHome);
   document.body.classList.toggle("is-home", isHome);
+  if(isCopyGen && window.MQCopyGen) window.MQCopyGen.showSection();
 }
 
 function openDock(){
@@ -15019,6 +15320,7 @@ function renderGrid(){
 }
 function renderGridInner(){
   if(state.section==="reports") return;
+  if(state.section==="copygen") return;
   if(state.section==="home") return;
   if(state.section==="schedule"){ renderDmCalendar(); return; }
   if(state.section==="flows"){ renderFlowGrid(); return; }
@@ -16555,6 +16857,8 @@ function syncUrlFromState(){
 
   } else if(state.section==="knowledge"){
     params.set("knowledgecat", state.knowledgeCategory||"all");
+  } else if(state.section==="copygen"){
+    if(state.brand) params.set("brand", state.brand);
   } else if(state.section==="home"){
 
   } else if(state.section==="schedule"){
@@ -16607,7 +16911,11 @@ function restoreStateFromUrl(){
   } else if(section==="brandkit"){
     var brandParam = params.get("brand");
     if(brandParam && BRANDS[brandParam]) state.brand = brandParam;
-    openBrandForm("edit", state.brand);
+    openBrandForm("edit", state.brand, { tab: params.get("tab")==="copy" ? "copy" : "design" });
+  } else if(section==="copygen"){
+    state.section = "copygen";
+    var cgBrand = params.get("brand");
+    if(cgBrand && BRANDS[cgBrand]) state.brand = cgBrand;
   } else if(section==="flows"){
     state.section = "flows";
     var flowCat = params.get("flowcat");
@@ -16655,6 +16963,13 @@ function restoreStateFromUrl(){
 }
 
 
+window.MQApp = {
+  brand: function(){ return state.brand; },
+  brands: function(){ return BRANDS; },
+  apiKey: function(){ return (MQ_CURRENT_USER && MQ_CURRENT_USER.anthropicApiKey) || ""; },
+  toast: function(msg, type){ showToast(msg, type); },
+  openBrandCopy: function(key){ openBrandForm("edit", key || state.brand, { tab:"copy" }); }
+};
 function renderAll(){
   renderSwatches(); renderCrmFilterRow(); renderPrimaryNav(); renderFilterBar();
   syncSectionChrome(); renderGrid(); renderList(); renderSegmentStackPanel();
@@ -17938,6 +18253,878 @@ setTimeout(function(){
 })();
 </script>
 
+<script id="copygen">
+/* Copy Generator — a Maximus section (Tworzenie, Biblioteka). Clients are the brand kits;
+   brand voice, guidelines, rules and notes are edited in the Brand Kit ("Brand voice & copy").
+   Data: copylab/main/{clients,files,copies,groups}, keyed by brand kit key; public links in copylabShares. */
+(function(){
+"use strict";
+const APP = () => window.MQApp;
+const apiKey = () => String(APP().apiKey()||"").trim();
+function apiHeaders(){return {"x-api-key":apiKey(),"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"}}
+async function apiError(res){
+  const b=await res.json().catch(()=>null);const msg=b&&b.error&&b.error.message||("HTTP "+res.status);
+  const code=res.status===401||res.status===403?"bad_key":res.status===429?"rate_limited":(res.status===529||res.status===503)?"overloaded":res.status>=500?"upstream_error":"bad_request";
+  return {code,message:msg};
+}
+async function claudeCall(prompt,opts={}){
+  if(!apiKey())throw {code:"no_key"};
+  const messages=typeof prompt==="string"?[{role:"user",content:prompt}]:prompt;
+  let res;
+  try{res=await fetch(API_URL,{method:"POST",signal:opts.signal,headers:apiHeaders(),body:JSON.stringify({model:MODEL,max_tokens:opts.maxTokens||8000,stream:true,messages})})}
+  catch(e){throw {code:e&&e.name==="AbortError"?"cancelled":"network"}}
+  if(!res.ok)throw await apiError(res);
+  const reader=res.body.getReader(),dec=new TextDecoder();let buf="",text="",truncated=false;
+  try{
+    for(;;){
+      const {done,value}=await reader.read();if(done)break;
+      buf+=dec.decode(value,{stream:true});let i;
+      while((i=buf.indexOf("\n\n"))>=0){
+        const chunk=buf.slice(0,i);buf=buf.slice(i+2);
+        const line=chunk.split("\n").find(l=>l.startsWith("data:"));if(!line)continue;
+        let ev;try{ev=JSON.parse(line.slice(5))}catch{continue}
+        if(ev.type==="content_block_delta"&&ev.delta&&ev.delta.type==="text_delta"){text+=ev.delta.text;opts.onText&&opts.onText({text,delta:ev.delta.text})}
+        else if(ev.type==="message_delta"&&ev.delta&&ev.delta.stop_reason==="max_tokens")truncated=true;
+        else if(ev.type==="error")throw {code:ev.error&&ev.error.type==="overloaded_error"?"overloaded":"upstream_error",message:ev.error&&ev.error.message};
+      }
+    }
+  }catch(e){if(e&&e.name==="AbortError")throw {code:"cancelled",text};throw e&&e.code?{...e,text}:{code:"upstream_error",text}}
+  if(!text.trim())throw {code:"empty_completion"};
+  return {text,truncated};
+}
+claudeCall.json=async(prompt,opts={})=>{
+  const r=await claudeCall(prompt,{...opts,maxTokens:2000});
+  const m=r.text.match(/\{[\s\S]*\}/);if(!m)throw {code:"invalid_json",text:r.text};
+  try{return JSON.parse(m[0])}catch{throw {code:"invalid_json",text:r.text}}
+};
+
+/* ---------- config ---------- */
+const MODEL = "claude-opus-5-5";
+const API_URL = "https://api.anthropic.com/v1/messages";
+const FORMATS = {
+  email:  {label:"E-mail", guide:"Struktura: **Temat:** (3 warianty, max ok. 45 znaków), **Preheader:** (max ok. 90 znaków), potem treść maila z nagłówkiem (## ), krótkimi akapitami, ewentualnie listą korzyści, i **CTA:** (tekst przycisku, 2-4 słowa)."},
+  sms:    {label:"SMS", guide:"Podaj 3 warianty SMS, każdy max 160 znaków (wliczając link placeholder {link}), pod każdym licznik znaków w nawiasie. Nadawca nie jest częścią treści."},
+  push:   {label:"Push", guide:"Podaj 3 warianty: **Tytuł:** max 45 znaków, **Treść:** max 110 znaków. Pod każdym licznik znaków."},
+  inapp:  {label:"In-app / on-site", guide:"Struktura: **Nagłówek:**, **Treść:** (1-3 zdania), **CTA główne:**, opcjonalnie **CTA drugie:**. Podaj 2 warianty."},
+  landing:{label:"Landing / sekcja strony", guide:"Rozpisz sekcje (## Nazwa sekcji): hero (nagłówek, podtytuł, CTA), korzyści, dowody, FAQ jeśli pasuje, CTA końcowe."},
+  social: {label:"Social / reklama", guide:"Podaj 3 warianty: **Tekst główny:**, **Nagłówek:** (max 40 znaków), **Opis:** (max 30 znaków), **CTA:**."},
+  other:  {label:"Inne", guide:"Dobierz strukturę do briefu."}
+};
+const STRUCTS = {
+  marketing:{label:"Marketingowy",desc:"Nagłówek, krótkie akapity, lista korzyści, przycisk",guide:"Treść w układzie marketingowym: nagłówek (## ), 2-4 krótkie akapity, lista 3-4 korzyści, wyraźny przycisk CTA."},
+  letter:{label:"List osobisty",desc:"Jak od człowieka z firmy, bez nagłówków, z podpisem",guide:"Treść jak osobisty list od konkretnej osoby z firmy: zwrot na początku, płynne akapity bez nagłówków i list, CTA wplecione w tekst jako link, podpis imieniem i rolą (placeholder [Imię], jeśli go nie znasz)."},
+  plain:{label:"Krótki plain-text",desc:"3–5 zdań jak od znajomego, link zamiast przycisku",guide:"Bardzo krótki mail w stylu plain-text: 3-5 zdań, zero nagłówków i formatowania, jedna prośba albo jedno pytanie, CTA jako zwykły link w zdaniu."},
+  story:{label:"Storytelling",desc:"Historia albo insight, wartość, miękkie CTA",guide:"Otwórz historią, sceną albo ciekawym insightem, potem daj wartość (wiedza, porada), sprzedaż dopiero na końcu i delikatnie. Śródtytuły tylko przy dłuższym tekście."},
+  product:{label:"Produktowy",desc:"Moduły produktów z opisem i CTA przy każdym",guide:"Krótkie intro, potem 2-4 moduły produktów lub ofert (### Nazwa, 1-2 zdania opisu, **CTA modułu:**), na końcu CTA główne."},
+  info:{label:"Informacyjny",desc:"Konkret, daty i kroki, minimum sprzedaży",guide:"Mail informacyjny: najważniejsza informacja w pierwszym zdaniu, konkrety (daty, kroki, liczby) w krótkiej liście, bez nachalnej sprzedaży."}
+};
+const BF = [["goal","Cel"],["segment","Segment"],["argument","Argument"],["cta","CTA"],["brief","Dodatkowy kontekst"]];
+function briefText(d){
+  const out=[];
+  for(const [k,l] of BF.slice(0,3)){if((d[k]||"").trim())out.push(`${l}: ${d[k].trim()}`)}
+  if(d.format==="email"){const s=STRUCTS[d.structure||"marketing"];out.push(`Struktura maila: ${s.label} (${s.desc})`)}
+  for(const [k,l] of BF.slice(3)){if((d[k]||"").trim())out.push(`${l}: ${d[k].trim()}`)}
+  return out.join("\n");
+}
+const hasBrief = d => BF.some(([k])=>(d[k]||"").trim());
+function formatGuide(d){
+  if(d.format!=="email")return FORMATS[d.format].guide;
+  const s=STRUCTS[d.structure||"marketing"];
+  return `Zawsze na górze: **Temat:** (3 warianty, max ok. 45 znaków) i **Preheader:** (max ok. 90 znaków). Potem treść. ${s.guide} Na końcu **CTA:** z tekstem przycisku lub linku (użyj CTA z briefu, jeśli jest podane).`;
+}
+const KIND = {brandvoice:"Brand voice", guidelines:"Wytyczne", other:"Materiały"};
+const PROMPT_CAP = 240000; // bytes, below the 256 KiB sample cap
+
+/* ---------- state ---------- */
+const S = {db:null,apiKey:"",me:null,sample:null,
+  clients:[],brands:[],copyDocs:[],orphans:[],files:[],copies:[],groups:[],clientId:null,tab:"create",
+  drafts:{},busy:false,ctl:null,subs:[],lastLearned:[],started:false};
+
+/* ---------- utils ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const rid = (n=12) => { const a="abcdefghijkmnopqrstuvwxyz23456789"; let s=""; const r=crypto.getRandomValues(new Uint8Array(n)); for(const x of r) s+=a[x%a.length]; return s; };
+const now = () => Date.now();
+const fmtDate = t => t ? new Intl.DateTimeFormat("pl-PL",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}).format(new Date(t)) : "";
+const fmtDay = t => t ? new Intl.DateTimeFormat("pl-PL",{day:"numeric",month:"short",year:"numeric"}).format(new Date(t)) : "";
+const bytes = s => new TextEncoder().encode(s).length;
+const store = {
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+};
+function toast(msg,kind){APP().toast(msg,kind)}
+function armed(btn,label="Na pewno?"){
+  if(btn.dataset.armed==="1"){btn.dataset.armed="";btn.classList.remove("cg-armed");btn.textContent=btn.dataset.orig;return true}
+  btn.dataset.orig=btn.textContent;btn.dataset.armed="1";btn.classList.add("cg-armed");btn.textContent=label;
+  setTimeout(()=>{if(btn.dataset.armed==="1"){btn.dataset.armed="";btn.classList.remove("cg-armed");btn.textContent=btn.dataset.orig}},3500);
+  return false;
+}
+async function copyText(text,html){
+  try{
+    if(html && window.ClipboardItem){
+      await navigator.clipboard.write([new ClipboardItem({"text/plain":new Blob([text],{type:"text/plain"}),"text/html":new Blob([html],{type:"text/html"})})]);
+    } else await navigator.clipboard.writeText(text);
+    toast("Skopiowano");
+  }catch{
+    try{await navigator.clipboard.writeText(text);toast("Skopiowano")}
+    catch{toast("Nie udało się skopiować – zaznacz tekst ręcznie")}
+  }
+}
+
+/* ---------- markdown-lite ---------- */
+function inline(s){return esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/(^|[^*\w])\*(?!\s)([^*]+?)\*(?!\*)/g,"$1<em>$2</em>")}
+function md(src){
+  const lines=String(src||"").replace(/\r/g,"").split("\n");let html="",para=[],list=null;
+  const fp=()=>{if(para.length){html+="<p>"+para.map(inline).join("<br>")+"</p>";para=[]}};
+  const fl=()=>{if(list){html+=`<${list.t}>`+list.items.map(i=>"<li>"+inline(i)+"</li>").join("")+`</${list.t}>`;list=null}};
+  for(const raw of lines){
+    const l=raw.trimEnd();let m;
+    if(!l.trim()){fp();fl();continue}
+    if(m=l.match(/^(#{1,4})\s+(.*)$/)){fp();fl();html+=(m[1].length<=2?"<h3>":"<h4>")+inline(m[2])+(m[1].length<=2?"</h3>":"</h4>");continue}
+    if(/^\s*(-{3,}|\*{3,})\s*$/.test(l)){fp();fl();html+="<hr>";continue}
+    if(m=l.match(/^>\s?(.*)$/)){fp();fl();html+="<blockquote>"+inline(m[1])+"</blockquote>";continue}
+    if(m=l.match(/^\s*[-*•]\s+(.*)$/)){fp();if(!list||list.t!=="ul"){fl();list={t:"ul",items:[]}}list.items.push(m[1]);continue}
+    if(m=l.match(/^\s*\d+[.)]\s+(.*)$/)){fp();if(!list||list.t!=="ol"){fl();list={t:"ol",items:[]}}list.items.push(m[1]);continue}
+    fl();para.push(l);
+  }
+  fp();fl();return html;
+}
+const plain = s => String(s||"").replace(/\*\*(.+?)\*\*/g,"$1").replace(/^#{1,4}\s+/gm,"").replace(/^>\s?/gm,"").trim();
+
+/* ---------- data helpers ---------- */
+const client = () => S.clients.find(c=>c.id===S.clientId) || null;
+// Brand Kit panel edits the brand open in the Brand Kit, which may differ from the brand picked for writing.
+const mclient = () => S.clients.find(c=>c.id===S.memId) || null;
+const ctxClient = b => b&&b.closest&&b.closest("#cgBrandPanel") ? mclient() : client();
+function rulesToast(){toast("Baza nie wpuszcza Copy Generatora – dodaj reguły Firestore dla copylab i copylabShares","error")}
+const clientFiles = id => S.files.filter(f=>f.clientId===id).sort((a,b)=>a.at-b.at);
+const clientCopies = id => S.copies.filter(c=>c.clientId===id).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+const clientGroups = id => S.groups.filter(g=>g.clientId===id).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+const groupCopies = gid => S.copies.filter(c=>c.groupId===gid).sort((a,b)=>(a.groupPos??0)-(b.groupPos??0)||(a.createdAt-b.createdAt));
+function mapSnap(snap){return snap.docs.map(d=>({id:d.id,...d.data()}))}
+async function dbErr(e,what){console.error(what,e);if(e?.code==="permission_denied")return rulesToast();toast(e?.code==="quota_exceeded"?"Dokument jest za duży – skróć plik":"Nie udało się zapisać ("+(e?.code||"błąd")+"). Spróbuj ponownie.")}
+
+/* ---------- draft ---------- */
+function blankDraft(){return {format:"email",structure:"marketing",groupId:"",goal:"",segment:"",argument:"",cta:"",brief:"",versions:[],vi:-1,copyId:null,name:""}}
+function draft(){if(!S.clientId)return blankDraft();if(!S.drafts[S.clientId])S.drafts[S.clientId]=blankDraft();return S.drafts[S.clientId]}
+let saveDraftT;
+function persistDraft(){clearTimeout(saveDraftT);saveDraftT=setTimeout(()=>store.set("cl-drafts",S.drafts),400)}
+
+/* ---------- rendering ---------- */
+function brandList(bs){
+  bs=bs||{};
+  return Object.keys(bs).filter(k=>k!=="neutral"&&bs[k]).map(k=>({key:k,name:bs[k].name||bs[k].short||k}));
+}
+function mergeClients(){
+  const byId=Object.fromEntries(S.copyDocs.map(c=>[c.id,c]));
+  const keys=new Set(S.brands.map(b=>b.key));
+  S.clients=S.brands.map(b=>({notes:[],learnings:[],guidelines:"",...(byId[b.key]||{}),id:b.key,name:b.name}));
+  // copylab clients created before the Brand Kit link (random ids) wait to be attached to a brand
+  S.orphans=S.copyDocs.filter(c=>!keys.has(c.id));
+  S.loaded.clients=true;
+}
+function renderAll(){
+  if(!S.started||!S.loaded.copyDocs)return;
+  S.brands=brandList(APP().brands());
+  mergeClients();
+  S.clients.sort((a,b)=>(a.name||"").localeCompare(b.name||"","pl"));
+  // the client is the brand picked in Maximus' brand selector
+  const key=APP().brand();
+  const prev=S.clientId;
+  S.clientId=S.clients.find(c=>c.id===key)?key:null;
+  if(prev!==S.clientId){S.peek=null;S.lastLearned=[];$("#cg-feedback").value=""}
+  const none=!S.clientId;
+  $("#cg-noclient").hidden=!none;
+  $("#cg-bar").hidden=none;
+  if(none){$("#cg-tab-create").hidden=true;$("#cg-tab-library").hidden=true}else setTab(S.tab,true);
+  $("#cg-n-lib").textContent=S.clientId?clientCopies(S.clientId).length:0;
+  const cl=client();
+  $("#cg-client-name").textContent=cl?cl.name:"";
+  renderOrphans();
+  if(!none){renderCreate();renderLibrary()}
+  renderMemory();renderBV();
+}
+const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"");
+function renderOrphans(){
+  const box=$("#cg-orphans");
+  if(!S.orphans.length||!S.clients.length){box.hidden=true;return}
+  if(box.contains(document.activeElement))return;
+  box.hidden=false;
+  const cnt=id=>{const n=S.copies.filter(c=>c.clientId===id).length,f=S.files.filter(x=>x.clientId===id).length;return `${n} copy · ${f} plików`};
+  box.innerHTML=`<p><strong>Klienci z Copy Generatora bez Brand Kitu</strong></p><p class="cg-small">Klienci są teraz brand kitami z Maximus. Wskaż, do którego brand kitu należy każdy z tych klientów – copy, pliki, sekwencje, zasady i uwagi zostaną przeniesione.</p>`+
+    S.orphans.map(o=>{const guess=S.clients.find(c=>norm(c.name)===norm(o.name))?.id||"";
+      return `<div class="cg-row" style="margin-top:8px"><strong>${esc(o.name||"Bez nazwy")}</strong><span class="cg-small cg-muted">${cnt(o.id)}</span>
+      <select data-orphan="${o.id}"><option value="">Wybierz brand kit…</option>${S.clients.map(c=>`<option value="${c.id}" ${c.id===guess?"selected":""}>${esc(c.name)}</option>`).join("")}</select>
+      <button class="btn small" data-act="link-orphan" data-id="${o.id}">Połącz</button></div>`}).join("");
+}
+async function linkOrphan(oid,key){
+  const o=S.orphans.find(x=>x.id===oid),t=S.clients.find(c=>c.id===key);if(!o||!t)return;
+  const g=[t.guidelines,o.guidelines].map(x=>(x||"").trim()).filter(Boolean);
+  await S.db.doc("clients/"+key).merge({
+    guidelines:[...new Set(g)].join("\n\n"),
+    notes:[...(t.notes||[]),...(o.notes||[])],
+    learnings:[...(t.learnings||[]),...(o.learnings||[])],
+    website:t.website||o.website||"",
+    bvDraft:t.bvDraft||o.bvDraft||null,
+    createdAt:t.createdAt||o.createdAt||now()
+  });
+  for(const col of ["files","copies","groups"])
+    for(const x of S[col].filter(x=>x.clientId===oid))await S.db.doc(col+"/"+x.id).update({clientId:key});
+  await S.db.doc("clients/"+oid).delete();
+  if(S.drafts[oid]){if(!S.drafts[key])S.drafts[key]=S.drafts[oid];delete S.drafts[oid];persistDraft()}
+  // public links carry the client name – rewrite them under the brand's name
+  await new Promise(r=>setTimeout(r,50));
+  for(const c of S.copies.filter(c=>c.clientId===key&&c.shareId))await writeCopyShare(c).catch(e=>console.warn("share",e));
+  for(const gr of S.groups.filter(x=>x.clientId===key&&x.shareId))await writeGroupShare(gr).catch(e=>console.warn("share",e));
+}
+
+function setTab(t,quiet){
+  S.tab=t;store.set("cl-tab",t);
+  document.querySelectorAll(".cg-tab").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===t)));
+  if(!S.clientId)return;
+  $("#cg-tab-create").hidden=t!=="create";$("#cg-tab-library").hidden=t!=="library";
+}
+
+function renderCreate(){
+  const d=draft(),cl=client();
+  const gs=cl?clientGroups(cl.id):[];
+  $("#cg-group").innerHTML=`<option value="">Bez sekwencji</option>`+gs.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join("")+`<option value="__new">+ Nowa sekwencja…</option>`;
+  if(d.groupId&&!gs.find(g=>g.id===d.groupId))d.groupId="";
+  $("#cg-group").value=d.groupId||"";
+  $("#cg-format").value=d.format||"email";
+  document.querySelectorAll(".cg-root [data-bf]").forEach(inp=>{if(document.activeElement!==inp)inp.value=d[inp.dataset.bf]||""});
+  renderStructs();
+  if(document.activeElement!==$("#cg-save-name"))$("#cg-save-name").value=d.name||"";
+  // context chips
+  if(cl){
+    const fs=clientFiles(cl.id),ls=cl.learnings||[],ns=cl.notes||[],ex=clientCopies(cl.id).length;
+    const chip=(ok,txt)=>`<span class="cg-pill ${ok?"cg-ok":""}">${esc(txt)}</span>`;
+    $("#cg-ctx").innerHTML=[
+      chip(fs.some(f=>f.kind==="brandvoice"),fs.some(f=>f.kind==="brandvoice")?"Brand voice":"Brak brand voice"),
+      chip(fs.length,`${fs.length} plik${fs.length===1?"":fs.length>1&&fs.length<5?"i":"ów"}`),
+      chip((cl.guidelines||"").trim(),(cl.guidelines||"").trim()?"Wytyczne":"Brak wytycznych"),
+      chip(ns.length,`${ns.length} uwag`),
+      chip(ls.length,`${ls.length} zasad`),
+      chip(ex,`${Math.min(ex,3)} wzorów copy`)
+    ].join("");
+  } else $("#cg-ctx").innerHTML="";
+  // edit flag
+  const saved=d.copyId&&S.copies.find(c=>c.id===d.copyId);
+  $("#cg-edit-flag").innerHTML=saved?`<span class="cg-pill cg-acc">Edytujesz zapisane</span>`:"";
+  $("#cg-btn-save").textContent=saved?"Zapisz zmiany":"Zapisz na liście";
+  $("#cg-btn-save-new").hidden=!saved;
+  $("#cg-save-status").textContent=saved?`Utworzone ${fmtDate(saved.createdAt)}${saved.updatedAt&&saved.updatedAt!==saved.createdAt?" · zmienione "+fmtDate(saved.updatedAt):""}`:"";
+  if(!S.busy)renderOut();
+  renderLearned();
+}
+
+function renderStructs(){
+  const d=draft();$("#cg-structure-field").hidden=d.format!=="email";
+  const cur=d.structure||"marketing";
+  $("#cg-structs").innerHTML=Object.entries(STRUCTS).map(([k,s])=>`<button type="button" class="cg-struct" role="radio" aria-checked="${k===cur}" data-act="struct" data-k="${k}"><b>${esc(s.label)}</b><span>${esc(s.desc)}</span></button>`).join("");
+}
+function setOutEmpty(h,p){const o=$("#cg-out");o.className="cg-out cg-doc cg-empty";o.innerHTML=`<p><strong>${esc(h)}</strong></p><p class="cg-small">${esc(p)}</p>`}
+function renderOut(streamText){
+  const d=draft(),o=$("#cg-out");
+  const text=streamText??(d.versions[d.vi]?.text);
+  if(!text){
+    if(!apiKey())return;
+    setOutEmpty("Tu pojawi się gotowe copy.","Wybierz klienta, kanał i opcjonalnie sekwencję, wpisz brief i kliknij Stwórz. Model dostaje brand voice, wytyczne, uwagi i wszystkie zasady wyuczone z Twoich poprawek.");
+    $("#cg-versions").innerHTML="";$("#cg-out-meta").textContent="";return;
+  }
+  o.className="cg-out cg-doc";o.innerHTML=md(text);
+  const p=plain(text);
+  $("#cg-out-meta").textContent=`${FORMATS[d.format]?.label||""} · ${p.length} znaków`;
+  $("#cg-versions").innerHTML=streamText!=null?"":d.versions.map((v,i)=>`<button class="cg-vbtn" data-act="ver" data-i="${i}" aria-pressed="${i===d.vi}" title="${esc(fmtDate(v.at))}${v.feedback?" · po uwagach":""}">v${i+1}</button>`).join("");
+}
+function setThinking(msg){const o=$("#cg-out");o.className="cg-out cg-doc cg-thinking";o.innerHTML=`<p class="cg-dots">${esc(msg)}</p><p class="cg-small cg-muted">Najmocniejszy model myśli przed pisaniem – zwykle 10–60 s.</p>`;$("#cg-versions").innerHTML="";$("#cg-out-meta").textContent=""}
+
+function renderLearned(){
+  const box=$("#cg-learned");
+  if(!S.lastLearned.length||S.lastLearned[0].clientId!==S.clientId){box.innerHTML="";return}
+  const cl=client();const ids=new Set((cl?.learnings||[]).map(r=>r.id));
+  const items=S.lastLearned.filter(r=>ids.has(r.id));
+  box.innerHTML=items.length?`<span class="cg-lbl" style="margin:4px 0 0">Zapamiętane z tych uwag</span>`+items.map(r=>ruleHTML(r)).join(""):"";
+}
+function ruleHTML(r,editable){return `<div class="cg-rule"><span class="cg-pill ${r.type==="dont"?"cg-no":"cg-ok"}">${r.type==="dont"?"Nie":"Tak"}</span><span class="cg-t">${esc(r.text)}</span>${editable?`<button class="btn ghost small cg-quiet" data-act="edit" data-kind="rule" data-id="${r.id}">Edytuj</button>`:""}<button class="btn ghost small cg-quiet" data-act="del-rule" data-id="${r.id}" aria-label="Usuń zasadę">Usuń</button></div>`}
+
+function renderLibrary(){
+  const cl=client();if(!cl){$("#cg-lib-groups").innerHTML="";$("#cg-lib-copies").innerHTML="";return}
+  const q=($("#cg-lib-search").value||"").toLowerCase().trim();
+  const gs=clientGroups(cl.id);
+  $("#cg-lib-groups").innerHTML=gs.length?gs.map(g=>{
+    const cs=groupCopies(g.id);
+    const others=clientCopies(cl.id).filter(c=>c.groupId!==g.id);
+    return `<div class="cg-group">
+      <div class="cg-panel-head" style="margin:0">
+        <div><div class="cg-name" style="font-weight:600">${esc(g.name)}</div>
+        <div class="cg-meta cg-row cg-small cg-muted" style="gap:6px;margin-top:2px"><span>${cs.length} copy</span><span>·</span><span>utworzona ${esc(fmtDay(g.createdAt))}</span>${g.shareId?`<span class="cg-pill cg-acc">Udostępniona</span>`:""}</div></div>
+        <div class="cg-row" style="gap:4px"><button class="btn ghost small" data-act="share-group" data-id="${g.id}">Udostępnij</button><button class="btn ghost small cg-quiet cg-danger" data-act="del-group" data-id="${g.id}">Usuń</button></div>
+      </div>
+      ${cs.length?`<ol class="cg-group-steps">${cs.map((c,i)=>`<li><span style="min-width:0;overflow-wrap:anywhere"><a href="#" data-act="open-copy" data-id="${c.id}" style="color:inherit">${esc(c.name)}</a> <span class="cg-pill">${esc(FORMATS[c.format]?.label||"")}</span></span>
+        <span class="cg-row" style="gap:0">
+          <button class="btn ghost small cg-quiet" data-act="move" data-id="${c.id}" data-dir="-1" ${i===0?"disabled":""} aria-label="W górę">↑</button>
+          <button class="btn ghost small cg-quiet" data-act="move" data-id="${c.id}" data-dir="1" ${i===cs.length-1?"disabled":""} aria-label="W dół">↓</button>
+          <button class="btn ghost small cg-quiet" data-act="ungroup" data-id="${c.id}" aria-label="Wyjmij z sekwencji">✕</button>
+        </span></li>`).join("")}</ol>`:`<p class="cg-small cg-muted" style="margin:8px 0 0">Pusta. Wybierz tę sekwencję w briefie albo dodaj zapisane copy poniżej.</p>`}
+      ${others.length?`<div class="cg-row" style="margin-top:10px;flex-wrap:nowrap"><select data-role="add-to" data-gid="${g.id}" style="flex:1;min-width:0"><option value="">Dodaj zapisane copy…</option>${others.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select></div>`:""}
+    </div>`}).join(""):`<div class="cg-empty-note cg-small">Sekwencja zbiera kilka copy, np. 4 maile onboardingu. Całą sekwencję udostępniasz jednym linkiem.</div>`;
+  let cs=clientCopies(cl.id);
+  if(q)cs=cs.filter(c=>(c.name||"").toLowerCase().includes(q)||(c.text||"").toLowerCase().includes(q));
+  $("#cg-lib-copies").innerHTML=cs.length?cs.map(c=>{
+    const g=c.groupId&&S.groups.find(x=>x.id===c.groupId);
+    return `<div class="cg-item">
+      <div style="min-width:0"><div class="cg-name">${esc(c.name)}</div>
+        <div class="cg-meta"><span class="cg-pill">${esc(FORMATS[c.format]?.label||"")}</span>${g?`<span class="cg-pill cg-acc">${esc(g.name)}</span>`:""}${c.shareId?`<span class="cg-pill cg-ok">Udostępnione</span>`:""}<span class="cg-mono cg-muted">${esc(fmtDate(c.createdAt))}</span></div></div>
+      <div class="cg-acts">
+        <button class="btn ghost small" data-act="open-copy" data-id="${c.id}">Otwórz</button>
+        <button class="btn ghost small" data-act="share-copy" data-id="${c.id}">Udostępnij</button>
+        <button class="btn ghost small cg-quiet" data-act="copy-saved" data-id="${c.id}">Kopiuj</button>
+        <button class="btn ghost small cg-quiet cg-danger" data-act="del-copy" data-id="${c.id}">Usuń</button>
+      </div></div>`}).join(""):`<div class="cg-empty-note cg-small">${q?"Nic nie pasuje do wyszukiwania.":"Brak zapisanych copy. Gdy copy będzie gotowe, nadaj mu nazwę i kliknij Zapisz na liście."}</div>`;
+}
+
+function renderMemory(){
+  const cl=mclient();if(!cl)return;
+  if(document.activeElement?.dataset?.edit)return; // don't clobber an open inline edit
+  const g=$("#cg-guidelines");
+  if(g.dataset.cid!==cl.id||(!g.dataset.dirty&&document.activeElement!==g)){g.value=cl.guidelines||"";g.dataset.cid=cl.id;g.dataset.dirty=""}
+  const fs=clientFiles(cl.id);
+  const kindOpts=k=>Object.entries(KIND).map(([v,l])=>`<option value="${v}" ${v===k?"selected":""}>${esc(l)}</option>`).join("");
+  $("#cg-files").innerHTML=fs.length?fs.map(f=>{const ed=S.editing==="file:"+f.id;return `<div class="cg-file">
+    <div style="min-width:0"><div style="font-weight:600;overflow-wrap:anywhere">${esc(f.name)}</div>
+      <div class="cg-meta cg-row" style="gap:6px"><span class="cg-pill ${f.kind==="brandvoice"?"cg-acc":""}">${esc(KIND[f.kind]||"")}</span><span class="cg-mono cg-muted">${(f.chars||0).toLocaleString("pl-PL")} znaków${f.truncated?" · przycięty":""} · ${esc(fmtDay(f.at))}</span></div></div>
+    <div class="cg-row" style="gap:4px">${ed?"":`<button class="btn ghost small cg-quiet" data-act="peek-file" data-id="${f.id}">${S.peek===f.id?"Zwiń":"Podgląd"}</button><button class="btn ghost small cg-quiet" data-act="edit" data-kind="file" data-id="${f.id}">Edytuj</button>`}<button class="btn ghost small cg-quiet cg-danger" data-act="del-file" data-id="${f.id}">Usuń</button></div>
+    ${ed?`<div class="cg-edit-box"><div class="cg-row" style="flex-wrap:nowrap"><input type="text" data-edit="1" id="cg-ef-name" value="${esc(f.name)}"><select data-edit="1" id="cg-ef-kind">${kindOpts(f.kind)}</select></div>
+      <textarea data-edit="1" id="cg-ef-text" rows="14">${esc(f.text||"")}</textarea>
+      <div class="cg-row"><button class="btn small" data-act="save-file" data-id="${f.id}">Zapisz</button><button class="btn ghost small cg-quiet" data-act="cancel-edit">Anuluj</button></div></div>`
+    :S.peek===f.id?`<pre>${esc((f.text||"").slice(0,4000))}${(f.text||"").length>4000?"\n…":""}</pre>`:""}
+  </div>`}).join(""):`<p class="cg-small cg-muted" style="margin:0">Brak plików. Wrzuć albo wklej brand voice klienta – model użyje go przy każdym copy.</p>`;
+  const ls=cl.learnings||[];
+  $("#cg-rules-count").textContent=ls.length;
+  $("#cg-rules").innerHTML=ls.length?[...ls].sort((a,b)=>b.at-a.at).map(r=>S.editing==="rule:"+r.id
+    ?`<div class="cg-edit-row"><select data-edit="1" id="cg-er-type"><option value="do" ${r.type!=="dont"?"selected":""}>Rób</option><option value="dont" ${r.type==="dont"?"selected":""}>Nie rób</option></select><input type="text" data-edit="1" id="cg-er-text" value="${esc(r.text)}"><button class="btn small" data-act="save-rule" data-id="${r.id}">Zapisz</button><button class="btn ghost small cg-quiet" data-act="cancel-edit">Anuluj</button></div>`
+    :ruleHTML(r,true)).join(""):`<p class="cg-small cg-muted" style="margin:0">Jeszcze nic. Pierwsze zasady pojawią się po Twoich uwagach do copy.</p>`;
+  const ns=cl.notes||[];
+  $("#cg-notes").innerHTML=ns.length?[...ns].sort((a,b)=>b.at-a.at).map(n=>S.editing==="note:"+n.id
+    ?`<div class="cg-edit-row"><input type="text" data-edit="1" id="cg-en-text" value="${esc(n.text)}"><button class="btn small" data-act="save-note" data-id="${n.id}">Zapisz</button><button class="btn ghost small cg-quiet" data-act="cancel-edit">Anuluj</button></div>`
+    :`<div class="cg-rule"><span class="cg-mono cg-muted" style="white-space:nowrap">${esc(fmtDay(n.at))}</span><span class="cg-t">${esc(n.text)}</span><button class="btn ghost small cg-quiet" data-act="edit" data-kind="note" data-id="${n.id}">Edytuj</button><button class="btn ghost small cg-quiet" data-act="del-note" data-id="${n.id}">Usuń</button></div>`).join(""):`<p class="cg-small cg-muted" style="margin:0">Tu dopisujesz bieżące ustalenia z klientem.</p>`;
+}
+
+
+/* ---------- prompt building ---------- */
+function buildContext(cl,fileBudget){
+  const parts=[];
+  parts.push(`Jesteś senior copywriterem w agencji marketing automation specjalizującej się w retencji i komunikacji lifecycle (e-mail, SMS, push, in-app). Piszesz copy dla klienta: ${cl.name}. Piszesz po polsku, chyba że brief mówi inaczej.`);
+  const fs=clientFiles(cl.id);
+  if(fs.length){
+    let left=fileBudget;parts.push("\n## Materiały klienta (brand voice, wytyczne)");
+    for(const f of [...fs].sort((a,b)=>(a.kind==="brandvoice"?0:1)-(b.kind==="brandvoice"?0:1))){
+      if(left<500)break;let t=f.text||"";if(t.length>left)t=t.slice(0,left)+"\n[…przycięte]";left-=t.length;
+      parts.push(`### ${f.name} (${KIND[f.kind]||"plik"})\n${t}`);
+    }
+  }
+  if((cl.guidelines||"").trim())parts.push(`\n## Wytyczne klienta\n${cl.guidelines.trim()}`);
+  const ns=cl.notes||[];
+  if(ns.length)parts.push(`\n## Uwagi i ustalenia z bieżących prac (nowsze mają pierwszeństwo)\n`+[...ns].sort((a,b)=>a.at-b.at).map(n=>`- (${fmtDay(n.at)}) ${n.text}`).join("\n"));
+  const ls=cl.learnings||[];
+  if(ls.length){
+    const dos=ls.filter(r=>r.type!=="dont"),donts=ls.filter(r=>r.type==="dont");
+    parts.push(`\n## Zasady wyuczone z poprzednich poprawek – trzymaj się ich bezwzględnie`+(dos.length?`\nRÓB:\n`+dos.map(r=>"- "+r.text).join("\n"):"")+(donts.length?`\nNIE RÓB:\n`+donts.map(r=>"- "+r.text).join("\n"):""));
+  }
+  const ex=clientCopies(cl.id).slice(0,3);
+  if(ex.length)parts.push(`\n## Zaakceptowane wcześniej copy tego klienta (wzór tonu, nie kopiuj treści)\n`+ex.map(c=>`--- ${c.name} (${FORMATS[c.format]?.label||""}) ---\n${(c.text||"").slice(0,2500)}`).join("\n\n"));
+  return parts.join("\n");
+}
+function sequenceContext(d){
+  if(!d.groupId)return "";
+  const g=S.groups.find(x=>x.id===d.groupId);if(!g)return "";
+  const cs=groupCopies(g.id).filter(c=>c.id!==d.copyId);
+  let s=`\n## Sekwencja: ${g.name}\nTo copy jest częścią sekwencji marketing automation. Zachowaj spójność tonu i nie powtarzaj tych samych argumentów i otwarć co w pozostałych krokach.`;
+  if(cs.length)s+="\nPozostałe kroki sekwencji:\n"+cs.map((c,i)=>`${i+1}. ${c.name} (${FORMATS[c.format]?.label||""}): ${plain(c.text).slice(0,700).replace(/\n+/g," ")}`).join("\n");
+  return s;
+}
+const OUTPUT_RULES = `\n## Jak oddać odpowiedź\nZwróć WYŁĄCZNIE gotowe copy w prostym Markdown (## nagłówki, **pogrubienia**, listy). Bez wstępu, bez komentarzy o tym, co zrobiłeś. Jeśli musiałeś coś założyć, bo brief tego nie mówi, dodaj na samym końcu jedną linię zaczynającą się od "> Założenie:".`;
+function fitPrompt(make){
+  for(const budget of [150000,100000,60000,30000,10000,0]){const p=make(budget);if(bytes(p)<PROMPT_CAP)return p}
+  return make(0);
+}
+function genPrompt(cl,d){
+  return fitPrompt(b=>buildContext(cl,b)+sequenceContext(d)+`\n\n## Zadanie\nKanał: ${FORMATS[d.format].label}. ${formatGuide(d)}\n\nBrief:\n${briefText(d)}`+OUTPUT_RULES);
+}
+function revisePrompt(cl,d,fb){
+  const cur=d.versions[d.vi]?.text||"";
+  const hist=d.versions.slice(1,d.vi+1).map(v=>v.feedback).filter(Boolean);
+  return fitPrompt(b=>buildContext(cl,b)+sequenceContext(d)+`\n\n## Zadanie\nKanał: ${FORMATS[d.format].label}. ${formatGuide(d)}\n\nPierwotny brief:\n${briefText(d)}`+
+    (hist.length?`\n\nWcześniejsze uwagi (już naniesione, nadal obowiązują):\n`+hist.map(h=>"- "+h).join("\n"):"")+
+    `\n\nAktualna wersja copy:\n"""\n${cur}\n"""\n\nNowe uwagi do naniesienia:\n${fb}\n\nNanieś uwagi i zwróć pełną, poprawioną wersję w tym samym układzie. Zmieniaj tylko to, czego dotyczą uwagi, chyba że uwagi mówią inaczej.`+OUTPUT_RULES);
+}
+function learnPrompt(cl,fb,cur){
+  const ls=(cl.learnings||[]).map(r=>`- [${r.type==="dont"?"NIE":"TAK"}] ${r.text}`).join("\n")||"(brak)";
+  return `Pracujesz jako pamięć zespołu copywriterskiego. Poniżej uwagi, które specjalista dał do copy dla klienta "${cl.name}". Wyciągnij z nich TRWAŁE zasady na przyszłość – takie, które dotyczą stylu, słownictwa, tonu, długości, struktury, zakazanych lub wymaganych słów, emoji, zwrotów do odbiorcy. Pomiń uwagi dotyczące wyłącznie tego jednego tekstu (np. "zmień drugi akapit", "dodaj datę 12.10"). Nie powtarzaj zasad, które już istnieją.\n\nIstniejące zasady:\n${ls}\n\nCopy, którego dotyczyły uwagi:\n"""\n${cur.slice(0,4000)}\n"""\n\nUwagi:\n${fb}\n\nZwróć JSON i nic więcej: {"rules":[{"type":"do"|"dont","text":"..."}]}. Maksymalnie 5 zasad, każda po polsku, w trybie rozkazującym, max 140 znaków. Jeśli nie ma trwałych zasad, zwróć {"rules":[]}.`;
+}
+const SAMPLE_MSG={not_granted:"Nie masz zgody na użycie Claude na tej stronie. Odśwież i zezwól, gdy pojawi się pytanie.",sampling_disabled:"Claude jest wyłączony dla tego konta.",rate_limited:"Limit zapytań – odczekaj chwilę i kliknij ponownie.",session_expired:"Sesja wygasła – zaloguj się ponownie do Claude.",prompt_too_large:"Za dużo kontekstu – usuń lub skróć największe pliki klienta.",refused:"Model odmówił odpowiedzi na ten brief. Przeformułuj go.",empty_completion:"Model nic nie zwrócił. Uprość brief i spróbuj jeszcze raz.",upstream_error:"Połączenie przerwane. Kliknij ponownie."};
+Object.assign(SAMPLE_MSG,{no_key:"Brak klucza API – dodaj go w Maximus: menu konta → Connect Claude.",bad_key:"Klucz API nie działa – sprawdź go w Maximus: menu konta → Connect Claude.",overloaded:"Claude jest teraz przeciążony – spróbuj za chwilę.",network:"Brak połączenia z API Claude – sprawdź internet.",rate_limited:"Limit zapytań API – odczekaj chwilę i spróbuj ponownie.",invalid_json:"Model zwrócił nieczytelną odpowiedź – spróbuj jeszcze raz."});
+const sampleMsg=e=>SAMPLE_MSG[e?.code]||(e?.message?("Claude: "+e.message):("Nie udało się ("+(e?.code||"błąd")+"). Spróbuj ponownie."));
+
+/* ---------- actions: generate ---------- */
+function setBusy(b){S.busy=b;$("#cg-btn-create").disabled=b||!apiKey();$("#cg-btn-revise").disabled=b||!apiKey();$("#cg-btn-stop").hidden=!b;$("#cg-btn-save").disabled=b}
+async function runSample(prompt,label){
+  S.ctl=new AbortController();setBusy(true);setThinking(label);
+  try{
+    const res=await S.sample(prompt,{modelTier:"complex",cache:false,signal:S.ctl.signal,onText:({text})=>renderOut(text)});
+    if(res.truncated)toast("Odpowiedź ucięta – poproś o krótszy tekst");
+    return res.text.trim();
+  }catch(e){
+    if(e?.code!=="cancelled")toast(sampleMsg(e));
+    if(e?.text&&e.code!=="refused")return e.text.trim();
+    return null;
+  }finally{setBusy(false)}
+}
+async function doCreate(){
+  const cl=client();if(!cl)return toast("Najpierw wybierz albo dodaj klienta");
+  const d=draft();document.querySelectorAll(".cg-root [data-bf]").forEach(i=>d[i.dataset.bf]=i.value);
+  if(!hasBrief(d)){$("#cg-b-goal").focus();return toast("Uzupełnij brief – przynajmniej cel")}
+  if(d.copyId){d.copyId=null;d.name=""}
+  const text=await runSample(genPrompt(cl,d),"Piszę copy");
+  if(text){d.versions=[{text,at:now(),feedback:null}];d.vi=0;S.lastLearned=[];persistDraft()}
+  renderCreate();
+}
+async function doRevise(){
+  const cl=client(),d=draft();const fb=$("#cg-feedback").value.trim();
+  if(!d.versions[d.vi])return toast("Najpierw stwórz copy");
+  if(!fb){$("#cg-feedback").focus();return toast("Wpisz uwagi")}
+  const cur=d.versions[d.vi].text;
+  const text=await runSample(revisePrompt(cl,d,fb),"Nanoszę uwagi");
+  if(text){
+    d.versions=d.versions.slice(0,d.vi+1);d.versions.push({text,at:now(),feedback:fb});d.vi=d.versions.length-1;
+    $("#cg-feedback").value="";persistDraft();renderCreate();
+    learnFrom(cl,fb,cur);
+  } else renderCreate();
+}
+async function learnFrom(cl,fb,cur){
+  try{
+    const res=await S.sample.json(learnPrompt(cl,fb,cur),{modelTier:"default",cache:false});
+    const rules=(res?.rules||[]).filter(r=>r&&typeof r.text==="string"&&r.text.trim()).slice(0,5)
+      .map(r=>({id:rid(10),type:r.type==="dont"?"dont":"do",text:r.text.trim().slice(0,200),at:now(),clientId:cl.id}));
+    if(!rules.length)return;
+    const fresh=S.clients.find(c=>c.id===cl.id);if(!fresh)return;
+    const list=[...(fresh.learnings||[]),...rules.map(({clientId,...r})=>r)];
+    await S.db.doc("clients/"+cl.id).merge({learnings:list});
+    S.lastLearned=rules;renderLearned();
+    toast(`Zapamiętano ${rules.length} ${rules.length===1?"zasadę":rules.length<5?"zasady":"zasad"}`);
+  }catch(e){console.warn("learn",e)}
+}
+
+/* ---------- actions: save ---------- */
+async function doSave(asNew){
+  const cl=client(),d=draft();const cur=d.versions[d.vi];
+  if(!cur)return toast("Nie ma jeszcze copy do zapisania");
+  const name=$("#cg-save-name").value.trim();
+  if(!name){$("#cg-save-name").focus();return toast("Nadaj nazwę copy")}
+  d.name=name;
+  const existing=!asNew&&d.copyId&&S.copies.find(c=>c.id===d.copyId);
+  const id=existing?existing.id:rid();
+  let groupPos=existing?.groupPos;
+  if(d.groupId&&(!existing||existing.groupId!==d.groupId)){groupPos=groupCopies(d.groupId).reduce((m,c)=>Math.max(m,c.groupPos??0),0)+1}
+  const body={clientId:cl.id,name,format:d.format,structure:d.format==="email"?(d.structure||"marketing"):null,goal:d.goal||"",segment:d.segment||"",argument:d.argument||"",cta:d.cta||"",brief:d.brief||"",text:cur.text,
+    versions:d.versions.slice(-10).map(v=>({text:v.text,at:v.at,feedback:v.feedback||null})),
+    groupId:d.groupId||null,groupPos:groupPos??null,
+    createdAt:existing?.createdAt||now(),updatedAt:now(),shareId:existing?.shareId||null};
+  $("#cg-btn-save").disabled=true;
+  try{
+    await S.db.doc("copies/"+id).set(body);
+    d.copyId=id;persistDraft();
+    toast(existing?"Zapisano zmiany":"Zapisano na liście");
+    const oldGroup=existing?.groupId;
+    await refreshShares({...body,id},oldGroup);
+  }catch(e){dbErr(e,"save")}
+  finally{$("#cg-btn-save").disabled=false;renderCreate()}
+}
+
+/* ---------- shares ---------- */
+function shareItem(c){return {name:c.name,format:c.format,text:c.text,createdAt:c.createdAt}}
+async function writeCopyShare(c){
+  await S.db.doc("shares/"+c.shareId).set({kind:"copy",refId:c.id,clientName:S.clients.find(x=>x.id===c.clientId)?.name||client()?.name||"",title:c.name,createdAt:c.createdAt,updatedAt:now(),items:[shareItem(c)]});
+}
+async function writeGroupShare(g){
+  const cs=groupCopies(g.id);
+  await S.db.doc("shares/"+g.shareId).set({kind:"group",refId:g.id,clientName:S.clients.find(x=>x.id===g.clientId)?.name||"",title:g.name,createdAt:g.createdAt,updatedAt:now(),items:cs.map(shareItem)});
+}
+async function refreshShares(c,oldGroupId){
+  // wait a tick so the snapshot of our own write is in S.copies
+  await new Promise(r=>setTimeout(r,50));
+  try{
+    if(c?.shareId)await writeCopyShare(c);
+    const gids=new Set([c?.groupId,oldGroupId].filter(Boolean));
+    for(const gid of gids){const g=S.groups.find(x=>x.id===gid);if(g?.shareId)await writeGroupShare(g)}
+  }catch(e){console.warn("share refresh",e)}
+}
+function shareLink(token){return new URL("copy-generator.html",location.href).href+"?share="+token}
+async function openShare(kind,id){
+  const coll=kind==="group"?"groups":"copies";
+  const obj=(kind==="group"?S.groups:S.copies).find(x=>x.id===id);if(!obj)return;
+  if(kind==="group"&&!groupCopies(id).length)return toast("Sekwencja jest pusta");
+  let token=obj.shareId;
+  try{
+    if(!token){token=rid(16);await S.db.doc(`${coll}/${id}`).update({shareId:token})}
+    const fresh={...obj,shareId:token};
+    kind==="group"?await writeGroupShare(fresh):await writeCopyShare(fresh);
+  }catch(e){return dbErr(e,"share")}
+  renderShareModal(kind,id,token);
+  $("#cg-ov-share").classList.add("open");
+}
+function renderShareModal(kind,id,token){
+  const obj=(kind==="group"?S.groups:S.copies).find(x=>x.id===id);
+  const link=shareLink(token);
+  $("#cg-share-modal").innerHTML=`
+    <h2>Udostępnij ${kind==="group"?"sekwencję":"copy"}</h2>
+    <p class="cg-muted" style="margin:0">${esc(obj?.name||"")}</p>
+    <div class="cg-field"><label class="cg-lbl" for="cg-share-link">Link dla klienta</label>
+      <div class="cg-linkbox"><input type="text" id="cg-share-link" readonly value="${esc(link)}"><button class="btn small" data-act="copy-link">Kopiuj link</button></div></div>
+    <div class="cg-hint">Klient otworzy link bez logowania i zobaczy tylko ${kind==="group"?"tę sekwencję":"to copy"}. Reszty bazy nie zobaczy. Zmiany zapisane w copy aktualizują link automatycznie.</div>
+    <div class="cg-row">
+      <button class="btn ghost small" data-act="share-copytext" data-kind="${kind}" data-id="${id}">Kopiuj treść do maila</button>
+      <button class="btn ghost small" data-act="share-download" data-kind="${kind}" data-id="${id}">Pobierz plik .html</button>
+    </div>
+    <div class="cg-row" style="justify-content:space-between">
+      <button class="btn ghost small cg-quiet cg-danger" data-act="unshare" data-kind="${kind}" data-id="${id}">Wyłącz link</button>
+      <button class="btn ghost small" data-act="close-overlay">Gotowe</button>
+    </div>`;
+}
+function exportItems(kind,id){
+  if(kind==="group"){const g=S.groups.find(x=>x.id===id);return {title:g?.name||"",items:groupCopies(id)}}
+  const c=S.copies.find(x=>x.id===id);return {title:c?.name||"",items:c?[c]:[]};
+}
+function exportText(kind,id){
+  const {title,items}=exportItems(kind,id);
+  return [title,""].concat(items.map((c,i)=>(kind==="group"?`${i+1}. `:"")+`${c.name} (${FORMATS[c.format]?.label||""})\n\n${plain(c.text)}`)).join("\n\n———\n\n");
+}
+function exportHTML(kind,id,full){
+  const {title,items}=exportItems(kind,id);const cn=client()?.name||"";
+  const body=`<h1 style="font-family:Georgia,serif">${esc(title)}</h1><p style="color:#666">${esc(cn)} · ${esc(fmtDay(now()))}</p>`+items.map((c,i)=>`<hr><h2>${kind==="group"?`${i+1}. `:""}${esc(c.name)} <small style="color:#888;font-weight:400">${esc(FORMATS[c.format]?.label||"")}</small></h2>${md(c.text)}`).join("");
+  return full?`<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>body{font:16px/1.6 -apple-system,Segoe UI,Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 16px;color:#1b1b1f}blockquote{color:#666;border-left:3px solid #ccc;margin:0;padding-left:12px}</style></head><body>${body}</body></html>`:body;
+}
+
+
+/* ---------- files ---------- */
+function loadScript(src){return new Promise((res,rej)=>{if(document.querySelector(`script[src="${src}"]`))return res();const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=()=>rej(new Error("load "+src));document.head.appendChild(s)})}
+async function extractText(file){
+  const ext=(file.name.split(".").pop()||"").toLowerCase();
+  if(ext==="pdf"){
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js");
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js");
+    const lib=window.pdfjsLib;lib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    const pdf=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+    let out=[];for(let i=1;i<=pdf.numPages;i++){const p=await pdf.getPage(i);const tc=await p.getTextContent();let line="",lines=[];for(const it of tc.items){line+=it.str;if(it.hasEOL){lines.push(line);line=""}}if(line)lines.push(line);out.push(lines.join("\n"))}
+    return out.join("\n\n");
+  }
+  if(ext==="docx"){
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js");
+    const r=await window.mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});return r.value;
+  }
+  const t=await file.text();
+  if(ext==="html"||ext==="htm"){const d=new DOMParser().parseFromString(t,"text/html");d.querySelectorAll("script,style").forEach(n=>n.remove());return d.body?.innerText||d.body?.textContent||""}
+  return t;
+}
+async function addFiles(fileList,clientId,kind,statusEl){
+  const files=[...fileList];let ok=0;
+  for(const f of files){
+    if(statusEl)statusEl.textContent=`Czytam ${f.name}…`;
+    try{
+      let text=(await extractText(f)).replace(/\u0000/g,"").replace(/[ \t]+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+      if(!text){toast(`${f.name}: brak tekstu do odczytania (skan?)`);continue}
+      const chars=text.length;let truncated=false;
+      while(bytes(text)>230000){text=text.slice(0,Math.floor(text.length*0.85));truncated=true}
+      await S.db.doc("files/"+rid()).set({clientId,name:f.name,kind,text,chars,truncated,at:now()});ok++;
+    }catch(e){console.error(e);toast(`Nie udało się odczytać ${f.name}`)}
+  }
+  if(statusEl)statusEl.textContent=ok?`Dodano ${ok} z ${files.length}.`:"";
+  return ok;
+}
+
+
+/* ---------- brand voice builder ---------- */
+const BV_SECTIONS = `# Brand voice: <nazwa marki>
+## Kim jest marka – 2-3 zdania: co robi, dla kogo, czym się wyróżnia
+## Do kogo mówimy – główna persona (kto, potrzeby, obawy, język, którym mówi)
+## Osobowość marki – 3-5 cech w formie "jesteśmy X, ale nie Y"
+## Ton i styl – forma zwracania się (Ty / Pan/Pani / Wy), formalność, długość zdań, humor, emoji, wykrzykniki, polskie znaki w SMS
+## Słownictwo – słowa i zwroty, których marka używa; słowa, których unika; pisownia nazw produktów i marki
+## Wyróżniki i argumenty – najmocniejsze USP i dowody (liczby, gwarancje, opinie)
+## Przykłady – 3-5 dosłownych cytatów ze strony, które najlepiej oddają ton, i 3 przykładowe zdania w tym tonie: temat maila, SMS, CTA
+## Czego nie robimy – lista zakazów`;
+const BV_OUT = `Najpierw zwróć pełny dokument brand voice w Markdown według tej struktury. Potem w osobnej linii wpisz dokładnie: ===PODSUMOWANIE=== a pod nią 5-7 punktów listy (- ...) z najważniejszymi wnioskami, żeby dało się szybko zaakceptować. Nic więcej, bez wstępu.`;
+function bvBuildPrompt(cl,url,pasted){
+  let t=pasted;while(bytes(t)>200000)t=t.slice(0,Math.floor(t.length*0.85));
+  return `Jesteś strategiem komunikacji w agencji marketing automation. Na podstawie tekstów ze strony klienta "${cl.name}"${url?` (${url})`:""} przygotuj dokument brand voice, którego copywriterzy i model AI będą używać do pisania maili, SMS-ów i pushy. Opieraj się na tym, jak marka faktycznie pisze w tych tekstach, nie na ogólnikach. Jeśli czegoś nie da się wywnioskować, napisz to wprost zamiast zgadywać.${(cl.guidelines||"").trim()?`\n\nZnane już wytyczne klienta (uwzględnij je):\n${cl.guidelines.trim()}`:""}\n\nStruktura dokumentu:\n${BV_SECTIONS}\n\nTeksty ze strony:\n"""\n${t}\n"""\n\n${BV_OUT}`;
+}
+function bvRevisePrompt(cl,d,fb){
+  const hist=(d.feedback||[]).map(f=>"- "+f.text).join("\n");
+  return `Poprawiasz dokument brand voice klienta "${cl.name}". Nanieś uwagi specjalisty i zwróć pełną nową wersję. Zmieniaj tylko to, czego dotyczą uwagi.\n\nStruktura dokumentu:\n${BV_SECTIONS}\n\n${hist?`Wcześniejsze uwagi (już naniesione, nadal obowiązują):\n${hist}\n\n`:""}Aktualny dokument:\n"""\n${d.doc}\n"""\n\nNowe uwagi:\n${fb}\n\n${BV_OUT}`;
+}
+function parseBV(text){
+  const parts=text.split(/^\s*=+\s*PODSUMOWANIE\s*=+\s*$/m);
+  const doc=(parts[0]||"").trim();let summary=(parts[1]||"").trim();
+  if(!summary){const lines=doc.split("\n").filter(l=>/^\s*[-*]\s/.test(l)).slice(0,6);summary=lines.join("\n")}
+  return {doc,summary};
+}
+function bvUrlPrompt(cl,url){
+  return `Jesteś strategiem komunikacji w agencji marketing automation. Przygotuj dokument brand voice klienta "${cl.name}" na podstawie jego strony: ${url}
+
+1. Pobierz narzędziem web_fetch stronę główną, a potem 4-8 najważniejszych podstron, do których linki znajdziesz na stronie (o nas, oferta lub produkty, FAQ, blog, newsletter, regulamin promocji). Nie zgaduj adresów, korzystaj z linków ze strony.
+2. Opieraj się na tym, jak marka faktycznie pisze na stronie, nie na ogólnikach. Czego nie da się wywnioskować, napisz wprost.${(cl.guidelines||"").trim()?`\n3. Uwzględnij znane już wytyczne klienta:\n${cl.guidelines.trim()}`:""}
+
+Struktura dokumentu:
+${BV_SECTIONS}
+
+Gdy skończysz pobieranie, wypisz w osobnej linii dokładnie: ===DOKUMENT=== a pod nią pełny dokument w Markdown. ${BV_OUT}`;
+}
+async function bvFromUrl(cl,url){
+  if(!apiKey())throw {code:"no_key"};
+  let messages=[{role:"user",content:bvUrlPrompt(cl,url)}];const blocks=[];
+  for(let round=0;round<5;round++){
+    let res;
+    try{res=await fetch(API_URL,{method:"POST",headers:apiHeaders(),body:JSON.stringify({model:MODEL,max_tokens:16000,messages,tools:[{type:"web_fetch_20250910",name:"web_fetch",max_uses:10,max_content_tokens:25000}]})})}
+    catch(e){throw {code:"network"}}
+    if(!res.ok)throw await apiError(res);
+    const data=await res.json();blocks.push(...(data.content||[]));
+    if(data.stop_reason==="pause_turn"){messages=[messages[0],{role:"assistant",content:blocks.slice()}];continue}
+    break;
+  }
+  let text=blocks.filter(b=>b.type==="text").map(b=>b.text).join("");
+  const k=text.lastIndexOf("===DOKUMENT===");if(k>=0)text=text.slice(k+14);
+  const sources=[...new Set(blocks.filter(b=>b.type==="server_tool_use"&&b.name==="web_fetch").map(b=>b.input&&b.input.url).filter(Boolean))];
+  return {text,sources};
+}
+function renderBV(){
+  const cl=mclient();if(!cl)return;
+  const d=cl.bvDraft||null,ready=d&&d.status==="ready"&&d.doc;
+  const urlIn=$("#cg-bv-url");if(document.activeElement!==urlIn&&urlIn.dataset.cid!==cl.id){urlIn.value=stripProto(cl.website);urlIn.dataset.cid=cl.id;$("#cg-bv-paste").value=""}
+  $("#cg-bv-busy").hidden=!S.bvBusy;
+  $("#cg-bv-start").hidden=!!ready||!!S.bvBusy;
+  $("#cg-bv-ready").hidden=!ready||!!S.bvBusy;
+  $("#cg-bv-pending").hidden=true;
+  $("#cg-bv-badge").innerHTML=ready?`<span class="cg-pill cg-acc">Szkic do akceptu</span>`:"";
+  if(ready){
+    $("#cg-bv-meta").textContent=`${d.url?d.url+" · ":""}${(d.sources||[]).length?(d.sources.length+(d.sources.length===1?" strona":d.sources.length<5?" strony":" stron")+" · "):""}${fmtDate(d.at)}${(d.feedback||[]).length?` · ${(d.feedback||[]).length}× poprawiony`:""}`;
+    $("#cg-bv-summary").innerHTML=`<span class="cg-lbl">Podsumowanie</span>`+md(d.summary||"");
+    $("#cg-bv-doc").innerHTML=md(d.doc);
+    $("#cg-bv-replace").disabled=!clientFiles(cl.id).some(f=>f.kind==="brandvoice");
+  }
+}
+async function bvRun(cl,prompt,extra){
+  S.bvBusy=true;$("#cg-bv-busy").textContent=extra.fromUrl?"Claude przegląda stronę i podstrony, potem pisze brand voice (zwykle 1–3 min)":"Analizuję teksty i piszę brand voice";renderBV();
+  try{
+    let text,sources;
+    if(extra.fromUrl){({text,sources}=await bvFromUrl(cl,extra.url))}else{text=(await S.sample(prompt,{maxTokens:12000})).text}
+    const {doc,summary}=parseBV(text);
+    if(!doc)throw {code:"empty_completion"};
+    const prev=S.clients.find(c=>c.id===cl.id)?.bvDraft||{};
+    await S.db.doc("clients/"+cl.id).merge({bvDraft:{status:"ready",url:extra.url??prev.url??"",sources:sources||prev.sources||[],at:now(),doc,summary,feedback:extra.feedback??prev.feedback??[]},...(extra.url?{website:extra.url}:{})});
+    return true;
+  }catch(e){if(e?.code!=="cancelled")toast(e?.code?sampleMsg(e):"Nie udało się zapisać szkicu");return false}
+  finally{S.bvBusy=false;renderBV()}
+}
+const stripProto=u=>String(u||"").trim().replace(/^(https?:)?\/\/+/i,"").replace(/^https?:\/*/i,"");
+function normUrl(u){u=stripProto(u);if(!u)return "";try{const x=new URL("https://"+u);return x.hostname.includes(".")?x.href:""}catch{return ""}}
+/* ---------- client memory ops ---------- */
+async function patchClient(cl,patch){if(!cl)return;try{await S.db.doc("clients/"+cl.id).merge(patch)}catch(e){dbErr(e,"client")}}
+
+/* ---------- events ---------- */
+function bindStatic(){
+  document.querySelectorAll(".cg-root [data-bf]").forEach(inp=>inp.addEventListener("input",e=>{draft()[inp.dataset.bf]=e.target.value;persistDraft()}));
+  $("#cg-save-name").addEventListener("input",e=>{draft().name=e.target.value;persistDraft()});
+  $("#cg-format").addEventListener("change",e=>{draft().format=e.target.value;persistDraft();renderStructs();renderOut()});
+  $("#cg-group").addEventListener("change",e=>{
+    if(e.target.value==="__new"){$("#cg-newgroup-inline").classList.add("cg-open");$("#cg-newgroup-inline-name").focus();e.target.value=draft().groupId||"";return}
+    draft().groupId=e.target.value;persistDraft();
+  });
+  $("#cg-lib-search").addEventListener("input",()=>renderLibrary());
+  $("#cg-bv-url").addEventListener("input",e=>{const v=stripProto(e.target.value);if(v!==e.target.value)e.target.value=v});
+  $("#cg-guidelines").addEventListener("input",e=>{e.target.dataset.dirty="1";$("#cg-guide-status").textContent="Niezapisane"});
+  $("#cg-file-input").addEventListener("change",async e=>{const cl=mclient();if(!cl)return;await addFiles(e.target.files,cl.id,$("#cg-file-kind").value,$("#cg-file-status"));e.target.value=""});
+  const drop=$("#cg-drop");
+  drop.addEventListener("dragover",e=>{e.preventDefault();drop.classList.add("cg-over")});
+  drop.addEventListener("dragleave",()=>drop.classList.remove("cg-over"));
+  drop.addEventListener("drop",async e=>{e.preventDefault();drop.classList.remove("cg-over");const cl=mclient();if(cl&&e.dataTransfer.files.length)await addFiles(e.dataTransfer.files,cl.id,$("#cg-file-kind").value,$("#cg-file-status"))});
+  document.addEventListener("change",async e=>{
+    const t=e.target;if(t.dataset.role==="add-to"&&t.value){
+      const gid=t.dataset.gid,cid=t.value;const c=S.copies.find(x=>x.id===cid);const old=c?.groupId;
+      const pos=groupCopies(gid).reduce((m,x)=>Math.max(m,x.groupPos??0),0)+1;
+      try{await S.db.doc("copies/"+cid).update({groupId:gid,groupPos:pos});await refreshShares({...c,groupId:gid,groupPos:pos},old)}catch(er){dbErr(er)}
+    }
+  });
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape")$("#cg-ov-share").classList.remove("open");
+    if((e.metaKey||e.ctrlKey)&&e.key==="Enter"){if(document.activeElement?.dataset?.bf)doCreate();else if(document.activeElement===$("#cg-feedback"))doRevise()}
+  });
+}
+
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-act],[data-tab]");if(!b||!b.closest(".cg-root"))return;
+  if(b.id==="cg-ov-share"&&e.target!==b)return;
+  if(b.dataset.tab){setTab(b.dataset.tab);return}
+  const act=b.dataset.act,id=b.dataset.id;
+  if(b.tagName==="A")e.preventDefault();
+  switch(act){
+    case "create":return doCreate();
+    case "revise":return doRevise();
+    case "stop":S.ctl?.abort();return;
+    case "new-draft":{const keepFmt=draft().format,keepStr=draft().structure;S.drafts[S.clientId]={...blankDraft(),format:keepFmt,structure:keepStr};S.lastLearned=[];document.querySelectorAll(".cg-root [data-bf]").forEach(i=>i.value="");$("#cg-save-name").value="";$("#cg-feedback").value="";persistDraft();renderCreate();$("#cg-b-goal").focus();return}
+    case "ver":{const d=draft();d.vi=+b.dataset.i;persistDraft();renderOut();return}
+    case "copy-out":{const d=draft(),t=d.versions[d.vi]?.text;if(t)copyText(plain(t),md(t));return}
+    case "save":return doSave(false);
+    case "save-new":return doSave(true);
+    case "close-overlay":$("#cg-ov-share").classList.remove("open");return;
+    case "create-group":case "create-group-inline":{
+      const inp=act==="create-group"?$("#cg-newgroup-name"):$("#cg-newgroup-inline-name");const name=inp.value.trim();
+      if(!name){inp.focus();return toast("Podaj nazwę sekwencji")}
+      const gid=rid();
+      try{await S.db.doc("groups/"+gid).set({clientId:S.clientId,name,createdAt:now(),shareId:null});inp.value="";
+        if(act==="create-group-inline"){draft().groupId=gid;persistDraft();$("#cg-newgroup-inline").classList.remove("cg-open")}else $("#cg-newgroup-form").classList.remove("cg-open");
+        toast("Utworzono sekwencję")}catch(er){dbErr(er)}
+      return;
+    }
+    case "toggle-newgroup":$("#cg-newgroup-form").classList.toggle("cg-open");$("#cg-newgroup-name").focus();return;
+    case "open-copy":{
+      const c=S.copies.find(x=>x.id===id);if(!c)return;
+      const vs=(c.versions&&c.versions.length)?c.versions:[{text:c.text,at:c.updatedAt||c.createdAt,feedback:null}];
+      S.drafts[c.clientId]={format:c.format||"email",structure:c.structure||"marketing",groupId:c.groupId||"",goal:c.goal||"",segment:c.segment||"",argument:c.argument||"",cta:c.cta||"",brief:c.brief||"",versions:vs.map(v=>({...v})),vi:vs.length-1,copyId:c.id,name:c.name};
+      S.lastLearned=[];persistDraft();document.querySelectorAll(".cg-root [data-bf]").forEach(i=>i.value=S.drafts[c.clientId][i.dataset.bf]||"");$("#cg-save-name").value=c.name;setTab("create");renderCreate();return;
+    }
+    case "copy-saved":{const c=S.copies.find(x=>x.id===id);if(c)copyText(plain(c.text),md(c.text));return}
+    case "del-copy":{
+      if(!armed(b))return;const c=S.copies.find(x=>x.id===id);
+      try{await S.db.doc("copies/"+id).delete();if(c?.shareId)await S.db.doc("shares/"+c.shareId).delete();
+        Object.values(S.drafts).forEach(d=>{if(d.copyId===id)d.copyId=null});persistDraft();
+        if(c?.groupId)await refreshShares({groupId:c.groupId});toast("Usunięto")}catch(er){dbErr(er)}
+      return;
+    }
+    case "del-group":{
+      if(!armed(b))return;const g=S.groups.find(x=>x.id===id);
+      try{for(const c of groupCopies(id))await S.db.doc("copies/"+c.id).update({groupId:null,groupPos:null});
+        await S.db.doc("groups/"+id).delete();if(g?.shareId)await S.db.doc("shares/"+g.shareId).delete();toast("Usunięto sekwencję, copy zostały")}catch(er){dbErr(er)}
+      return;
+    }
+    case "move":{
+      const c=S.copies.find(x=>x.id===id);if(!c)return;const list=groupCopies(c.groupId);const i=list.findIndex(x=>x.id===id),j=i+(+b.dataset.dir);
+      if(j<0||j>=list.length)return;
+      // normalize positions then swap
+      const order=list.map(x=>x.id);[order[i],order[j]]=[order[j],order[i]];
+      try{for(let k=0;k<order.length;k++){const x=list.find(y=>y.id===order[k]);if(x.groupPos!==k+1)await S.db.doc("copies/"+x.id).update({groupPos:k+1})}
+        await refreshShares({groupId:c.groupId})}catch(er){dbErr(er)}
+      return;
+    }
+    case "ungroup":{const c=S.copies.find(x=>x.id===id);try{await S.db.doc("copies/"+id).update({groupId:null,groupPos:null});await refreshShares({groupId:null},c?.groupId)}catch(er){dbErr(er)}return}
+    case "share-copy":return openShare("copy",id);
+    case "share-group":return openShare("group",id);
+    case "copy-link":{const v=$("#cg-share-link");v.select();copyText(v.value);return}
+    case "share-copytext":return copyText(exportText(b.dataset.kind,id),exportHTML(b.dataset.kind,id,false));
+    case "share-download":{
+      const {title}=exportItems(b.dataset.kind,id);const fn=(title||"copy").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/ł/g,"l").replace(/Ł/g,"L").replace(/[^\w-]+/g,"-").replace(/-+/g,"-").slice(0,60)+".html";
+      const blob=new Blob([exportHTML(b.dataset.kind,id,true)],{type:"text/html"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+      return;
+    }
+    case "unshare":{
+      if(!armed(b,"Wyłączyć?"))return;const kind=b.dataset.kind;const obj=(kind==="group"?S.groups:S.copies).find(x=>x.id===id);
+      try{if(obj?.shareId)await S.db.doc("shares/"+obj.shareId).delete();await S.db.doc((kind==="group"?"groups/":"copies/")+id).update({shareId:null});$("#cg-ov-share").classList.remove("open");toast("Link wyłączony")}catch(er){dbErr(er)}
+      return;
+    }
+    case "share-item-copy":{const c=S.shareDoc?.items?.[+b.dataset.i];if(c)copyText(plain(c.text),md(c.text));return}
+    case "peek-file":S.peek=S.peek===id?null:id;renderMemory();return;
+    case "bv-build":{
+      const cl=ctxClient(b);if(!cl)return;const url=normUrl($("#cg-bv-url").value);const pasted=$("#cg-bv-paste").value.trim();
+      if(!url&&!pasted){$("#cg-bv-url").focus();return toast("Podaj adres strony")}
+      if($("#cg-bv-url").value.trim()&&!url)return toast("To nie wygląda na adres strony");
+      if(!apiKey())return toast(SAMPLE_MSG.no_key);
+      const ok=pasted?await bvRun(cl,bvBuildPrompt(cl,url,pasted),{url,feedback:[]}):await bvRun(cl,null,{url,feedback:[],fromUrl:true});
+      if(ok){$("#cg-bv-paste").value="";toast("Szkic brand voice gotowy – sprawdź i zaakceptuj")}
+      return;
+    }
+    case "bv-revise":{
+      const cl=ctxClient(b),d=cl?.bvDraft;const fb=$("#cg-bv-feedback").value.trim();
+      if(!d?.doc)return;if(!fb){$("#cg-bv-feedback").focus();return toast("Wpisz uwagi")}
+      const ok=await bvRun(cl,bvRevisePrompt(cl,d,fb),{feedback:[...(d.feedback||[]),{text:fb,at:now()}]});
+      if(ok){$("#cg-bv-feedback").value="";toast("Naniesiono uwagi")}return;
+    }
+    case "bv-accept":{
+      const cl=ctxClient(b),d=cl?.bvDraft;if(!d?.doc)return;b.disabled=true;
+      try{
+        if($("#cg-bv-replace").checked)for(const f of clientFiles(cl.id).filter(f=>f.kind==="brandvoice"))await S.db.doc("files/"+f.id).delete();
+        let host="";try{host=new URL(d.url).hostname.replace(/^www\./,"")}catch{}
+        await S.db.doc("files/"+rid()).set({clientId:cl.id,name:`Brand voice${host?" – "+host:""} (${fmtDay(now())})`,kind:"brandvoice",text:d.doc,chars:d.doc.length,truncated:false,at:now()});
+        await S.db.doc("clients/"+cl.id).merge({bvDraft:null});
+        $("#cg-bv-replace").checked=false;toast("Brand voice załadowany – model użyje go od teraz");
+      }catch(er){dbErr(er)}finally{b.disabled=false}
+      return;
+    }
+    case "bv-discard":{if(!armed(b,"Na pewno?"))return;const cl=ctxClient(b);try{await S.db.doc("clients/"+cl.id).merge({bvDraft:null})}catch(er){dbErr(er)}return}
+    case "struct":{draft().structure=b.dataset.k;persistDraft();renderStructs();return}
+    case "edit-client":APP().openBrandCopy(S.clientId);return;
+    case "link-orphan":{
+      const key=document.querySelector(`[data-orphan="${id}"]`)?.value;if(!key)return toast("Wybierz brand kit");
+      b.disabled=true;b.textContent="Przenoszę…";
+      try{await linkOrphan(id,key);toast("Połączono z brand kitem")}catch(er){dbErr(er)}finally{b.disabled=false;b.textContent="Połącz"}
+      return;
+    }
+    case "edit":{S.editing=b.dataset.kind+":"+id;S.peek=null;renderMemory();const f=document.querySelector("[data-edit]#cg-"+(b.dataset.kind==="file"?"ef-text":b.dataset.kind==="rule"?"er-text":"en-text"));f?.focus();return}
+    case "cancel-edit":S.editing=null;document.activeElement?.blur();renderMemory();return;
+    case "save-file":{
+      let text=$("#cg-ef-text").value.trim();if(!text)return toast("Plik nie może być pusty – użyj Usuń");
+      const chars=text.length;let truncated=false;while(bytes(text)>230000){text=text.slice(0,Math.floor(text.length*0.85));truncated=true}
+      try{await S.db.doc("files/"+id).update({name:$("#cg-ef-name").value.trim()||"Plik",kind:$("#cg-ef-kind").value,text,chars,truncated,at:now()});S.editing=null;document.activeElement?.blur();renderMemory();toast("Zapisano plik")}catch(er){dbErr(er)}
+      return;
+    }
+    case "save-rule":{const cl=ctxClient(b),v=$("#cg-er-text").value.trim();if(!v)return;const t=$("#cg-er-type").value;S.editing=null;document.activeElement?.blur();await patchClient(ctxClient(b),{learnings:(cl.learnings||[]).map(r=>r.id===id?{...r,text:v,type:t}:r)});renderMemory();return}
+    case "save-note":{const cl=ctxClient(b),v=$("#cg-en-text").value.trim();if(!v)return;S.editing=null;document.activeElement?.blur();await patchClient(ctxClient(b),{notes:(cl.notes||[]).map(n=>n.id===id?{...n,text:v}:n)});renderMemory();return}
+    case "toggle-paste":{const f=$("#cg-paste-form");f.hidden=!f.hidden;if(!f.hidden)$("#cg-paste-text").focus();return}
+    case "save-paste":{
+      const cl=ctxClient(b);let text=$("#cg-paste-text").value.trim();if(!cl||!text){$("#cg-paste-text").focus();return toast("Wklej tekst")}
+      const chars=text.length;let truncated=false;while(bytes(text)>230000){text=text.slice(0,Math.floor(text.length*0.85));truncated=true}
+      try{await S.db.doc("files/"+rid()).set({clientId:cl.id,name:$("#cg-paste-name").value.trim()||"Brand voice (wklejony)",kind:$("#cg-file-kind").value,text,chars,truncated,at:now()});
+        $("#cg-paste-text").value="";$("#cg-paste-name").value="";$("#cg-paste-form").hidden=true;toast("Zapisano")}catch(er){dbErr(er)}
+      return;
+    }
+    case "del-file":if(!armed(b))return;try{await S.db.doc("files/"+id).delete();toast("Usunięto plik")}catch(er){dbErr(er)}return;
+    case "save-guidelines":{const g=$("#cg-guidelines");await patchClient(ctxClient(b),{guidelines:g.value.trim()});g.dataset.dirty="";$("#cg-guide-status").textContent="Zapisano";setTimeout(()=>$("#cg-guide-status").textContent="",2000);return}
+    case "add-note":{const v=$("#cg-note-input").value.trim();if(!v)return;const cl=ctxClient(b);await patchClient(ctxClient(b),{notes:[...(cl.notes||[]),{id:rid(10),text:v,at:now()}]});$("#cg-note-input").value="";return}
+    case "del-note":{const cl=ctxClient(b);await patchClient(ctxClient(b),{notes:(cl.notes||[]).filter(n=>n.id!==id)});return}
+    case "add-rule":{const v=$("#cg-rule-input").value.trim();if(!v)return;const cl=ctxClient(b);await patchClient(ctxClient(b),{learnings:[...(cl.learnings||[]),{id:rid(10),type:$("#cg-rule-type").value,text:v,at:now()}]});$("#cg-rule-input").value="";return}
+    case "del-rule":{const cl=ctxClient(b);await patchClient(ctxClient(b),{learnings:(cl.learnings||[]).filter(r=>r.id!==id)});return}
+  }
+});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){const id=document.activeElement?.id;
+  if(id==="note-input"){e.preventDefault();document.querySelector('[data-act="add-note"]').click()}
+  if(id==="rule-input"){e.preventDefault();document.querySelector('[data-act="add-rule"]').click()}
+  if(id==="newgroup-name"){e.preventDefault();document.querySelector('[data-act="create-group"]').click()}
+  if(id==="newgroup-inline-name"){e.preventDefault();document.querySelector('[data-act="create-group-inline"]').click()}}});
+
+
+function start(){
+  if(S.started)return;
+  S.started=true;S.db=window.MQCopyDB;S.sample=claudeCall;S.loaded={};
+  S.drafts=store.get("cl-drafts",{});
+  S.tab=store.get("cl-tab","create");if(S.tab!=="library")S.tab="create";
+  $("#cg-format").innerHTML=Object.entries(FORMATS).map(([k,v])=>`<option value="${k}">${esc(v.label)}</option>`).join("");
+  const sub=(col,key)=>S.subs.push(S.db.collection(col).onSnapshot(s=>{S[key]=mapSnap(s);S.loaded[key]=true;renderAll()},e=>{console.error(col,e);if(e?.code==="permission_denied")rulesToast();else toast("Utracono połączenie z bazą Copy Generatora – odśwież stronę","error")}));
+  sub("clients","copyDocs");sub("files","files");sub("copies","copies");sub("groups","groups");
+  bindStatic();setTab(S.tab,true);
+}
+function renderKeyState(){
+  const ok=!!apiKey();
+  $("#cg-nokey").hidden=ok;
+  if(!S.busy){$("#cg-btn-create").disabled=!ok;$("#cg-btn-revise").disabled=!ok}
+}
+window.MQCopyGen={
+  // Maximus calls this whenever the section is shown or its state (e.g. the picked brand) changes
+  showSection(){start();renderKeyState();renderAll()},
+  // Brand Kit → "Brand voice & copy" tab for this brand
+  openBrandPanel(key){start();if(S.memId!==key){S.memId=key;S.editing=null;S.peek=null;$("#cg-bv-url").dataset.cid="";$("#cg-guidelines").dataset.cid=""}renderAll();renderMemory();renderBV()}
+};
+})();
+</script>
+
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
@@ -17946,8 +19133,7 @@ import {
   signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, arrayUnion, arrayRemove,
-  query, where, getCountFromServer
+  getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, onSnapshot, arrayUnion, arrayRemove
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 import {
   getStorage, ref, uploadBytes, getDownloadURL
@@ -18116,25 +19302,25 @@ window.MQStore = {
   async loadPublicCalendar(token){
     const snap = await getDoc(doc(db, "publicCalendars", token));
     return snap.exists() ? snap.data().payload : null;
-  },
-
-  // Copy Generator keeps its per-client settings in copylab/main/clients/{brandKey}
-  // (the brand kit key is the client id), so the Brand Kit form edits the same doc.
-  async loadCopyProfile(brandKey){
-    const [snap, files] = await Promise.all([
-      getDoc(doc(db, "copylab", "main", "clients", brandKey)),
-      getCountFromServer(query(collection(db, "copylab", "main", "files"), where("clientId", "==", brandKey)))
-    ]);
-    const d = snap.exists() ? snap.data() : {};
-    return {
-      website: d.website || "", guidelines: d.guidelines || "",
-      rules: (d.learnings || []).length, notes: (d.notes || []).length,
-      files: files.data().count
-    };
-  },
-  saveCopyProfile(brandKey, patch){
-    return setDoc(doc(db, "copylab", "main", "clients", brandKey), JSON.parse(JSON.stringify(patch)), { merge: true });
   }
+};
+
+// Copy Generator data (copylab/main/{clients,files,copies,groups}, public links in copylabShares).
+const cgColRef = name => collection(db, "copylab", "main", name);
+const cgDocRef = path => { const [c,id] = path.split("/"); return c==="shares" ? doc(db, "copylabShares", id) : doc(db, "copylab", "main", c, id); };
+const cgClean = o => JSON.parse(JSON.stringify(o));
+const cgErr = e => { const c=(e&&e.code)||""; return {code: c==="permission-denied"?"permission_denied": (c==="resource-exhausted"||c==="invalid-argument")?"quota_exceeded":"unavailable", message:e&&e.message}; };
+window.MQCopyDB = {
+  collection: name => ({ onSnapshot: (next, err) => onSnapshot(cgColRef(name),
+    snap => next({ docs: snap.docs.map(d => ({ id:d.id, data:()=>d.data() })) }),
+    e => err && err(cgErr(e))) }),
+  doc: path => { const r = cgDocRef(path); return {
+    set: d => setDoc(r, cgClean(d)).catch(e => { throw cgErr(e); }),
+    update: d => updateDoc(r, cgClean(d)).catch(e => { throw cgErr(e); }),
+    merge: d => setDoc(r, cgClean(d), { merge:true }).catch(e => { throw cgErr(e); }),
+    delete: () => deleteDoc(r).catch(e => { throw cgErr(e); }),
+    get: async () => { try { const x = await getDoc(r); return { exists:x.exists(), data:()=>x.data() }; } catch(e) { throw cgErr(e); } }
+  }; }
 };
 
 
