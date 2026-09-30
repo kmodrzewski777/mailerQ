@@ -2864,7 +2864,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.37.1";
+var APP_VERSION = "3.37.2";
 var APP_UPDATED = "2026-09-30";
 
 
@@ -18835,7 +18835,7 @@ function renderAll(){
   S.clientId=S.clients.find(c=>c.id===key)?key:null;
   if(prev!==S.clientId){S.peek=null;S.lastLearned=[];$("#cg-feedback").value=""}
   // Tworzenie always opens on empty questions; finished work lives in the Library.
-  if(S.clientId&&(S.freshPending||prev!==S.clientId)&&!S.busy){
+  if(S.clientId&&(S.freshPending||(prev&&prev!==S.clientId))&&!S.busy){
     S.freshPending=false;S.showResult=false;
     const od=S.drafts[S.clientId];
     if(od&&(od.versions||[]).length){S.drafts[S.clientId]={...blankDraft(),format:CHANNELS.some(c=>c.id===od.format)?od.format:"mail"};persistDraft()}
@@ -18944,7 +18944,7 @@ function renderRate(){
 }
 async function rateUp(){
   S.rate="up";S.shareShown=null;renderRate();
-  if(await doSave(false,true))toast("Zapisano w Bibliotece");
+  if(await doSave(false,true,"accepted"))toast("Zaakceptowane – zapisane w Bibliotece");
 }
 function acceptLink(c){return c.format==="mail"?new URL("akceptacja.html",location.href).href+"?share="+c.shareId:shareLink(c.shareId)}
 async function shareForAcceptance(){
@@ -19131,7 +19131,7 @@ function renderLearned(){
 function ruleHTML(r,editable){return `<div class="cg-rule"><span class="cg-pill ${r.type==="dont"?"cg-no":"cg-ok"}">${r.type==="dont"?"Nie":"Tak"}</span><span class="cg-t">${esc(r.text)}</span>${editable?`<button class="btn ghost small cg-quiet" data-act="edit" data-kind="rule" data-id="${r.id}">Edytuj</button>`:""}<button class="btn ghost small cg-quiet" data-act="del-rule" data-id="${r.id}" aria-label="Usuń zasadę">Usuń</button></div>`}
 
 // Library = catalogue of every piece of work for the brand: filter by channel, search, grouped by month.
-const LIB_FILTERS = [["all","Wszystko"],["mail","E-mail"],["sms","SMS"],["push","Push"],["inapp","In-App"],["other","Inne"]];
+const LIB_FILTERS = [["all","Wszystko"],["drafts","Szkice"],["mail","E-mail"],["sms","SMS"],["push","Push"],["inapp","In-App"],["other","Inne"]];
 const libBucket = c => ["mail","sms","push","inapp"].includes(c.format) ? c.format : "other";
 function libSnippet(c){
   if(c.format==="mail"){const m=parseMail(c.text);return m.preheader||""}
@@ -19142,9 +19142,10 @@ function renderLibrary(){
   const q=($("#cg-lib-search").value||"").toLowerCase().trim();
   const all=clientCopies(cl.id);
   const f=S.libFilter||"all";
-  const counts=Object.fromEntries(LIB_FILTERS.map(([k])=>[k,k==="all"?all.length:all.filter(c=>libBucket(c)===k).length]));
+  const inF=(c,k)=>k==="all"||(k==="drafts"?c.status==="draft":libBucket(c)===k);
+  const counts=Object.fromEntries(LIB_FILTERS.map(([k])=>[k,all.filter(c=>inF(c,k)).length]));
   $("#cg-lib-filter").innerHTML=LIB_FILTERS.filter(([k])=>k==="all"||counts[k]||k===f).map(([k,l])=>`<button type="button" data-act="lib-filter" data-v="${k}" aria-pressed="${k===f}">${esc(l)} <span class="cg-n">${counts[k]}</span></button>`).join("");
-  let cs=f==="all"?all:all.filter(c=>libBucket(c)===f);
+  let cs=all.filter(c=>inF(c,f));
   if(q)cs=cs.filter(c=>(c.name||"").toLowerCase().includes(q)||(c.text||"").toLowerCase().includes(q)||(c.goal||"").toLowerCase().includes(q));
   if(!cs.length){$("#cg-lib-copies").innerHTML=`<div class="cg-empty-note cg-small">${q||f!=="all"?"Nic tu nie pasuje.":"Biblioteka jest pusta. Każda praca z zakładki Tworzenie trafia tu automatycznie."}</div>`;return}
   const month=t=>new Intl.DateTimeFormat("pl-PL",{month:"long",year:"numeric"}).format(new Date(t||0));
@@ -19153,7 +19154,7 @@ function renderLibrary(){
     const type=c.format==="mail"&&MAIL_TYPES[c.mailType]?MAIL_TYPES[c.mailType].label:"";
     const nv=(c.versions||[]).length;
     return `<article class="cg-lib-card" data-act="open-copy" data-id="${c.id}" tabindex="0">
-      <div class="cg-lib-tags"><span class="cg-pill cg-acc">${esc(c.format==="mail"?"E-mail":FORMATS[c.format]?.label||"")}</span>${type?`<span class="cg-pill">${esc(type)}</span>`:""}</div>
+      <div class="cg-lib-tags"><span class="cg-pill cg-acc">${esc(c.format==="mail"?"E-mail":FORMATS[c.format]?.label||"")}</span>${type?`<span class="cg-pill">${esc(type)}</span>`:""}${c.status==="draft"?`<span class="cg-pill">Szkic</span>`:c.status==="accepted"?`<span class="cg-pill cg-ok">Zaakceptowany</span>`:""}</div>
       <h4 class="cg-lib-name">${esc(c.name||"Bez nazwy")}</h4>
       <p class="cg-lib-snip">${esc(libSnippet(c))}</p>
       <div class="cg-lib-foot"><span class="cg-mono cg-muted">${esc(fmtDate(c.updatedAt||c.createdAt))}${nv>1?` · ${nv} wersje`:""}</span>
@@ -19284,9 +19285,9 @@ async function runSample(prompt,extra){
 async function doCreate(){
   const cl=client();if(!cl)return toast("Najpierw wybierz markę w polu Brand u góry");
   if(S.busy)return;
-  const d=draft();document.querySelectorAll(".cg-root [data-bf]").forEach(i=>d[i.dataset.bf]=i.value);
+  const cid=cl.id,d=draft();document.querySelectorAll(".cg-root [data-bf]").forEach(i=>d[i.dataset.bf]=i.value);
   if(!hasBrief(d)){$("#cg-b-goal").focus();return toast("Napisz, co dziś tworzymy")}
-  if(d.copyId){d.copyId=null;d.name="";d.shareId=null;d.copyCreatedAt=null}
+  if(d.copyId){d.copyId=null;d.name="";d.shareId=null;d.copyCreatedAt=null;d.status=null}
   // the previous copy (e.g. the e-mail) becomes context for the next one (e.g. the SMS)
   const prev=d.versions[d.vi],prevFb=d.versions.slice(1,d.vi+1).map(v=>v.feedback).filter(Boolean);
   const prevFmt=prev?.format||d.versions[0]?.format||"";
@@ -19300,9 +19301,9 @@ async function doCreate(){
     text=await runSample(isMail?mailPrompt(cl,d):genPrompt(cl,d),isMail?{maxTokens:32000}:null);
   }catch(e){if(e?.code!=="cancelled")toast(sampleMsg(e))}
   if(!text)d.thread=oldThread;
-  if(text){d.versions=[{text,at:now(),feedback:null,format:d.format}];d.vi=0;S.lastLearned=[];S.showResult=true;S.mailKey="";persistDraft()}
+  if(text){d.versions=[{text,at:now(),feedback:null,format:d.format}];d.vi=0;S.lastLearned=[];S.mailKey="";keepRunResult(cid,d)}
   await runEnd(!!text);setBusy(false);
-  if(text){S.rate="";S.shareShown=null}
+  if(text){S.rate="";S.shareShown=null;await doSave(false,true,"draft",d,cl)}
   renderCreate();
 }
 async function doRevise(fbArg){
@@ -19310,7 +19311,7 @@ async function doRevise(fbArg){
   if(S.busy)return;
   if(!d.versions[d.vi])return toast("Najpierw coś stwórz");
   if(!fb){$("#cg-feedback").focus();return toast("Wpisz uwagi")}
-  const cur=d.versions[d.vi].text,fmt=d.versions[d.vi].format||d.format;
+  const cid=cl.id,cur=d.versions[d.vi].text,fmt=d.versions[d.vi].format||d.format;
   S.ctl=new AbortController();setBusy(true);runStart("revise");
   const isMail=fmt==="mail";
   const rd=isMail?d:{...d,format:fmt};
@@ -19318,13 +19319,19 @@ async function doRevise(fbArg){
   if(text){
     d.versions=d.versions.slice(0,d.vi+1);d.versions.push({text,at:now(),feedback:fb,format:fmt});d.vi=d.versions.length-1;
     if(fbArg==null)$("#cg-feedback").value="";
-    S.mailKey="";persistDraft();
+    S.mailKey="";keepRunResult(cid,d);
     const ctx={format:fmt,mailType:fmt==="mail"?d.mailType||null:null,subject:fmt==="mail"?parseMail(cur).subject:"",goal:(d.goal||"").slice(0,200),copyId:d.copyId||null,version:d.vi};
     rememberFeedback(cl,fb,ctx).then(noteId=>learnFrom(cl,fb,copyPlain(cur,fmt),noteId,ctx));
   }
   await runEnd(!!text);setBusy(false);
-  if(text){S.rate="";S.shareShown=null}
+  if(text){S.rate="";S.shareShown=null;await doSave(false,true,"draft",d,cl)}
   renderCreate();
+}
+// A finished run always lands in the draft it started from and stays on screen, even if the brand's
+// draft was swapped or a "fresh start" was queued while the model was working.
+function keepRunResult(cid,d){
+  S.drafts[cid]=d;persistDraft();
+  if(S.clientId===cid){S.showResult=true;S.freshPending=false}
 }
 async function doCompile(){
   const d=draft(),v=d.versions[d.vi];if(!v)return;
@@ -19377,25 +19384,28 @@ async function learnFrom(cl,fb,cur,noteId,ctx){
 }
 
 /* ---------- actions: save ---------- */
-async function doSave(asNew,quiet){
-  const cl=client(),d=draft();const cur=d.versions[d.vi];
+// status: "draft" (Szkic – every generated or revised version) or "accepted" (thumbs up); dd/cc pin the
+// save to the draft and brand a run started from, so a brand switch mid-run cannot misfile it
+async function doSave(asNew,quiet,status,dd,cc){
+  const cl=cc||client(),d=dd||draft();const cur=d.versions[d.vi];
   if(!cur){toast("Nie ma jeszcze nic do zapisania");return null}
   const vf=cur.format||d.format;
-  const name=(quiet&&vf==="mail"?parseMail(cur.text).subject:"")||$("#cg-save-name").value.trim()||(vf==="mail"?parseMail(cur.text).subject:"")||(d.goal||"").trim().slice(0,70)||`${FORMATS[vf]?.label||"Copy"} ${fmtDay(now())}`;
+  const name=(quiet&&vf==="mail"?parseMail(cur.text).subject:"")||(dd?d.name||"":$("#cg-save-name").value).trim()||(vf==="mail"?parseMail(cur.text).subject:"")||(d.goal||"").trim().slice(0,70)||`${FORMATS[vf]?.label||"Copy"} ${fmtDay(now())}`;
   d.name=name;
   // the draft remembers its library id, so quick successive saves (👍, then share) update one item
   const id=!asNew&&d.copyId?d.copyId:rid();
-  const existing=!asNew&&d.copyId?(S.copies.find(c=>c.id===d.copyId)||{createdAt:d.copyCreatedAt,shareId:d.shareId}):null;
+  const existing=!asNew&&d.copyId?(S.copies.find(c=>c.id===d.copyId)||{createdAt:d.copyCreatedAt,shareId:d.shareId,status:d.status}):null;
   let groupPos=existing?.groupPos;
   if(d.groupId&&(!existing||existing.groupId!==d.groupId)){groupPos=groupCopies(d.groupId).reduce((m,c)=>Math.max(m,c.groupPos??0),0)+1}
   const body={clientId:cl.id,name,format:vf,mailType:vf==="mail"?(d.mailType||"promo"):null,structure:d.format==="email"?(d.structure||"marketing"):null,goal:d.goal||"",segment:d.segment||"",argument:d.argument||"",cta:d.cta||"",brief:d.brief||"",text:cur.text,
     versions:d.versions.slice(-10).map(v=>({text:v.text,at:v.at,feedback:v.feedback||null,format:v.format||vf})),
     groupId:d.groupId||null,groupPos:groupPos??null,
+    status:status||existing?.status||"draft",
     createdAt:existing?.createdAt||now(),updatedAt:now(),shareId:existing?.shareId||null};
   $("#cg-btn-save").disabled=true;
   try{
     await S.db.doc("copies/"+id).set(body);
-    d.copyId=id;d.copyCreatedAt=body.createdAt;d.shareId=body.shareId;persistDraft();
+    d.copyId=id;d.copyCreatedAt=body.createdAt;d.shareId=body.shareId;d.status=body.status;persistDraft();
     if(!quiet)toast(existing?"Zapisano zmiany":"Zapisano w Bibliotece");
     await refreshShares({...body,id},existing?.groupId);
     return {...body,id};
@@ -19679,7 +19689,7 @@ document.addEventListener("click",async e=>{
     case "open-copy":{
       const c=S.copies.find(x=>x.id===id);if(!c)return;
       const vs=(c.versions&&c.versions.length)?c.versions:[{text:c.text,at:c.updatedAt||c.createdAt,feedback:null}];
-      S.drafts[c.clientId]={format:c.format||"email",structure:c.structure||"marketing",mailType:c.mailType||"promo",groupId:c.groupId||"",goal:c.goal||"",segment:c.segment||"",argument:c.argument||"",cta:c.cta||"",brief:c.brief||"",versions:vs.map(v=>({...v})),vi:vs.length-1,copyId:c.id,name:c.name};
+      S.drafts[c.clientId]={format:c.format||"email",structure:c.structure||"marketing",mailType:c.mailType||"promo",groupId:c.groupId||"",goal:c.goal||"",segment:c.segment||"",argument:c.argument||"",cta:c.cta||"",brief:c.brief||"",versions:vs.map(v=>({...v,format:v.format||c.format})),vi:vs.length-1,copyId:c.id,name:c.name,status:c.status||null,shareId:c.shareId||null,copyCreatedAt:c.createdAt||null};
       S.lastLearned=[];S.showResult=true;S.rate="";S.shareShown=null;S.mailKey="";persistDraft();document.querySelectorAll(".cg-root [data-bf]").forEach(i=>i.value=S.drafts[c.clientId][i.dataset.bf]||"");$("#cg-save-name").value=c.name;setTab("create");renderCreate();return;
     }
     case "copy-saved":{const c=S.copies.find(x=>x.id===id);if(c){if(c.format==="mail")copyText(parseMail(c.text).html);else copyText(plain(c.text),md(c.text))}return}
@@ -19822,8 +19832,10 @@ function mountBrandSelect(on){
 }
 window.MQCopyGen={
   // Maximus calls this whenever the section is shown or its state (e.g. the picked brand) changes
-  showSection(){start();if(!S.visible){S.visible=true;S.freshPending=true}mountBrandSelect(true);renderKeyState();renderAll()},
-  hideSection(){if(S.visible){S.visible=false;mountBrandSelect(false)}},
+  // a real visit starts on empty questions; a blip where Maximus re-syncs the section (e.g. after a
+  // session refresh) must not throw the user out of a result they are looking at
+  showSection(){start();if(!S.visible){S.visible=true;if(!S.hiddenAt||now()-S.hiddenAt>3000)S.freshPending=true}mountBrandSelect(true);renderKeyState();renderAll()},
+  hideSection(){if(S.visible){S.visible=false;S.hiddenAt=now();mountBrandSelect(false)}},
   // Brand Kit → "Brand voice & copy" tab for this brand
   openBrandPanel(key){start();if(S.memId!==key){S.memId=key;S.editing=null;S.peek=null;$("#cg-bv-url").dataset.cid="";$("#cg-guidelines").dataset.cid=""}renderAll();renderMemory();renderBV()}
 };
