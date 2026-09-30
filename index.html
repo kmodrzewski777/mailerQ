@@ -1021,6 +1021,20 @@
   .cg-root .cg-out{padding:22px 24px 26px;min-height:260px;max-width:74ch;overflow-wrap:anywhere}
   .cg-root .cg-out.cg-empty{display:flex;flex-direction:column;justify-content:center;gap:10px;color:var(--muted)}
   .cg-root .cg-out.cg-thinking{color:var(--muted)}
+  .cg-root .cg-out.cg-mail{max-width:none;padding:0}
+  .cg-root .cg-mail-meta{display:grid;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
+  .cg-root .cg-mail-meta .cg-lbl{margin-bottom:2px}
+  .cg-root .cg-mail-subj{font-size:16px;font-weight:500}
+  .cg-root .cg-mail-bar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:10px 18px;border-bottom:1px solid var(--line)}
+  .cg-root .cg-seg{display:inline-flex;gap:2px;padding:3px;background:var(--surface-2);border-radius:8px}
+  .cg-root .cg-seg button{border:0;background:none;padding:5px 10px;border-radius:6px;font:inherit;font-size:13px;color:var(--ink-muted);cursor:pointer;white-space:nowrap}
+  .cg-root .cg-seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .cg-root .cg-mail-stage{display:flex;justify-content:center;padding:16px;background:var(--surface-2)}
+  .cg-root .cg-mail-frame{display:block;border:0;width:100%;max-width:700px;height:640px;background:#fff;border-radius:8px}
+  .cg-root .cg-mail-frame.cg-mobile{max-width:375px}
+  .cg-root .cg-code{margin:0;padding:16px 18px;font:12px/1.55 var(--f-mono);white-space:pre-wrap;overflow-wrap:anywhere;max-height:680px;overflow:auto;background:var(--sunk)}
+  .cg-root .cg-code-live{max-height:320px}
+  .cg-root .cg-mail-warn,.cg-root .cg-mail-err{margin:0;padding:10px 18px;color:var(--no);font-size:13px;border-bottom:1px solid var(--line)}
   .cg-root .cg-doc h3{font-size:19px;margin:18px 0 8px}
   .cg-root .cg-doc h4{font-size:16px;margin:14px 0 6px}
   .cg-root .cg-doc h3:first-child,.cg-root .cg-doc h4:first-child{margin-top:0}
@@ -1219,7 +1233,7 @@
     <div class="nav-group" data-navgroup="copygen">
       <button class="nav-item" type="button" data-nav="copygen">
         <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>
-        <span class="nav-label">Copy Generator</span>
+        <span class="nav-label">Mail Generator AI</span>
       </button>
     </div>
   </nav>
@@ -1564,7 +1578,7 @@
 
       <div id="copyGenPage" class="cg-root" style="display:none">
         <div class="cg-bar" id="cg-bar">
-          <nav class="cg-tabs" role="tablist" aria-label="Copy Generator">
+          <nav class="cg-tabs" role="tablist" aria-label="Mail Generator AI">
             <button type="button" class="cg-tab" role="tab" data-tab="create" aria-selected="true">Tworzenie</button>
             <button type="button" class="cg-tab" role="tab" data-tab="library">Biblioteka <span class="cg-n" id="cg-n-lib">0</span></button>
           </nav>
@@ -1573,7 +1587,7 @@
         <div id="cg-orphans" class="cg-empty-note" hidden></div>
         <div id="cg-noclient" class="cg-empty-note" hidden>
           <p><strong>Wybierz klienta.</strong></p>
-          <p>Copy Generator pisze dla brandu wybranego w polu Brand u góry. Nowego klienta dodajesz jako Brand Kit.</p>
+          <p>Mail Generator AI pisze dla brandu wybranego w polu Brand u góry. Nowego klienta dodajesz jako Brand Kit.</p>
         </div>
     <!-- CREATE -->
     <section id="cg-tab-create" class="cg-desk">
@@ -2702,7 +2716,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.33.0";
+var APP_VERSION = "3.34.0";
 var APP_UPDATED = "2026-09-30";
 
 
@@ -4518,6 +4532,81 @@ function ekwiatyFooterCode(b){
     });
   });
 })();
+
+
+// Pstryk mail design system — from the client's email system doc (assets/brand-kits/pstryk/).
+// upgradePstrykMailSystem() writes it into the shared Brand Kit once per PSTRYK_MAIL_DS_REV.
+var PSTRYK_MAIL_DS_REV = "2026-09-30";
+var PSTRYK_LOGO_URL = "https://userimg-assets-eu.customeriomail.com/images/client-env-211024/1773147012690_pstryk-logo@2x_01KKBWRG87PN6WW20Y0KD7XJEJ.png";
+var PSTRYK_MAIL_DS_TOKENS = {
+  mailWidth:"600px", outerBg:"#F8F9F9",
+  bg:"#FFFFFF", surface:"#F8F9F9", surface2:"#EDF0F0",
+  text:"#0B242D", muted:"#576B72", faint:"#A7B2B6", border:"#E1E6E6",
+  brandColor:"#5DDA71", accent:"#8DF39E", accentOn:"#0B242D", accent2:"#ECFA66",
+  btnPrimaryBg:"#0F2B35", btnPrimaryText:"#FFFFFF", btnPrimaryRadius:"9999px", btnPrimaryWeight:"700", btnPrimaryTransform:"none",
+  btnPrimarySize:16, btnPrimaryPadding:"16px 40px", btnPrimaryFont:"Arial, Helvetica, sans-serif",
+  btnSecondaryBg:"#8DF39E", btnSecondaryText:"#0B242D", btnSecondaryBorder:"none", btnSecondaryRadius:"9999px", btnSecondaryWeight:"700",
+  btnTertiaryText:"#237B2D", btnTertiaryWeight:"700", btnTertiaryDecoration:"underline",
+  radius:"16px", cardBorder:false,
+  fontBody:"Arial, Helvetica, sans-serif", fontHeading:"Arial, Helvetica, sans-serif", fontBodySecondary:"Arial, Helvetica, sans-serif", fontBodyTertiary:"Arial, Helvetica, sans-serif", headingWeight:"700",
+  h1Size:24, h2Size:22, h3Size:18, h4Size:15, bodySize:16,
+  h1LineHeight:"1.25", h2LineHeight:"1.27", h3LineHeight:"1.33", h4LineHeight:"1.4",
+  h1Color:"#0B242D", h2Color:"#0B242D", h3Color:"#0B242D", h4Color:"#0B242D",
+  h1Weight:"700", h2Weight:"700", h3Weight:"700", h4Weight:"700",
+  h1Font:"Arial, Helvetica, sans-serif", h2Font:"Arial, Helvetica, sans-serif", h3Font:"Arial, Helvetica, sans-serif", h4Font:"Arial, Helvetica, sans-serif",
+  bodyLineHeight:"1.625", bodySecondarySize:15, bodySecondaryLineHeight:"1.667", bodyTertiarySize:12, bodyTertiaryLineHeight:"1.5",
+  bodyRadius:"24px", contentPadding:"40px",
+  footerBg:"#0F2B35", footerText:"#FFFFFF",
+  logoWidth:"95px", logoAlt:"Pstryk", crmLogoUrl:PSTRYK_LOGO_URL,
+  inferred:false
+};
+function pstrykHeaderCode(){
+  return (
+'<mj-section padding="36px {{brand.contentPadding}} 0px" css-class="mj-gutter">\n'+
+'  <mj-column>\n'+
+'    <mj-image src="{{brand.crmLogoUrl}}" href="https://pstryk.pl/" alt="{{brand.logoAlt}}" width="{{brand.logoWidth}}" align="left" padding="0px 0px 28px" css-class="mj-logo"></mj-image>\n'+
+'  </mj-column>\n'+
+'</mj-section>');
+}
+function pstrykFooterCode(){
+  var t = 'font-family="{{brand.fontBody}}"';
+  return (
+'<mj-section background-color="transparent" padding="32px {{brand.contentPadding}} 24px" css-class="mj-gutter">\n'+
+'  <mj-column>\n'+
+'    <mj-text '+t+' font-size="16px" line-height="26px" color="{{brand.text}}" padding="0px 0px 20px"><strong>Masz pytania? Skontaktuj się z nami</strong> — nasz Zespół jest do Twojej dyspozycji.</mj-text>\n'+
+'    <mj-text '+t+' font-size="16px" line-height="26px" color="{{brand.text}}" padding="0px 0px 10px"><a href="tel:+48588810295" style="text-decoration:none;"><img src="https://userimg-assets-eu.customeriomail.com/images/client-env-211024/01KP34Z5B9MV1YHS16YZBE11XN.png" width="22" alt="Telefon" style="width:22px;height:auto;border:0;vertical-align:middle;"></a>&nbsp;&nbsp;<strong>Telefon:</strong> <a href="tel:+48588810295" style="color:{{brand.text}};text-decoration:none;">+48 588 810 295</a></mj-text>\n'+
+'    <mj-text '+t+' font-size="16px" line-height="26px" color="{{brand.text}}" padding="0px"><a href="mailto:kontakt@pstryk.pl" style="text-decoration:none;"><img src="https://userimg-assets-eu.customeriomail.com/images/client-env-211024/01KP34Z4R9A6YSP41793R26GBQ.png" width="22" alt="E-mail" style="width:22px;height:auto;border:0;vertical-align:middle;"></a>&nbsp;&nbsp;<strong>E-mail:</strong> <a href="mailto:kontakt@pstryk.pl" style="color:{{brand.text}};text-decoration:none;">kontakt@pstryk.pl</a></mj-text>\n'+
+'  </mj-column>\n'+
+'</mj-section>\n'+
+'<mj-section background-color="transparent" padding="0px {{brand.contentPadding}} 32px" css-class="mj-gutter">\n'+
+'  <mj-column>\n'+
+'    <mj-text '+t+' font-size="12px" line-height="18px" color="{{brand.muted}}" padding="0px 0px 20px">Przesłane do {{customer.email}}. Otrzymujesz tę wiadomość, gdyż wyraziłeś/aś zgodę na otrzymywanie od nas komunikacji marketingowej. Jeśli nie chcesz otrzymywać kolejnych maili - <a href="{{brand.unsubscribeLink}}" style="color:{{brand.muted}};text-decoration:underline;">wypisz się</a>.</mj-text>\n'+
+'    <mj-divider border-color="{{brand.border}}" border-width="1px" padding="0px 0px 16px"></mj-divider>\n'+
+'    <mj-text '+t+' font-size="12px" line-height="18px" color="{{brand.text}}" padding="0px 0px 12px"><a href="https://pstryk.pl/polityka-prywatnosci" style="color:{{brand.text}};text-decoration:underline;">Polityka prywatności</a> | <a href="https://pstryk.pl/regulamin-web" style="color:{{brand.text}};text-decoration:underline;">Regulamin</a></mj-text>\n'+
+'    <mj-text '+t+' font-size="12px" line-height="18px" color="{{brand.muted}}" padding="0px">Pstryk Energy Group Prosta Spółka Akcyjna, ul. Aleje Jerozolimskie 30/53, 00-024 Warszawa.</mj-text>\n'+
+'  </mj-column>\n'+
+'</mj-section>');
+}
+function upgradePstrykMailSystem(){
+  var b = BRANDS.pstryk;
+  if(!b || b.pstrykMailDsRev===PSTRYK_MAIL_DS_REV) return Promise.resolve(false);
+  var base = "assets/brand-kits/pstryk/";
+  var get = function(f){ return fetch(base+f, {cache:"no-cache"}).then(function(r){ if(!r.ok) throw new Error(f+" "+r.status); return r.text(); }); };
+  return Promise.all([get("mail-design-system.md"), get("mail-header.html"), get("mail-footer.html"), get("example-porzucona-umowa.html")]).then(function(t){
+    var cur = BRANDS.pstryk;
+    if(!cur || cur.pstrykMailDsRev===PSTRYK_MAIL_DS_REV) return false;
+    Object.assign(cur, PSTRYK_MAIL_DS_TOKENS, {
+      headerCode: pstrykHeaderCode(), headerName: "Logo w karcie",
+      footerCode: pstrykFooterCode(), footerName: "Kontakt + stopka prawna",
+      aiMailDesign: t[0], aiMailHeaderHtml: t[1], aiMailFooterHtml: t[2], aiMailExample: t[3],
+      pstrykMailDsRev: PSTRYK_MAIL_DS_REV
+    });
+    withDerivedStyleDefaults(cur);
+    saveToStorage();
+    renderAll();
+    return true;
+  }).catch(function(e){ console.warn("Pstryk mail design system", e); return false; });
+}
 
 
 var SEED_BRANDS = {};
@@ -10259,6 +10348,21 @@ var BRAND_FIELDS = [
       {key:"footer3Name", label:"Custom name", type:"text"},
       {key:"footer3Code", label:"MJML code", type:"textarea", mjmlPreview:true}
     ]}
+  ]},
+  // Mail Generator AI builds finished HTML (no MJML) from these; brand tokens above are passed too.
+  { title:"Mail Generator AI", tabs:[
+    {title:"Design system", fields:[
+      {key:"aiMailDesign", label:"Design system for the AI — colors, type, spacing, HTML components, Liquid patterns", type:"textarea"}
+    ]},
+    {title:"HTML header", fields:[
+      {key:"aiMailHeaderHtml", label:"Top of every mail. {{brand.logo}} = logo from this Brand Kit, {{brand.logoWidthPx}} = its width", type:"textarea"}
+    ]},
+    {title:"HTML footer", fields:[
+      {key:"aiMailFooterHtml", label:"Bottom of every mail (Liquid allowed)", type:"textarea"}
+    ]},
+    {title:"Reference email", fields:[
+      {key:"aiMailExample", label:"A finished, approved email the AI follows for structure and code style", type:"textarea"}
+    ]}
   ]}
 ];
 
@@ -11613,7 +11717,7 @@ var NAV_GROUPS = [
   { id:"services", label:"Services", sections:["discounts"], hidden:true },
   { id:"reporting", label:"Reporting", sections:["reports"], hidden:true },
   { id:"knowledge", label:"Knowledge Base", sections:["knowledge"] },
-  { id:"copygen", label:"Copy Generator", sections:["copygen"] }
+  { id:"copygen", label:"Mail Generator AI", sections:["copygen"] }
 ];
 function groupForSection(section){
   return NAV_GROUPS.filter(function(g){ return g.sections.indexOf(section)!==-1; })[0] || null;
@@ -14974,7 +15078,7 @@ var SECTION_META = {
 
 
   knowledge:  { title:"Knowledge Base", search:"Search hints…", primary:"add-knowledge", stack:false },
-  copygen:    { title:"Copy Generator", search:null, primary:null, stack:false }
+  copygen:    { title:"Mail Generator AI", search:null, primary:null, stack:false }
 };
 function syncSectionChrome(){
   var meta = SECTION_META[state.section] || SECTION_META.components;
@@ -16967,6 +17071,8 @@ function restoreStateFromUrl(){
 window.MQApp = {
   brand: function(){ return state.brand; },
   brands: function(){ return BRANDS; },
+  readyEmails: function(){ return READY_EMAILS; },
+  components: function(){ return COMPONENTS; },
   apiKey: function(){ return (MQ_CURRENT_USER && MQ_CURRENT_USER.anthropicApiKey) || ""; },
   toast: function(msg, type){ showToast(msg, type); },
   openBrandCopy: function(key){ openBrandForm("edit", key || state.brand, { tab:"copy" }); }
@@ -18130,6 +18236,7 @@ window.MQBoot = async function(user){
   renderAll();
   hideAppLoadingScreen();
   if(!remoteErrored && !sharedExisted) saveToStorage();
+  if(!remoteErrored) upgradePstrykMailSystem();
   if(remoteErrored) showToast("Couldn't reach the database — showing your last local copy", "error");
 
 
@@ -18303,6 +18410,7 @@ claudeCall.json=async(prompt,opts={})=>{
 const MODEL = "claude-opus-5-5";
 const API_URL = "https://api.anthropic.com/v1/messages";
 const FORMATS = {
+  mail:   {label:"Gotowy mail (HTML)", guide:""},
   email:  {label:"E-mail", guide:"Struktura: **Temat:** (3 warianty, max ok. 45 znaków), **Preheader:** (max ok. 90 znaków), potem treść maila z nagłówkiem (## ), krótkimi akapitami, ewentualnie listą korzyści, i **CTA:** (tekst przycisku, 2-4 słowa)."},
   sms:    {label:"SMS", guide:"Podaj 3 warianty SMS, każdy max 160 znaków (wliczając link placeholder {link}), pod każdym licznik znaków w nawiasie. Nadawca nie jest częścią treści."},
   push:   {label:"Push", guide:"Podaj 3 warianty: **Tytuł:** max 45 znaków, **Treść:** max 110 znaków. Pod każdym licznik znaków."},
@@ -18323,6 +18431,7 @@ const BF = [["goal","Cel"],["segment","Segment"],["argument","Argument"],["cta",
 function briefText(d){
   const out=[];
   for(const [k,l] of BF.slice(0,3)){if((d[k]||"").trim())out.push(`${l}: ${d[k].trim()}`)}
+  if(d.format==="mail"){const t=MAIL_TYPES[d.mailType]||MAIL_TYPES.promo;out.push(`Typ maila: ${t.label} (${t.desc})`)}
   if(d.format==="email"){const s=STRUCTS[d.structure||"marketing"];out.push(`Struktura maila: ${s.label} (${s.desc})`)}
   for(const [k,l] of BF.slice(3)){if((d[k]||"").trim())out.push(`${l}: ${d[k].trim()}`)}
   return out.join("\n");
@@ -18333,6 +18442,131 @@ function formatGuide(d){
   const s=STRUCTS[d.structure||"marketing"];
   return `Zawsze na górze: **Temat:** (3 warianty, max ok. 45 znaków) i **Preheader:** (max ok. 90 znaków). Potem treść. ${s.guide} Na końcu **CTA:** z tekstem przycisku lub linku (użyj CTA z briefu, jeśli jest podane).`;
 }
+/* ---------- Mail Generator AI: finished HTML mails ---------- */
+// flows = Maximus Composer → Emails flows whose ready emails show proven layouts for this type
+const MAIL_TYPES = {
+  promo:{label:"Promocja / oferta",desc:"Konkretna oferta, kod albo rabat",flows:["promo-flash-sale","welcome-discount"],guide:"Mail sprzedażowy z jedną konkretną ofertą. Oferta i jej warunki jasno w pierwszym akapicie, potem 2–3 korzyści i jedno CTA. Kod rabatowy w zdaniu albo w małym wyróżnieniu, nie jako baner z landingu, chyba że design system marki mówi inaczej."},
+  abandon:{label:"Porzucony proces",desc:"Koszyk, formularz, umowa",flows:["cart-abandonment","cart-abandonment-subscription","browse-abandonment"],guide:"Przypomnienie o dokończeniu rozpoczętego procesu. Uprzejmie i bez presji, pokaż, że dane są zapisane i powrót jest łatwy, rozwiej 1–2 najczęstsze wątpliwości, jedno CTA prowadzące z powrotem do procesu."},
+  followup:{label:"Follow-up",desc:"Lekkie przypomnienie po poprzednim mailu",flows:["cart-abandonment","winback"],guide:"Krótkie, lekkie przypomnienie po wcześniejszej komunikacji. Bez ponownej edukacji, 1–2 akapity, jeden konkretny powód, jedno CTA."},
+  welcome:{label:"Powitalny / onboarding",desc:"Pierwsze kroki po zapisie lub zakupie",flows:["welcome-doi","welcome-discount","welcome-education","other"],guide:"Powitanie i pierwsze kroki: co dalej, 2–4 kroki jako lista numerowana, jedno główne CTA."},
+  edu:{label:"Edukacyjny / produktowy",desc:"Jak działa produkt albo funkcja",flows:["welcome-education","product-launch","other"],guide:"Wyjaśnij jedną funkcję albo mechanizm na konkretach, z korzyścią dla odbiorcy. Opcjonalnie jedna grafika, jedno CTA."},
+  survey:{label:"Ankieta / feedback",desc:"Pytanie z klikanymi odpowiedziami",flows:["post-purchase-review","winback"],guide:"Empatyczne pytanie o opinię albo wątpliwości, bez presji. Odpowiedzi jako klikane kafelki linków, alternatywnie kontakt."},
+  event:{label:"Wydarzenie / webinar",desc:"Zaproszenie z datą i agendą",flows:["events","other"],guide:"Zaproszenie: co, kiedy, dla kogo i co odbiorca z tego wyniesie. Data i czas wyraźnie, krótka agenda, jedno CTA zapisu."},
+  info:{label:"Informacyjny",desc:"Zmiana, termin, ważna informacja",flows:["post-purchase-confirmation","other"],guide:"Najważniejsza informacja w pierwszym zdaniu, konkrety (daty, kroki, liczby) w krótkiej liście, bez nachalnej sprzedaży."},
+  reactivation:{label:"Reaktywacja",desc:"Powrót nieaktywnych odbiorców",flows:["winback","replenishment"],guide:"Przypomnij wartość marki, daj konkretny powód do powrotu (nowość, oferta, saldo), jedno CTA."}
+};
+// General rules for every brand; brand-specific design lives in the Brand Kit (Mail Generator AI tab).
+const MAIL_HTML_RULES = `## Zasady ogólne budowy maila (obowiązują każdą markę)
+Proces i treść:
+- Jeden cel = jedno CTA. Nie mieszaj celów ani nie wstawiaj elementów z innych ścieżek.
+- Faktów o ofercie (kwoty, kody, daty, warunki) nie zgaduj. Bierz je z briefu i materiałów marki. Czego brakuje, oznacz placeholderem [[OPIS]] i dopisz w UWAGACH.
+- Pisz jak człowiek: krótkie zdania, konkrety zamiast ogólników, bez gotowych porównań, bez „Wiemy, że…”, bez wyliczanek dla samej wyliczanki. Mail ma być listem, nie landingiem.
+- Pogrubienia oszczędnie: 1–2 kluczowe frazy na akapit.
+- Temat: jeden, krótki, konkretny. Preheader uzupełnia temat, nie powtarza go.
+- Preheadera NIE ma w kodzie (wpisuje się go w polu platformy) – bez ukrytego spana z preheaderem.
+- Bez komentarzy opisowych w kodzie. Zostają tylko komentarze warunkowe dla Outlooka (<!--[if mso]> … <![endif]-->).
+Kod (kompatybilny z każdym klientem pocztowym, w tym Outlook na Windows, Gmail, Apple Mail):
+- Pełny dokument HTML: <!DOCTYPE html>, lang, xmlns v i o, meta charset, viewport, X-UA-Compatible, x-apple-disable-message-reformatting, format-detection, color-scheme light, OfficeDocumentSettings dla MSO.
+- Układ wyłącznie na tabelach role="presentation", inline CSS na każdym elemencie tekstowym (font-family, font-size, line-height, color), mso-line-height-rule:exactly.
+- Stały kontener o szerokości maila z Brand Kitu plus ghost table dla Outlooka. W <style> tylko reset i @media dla mobile (klasy typu .container, .card-pad, .gutter).
+- Odstępy robione paddingiem komórek albo komórkami-spacerami o stałej wysokości. Nie polegaj na margin przy układzie.
+- Listy jako tabele (punktor w osobnej komórce), nigdy <ul>/<ol>.
+- Przyciski: VML v:roundrect dla Outlooka + <a> inline-block dla reszty (z mso-hide:all), szerokość VML dopasowana do tekstu.
+- Obrazki: atrybut width, display:block, height:auto, border:0, zawsze sensowny ALT i zawsze link. Obrazki bez znanego URL-a wstaw przez zmienną z guardem (np. {% if hero_url != "" %}), żeby mail nie wyszedł z pustym obrazkiem.
+- Adresy i stałe trzymaj w zmiennych na samej górze pliku (przed <!DOCTYPE>).
+- Personalizację pisz składnią platformy CRM marki. Każda zmienna z wartością domyślną, żeby profil bez atrybutów nie psuł maila.
+- Outlook na Windows nie zaokrągla rogów – to akceptowalne, byle układ się nie rozjeżdżał.
+Checklista przed oddaniem: jeden cel i jedno CTA; fakty z briefu; każdy obrazek z ALT i linkiem; przyciski z VML; listy w tabelach; brak komentarzy opisowych i ukrytego preheadera; mail działa dla profilu bez żadnych atrybutów.`;
+const MAIL_LIQUID_CIO = `## Liquid w Customer.io – pułapki (obowiązkowe)
+- Przed każdym filtrem liczbowym (plus, minus, times…) daj | default: 0 – Customer.io nie wykona plus na nil.
+- round zwraca float: przy formatowaniu kwot rób | append: "" | split: "." | first | plus: 0.
+- Progi zapisuj jako > 499 zamiast >= 500.
+- Boole porównuj z true i "true", nigdy z "True".
+- Formy zależne od płci podmieniaj CAŁYMI słowami (zacząłeś/zaczęłaś), nie końcówkami; domyślnie forma męska.
+- Imię: customer.display_name z | default: "" | strip i gałąź bez imienia.
+- Przy tagach elsif/else z tekstem po prawej nie używaj -%}, bo zjada spacje.
+- Link wypisu: {% unsubscribe_url %}.`;
+const CRM_LABEL = {customerio:"Customer.io (Liquid)",klaviyo:"Klaviyo (składnia Django: {{ first_name|default:'' }})",salesmanago:"SALESmanago",mailchimp:"Mailchimp (merge tags *|FNAME|*)",braze:"Braze (Liquid)",hubspot:"HubSpot (HubL)"};
+
+const mailBrand = key => (APP().brands()||{})[key] || {};
+function mailLogo(b){for(const u of [b.crmLogoUrl,b.logoUrl])if(/^https?:\/\//.test(u||""))return u;return ""}
+function fillBrand(s,b){
+  const extra={logo:mailLogo(b)||"[[URL_LOGO]]",logoWidthPx:String(parseInt(b.logoWidth,10)||140)};
+  return String(s||"").replace(/\{\{\s*brand\.(\w+)\s*\}\}/g,(m,k)=>k in extra?extra[k]:(b[k]!=null&&typeof b[k]!=="object"?String(b[k]):m));
+}
+function brandTokens(b){
+  const px=v=>v==null||v===""?"":(/^\d+$/.test(String(v))?v+"px":v);
+  const rows=[["Szerokość maila",b.mailWidth],["Tło maila (letterbox)",b.outerBg],["Tło treści",b.bg],["Powierzchnie / kafelki",b.surface],["Powierzchnie 2",b.surface2],
+    ["Tekst",b.text],["Tekst pomocniczy",b.muted],["Tekst drugorzędny",b.faint],["Linie",b.border],["Kolor marki",b.brandColor],["Akcent",b.accent],["Tekst na akcencie",b.accentOn],["Akcent 2",b.accent2],
+    ["Przycisk główny",`tło ${b.btnPrimaryBg}, tekst ${b.btnPrimaryText}, radius ${b.btnPrimaryRadius}, waga ${b.btnPrimaryWeight}, ${px(b.btnPrimarySize)}, padding ${b.btnPrimaryPadding}`],
+    ["Przycisk drugi",`tło ${b.btnSecondaryBg}, tekst ${b.btnSecondaryText}, obramowanie ${b.btnSecondaryBorder}`],["Link tekstowy",`${b.btnTertiaryText}, ${b.btnTertiaryDecoration}`],
+    ["Font treści",b.fontBody],["Font nagłówków",`${b.fontHeading}, waga ${b.headingWeight}`],
+    ["Rozmiary",`H1 ${px(b.h1Size)}, H2 ${px(b.h2Size)}, H3 ${px(b.h3Size)}, tekst ${px(b.bodySize)} (interlinia ${b.bodyLineHeight})`],
+    ["Promień karty treści",b.bodyRadius],["Promień boxów",b.radius],["Boczny padding treści",b.contentPadding],["Odstęp między sekcjami",b.componentGap],
+    ["Logo",`${mailLogo(b)||"brak URL-a – użyj placeholdera [[URL_LOGO]]"}, szerokość ${b.logoWidth}, alt „${b.logoAlt||b.name}”`],["Stopka (tło/tekst)",`${b.footerBg} / ${b.footerText}`]];
+  return rows.filter(r=>r[1]&&!/undefined/.test(r[1])).map(r=>`- ${r[0]}: ${r[1]}`).join("\n");
+}
+// Proven layouts from Composer → Emails (built-in and ones the team saved), as structure hints.
+function mailLibrary(type,b){
+  const emails=APP().readyEmails?.()||[],comps=APP().components?.()||[];
+  const flows=MAIL_TYPES[type]?.flows||[];
+  const cname=id=>{const c=comps.find(x=>x.id===id);return c?`${c.label||id}${c.desc?` (${String(c.desc).slice(0,110)})`:""}`:id};
+  const brandHit=e=>{const n=norm(b.name||"");return n&&norm([e.label,e.desc,e.note].join(" ")).includes(n)};
+  const pick=emails.filter(e=>flows.includes(e.flow)||brandHit(e));
+  pick.sort((x,y)=>(brandHit(y)-brandHit(x))||((y.custom?1:0)-(x.custom?1:0)));
+  const txt=v=>String(v||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();
+  return pick.slice(0,10).map(e=>{
+    let s=`- ${e.label}${brandHit(e)?` [${b.name}]`:""}${e.custom?" [zbudowany przez zespół]":""}: ${e.desc||""}\n  Układ: ${(e.componentIds||[]).map(cname).join(" → ")}`;
+    const vals=e.componentValues?Object.values(e.componentValues).map(v=>typeof v==="object"?Object.values(v||{}).map(txt).join(" | "):txt(v)).filter(Boolean).join(" | "):"";
+    if(vals)s+=`\n  Treści: ${vals.slice(0,500)}`;
+    return s;
+  }).join("\n");
+}
+function mailPrompt(cl,d,fb){
+  const b=mailBrand(cl.id),t=MAIL_TYPES[d.mailType]||MAIL_TYPES.promo;
+  const head=(b.aiMailHeaderHtml||"").trim(),foot=(b.aiMailFooterHtml||"").trim(),ex=(b.aiMailExample||"").trim(),ds=(b.aiMailDesign||"").trim();
+  const lib=mailLibrary(d.mailType,b);
+  const cur=fb?parseMail(d.versions[d.vi]?.text||"").html:"";
+  const hist=fb?d.versions.slice(1,d.vi+1).map(v=>v.feedback).filter(Boolean):[];
+  return fitPrompt(budget=>[
+    buildContext(cl,budget)+sequenceContext(d)+threadContext(d),
+    `\n\n## Zadanie\nZbuduj kompletny, gotowy do wysyłki mail HTML dla marki ${cl.name}: copy + layout + kod. Typ maila: ${t.label} (${t.desc}). ${t.guide}\n\nBrief:\n${briefText(d)}`,
+    "\n\n"+MAIL_HTML_RULES,
+    `\n\nPlatforma CRM marki: ${CRM_LABEL[b.crmPlatform]||b.crmPlatform||"nieznana – użyj Liquid"}.`+(b.crmPlatform==="customerio"?"\n\n"+MAIL_LIQUID_CIO:""),
+    `\n\n## Design system marki z Brand Kitu (stosuj dokładnie te wartości)\n${brandTokens(b)}`,
+    ds?`\n\n## Design system marki – szczegóły, komponenty i wzorce (Brand Kit, wiążące)\n${ds}`:"\n\nMarka nie ma rozpisanego design systemu dla maili – zbuduj spójny, prosty układ wyłącznie z tokenów powyżej.",
+    head?`\n\n## Header z Brand Kitu\nWstaw ten fragment bez zmian (możesz tylko podmienić linki na zmienne) w miejscu, które wskazuje design system marki; jeśli nie wskazuje – na samej górze treści maila. Logo pochodzi z Brand Kitu.\n\`\`\`html\n${fillBrand(head,b)}\n\`\`\``:`\n\n## Header\nBrand Kit nie ma headera HTML. Zrób prosty header z logo z Brand Kitu (${mailLogo(b)||"[[URL_LOGO]]"}, szerokość ${b.logoWidth||"140px"}, alt „${b.logoAlt||cl.name}”) z linkiem do strony marki.`,
+    foot?`\n\n## Footer z Brand Kitu\nWstaw ten fragment bez zmian na końcu kontenera maila (to są wiersze <tr> kontenera). Wyjątki opisuje tylko design system marki.\n\`\`\`html\n${fillBrand(foot,b)}\n\`\`\``:`\n\n## Footer\nBrand Kit nie ma footera HTML. Zrób stopkę: zgoda i link wypisu, linia, Polityka prywatności | Regulamin (placeholdery [[URL_POLITYKA]], [[URL_REGULAMIN]]), pełna nazwa prawna [[NAZWA_PRAWNA]].`,
+    ex&&budget>=30000?`\n\n## Wzorcowy mail tej marki (odwzoruj strukturę, styl kodu i jakość – NIE kopiuj treści)\n\`\`\`html\n${ex.slice(0,40000)}\n\`\`\``:"",
+    lib?`\n\n## Sprawdzone układy z biblioteki Maximusa (Composer → Emails) dla tego typu maila\nTraktuj jako inspirację struktury: kolejność sekcji i dobór komponentów. Styl zawsze z design systemu marki. Gdy układ z biblioteki koliduje z zasadami marki (np. emoji, box w boxie, kilka CTA), wygrywają zasady marki.\n${lib}`:"",
+    fb?`\n\n## Poprawki\nAktualny kod maila:\n\`\`\`html\n${cur}\n\`\`\``+(hist.length?`\n\nWcześniejsze uwagi (już naniesione, nadal obowiązują):\n`+hist.map(h=>"- "+h).join("\n"):"")+`\n\nNowe uwagi do naniesienia:\n${fb}\n\nNanieś uwagi i zwróć CAŁY poprawiony mail. Zmieniaj tylko to, czego dotyczą uwagi.`:"",
+    MAIL_OUTPUT
+  ].join(""));
+}
+const MAIL_OUTPUT = `\n\n## Jak oddać odpowiedź
+Zwróć dokładnie w tym formacie, bez żadnego wstępu:
+TEMAT: <temat>
+PREHEADER: <preheader>
+UWAGI: <jedna linia: założenia, brakujące fakty, placeholdery do uzupełnienia; albo „brak”>
+<<<HTML
+<pełny kod maila: zmienne Liquid na górze, potem <!DOCTYPE html> … </html>>
+HTML>>>`;
+function parseMail(text){
+  const t=String(text||"");
+  const pick=re=>(t.match(re)?.[1]||"").trim();
+  let html="";const i=t.indexOf("<<<HTML");
+  if(i>=0){html=t.slice(i+7);const j=html.indexOf("HTML>>>");if(j>=0)html=html.slice(0,j)}
+  else{const k=t.search(/\{%-?\s*assign|<!DOCTYPE/i);if(k>=0)html=t.slice(k)}
+  html=html.replace(/^\s*```(?:html)?\s*\n?/,"").replace(/\n?```\s*$/,"").trim();
+  return {subject:pick(/^TEMAT:\s*(.+)$/m),preheader:pick(/^PREHEADER:\s*(.+)$/m),notes:pick(/^UWAGI:\s*(.+)$/m),html,complete:/<\/html>\s*$/i.test(html)};
+}
+function mailPlain(text){
+  const m=parseMail(text);
+  const body=m.html.replace(/\{%[\s\S]*?%\}/g,"").replace(/<!--[\s\S]*?-->/g,"").replace(/<(style|head)[\s\S]*?<\/\1>/gi,"").replace(/<br\s*\/?>/gi,"\n").replace(/<\/(p|tr|h\d)>/gi,"\n").replace(/<[^>]+>/g," ").replace(/&nbsp;/g," ").replace(/&#8226;/g,"•").replace(/[ \t]+/g," ").replace(/\n\s*\n+/g,"\n").trim();
+  return `Temat: ${m.subject}\nPreheader: ${m.preheader}\n${body}`;
+}
+const copyPlain = (text,format) => format==="mail" ? mailPlain(text) : text;
+
 const KIND = {brandvoice:"Brand voice", guidelines:"Wytyczne", other:"Materiały"};
 const PROMPT_CAP = 240000; // bytes, below the 256 KiB sample cap
 
@@ -18397,7 +18631,7 @@ const client = () => S.clients.find(c=>c.id===S.clientId) || null;
 // Brand Kit panel edits the brand open in the Brand Kit, which may differ from the brand picked for writing.
 const mclient = () => S.clients.find(c=>c.id===S.memId) || null;
 const ctxClient = b => b&&b.closest&&b.closest("#cgBrandPanel") ? mclient() : client();
-function rulesToast(){toast("Baza nie wpuszcza Copy Generatora – dodaj reguły Firestore dla copylab i copylabShares","error")}
+function rulesToast(){toast("Baza nie wpuszcza Mail Generatora AI – dodaj reguły Firestore dla copylab i copylabShares","error")}
 const clientFiles = id => S.files.filter(f=>f.clientId===id).sort((a,b)=>a.at-b.at);
 const clientCopies = id => S.copies.filter(c=>c.clientId===id).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
 const clientGroups = id => S.groups.filter(g=>g.clientId===id).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
@@ -18406,7 +18640,7 @@ function mapSnap(snap){return snap.docs.map(d=>({id:d.id,...d.data()}))}
 async function dbErr(e,what){console.error(what,e);if(e?.code==="permission_denied")return rulesToast();toast(e?.code==="quota_exceeded"?"Dokument jest za duży – skróć plik":"Nie udało się zapisać ("+(e?.code||"błąd")+"). Spróbuj ponownie.")}
 
 /* ---------- draft ---------- */
-function blankDraft(){return {format:"email",structure:"marketing",groupId:"",goal:"",segment:"",argument:"",cta:"",brief:"",versions:[],vi:-1,copyId:null,name:"",thread:[]}}
+function blankDraft(){return {format:"mail",mailType:"promo",structure:"marketing",groupId:"",goal:"",segment:"",argument:"",cta:"",brief:"",versions:[],vi:-1,copyId:null,name:"",thread:[]}}
 function draft(){if(!S.clientId)return blankDraft();if(!S.drafts[S.clientId])S.drafts[S.clientId]=blankDraft();return S.drafts[S.clientId]}
 let saveDraftT;
 function persistDraft(){clearTimeout(saveDraftT);saveDraftT=setTimeout(()=>store.set("cl-drafts",S.drafts),400)}
@@ -18443,6 +18677,32 @@ function renderAll(){
   renderOrphans();
   if(!none){renderCreate();renderLibrary()}
   renderMemory();renderBV();
+  seedBrandFiles();
+}
+// Brand knowledge shipped with the app (assets/brand-kits/) lands once in the brand's shared
+// "Brand voice & copy" files; after that it is the team's to edit or delete.
+const SEED_FILES = {
+  pstryk:[{id:"seed-pstryk-mail-copy-2026-09-30",name:"Pstryk – zasady copy, fakty o ofercie i katalog maili",kind:"guidelines",src:"assets/brand-kits/pstryk/mail-copy-rules.md"}]
+};
+let seeding=false;
+async function seedBrandFiles(){
+  if(seeding||!S.loaded.files||!S.loaded.copyDocs)return;
+  for(const [key,list] of Object.entries(SEED_FILES)){
+    const cl=S.clients.find(c=>c.id===key);if(!cl)continue;
+    for(const f of list){
+      const done=cl.seededFiles||[];
+      if(done.includes(f.id)||S.files.some(x=>x.id===f.id))continue;
+      seeding=true;
+      try{
+        const r=await fetch(f.src,{cache:"no-cache"});if(!r.ok)throw new Error(f.src+" "+r.status);
+        const text=await r.text();
+        await S.db.doc("files/"+f.id).set({clientId:key,name:f.name,kind:f.kind,text,chars:text.length,truncated:false,at:now(),seed:true});
+        await S.db.doc("clients/"+key).merge({seededFiles:[...done,f.id]});
+      }catch(e){console.warn("seed",e)}
+      finally{seeding=false}
+      return;
+    }
+  }
 }
 const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"");
 function renderOrphans(){
@@ -18451,7 +18711,7 @@ function renderOrphans(){
   if(box.contains(document.activeElement))return;
   box.hidden=false;
   const cnt=id=>{const n=S.copies.filter(c=>c.clientId===id).length,f=S.files.filter(x=>x.clientId===id).length;return `${n} copy · ${f} plików`};
-  box.innerHTML=`<p><strong>Klienci z Copy Generatora bez Brand Kitu</strong></p><p class="cg-small">Klienci są teraz brand kitami z Maximus. Wskaż, do którego brand kitu należy każdy z tych klientów – copy, pliki, sekwencje, zasady i uwagi zostaną przeniesione.</p>`+
+  box.innerHTML=`<p><strong>Klienci ze starego Copy Generatora bez Brand Kitu</strong></p><p class="cg-small">Klienci są teraz brand kitami z Maximus. Wskaż, do którego brand kitu należy każdy z tych klientów – copy, pliki, sekwencje, zasady i uwagi zostaną przeniesione.</p>`+
     S.orphans.map(o=>{const guess=S.clients.find(c=>norm(c.name)===norm(o.name))?.id||"";
       return `<div class="cg-row" style="margin-top:8px"><strong>${esc(o.name||"Bez nazwy")}</strong><span class="cg-small cg-muted">${cnt(o.id)}</span>
       <select data-orphan="${o.id}"><option value="">Wybierz brand kit…</option>${S.clients.map(c=>`<option value="${c.id}" ${c.id===guess?"selected":""}>${esc(c.name)}</option>`).join("")}</select>
@@ -18520,25 +18780,89 @@ function renderCreate(){
 }
 
 function renderStructs(){
-  const d=draft();$("#cg-structure-field").hidden=d.format!=="email";
-  const cur=d.structure||"marketing";
-  $("#cg-structs").innerHTML=Object.entries(STRUCTS).map(([k,s])=>`<button type="button" class="cg-struct" role="radio" aria-checked="${k===cur}" data-act="struct" data-k="${k}"><b>${esc(s.label)}</b><span>${esc(s.desc)}</span></button>`).join("");
+  const d=draft(),isMail=d.format==="mail";$("#cg-structure-field").hidden=!isMail&&d.format!=="email";
+  $("#cg-structs-lbl").textContent=isMail?"Typ maila":"Struktura maila";
+  const cur=isMail?(d.mailType||"promo"):(d.structure||"marketing");
+  $("#cg-structs").innerHTML=Object.entries(isMail?MAIL_TYPES:STRUCTS).map(([k,s])=>`<button type="button" class="cg-struct" role="radio" aria-checked="${k===cur}" data-act="struct" data-k="${k}"><b>${esc(s.label)}</b><span>${esc(s.desc)}</span></button>`).join("");
 }
 function setOutEmpty(h,p){const o=$("#cg-out");o.className="cg-out cg-doc cg-empty";o.innerHTML=`<p><strong>${esc(h)}</strong></p><p class="cg-small">${esc(p)}</p>`}
 function renderOut(streamText){
   const d=draft(),o=$("#cg-out");
   const text=streamText??(d.versions[d.vi]?.text);
+  $("#cg-btn-copy-out").textContent=d.format==="mail"?"Kopiuj kod":"Kopiuj";
   if(!text){
+    S.mailKey="";
     if(!apiKey())return;
-    setOutEmpty("Tu pojawi się gotowe copy.","Wybierz klienta, kanał i opcjonalnie sekwencję, wpisz brief i kliknij Stwórz. Model dostaje brand voice, wytyczne, uwagi i wszystkie zasady wyuczone z Twoich poprawek.");
+    if(d.format==="mail")setOutEmpty("Tu pojawi się gotowy mail.","Wybierz typ maila, wpisz cel, segment i argument, kliknij Stwórz. Dostaniesz temat, preheader, gotowy kod HTML i podgląd na żywo. Styl, logo, header i footer pochodzą z Brand Kitu marki.");
+    else setOutEmpty("Tu pojawi się gotowe copy.","Wybierz klienta, kanał i opcjonalnie sekwencję, wpisz brief i kliknij Stwórz. Model dostaje brand voice, wytyczne, uwagi i wszystkie zasady wyuczone z Twoich poprawek.");
     $("#cg-versions").innerHTML="";$("#cg-out-meta").textContent="";return;
   }
+  if(d.format==="mail"&&(streamText==null||parseMail(text).html||/<<<HTML/.test(text)))return renderMail(text,streamText!=null);
+  S.mailKey="";
   o.className="cg-out cg-doc";o.innerHTML=md(text);
   const p=plain(text);
   $("#cg-out-meta").textContent=`${FORMATS[d.format]?.label||""} · ${p.length} znaków`;
   $("#cg-versions").innerHTML=streamText!=null?"":d.versions.map((v,i)=>`<button class="cg-vbtn" data-act="ver" data-i="${i}" aria-pressed="${i===d.vi}" title="${esc(fmtDate(v.at))}${v.feedback?" · po uwagach":""}">v${i+1}</button>`).join("");
 }
-function setThinking(msg){const o=$("#cg-out");o.className="cg-out cg-doc cg-thinking";o.innerHTML=`<p class="cg-dots">${esc(msg)}</p><p class="cg-small cg-muted">Najmocniejszy model myśli przed pisaniem – zwykle 10–60 s.</p>`;$("#cg-versions").innerHTML="";$("#cg-out-meta").textContent=""}
+/* ---------- mail preview (Liquid rendered with liquidjs against a sample profile) ---------- */
+const MAIL_PROFILES = {
+  full:{label:"Profil z danymi",data:{customer:{id:"12345",email:"anna.kowalska@przyklad.pl",display_name:"Anna",first_name:"Anna",last_name:"Kowalska",sex:"female",calc_yearly_savings:1392,has_bess:true,is_prosument:true,has_ev:false,has_hvac:true},first_name:"Anna",email:"anna.kowalska@przyklad.pl",person:{first_name:"Anna",email:"anna.kowalska@przyklad.pl"}}},
+  empty:{label:"Profil bez danych",data:{customer:{},person:{}}}
+};
+let liquidLib=null;
+function loadLiquid(){
+  if(window.liquidjs)return Promise.resolve(window.liquidjs);
+  if(!liquidLib)liquidLib=new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/liquidjs@10.29.0/dist/liquid.browser.min.js";s.onload=()=>res(window.liquidjs);s.onerror=()=>{liquidLib=null;rej(new Error("Nie udało się wczytać silnika Liquid"))};document.head.appendChild(s)});
+  return liquidLib;
+}
+let liquidEngine=null;
+async function renderLiquid(html,data){
+  const L=await loadLiquid();
+  if(!liquidEngine){
+    liquidEngine=new L.Liquid({strictFilters:false,strictVariables:false});
+    const link=href=>({parse(){},render(ctx,emitter){emitter.write(href)}});
+    liquidEngine.registerTag("unsubscribe_url",link("#wypisz-sie"));
+    liquidEngine.registerTag("view_in_browser_url",link("#w-przegladarce"));
+    liquidEngine.registerTag("manage_subscription_preferences_url",link("#preferencje"));
+  }
+  return liquidEngine.parseAndRender(html,data);
+}
+function renderMail(text,streaming){
+  const d=draft(),o=$("#cg-out"),m=parseMail(text);
+  const view=S.mailView||"preview",dev=S.mailDevice||"desktop",prof=S.mailProfile||"full";
+  const seg=(act,cur,opts)=>`<div class="cg-seg" role="group">${opts.map(([v,l])=>`<button type="button" data-act="${act}" data-v="${v}" aria-pressed="${v===cur}">${esc(l)}</button>`).join("")}</div>`;
+  $("#cg-out-meta").textContent=`${FORMATS.mail.label} · ${(m.html.length/1024).toFixed(1)} KB`;
+  $("#cg-versions").innerHTML=streaming?"":d.versions.map((v,i)=>`<button class="cg-vbtn" data-act="ver" data-i="${i}" aria-pressed="${i===d.vi}" title="${esc(fmtDate(v.at))}${v.feedback?" · po uwagach":""}">v${i+1}</button>`).join("");
+  const key=[text.length,d.vi,view,dev,prof,streaming].join("|")+m.html.slice(-200);
+  if(S.mailKey===key&&o.classList.contains("cg-mail"))return;
+  S.mailKey=key;
+  o.className="cg-out cg-mail";
+  const meta=`<div class="cg-mail-meta">
+    <div><span class="cg-lbl">Temat</span><div class="cg-mail-subj">${esc(m.subject)||"…"}</div></div>
+    <div><span class="cg-lbl">Preheader</span><div>${esc(m.preheader)||"…"}</div></div>
+    ${m.notes&&!/^brak\.?$/i.test(m.notes)?`<div class="cg-mail-notes"><span class="cg-lbl">Uwagi modelu</span><div class="cg-small">${esc(m.notes)}</div></div>`:""}</div>`;
+  if(streaming){
+    o.innerHTML=meta+`<div class="cg-mail-bar"><span class="cg-small cg-muted cg-dots">Piszę kod maila · ${(m.html.length/1024).toFixed(1)} KB</span></div><pre class="cg-code cg-code-live">${esc(m.html.slice(-2500))}</pre>`;
+    const pre=o.querySelector(".cg-code-live");pre.scrollTop=pre.scrollHeight;return;
+  }
+  o.innerHTML=meta+`<div class="cg-mail-bar">
+      ${seg("mail-view",view,[["preview","Podgląd"],["code","Kod"]])}
+      <div class="cg-row" style="gap:6px">${view==="preview"?seg("mail-device",dev,[["desktop","Desktop"],["mobile","Mobile"]])+seg("mail-profile",prof,Object.entries(MAIL_PROFILES).map(([k,p])=>[k,p.label])):`<button class="btn ghost small" data-act="mail-download">Pobierz .html</button>`}</div>
+    </div>
+    ${m.complete?"":`<p class="cg-mail-warn">Kod wygląda na ucięty (brak &lt;/html&gt;). Kliknij Stwórz jeszcze raz albo poproś w uwagach o krótszy mail.</p>`}
+    <div class="cg-mail-err" hidden></div>
+    ${view==="code"?`<pre class="cg-code">${esc(m.html)}</pre>`:`<div class="cg-mail-stage"><iframe class="cg-mail-frame${dev==="mobile"?" cg-mobile":""}" title="Podgląd maila" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe></div>`}`;
+  if(view!=="preview")return;
+  const frame=o.querySelector(".cg-mail-frame"),err=o.querySelector(".cg-mail-err");
+  const fit=()=>{try{const doc=frame.contentDocument;if(doc?.body)frame.style.height=Math.max(400,doc.documentElement.scrollHeight)+"px"}catch{}};
+  frame.addEventListener("load",()=>{fit();setTimeout(fit,400);try{frame.contentDocument.querySelectorAll("a[href]").forEach(a=>a.target="_blank")}catch{}});
+  renderLiquid(m.html,MAIL_PROFILES[prof].data).then(out=>{if(S.mailKey===key)frame.srcdoc=out}).catch(e=>{
+    if(S.mailKey!==key)return;
+    err.hidden=false;err.textContent=`Liquid nie wyrenderował się (${e?.message||e}). Podgląd pokazuje kod bez logiki Liquid – popraw to w uwagach, zanim wkleisz mail do CRM.`;
+    frame.srcdoc=m.html.replace(/\{%[\s\S]*?%\}/g,"").replace(/\{\{[\s\S]*?\}\}/g,"");
+  });
+}
+function setThinking(msg){const o=$("#cg-out");o.className="cg-out cg-doc cg-thinking";o.innerHTML=`<p class="cg-dots">${esc(msg)}</p><p class="cg-small cg-muted">${draft().format==="mail"?"Cały mail z kodem to dłuższa praca – zwykle 1–3 min.":"Najmocniejszy model myśli przed pisaniem – zwykle 10–60 s."}</p>`;S.mailKey="";$("#cg-versions").innerHTML="";$("#cg-out-meta").textContent=""}
 
 function renderLearned(){
   const box=$("#cg-learned");
@@ -18633,7 +18957,7 @@ function buildContext(cl,fileBudget){
     const dos=ls.filter(r=>r.type!=="dont"),donts=ls.filter(r=>r.type==="dont");
     parts.push(`\n## Zasady wyuczone z poprzednich poprawek – trzymaj się ich bezwzględnie`+(dos.length?`\nRÓB:\n`+dos.map(r=>"- "+r.text).join("\n"):"")+(donts.length?`\nNIE RÓB:\n`+donts.map(r=>"- "+r.text).join("\n"):""));
   }
-  const ex=clientCopies(cl.id).slice(0,3);
+  const ex=clientCopies(cl.id).filter(c=>c.format!=="mail").slice(0,3);
   if(ex.length)parts.push(`\n## Zaakceptowane wcześniej copy tego klienta (wzór tonu, nie kopiuj treści)\n`+ex.map(c=>`--- ${c.name} (${FORMATS[c.format]?.label||""}) ---\n${(c.text||"").slice(0,2500)}`).join("\n\n"));
   return parts.join("\n");
 }
@@ -18648,7 +18972,7 @@ function sequenceContext(d){
 function threadContext(d){
   const th=d.thread||[];if(!th.length)return "";
   return `\n\n## Wcześniejsze copy z tej samej kampanii\nTo zadanie jest kontynuacją poniższej pracy dla tego samego briefu. Przenieś wszystkie ustalenia: ofertę, argumenty, fakty, daty, ton, słownictwo i każdą uwagę specjalisty – obowiązują też w tym kanale, chyba że dotyczą wyłącznie formatu poprzedniego kanału (np. długość tematu maila). Dostosuj treść do nowego kanału, nie kopiuj jej 1:1. Nowe copy ma być tak samo dopracowane jak poprzednie.\n`+
-    th.map((t,i)=>`--- ${i+1}. ${FORMATS[t.format]?.label||"Copy"} (zaakceptowana wersja) ---\n${(t.text||"").slice(0,3000)}`+(t.feedback?.length?`\nUwagi specjalisty naniesione w tym copy:\n`+t.feedback.map(f=>"- "+f).join("\n"):"")).join("\n\n");
+    th.map((t,i)=>`--- ${i+1}. ${FORMATS[t.format]?.label||"Copy"} (zaakceptowana wersja) ---\n${copyPlain(t.text||"",t.format).slice(0,3000)}`+(t.feedback?.length?`\nUwagi specjalisty naniesione w tym copy:\n`+t.feedback.map(f=>"- "+f).join("\n"):"")).join("\n\n");
 }
 const OUTPUT_RULES = `\n## Jak oddać odpowiedź\nZwróć WYŁĄCZNIE gotowe copy w prostym Markdown (## nagłówki, **pogrubienia**, listy). Bez wstępu, bez komentarzy o tym, co zrobiłeś. Jeśli musiałeś coś założyć, bo brief tego nie mówi, dodaj na samym końcu jedną linię zaczynającą się od "> Założenie:".`;
 function fitPrompt(make){
@@ -18675,10 +18999,11 @@ const sampleMsg=e=>SAMPLE_MSG[e?.code]||(e?.message?("Claude: "+e.message):("Nie
 
 /* ---------- actions: generate ---------- */
 function setBusy(b){S.busy=b;$("#cg-btn-create").disabled=b||!apiKey();$("#cg-btn-revise").disabled=b||!apiKey();$("#cg-btn-stop").hidden=!b;$("#cg-btn-save").disabled=b}
-async function runSample(prompt,label){
+async function runSample(prompt,label,extra){
   S.ctl=new AbortController();setBusy(true);setThinking(label);
   try{
-    const res=await S.sample(prompt,{modelTier:"complex",cache:false,signal:S.ctl.signal,onText:({text})=>renderOut(text)});
+    let raf=0,last="";
+    const res=await S.sample(prompt,{modelTier:"complex",cache:false,...(extra||{}),signal:S.ctl.signal,onText:({text})=>{last=text;if(!raf)raf=requestAnimationFrame(()=>{raf=0;if(S.busy)renderOut(last)})}});
     if(res.truncated)toast("Odpowiedź ucięta – poproś o krótszy tekst");
     return res.text.trim();
   }catch(e){
@@ -18697,7 +19022,8 @@ async function doCreate(){
   const prevFmt=prev?.format||d.versions[0]?.format||"";
   const oldThread=d.thread||[];
   if(prev&&(prevFmt!==d.format||prevFb.length))d.thread=[...oldThread,{format:prevFmt,text:prev.text,feedback:prevFb,at:now()}].slice(-4);
-  const text=await runSample(genPrompt(cl,d),"Piszę copy");
+  const isMail=d.format==="mail";
+  const text=await runSample(isMail?mailPrompt(cl,d):genPrompt(cl,d),isMail?"Buduję mail – copy, layout i kod":"Piszę copy",isMail?{maxTokens:32000}:null);
   if(!text)d.thread=oldThread;
   if(text){d.versions=[{text,at:now(),feedback:null,format:d.format}];d.vi=0;S.lastLearned=[];persistDraft()}
   renderCreate();
@@ -18707,12 +19033,13 @@ async function doRevise(){
   if(!d.versions[d.vi])return toast("Najpierw stwórz copy");
   if(!fb){$("#cg-feedback").focus();return toast("Wpisz uwagi")}
   const cur=d.versions[d.vi].text;
-  const text=await runSample(revisePrompt(cl,d,fb),"Nanoszę uwagi");
+  const isMail=d.format==="mail";
+  const text=await runSample(isMail?mailPrompt(cl,d,fb):revisePrompt(cl,d,fb),"Nanoszę uwagi",isMail?{maxTokens:32000}:null);
   if(text){
     d.versions=d.versions.slice(0,d.vi+1);d.versions.push({text,at:now(),feedback:fb,format:d.format});d.vi=d.versions.length-1;
     $("#cg-feedback").value="";persistDraft();renderCreate();
     rememberFeedback(cl,fb,d.format);
-    learnFrom(cl,fb,cur);
+    learnFrom(cl,fb,copyPlain(cur,d.format));
   } else renderCreate();
 }
 // every revision note goes to the brand's shared "Uwagi z prac" (Brand Kit), so all users and all future copy get it
@@ -18746,7 +19073,7 @@ async function doSave(asNew){
   const id=existing?existing.id:rid();
   let groupPos=existing?.groupPos;
   if(d.groupId&&(!existing||existing.groupId!==d.groupId)){groupPos=groupCopies(d.groupId).reduce((m,c)=>Math.max(m,c.groupPos??0),0)+1}
-  const body={clientId:cl.id,name,format:d.format,structure:d.format==="email"?(d.structure||"marketing"):null,goal:d.goal||"",segment:d.segment||"",argument:d.argument||"",cta:d.cta||"",brief:d.brief||"",text:cur.text,
+  const body={clientId:cl.id,name,format:d.format,mailType:d.format==="mail"?(d.mailType||"promo"):null,structure:d.format==="email"?(d.structure||"marketing"):null,goal:d.goal||"",segment:d.segment||"",argument:d.argument||"",cta:d.cta||"",brief:d.brief||"",text:cur.text,
     versions:d.versions.slice(-10).map(v=>({text:v.text,at:v.at,feedback:v.feedback||null})),
     groupId:d.groupId||null,groupPos:groupPos??null,
     createdAt:existing?.createdAt||now(),updatedAt:now(),shareId:existing?.shareId||null};
@@ -18990,9 +19317,14 @@ document.addEventListener("click",async e=>{
     case "create":return doCreate();
     case "revise":return doRevise();
     case "stop":S.ctl?.abort();return;
-    case "new-draft":{const keepFmt=draft().format,keepStr=draft().structure;S.drafts[S.clientId]={...blankDraft(),format:keepFmt,structure:keepStr};S.lastLearned=[];document.querySelectorAll(".cg-root [data-bf]").forEach(i=>i.value="");$("#cg-save-name").value="";$("#cg-feedback").value="";persistDraft();renderCreate();$("#cg-b-goal").focus();return}
+    case "new-draft":{const keepFmt=draft().format,keepStr=draft().structure,keepType=draft().mailType;S.drafts[S.clientId]={...blankDraft(),format:keepFmt,structure:keepStr,mailType:keepType||"promo"};S.lastLearned=[];document.querySelectorAll(".cg-root [data-bf]").forEach(i=>i.value="");$("#cg-save-name").value="";$("#cg-feedback").value="";persistDraft();renderCreate();$("#cg-b-goal").focus();return}
     case "ver":{const d=draft();d.vi=+b.dataset.i;persistDraft();renderOut();return}
-    case "copy-out":{const d=draft(),t=d.versions[d.vi]?.text;if(t)copyText(plain(t),md(t));return}
+    case "copy-out":{const d=draft(),t=d.versions[d.vi]?.text;if(t){if(d.format==="mail")copyText(parseMail(t).html);else copyText(plain(t),md(t))}return}
+    case "mail-view":S.mailView=b.dataset.v;renderOut();return;
+    case "mail-device":S.mailDevice=b.dataset.v;renderOut();return;
+    case "mail-profile":S.mailProfile=b.dataset.v;renderOut();return;
+    case "mail-download":{const d=draft(),m=parseMail(d.versions[d.vi]?.text||"");if(!m.html)return;
+      const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([m.html],{type:"text/html"}));a.download=((d.name||m.subject||"mail").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^\w-]+/g,"-").replace(/^-+|-+$/g,"").toLowerCase()||"mail")+".html";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);return}
     case "save":return doSave(false);
     case "save-new":return doSave(true);
     case "close-overlay":$("#cg-ov-share").classList.remove("open");return;
@@ -19009,10 +19341,10 @@ document.addEventListener("click",async e=>{
     case "open-copy":{
       const c=S.copies.find(x=>x.id===id);if(!c)return;
       const vs=(c.versions&&c.versions.length)?c.versions:[{text:c.text,at:c.updatedAt||c.createdAt,feedback:null}];
-      S.drafts[c.clientId]={format:c.format||"email",structure:c.structure||"marketing",groupId:c.groupId||"",goal:c.goal||"",segment:c.segment||"",argument:c.argument||"",cta:c.cta||"",brief:c.brief||"",versions:vs.map(v=>({...v})),vi:vs.length-1,copyId:c.id,name:c.name};
+      S.drafts[c.clientId]={format:c.format||"email",structure:c.structure||"marketing",mailType:c.mailType||"promo",groupId:c.groupId||"",goal:c.goal||"",segment:c.segment||"",argument:c.argument||"",cta:c.cta||"",brief:c.brief||"",versions:vs.map(v=>({...v})),vi:vs.length-1,copyId:c.id,name:c.name};
       S.lastLearned=[];persistDraft();document.querySelectorAll(".cg-root [data-bf]").forEach(i=>i.value=S.drafts[c.clientId][i.dataset.bf]||"");$("#cg-save-name").value=c.name;setTab("create");renderCreate();return;
     }
-    case "copy-saved":{const c=S.copies.find(x=>x.id===id);if(c)copyText(plain(c.text),md(c.text));return}
+    case "copy-saved":{const c=S.copies.find(x=>x.id===id);if(c){if(c.format==="mail")copyText(parseMail(c.text).html);else copyText(plain(c.text),md(c.text))}return}
     case "del-copy":{
       if(!armed(b))return;const c=S.copies.find(x=>x.id===id);
       try{await S.db.doc("copies/"+id).delete();if(c?.shareId)await S.db.doc("shares/"+c.shareId).delete();
@@ -19079,7 +19411,7 @@ document.addEventListener("click",async e=>{
       return;
     }
     case "bv-discard":{if(!armed(b,"Na pewno?"))return;const cl=ctxClient(b);try{await S.db.doc("clients/"+cl.id).merge({bvDraft:null})}catch(er){dbErr(er)}return}
-    case "struct":{draft().structure=b.dataset.k;persistDraft();renderStructs();return}
+    case "struct":{const d=draft();if(d.format==="mail")d.mailType=b.dataset.k;else d.structure=b.dataset.k;persistDraft();renderStructs();return}
     case "edit-client":APP().openBrandCopy(S.clientId);return;
     case "link-orphan":{
       const key=document.querySelector(`[data-orphan="${id}"]`)?.value;if(!key)return toast("Wybierz brand kit");
@@ -19126,7 +19458,7 @@ function start(){
   S.drafts=store.get("cl-drafts",{});
   S.tab=store.get("cl-tab","create");if(S.tab!=="library")S.tab="create";
   $("#cg-format").innerHTML=Object.entries(FORMATS).map(([k,v])=>`<option value="${k}">${esc(v.label)}</option>`).join("");
-  const sub=(col,key)=>S.subs.push(S.db.collection(col).onSnapshot(s=>{S[key]=mapSnap(s);S.loaded[key]=true;renderAll()},e=>{console.error(col,e);if(e?.code==="permission_denied")rulesToast();else toast("Utracono połączenie z bazą Copy Generatora – odśwież stronę","error")}));
+  const sub=(col,key)=>S.subs.push(S.db.collection(col).onSnapshot(s=>{S[key]=mapSnap(s);S.loaded[key]=true;renderAll()},e=>{console.error(col,e);if(e?.code==="permission_denied")rulesToast();else toast("Utracono połączenie z bazą Mail Generatora AI – odśwież stronę","error")}));
   sub("clients","copyDocs");sub("files","files");sub("copies","copies");sub("groups","groups");
   bindStatic();setTab(S.tab,true);
 }
