@@ -93,6 +93,7 @@
 
   .app.no-nav{grid-template-columns:1fr}
   .app.no-nav .nav{display:none}
+  .app.no-nav .nav-toggle{display:none}
 
   .app.no-nav{min-height:0}
   .app.no-nav .work{min-height:0}
@@ -971,6 +972,8 @@
   @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .cg-root{--ok:#6fd19c; --ok-soft:#173226; --no:#ff9a86; --no-soft:#3a1f1a; --warn:#e7b567} }
   :root[data-theme="dark"] .cg-root{--ok:#6fd19c; --ok-soft:#173226; --no:#ff9a86; --no-soft:#3a1f1a; --warn:#e7b567}
   .cg-root [hidden]{display:none!important}
+  .cg-root strong,.cg-root b{font-weight:500}
+  .cg-root .cg-out:not(.cg-empty) strong{font-weight:600}
   .cg-root h2,.cg-root h3,.cg-root h4{font-family:var(--f-display); font-weight:500; letter-spacing:-.02em; margin:0; line-height:1.2}
   .cg-root input[type=text],.cg-root input[type=search],.cg-root select,.cg-root textarea{font:inherit; color:inherit; width:100%; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:9px 11px}
   .cg-root .btn{white-space:nowrap; display:inline-flex; align-items:center; justify-content:center; gap:6px}
@@ -1037,7 +1040,7 @@
 
   .cg-root .cg-structs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
   .cg-root .cg-struct{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:8px 10px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
-  .cg-root .cg-struct b{font-weight:600;font-size:14px}
+  .cg-root .cg-struct b{font-weight:500;font-size:14px}
   .cg-root .cg-struct span{font-size:12px;color:var(--muted);line-height:1.35}
   .cg-root .cg-struct[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
   .cg-root .cg-struct[aria-checked="true"] b{color:var(--accent)}
@@ -1057,7 +1060,7 @@
   .cg-root .cg-bv-summary{background:var(--accent-soft);border-radius:10px;padding:14px 16px}
   .cg-root .cg-bv-summary ul{margin:0}
   .cg-root .cg-bv-details{border:1px solid var(--line);border-radius:10px;padding:10px 14px}
-  .cg-root .cg-bv-details summary{cursor:pointer;font-weight:600}
+  .cg-root .cg-bv-details summary{cursor:pointer;font-weight:500}
   .cg-root .cg-bv-details .cg-doc{margin-top:12px;max-height:520px;overflow:auto}
   .cg-root .cg-task{white-space:pre-wrap;background:var(--sunk);border-radius:8px;padding:12px;font:12px/1.5 var(--f-mono);max-height:220px;overflow:auto;margin:0}
 
@@ -1067,7 +1070,7 @@
   .cg-root .cg-list{display:flex;flex-direction:column}
   .cg-root .cg-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:12px 0;border-top:1px solid var(--line);align-items:center}
   .cg-root .cg-item:first-child{border-top:0}
-  .cg-root .cg-item .cg-name{font-weight:600;overflow-wrap:anywhere}
+  .cg-root .cg-item .cg-name{font-weight:500;overflow-wrap:anywhere}
   .cg-root .cg-item .cg-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:3px}
   .cg-root .cg-item .cg-acts{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
   .cg-root .cg-group{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}
@@ -1565,8 +1568,6 @@
             <button type="button" class="cg-tab" role="tab" data-tab="create" aria-selected="true">Tworzenie</button>
             <button type="button" class="cg-tab" role="tab" data-tab="library">Biblioteka <span class="cg-n" id="cg-n-lib">0</span></button>
           </nav>
-          <span class="cg-small cg-muted">Piszesz dla: <strong id="cg-client-name"></strong></span>
-          <button type="button" class="btn ghost small" data-act="edit-client">Brand voice i wytyczne</button>
         </div>
         <div id="cg-nokey" class="cg-empty-note" hidden><strong>Połącz Claude, żeby generować.</strong> Otwórz menu konta → Connect Claude i wklej klucz API z console.anthropic.com.</div>
         <div id="cg-orphans" class="cg-empty-note" hidden></div>
@@ -2677,7 +2678,7 @@
     var noGrid = !!NOGRID_SECTIONS[section];
     var isMailStack = !!MAIL_STACK_SECTIONS[section];
     var isSegmentsStack = !!SEGMENTS_STACK_SECTIONS[section];
-    app.classList.remove("no-nav");
+    app.classList.toggle("no-nav", section==="copygen");
     app.classList.toggle("no-stack", !isMailStack && !isSegmentsStack);
     var drawerEl = document.getElementById("drawer");
     var segStackEl = document.getElementById("segmentStackOverlay");
@@ -2701,7 +2702,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.32.0";
+var APP_VERSION = "3.32.1";
 var APP_UPDATED = "2026-09-30";
 
 
@@ -15042,7 +15043,7 @@ function syncSectionChrome(){
   if(!isSegmentsStack) closeSegmentStackPanel();
 
 
-  byId("app").classList.toggle("no-nav", isHome);
+  byId("app").classList.toggle("no-nav", isHome || isCopyGen);
   document.body.classList.toggle("is-home", isHome);
   if(isCopyGen && window.MQCopyGen) window.MQCopyGen.showSection();
 }
@@ -18439,7 +18440,6 @@ function renderAll(){
   if(none){$("#cg-tab-create").hidden=true;$("#cg-tab-library").hidden=true}else setTab(S.tab,true);
   $("#cg-n-lib").textContent=S.clientId?clientCopies(S.clientId).length:0;
   const cl=client();
-  $("#cg-client-name").textContent=cl?cl.name:"";
   renderOrphans();
   if(!none){renderCreate();renderLibrary()}
   renderMemory();renderBV();
@@ -18557,7 +18557,7 @@ function renderLibrary(){
     const others=clientCopies(cl.id).filter(c=>c.groupId!==g.id);
     return `<div class="cg-group">
       <div class="cg-panel-head" style="margin:0">
-        <div><div class="cg-name" style="font-weight:600">${esc(g.name)}</div>
+        <div><div class="cg-name">${esc(g.name)}</div>
         <div class="cg-meta cg-row cg-small cg-muted" style="gap:6px;margin-top:2px"><span>${cs.length} copy</span><span>·</span><span>utworzona ${esc(fmtDay(g.createdAt))}</span>${g.shareId?`<span class="cg-pill cg-acc">Udostępniona</span>`:""}</div></div>
         <div class="cg-row" style="gap:4px"><button class="btn ghost small" data-act="share-group" data-id="${g.id}">Udostępnij</button><button class="btn ghost small cg-quiet cg-danger" data-act="del-group" data-id="${g.id}">Usuń</button></div>
       </div>
@@ -18592,7 +18592,7 @@ function renderMemory(){
   const fs=clientFiles(cl.id);
   const kindOpts=k=>Object.entries(KIND).map(([v,l])=>`<option value="${v}" ${v===k?"selected":""}>${esc(l)}</option>`).join("");
   $("#cg-files").innerHTML=fs.length?fs.map(f=>{const ed=S.editing==="file:"+f.id;return `<div class="cg-file">
-    <div style="min-width:0"><div style="font-weight:600;overflow-wrap:anywhere">${esc(f.name)}</div>
+    <div style="min-width:0"><div style="font-weight:500;overflow-wrap:anywhere">${esc(f.name)}</div>
       <div class="cg-meta cg-row" style="gap:6px"><span class="cg-pill ${f.kind==="brandvoice"?"cg-acc":""}">${esc(KIND[f.kind]||"")}</span><span class="cg-mono cg-muted">${(f.chars||0).toLocaleString("pl-PL")} znaków${f.truncated?" · przycięty":""} · ${esc(fmtDay(f.at))}</span></div></div>
     <div class="cg-row" style="gap:4px">${ed?"":`<button class="btn ghost small cg-quiet" data-act="peek-file" data-id="${f.id}">${S.peek===f.id?"Zwiń":"Podgląd"}</button><button class="btn ghost small cg-quiet" data-act="edit" data-kind="file" data-id="${f.id}">Edytuj</button>`}<button class="btn ghost small cg-quiet cg-danger" data-act="del-file" data-id="${f.id}">Usuń</button></div>
     ${ed?`<div class="cg-edit-box"><div class="cg-row" style="flex-wrap:nowrap"><input type="text" data-edit="1" id="cg-ef-name" value="${esc(f.name)}"><select data-edit="1" id="cg-ef-kind">${kindOpts(f.kind)}</select></div>
