@@ -1639,7 +1639,7 @@
             <textarea id="cg-feedback" rows="4" placeholder="Np. Za dużo wykrzykników. Nie używamy słowa „promocja”, zawsze „oferta”. Temat krótszy, max 40 znaków."></textarea>
             <div class="cg-row" style="margin-top:8px">
               <button class="btn small" data-act="revise" id="cg-btn-revise">Nanieś uwagi</button>
-              <span class="cg-small cg-muted">Stałe zasady z uwag trafiają do pamięci klienta.</span>
+              <span class="cg-small cg-muted">Uwagi zapisują się na stałe w Brand Kicie klienta i działają dla wszystkich.</span>
             </div>
             <div class="cg-learned" id="cg-learned"></div>
           </div>
@@ -2702,7 +2702,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.32.1";
+var APP_VERSION = "3.33.0";
 var APP_UPDATED = "2026-09-30";
 
 
@@ -18406,7 +18406,7 @@ function mapSnap(snap){return snap.docs.map(d=>({id:d.id,...d.data()}))}
 async function dbErr(e,what){console.error(what,e);if(e?.code==="permission_denied")return rulesToast();toast(e?.code==="quota_exceeded"?"Dokument jest za duży – skróć plik":"Nie udało się zapisać ("+(e?.code||"błąd")+"). Spróbuj ponownie.")}
 
 /* ---------- draft ---------- */
-function blankDraft(){return {format:"email",structure:"marketing",groupId:"",goal:"",segment:"",argument:"",cta:"",brief:"",versions:[],vi:-1,copyId:null,name:""}}
+function blankDraft(){return {format:"email",structure:"marketing",groupId:"",goal:"",segment:"",argument:"",cta:"",brief:"",versions:[],vi:-1,copyId:null,name:"",thread:[]}}
 function draft(){if(!S.clientId)return blankDraft();if(!S.drafts[S.clientId])S.drafts[S.clientId]=blankDraft();return S.drafts[S.clientId]}
 let saveDraftT;
 function persistDraft(){clearTimeout(saveDraftT);saveDraftT=setTimeout(()=>store.set("cl-drafts",S.drafts),400)}
@@ -18505,7 +18505,8 @@ function renderCreate(){
       chip((cl.guidelines||"").trim(),(cl.guidelines||"").trim()?"Wytyczne":"Brak wytycznych"),
       chip(ns.length,`${ns.length} uwag`),
       chip(ls.length,`${ls.length} zasad`),
-      chip(ex,`${Math.min(ex,3)} wzorów copy`)
+      chip(ex,`${Math.min(ex,3)} wzorów copy`),
+      ...(d.thread||[]).map(t=>chip(true,`Kontynuuje: ${FORMATS[t.format]?.label||"copy"}`))
     ].join("");
   } else $("#cg-ctx").innerHTML="";
   // edit flag
@@ -18626,7 +18627,7 @@ function buildContext(cl,fileBudget){
   }
   if((cl.guidelines||"").trim())parts.push(`\n## Wytyczne klienta\n${cl.guidelines.trim()}`);
   const ns=cl.notes||[];
-  if(ns.length)parts.push(`\n## Uwagi i ustalenia z bieżących prac (nowsze mają pierwszeństwo)\n`+[...ns].sort((a,b)=>a.at-b.at).map(n=>`- (${fmtDay(n.at)}) ${n.text}`).join("\n"));
+  if(ns.length)parts.push(`\n## Uwagi i ustalenia z bieżących prac (obowiązują w każdym kanale, nowsze mają pierwszeństwo; uwagę dotyczącą wyłącznie jednego konkretnego tekstu traktuj jako wskazówkę stylu)\n`+[...ns].sort((a,b)=>a.at-b.at).map(n=>`- (${fmtDay(n.at)}) ${n.text}`).join("\n"));
   const ls=cl.learnings||[];
   if(ls.length){
     const dos=ls.filter(r=>r.type!=="dont"),donts=ls.filter(r=>r.type==="dont");
@@ -18644,18 +18645,23 @@ function sequenceContext(d){
   if(cs.length)s+="\nPozostałe kroki sekwencji:\n"+cs.map((c,i)=>`${i+1}. ${c.name} (${FORMATS[c.format]?.label||""}): ${plain(c.text).slice(0,700).replace(/\n+/g," ")}`).join("\n");
   return s;
 }
+function threadContext(d){
+  const th=d.thread||[];if(!th.length)return "";
+  return `\n\n## Wcześniejsze copy z tej samej kampanii\nTo zadanie jest kontynuacją poniższej pracy dla tego samego briefu. Przenieś wszystkie ustalenia: ofertę, argumenty, fakty, daty, ton, słownictwo i każdą uwagę specjalisty – obowiązują też w tym kanale, chyba że dotyczą wyłącznie formatu poprzedniego kanału (np. długość tematu maila). Dostosuj treść do nowego kanału, nie kopiuj jej 1:1. Nowe copy ma być tak samo dopracowane jak poprzednie.\n`+
+    th.map((t,i)=>`--- ${i+1}. ${FORMATS[t.format]?.label||"Copy"} (zaakceptowana wersja) ---\n${(t.text||"").slice(0,3000)}`+(t.feedback?.length?`\nUwagi specjalisty naniesione w tym copy:\n`+t.feedback.map(f=>"- "+f).join("\n"):"")).join("\n\n");
+}
 const OUTPUT_RULES = `\n## Jak oddać odpowiedź\nZwróć WYŁĄCZNIE gotowe copy w prostym Markdown (## nagłówki, **pogrubienia**, listy). Bez wstępu, bez komentarzy o tym, co zrobiłeś. Jeśli musiałeś coś założyć, bo brief tego nie mówi, dodaj na samym końcu jedną linię zaczynającą się od "> Założenie:".`;
 function fitPrompt(make){
   for(const budget of [150000,100000,60000,30000,10000,0]){const p=make(budget);if(bytes(p)<PROMPT_CAP)return p}
   return make(0);
 }
 function genPrompt(cl,d){
-  return fitPrompt(b=>buildContext(cl,b)+sequenceContext(d)+`\n\n## Zadanie\nKanał: ${FORMATS[d.format].label}. ${formatGuide(d)}\n\nBrief:\n${briefText(d)}`+OUTPUT_RULES);
+  return fitPrompt(b=>buildContext(cl,b)+sequenceContext(d)+threadContext(d)+`\n\n## Zadanie\nKanał: ${FORMATS[d.format].label}. ${formatGuide(d)}\n\nBrief:\n${briefText(d)}`+OUTPUT_RULES);
 }
 function revisePrompt(cl,d,fb){
   const cur=d.versions[d.vi]?.text||"";
   const hist=d.versions.slice(1,d.vi+1).map(v=>v.feedback).filter(Boolean);
-  return fitPrompt(b=>buildContext(cl,b)+sequenceContext(d)+`\n\n## Zadanie\nKanał: ${FORMATS[d.format].label}. ${formatGuide(d)}\n\nPierwotny brief:\n${briefText(d)}`+
+  return fitPrompt(b=>buildContext(cl,b)+sequenceContext(d)+threadContext(d)+`\n\n## Zadanie\nKanał: ${FORMATS[d.format].label}. ${formatGuide(d)}\n\nPierwotny brief:\n${briefText(d)}`+
     (hist.length?`\n\nWcześniejsze uwagi (już naniesione, nadal obowiązują):\n`+hist.map(h=>"- "+h).join("\n"):"")+
     `\n\nAktualna wersja copy:\n"""\n${cur}\n"""\n\nNowe uwagi do naniesienia:\n${fb}\n\nNanieś uwagi i zwróć pełną, poprawioną wersję w tym samym układzie. Zmieniaj tylko to, czego dotyczą uwagi, chyba że uwagi mówią inaczej.`+OUTPUT_RULES);
 }
@@ -18686,8 +18692,14 @@ async function doCreate(){
   const d=draft();document.querySelectorAll(".cg-root [data-bf]").forEach(i=>d[i.dataset.bf]=i.value);
   if(!hasBrief(d)){$("#cg-b-goal").focus();return toast("Uzupełnij brief – przynajmniej cel")}
   if(d.copyId){d.copyId=null;d.name=""}
+  // the previous copy (e.g. the e-mail) becomes context for the next one (e.g. the SMS)
+  const prev=d.versions[d.vi],prevFb=d.versions.slice(1,d.vi+1).map(v=>v.feedback).filter(Boolean);
+  const prevFmt=prev?.format||d.versions[0]?.format||"";
+  const oldThread=d.thread||[];
+  if(prev&&(prevFmt!==d.format||prevFb.length))d.thread=[...oldThread,{format:prevFmt,text:prev.text,feedback:prevFb,at:now()}].slice(-4);
   const text=await runSample(genPrompt(cl,d),"Piszę copy");
-  if(text){d.versions=[{text,at:now(),feedback:null}];d.vi=0;S.lastLearned=[];persistDraft()}
+  if(!text)d.thread=oldThread;
+  if(text){d.versions=[{text,at:now(),feedback:null,format:d.format}];d.vi=0;S.lastLearned=[];persistDraft()}
   renderCreate();
 }
 async function doRevise(){
@@ -18697,10 +18709,17 @@ async function doRevise(){
   const cur=d.versions[d.vi].text;
   const text=await runSample(revisePrompt(cl,d,fb),"Nanoszę uwagi");
   if(text){
-    d.versions=d.versions.slice(0,d.vi+1);d.versions.push({text,at:now(),feedback:fb});d.vi=d.versions.length-1;
+    d.versions=d.versions.slice(0,d.vi+1);d.versions.push({text,at:now(),feedback:fb,format:d.format});d.vi=d.versions.length-1;
     $("#cg-feedback").value="";persistDraft();renderCreate();
+    rememberFeedback(cl,fb,d.format);
     learnFrom(cl,fb,cur);
   } else renderCreate();
+}
+// every revision note goes to the brand's shared "Uwagi z prac" (Brand Kit), so all users and all future copy get it
+async function rememberFeedback(cl,fb,format){
+  const fresh=S.clients.find(c=>c.id===cl.id);if(!fresh)return;
+  const note={id:rid(10),text:`[${FORMATS[format]?.label||"Copy"}] ${fb}`.slice(0,1000),at:now(),from:"feedback"};
+  try{await S.db.doc("clients/"+cl.id).merge({notes:[...(fresh.notes||[]),note]})}catch(e){dbErr(e,"note")}
 }
 async function learnFrom(cl,fb,cur){
   try{
