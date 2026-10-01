@@ -1535,6 +1535,11 @@
         <input type="password" id="connectClaudeKeyInput" placeholder="sk-ant-…" autocomplete="off">
       </div>
       <p style="font-size:12px; margin:8px 0 0"><a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Get an API key from console.anthropic.com</a></p>
+      <div class="bf-field" style="margin-top:14px">
+        <label for="connectClaudeWorkspaceInput">Workspace ID <span style="font-weight:400; color:var(--ink-muted)">(only if your key isn't tied to a workspace)</span></label>
+        <input type="text" id="connectClaudeWorkspaceInput" placeholder="wrkspc_…" autocomplete="off" spellcheck="false">
+      </div>
+      <p style="font-size:12px; color:var(--ink-muted); margin:6px 0 0">Find it in console.anthropic.com → Settings → Workspaces. Leave empty for keys created inside a workspace.</p>
       <p id="connectClaudeError" style="color:#b42318; font-size:12.5px; margin:10px 0 0; display:none"></p>
     </div>
     <div class="modal-footer-bar" style="display:flex; justify-content:flex-end; gap:8px">
@@ -2864,7 +2869,7 @@
 "use strict";
 
 
-var APP_VERSION = "3.37.2";
+var APP_VERSION = "3.37.3";
 var APP_UPDATED = "2026-09-30";
 
 
@@ -14213,12 +14218,7 @@ function fetchProductGridData(urls, apiKey){
     urls.join("\n");
   return fetch("https://api.anthropic.com/v1/messages", {
     method:"POST",
-    headers:{
-      "x-api-key": apiKey,
-      "anthropic-version":"2023-06-01",
-      "content-type":"application/json",
-      "anthropic-dangerous-direct-browser-access":"true"
-    },
+    headers: anthropicHeaders(apiKey),
     body: JSON.stringify({
       model:"claude-sonnet-5",
       max_tokens:8192,
@@ -14331,12 +14331,7 @@ function askMjmlAi(instruction, currentCode, apiKey, b){
     "\n\nINSTRUCTION:\n"+instruction;
   return fetch("https://api.anthropic.com/v1/messages", {
     method:"POST",
-    headers:{
-      "x-api-key": apiKey,
-      "anthropic-version":"2023-06-01",
-      "content-type":"application/json",
-      "anthropic-dangerous-direct-browser-access":"true"
-    },
+    headers: anthropicHeaders(apiKey),
     body: JSON.stringify({
       model:"claude-sonnet-5",
       max_tokens:8192,
@@ -17223,6 +17218,7 @@ window.MQApp = {
   readyEmails: function(){ return READY_EMAILS; },
   components: function(){ return COMPONENTS; },
   apiKey: function(){ return (MQ_CURRENT_USER && MQ_CURRENT_USER.anthropicApiKey) || ""; },
+  workspaceId: function(){ return (MQ_CURRENT_USER && MQ_CURRENT_USER.anthropicWorkspaceId) || ""; },
   toast: function(msg, type){ showToast(msg, type); },
   openBrandCopy: function(key){ openBrandForm("edit", key || state.brand, { tab:"copy" }); }
 };
@@ -18256,8 +18252,16 @@ byId("profileFormClose").addEventListener("click", closeProfileForm);
 byId("profileFormCancel").addEventListener("click", closeProfileForm);
 bindOverlayBackdropClose("profileFormOverlay", closeProfileForm);
 
+// Keys created outside a workspace (org-level) must name the workspace on every request.
+function anthropicHeaders(key){
+  var h = { "x-api-key": key, "anthropic-version":"2023-06-01", "content-type":"application/json", "anthropic-dangerous-direct-browser-access":"true" };
+  var ws = MQ_CURRENT_USER && MQ_CURRENT_USER.anthropicWorkspaceId;
+  if(ws) h["anthropic-workspace-id"] = ws;
+  return h;
+}
 function openConnectClaudeModal(){
   byId("connectClaudeKeyInput").value = MQ_CURRENT_USER && MQ_CURRENT_USER.anthropicApiKey || "";
+  byId("connectClaudeWorkspaceInput").value = MQ_CURRENT_USER && MQ_CURRENT_USER.anthropicWorkspaceId || "";
   byId("connectClaudeError").style.display = "none";
   byId("connectClaudeOverlay").classList.add("open");
 }
@@ -18267,24 +18271,31 @@ byId("connectClaudeCancel").addEventListener("click", closeConnectClaudeModal);
 bindOverlayBackdropClose("connectClaudeOverlay", closeConnectClaudeModal);
 byId("connectClaudeSave").addEventListener("click", function(){
   var key = byId("connectClaudeKeyInput").value.trim();
+  var ws = byId("connectClaudeWorkspaceInput").value.trim();
   var errEl = byId("connectClaudeError");
   errEl.style.display = "none";
   if(!key){ errEl.textContent = "Enter an API key"; errEl.style.display = ""; return; }
+  if(ws && !/^wrkspc_[A-Za-z0-9]+$/.test(ws)){ errEl.textContent = "Workspace ID should look like wrkspc_…"; errEl.style.display = ""; return; }
+  var headers = { "x-api-key": key, "anthropic-version":"2023-06-01", "content-type":"application/json", "anthropic-dangerous-direct-browser-access":"true" };
+  if(ws) headers["anthropic-workspace-id"] = ws;
   withBtnLoading(byId("connectClaudeSave"), function(){
     return fetch("https://api.anthropic.com/v1/messages", {
       method:"POST",
-      headers:{ "x-api-key": key, "anthropic-version":"2023-06-01", "content-type":"application/json", "anthropic-dangerous-direct-browser-access":"true" },
+      headers:headers,
       body: JSON.stringify({ model:"claude-sonnet-5", max_tokens:1, messages:[{ role:"user", content:"hi" }] })
     }).then(function(res){
       if(!res.ok){
         return res.json().catch(function(){ return null; }).then(function(body){
           var msg = (body && body.error && body.error.message) || ("HTTP "+res.status);
+          if(/valid workspace id/i.test(msg)) msg = "That Workspace ID isn't valid for this key — copy it again from console.anthropic.com → Settings → Workspaces.";
+          else if(/anthropic-workspace-id/i.test(msg)) msg = "This key isn't tied to a workspace. Paste your Workspace ID below (console.anthropic.com → Settings → Workspaces), or create the key inside a workspace.";
           throw new Error(msg);
         });
       }
-      return window.MQUsers.updateProfileFields(MQ_CURRENT_USER.uid, { anthropicApiKey: key });
+      return window.MQUsers.updateProfileFields(MQ_CURRENT_USER.uid, { anthropicApiKey: key, anthropicWorkspaceId: ws });
     }).then(function(){
       MQ_CURRENT_USER.anthropicApiKey = key;
+      MQ_CURRENT_USER.anthropicWorkspaceId = ws;
       closeConnectClaudeModal();
       showToast("Claude connected");
       syncAiSupportBlocks();
@@ -18355,6 +18366,7 @@ window.MQBoot = async function(user){
         MQ_CURRENT_USER.role = directory.role || "member";
         MQ_CURRENT_USER.canEditBrandKit = !!directory.canEditBrandKit;
         if(directory.anthropicApiKey) MQ_CURRENT_USER.anthropicApiKey = directory.anthropicApiKey;
+        if(directory.anthropicWorkspaceId) MQ_CURRENT_USER.anthropicWorkspaceId = directory.anthropicWorkspaceId;
         if(directory.disabled){
           if(window.MQAuth) await window.MQAuth.logout();
           MQ_CURRENT_USER = null;
@@ -18518,9 +18530,10 @@ setTimeout(function(){
 "use strict";
 const APP = () => window.MQApp;
 const apiKey = () => String(APP().apiKey()||"").trim();
-function apiHeaders(){return {"x-api-key":apiKey(),"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"}}
+function apiHeaders(){const h={"x-api-key":apiKey(),"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"};const ws=APP().workspaceId?.();if(ws)h["anthropic-workspace-id"]=ws;return h}
 async function apiError(res){
   const b=await res.json().catch(()=>null);const msg=b&&b.error&&b.error.message||("HTTP "+res.status);
+  if(/anthropic-workspace-id/i.test(msg))return {code:"no_workspace",message:msg};
   const code=res.status===401||res.status===403?"bad_key":res.status===429?"rate_limited":(res.status===529||res.status===503)?"overloaded":res.status>=500?"upstream_error":"bad_request";
   return {code,message:msg};
 }
@@ -19264,7 +19277,7 @@ Zwróć JSON i nic więcej:
 Zasady tylko trwałe (styl, słownictwo, ton, długość, struktura, layout, zakazane lub wymagane słowa, emoji, zwroty do odbiorcy). Pomiń poprawki dotyczące wyłącznie tego jednego tekstu. Maksymalnie 5 zasad; jeśli nie ma trwałych, "rules":[].`;
 }
 const SAMPLE_MSG={not_granted:"Nie masz zgody na użycie Claude na tej stronie. Odśwież i zezwól, gdy pojawi się pytanie.",sampling_disabled:"Claude jest wyłączony dla tego konta.",rate_limited:"Limit zapytań – odczekaj chwilę i kliknij ponownie.",session_expired:"Sesja wygasła – zaloguj się ponownie do Claude.",prompt_too_large:"Za dużo kontekstu – usuń lub skróć największe pliki klienta.",refused:"Model odmówił odpowiedzi na ten brief. Przeformułuj go.",empty_completion:"Model nic nie zwrócił. Uprość brief i spróbuj jeszcze raz.",upstream_error:"Połączenie przerwane. Kliknij ponownie."};
-Object.assign(SAMPLE_MSG,{no_key:"Brak klucza API – dodaj go w Maximus: menu konta → Connect Claude.",bad_key:"Klucz API nie działa – sprawdź go w Maximus: menu konta → Connect Claude.",overloaded:"Claude jest teraz przeciążony – spróbuj za chwilę.",network:"Brak połączenia z API Claude – sprawdź internet.",rate_limited:"Limit zapytań API – odczekaj chwilę i spróbuj ponownie.",invalid_json:"Model zwrócił nieczytelną odpowiedź – spróbuj jeszcze raz."});
+Object.assign(SAMPLE_MSG,{no_workspace:"Twój klucz API nie jest przypisany do workspace’u – otwórz menu konta → Connect Claude i wpisz Workspace ID.",no_key:"Brak klucza API – dodaj go w Maximus: menu konta → Connect Claude.",bad_key:"Klucz API nie działa – sprawdź go w Maximus: menu konta → Connect Claude.",overloaded:"Claude jest teraz przeciążony – spróbuj za chwilę.",network:"Brak połączenia z API Claude – sprawdź internet.",rate_limited:"Limit zapytań API – odczekaj chwilę i spróbuj ponownie.",invalid_json:"Model zwrócił nieczytelną odpowiedź – spróbuj jeszcze raz."});
 const sampleMsg=e=>SAMPLE_MSG[e?.code]||(e?.message?("Claude: "+e.message):("Nie udało się ("+(e?.code||"błąd")+"). Spróbuj ponownie."));
 
 /* ---------- actions: generate ---------- */
